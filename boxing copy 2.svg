@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="900"
+     height="420"
+     viewBox="0 0 900 420">
+
+<style><![CDATA[
+  .edge path {
+    fill: none;
+    stroke: #333;
+    stroke-width: 1.5;
+    stroke-dasharray: 300;
+    stroke-dashoffset: 300;
+    animation: draw 1s ease forwards;
+  }
+
+  .edge:nth-of-type(1) path { animation-delay: 0.2s; }
+  .edge:nth-of-type(2) path { animation-delay: 0.4s; }
+  .edge:nth-of-type(3) path { animation-delay: 0.8s; }
+  .edge:nth-of-type(4) path { animation-delay: 1.2s; }
+  .edge:nth-of-type(5) path { animation-delay: 1.6s; }
+  .edge:nth-of-type(6) path { animation-delay: 2.0s; }
+  .edge:nth-of-type(7) path { animation-delay: 2.4s; }
+
+  @keyframes draw {
+    to { stroke-dashoffset: 0; }
+  }
+
+  .node rect {
+    fill: #f9f9f9;
+    stroke: #333;
+    stroke-width: 1.2;
+    rx: 6;
+    ry: 6;
+  }
+
+  .node text {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+  }
+
+  .boxer {
+    fill: #d32f2f;
+    animation: move 1.2s ease forwards;
+  }
+
+  @keyframes move {
+    from { offset-distance: 0%; }
+    to   { offset-distance: 100%; }
+  }
+]]></style>
+
+<!-- Nodes -->
+
+<g class="node" transform="translate(30,180)">
+  <rect width="90" height="40"/>
+  <text x="45" y="25" text-anchor="middle">Boxers</text>
+</g>
+
+<g class="node" transform="translate(170,90)">
+  <rect width="90" height="40"/>
+  <text x="45" y="25" text-anchor="middle">Male</text>
+</g>
+
+<g class="node" transform="translate(170,260)">
+  <rect width="90" height="40"/>
+  <text x="45" y="25" text-anchor="middle">Female</text>
+</g>
+
+<g class="node" transform="translate(350,30)">
+  <rect width="130" height="40"/>
+  <text x="65" y="25" text-anchor="middle">Male Junior</text>
+</g>
+
+<g class="node" transform="translate(350,100)">
+  <rect width="130" height="40"/>
+  <text x="65" y="25" text-anchor="middle">Male Youth</text>
+</g>
+
+<g class="node" transform="translate(350,170)">
+  <rect width="130" height="40"/>
+  <text x="65" y="25" text-anchor="middle">Male Senior</text>
+</g>
+
+<g class="node" transform="translate(350,240)">
+  <rect width="130" height="40"/>
+  <text x="65" y="25" text-anchor="middle">Female Junior</text>
+</g>
+
+<g class="node" transform="translate(350,310)">
+  <rect width="130" height="40"/>
+  <text x="65" y="25" text-anchor="middle">Female Youth</text>
+</g>
+
+<g class="node" transform="translate(350,380)">
+  <rect width="130" height="40"/>
+  <text x="65" y="25" text-anchor="middle">Female Senior</text>
+</g>
+
+<!-- Edges -->
+
+<g class="edge">
+  <path id="p1" d="M120 200 L170 110"/>
+</g>
+
+<g class="edge">
+  <path id="p2" d="M120 200 L170 280"/>
+</g>
+
+<g class="edge">
+  <path id="p3" d="M260 110 L350 50"/>
+</g>
+
+<g class="edge">
+  <path id="p4" d="M260 110 L350 120"/>
+</g>
+
+<g class="edge">
+  <path id="p5" d="M260 110 L350 190"/>
+</g>
+
+<g class="edge">
+  <path id="p6" d="M260 280 L350 260"/>
+</g>
+
+<g class="edge">
+  <path id="p7" d="M260 280 L350 330"/>
+</g>
+
+<g class="edge">
+  <path id="p8" d="M260 280 L350 400"/>
+</g>
+
+<!-- Animated boxers -->
+
+<circle r="6" class="boxer" style="offset-path: path('M120 200 L170 110'); animation-delay:0.5s"/>
+<circle r="6" class="boxer" style="offset-path: path('M120 200 L170 280'); animation-delay:0.7s"/>
+
+<circle r="6" class="boxer" style="offset-path: path('M260 110 L350 50'); animation-delay:1.2s"/>
+<circle r="6" class="boxer" style="offset-path: path('M260 110 L350 120'); animation-delay:1.6s"/>
+<circle r="6" class="boxer" style="offset-path: path('M260 110 L350 190'); animation-delay:2.0s"/>
+
+<circle r="6" class="boxer" style="offset-path: path('M260 280 L350 260'); animation-delay:2.4s"/>
+<circle r="6" class="boxer" style="offset-path: path('M260 280 L350 330'); animation-delay:2.8s"/>
+<circle r="6" class="boxer" style="offset-path: path('M260 280 L350 400'); animation-delay:3.2s"/>
+
+</svg>

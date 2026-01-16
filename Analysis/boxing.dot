@@ -1,0 +1,30 @@
+digraph Boxing {
+  rankdir=LR;
+  node [shape=box, style=rounded];
+
+  Notfit;
+ 
+  Boxers;
+  Male;
+  Female;
+
+  MaleJunior  [label="Male Junior"];
+  MaleYouth   [label="Male Youth"];
+  MaleSenior  [label="Male Senior"];
+
+  FemaleJunior [label="Female Junior"];
+  FemaleYouth  [label="Female Youth"];
+  FemaleSenior [label="Female Senior"];
+
+  Boxers -> Male;
+  Boxers -> Notfit [label="Not Fit"];
+  Boxers -> Female;
+
+  Male   -> MaleJunior  [label="<15"];
+  Male   -> MaleYouth   [label="16/17"];
+  Male   -> MaleSenior  [label="18+"];
+
+  Female -> FemaleJunior [label="<15"];
+  Female -> FemaleYouth  [label="16/17"];
+  Female -> FemaleSenior [label="18+"];
+}

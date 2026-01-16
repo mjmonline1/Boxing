@@ -1,0 +1,27 @@
+{
+  "name": "boxing-diagram",
+  "version": "1.0.0",
+  "description": "Standalone Boxing Classification Diagram",
+  "author": "Your Name",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.example.boxingdiagram",
+    "productName": "Boxing Diagram",
+    "files": [
+      "main.js",
+      "index.html",
+      "boxinggg.svg"
+    ],
+    "win": {
+      "target": "portable"
+    }
+  }
+}

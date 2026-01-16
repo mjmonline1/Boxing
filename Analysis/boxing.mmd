@@ -1,0 +1,40 @@
+graph LR
+  Notfit
+  Boxers
+  Male
+  Female
+
+  MaleJunior["Male Junior"]
+  MaleYouth["Male Youth"]
+  MaleSenior["Male Senior"]
+  
+  Boxers --> Male
+  Boxers -->|Not Fit| Notfit
+  Boxers --> Female
+
+  Male -->|YOB 2007| MaleSenior
+  Male -->|YOB 2008,2009| MaleYouth
+  Male -->|YOB 2010,2011,2012,2013| MaleJunior
+
+  Female -->| |FemaleSparMatch1
+  Female -->| |FemaleSparMatch2
+  Female -->| |FemaleSparMatch3
+
+  MaleJunior -->| |MaleJuniorWeightClasses
+  MaleYouth -->| |MaleYouthWeightClasses
+  MaleSenior -->| |MaleSeniorWeightClasses
+  
+
+    
+ MaleJuniorWeightClasses -->| |MaleJuniorSparMatch1
+  MaleJuniorWeightClasses -->| |MaleJuniorSparMatch2
+  MaleJuniorWeightClasses -->| |MaleJuniorSparMatch3
+  MaleYouthWeightClasses -->| |MaleYouthSparMatch1
+  MaleYouthWeightClasses -->| |MaleYouthSparMatch2
+  MaleYouthWeightClasses -->| |MaleYouthSparMatch3
+  MaleSeniorWeightClasses -->| |MaleSeniorSparMatch1
+  MaleSeniorWeightClasses -->| |MaleSeniorSparMatch2 
+  MaleSeniorWeightClasses -->| |MaleSeniorSparMatch3
+
+  
+  

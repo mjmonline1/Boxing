@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Boxing Classification Diagram</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 {
+      margin-bottom: 10px;
+      font-size: 22px;
+    }
+    #graph {
+      background: #ffffff;
+      border: 1px solid #ccc;
+      padding: 20px;
+      overflow: auto;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Boxing Classification Flow</h1>
+<div id="graph">Loading diagram…</div>
+
+<!-- Viz.js (Graphviz in WebAssembly) -->
+<script src="https://unpkg.com/viz.js@2.1.2/viz.js"></script>
+<script src="https://unpkg.com/viz.js@2.1.2/full.render.js"></script>
+
+<script>
+  const dotSource = `
+digraph Boxing {
+  rankdir=LR;
+  node [shape=box, style=rounded];
+
+  Notfit;
+  Requested;
+  Boxers;
+  Male;
+  Female;
+
+  MaleJunior  [label="Male Junior"];
+  MaleYouth   [label="Male Youth"];
+  MaleSenior  [label="Male Senior"];
+
+  FemaleJunior [label="Female Junior"];
+  FemaleYouth  [label="Female Youth"];
+  FemaleSenior [label="Female Senior"];
+
+  Boxers -> Male;
+  Boxers -> Notfit [label="Not Fit"];
+  Boxers -> Requested [label="Requested"];
+  Boxers -> Female;
+
+  Male   -> MaleJunior  [label="<15"];
+  Male   -> MaleYouth   [label="16–17"];
+  Male   -> MaleSenior  [label="18+"];
+
+  Female -> FemaleJunior [label="<15"];
+  Female -> FemaleYouth  [label="16–17"];
+  Female -> FemaleSenior [label="18+"];
+}
+`;
+
+  const viz = new Viz();
+
+  viz.renderSVGElement(dotSource)
+    .then(svg => {
+      const container = document.getElementById("graph");
+      container.innerHTML = "";
+      container.appendChild(svg);
+    })
+    .catch(error => {
+      document.getElementById("graph").innerText = error.toString();
+      console.error(error);
+    });
+</script>
+
+</body>
+</html>

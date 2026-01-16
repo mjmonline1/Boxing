@@ -1,0 +1,48 @@
+graph LR
+  Notfit
+  Boxers
+  Male
+  Female
+
+  MaleJunior["Male Junior"]
+  MaleYouth["Male Youth"]
+  MaleSenior["Male Senior"]
+
+  FemaleJunior["Female Junior"]
+  FemaleYouth["Female Youth"]
+  FemaleSenior["Female Senior"]
+
+  Boxers --> Male
+  Boxers -->|Not Fit| Notfit
+  Boxers --> Female
+
+  Male -->|<15| MaleJunior
+  Male -->|16/17| MaleYouth
+  Male -->|18+| MaleSenior
+
+  Female -->|<15| FemaleJunior
+  Female -->|16/17| FemaleYouth
+  Female -->|18+| FemaleSenior
+
+  MaleJunior -->| |MaleJuniorSparMatch1
+  MaleJunior -->| |MaleJuniorSparMatch2
+  MaleJunior -->| |MaleJuniorSparMatch3
+  MaleYouth -->| |MaleYouthSparMatch1
+  MaleYouth -->| |MaleYouthSparMatch2
+  MaleYouth -->| |MaleYouthSparMatch3
+  MaleSenior -->| |MaleSeniorSparMatch1
+  MaleSenior -->| |MaleSeniorSparMatch2 
+  MaleSenior -->| |MaleSeniorSparMatch3
+
+  
+  FemaleJunior -->| |FemaleJuniorSparMatch1
+  FemaleJunior -->| |FemaleJuniorSparMatch2
+  FemaleJunior -->| |FemaleJuniorSparMatch3
+  FemaleYouth -->| |FemaleYouthSparMatch1
+  FemaleYouth -->| |FemaleYouthSparMatch2
+  FemaleYouth -->| |FemaleYouthSparMatch3
+  FemaleSenior -->| |FemaleSeniorSparMatch1
+  FemaleSenior -->| |FemaleSeniorSparMatch2 
+  FemaleSenior -->| |FemaleSeniorSparMatch3
+
+  
