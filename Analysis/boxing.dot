@@ -11,6 +11,8 @@ digraph Boxing {
   MaleJunior  [label="Male Junior"];
   MaleYouth   [label="Male Youth"];
   MaleSenior  [label="Male Senior"];
+  
+  
 
   FemaleJunior [label="Female Junior"];
   FemaleYouth  [label="Female Youth"];

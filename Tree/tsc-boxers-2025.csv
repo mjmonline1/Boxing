@@ -1,0 +1,138 @@
+id,name,club,gender,yob,fit,weight,experience
+1,Tom Coyle,Cookstown ABC,male,2013,no,33.2,10
+2,Fred Trevett,The Academy Boxing Club,male,2011,yes,38.4,0
+3,Mika Díaz Schimansky,Club Boxeo Los Álamos,male,2011,yes,40,1
+4,Abraham Ponce Romero,Team Ponce&Mary,male,2013,yes,40.5,3
+5,Levi Smith,The Academy Boxing Club,male,2011,yes,43.9,12
+6,Noah Aitken,The Bronx,male,2012,yes,43.2,15
+7,Ben Lane,The Academy Boxing Club,male,2011,yes,45.8,17
+8,Peter Smith,The Academy Boxing Club,male,2009,yes,46.9,9
+9,Billy Thelwell,The Academy Boxing Club,male,2011,yes,47.2,10
+10,John Joe Coyle,Cookstown ABC,male,2011,yes,49.8,19
+11,Christian McLoughlin,Baldoyle BC,male,2011,yes,50.3,16
+12,Tommy Bowman,Johnstone ABC,male,2011,yes,50.7,12
+13,Jack Delaney,Baldoyle BC,male,2010,yes,51.5,26
+14,Beau Dixon,Flookburgh ABC,male,2011,yes,51.6,8
+15,Michael Cash,The Academy Boxing Club,male,2011,yes,52.2,1
+16,Leon Mcdade,Johnstone ABC,male,2010,yes,52.4,7
+17,Harrison Degirgio-Lewis,The Academy Boxing Club,male,2010,yes,53,0
+18,John Mcdonagh,Camac Boxing Club,male,2010,yes,53.6,10
+19,Conor kenny,Baldoyle BC,male,2011,yes,53.7,7
+20,Bobby Borg,The Academy Boxing Club,male,2009,yes,53.9,11
+21,Muhammad Mehmood,Slough ABC,male,2009,yes,54.1,8
+22,Jude Kelly,Baldoyle BC,male,2011,yes,55.3,16
+23,Alex Collins,Baldoyle BC,male,2009,yes,56.6,4
+24,Jimmy McDonagh,Cherry Orchard,male,2009,yes,57.4,20
+25,Valentino Gabriel Taylor,Finchley ABC,male,2012,yes,57.5,9
+26,Jamie Ball,NoMercy/champscamp,male,2010,yes,57.8,11
+27,Caleb Williams,Cricklewood Boxing Club,male,2009,yes,59.8,3
+28,Hamza Bahji Nimou,Club Boxeo Los Álamos,male,2009,yes,62.2,3
+29,Mason Harris,Baldoyle BC,male,2011,yes,60.1,24
+30,Leo Trevett,The Academy Boxing Club,male,2009,yes,61.7,1
+31,Christian Amigo,Slough ABC,male,2009,yes,62.2,4
+32,Reece Evans,Dale youth,male,2010,yes,62.9,9
+33,Ilyas Douif Benreddad,Club Boxeo Los Álamos,male,2009,yes,61.5,0
+34,Freddie Gilchrist,The Academy Boxing Club,male,2009,yes,63.3,15
+35,Ellis Payne,Flookburgh ABC,male,2010,yes,63.5,4
+36,Oscar Reid,Arklow BC,male,2010,yes,63.6,6
+37,Sean Collins,Baldoyle BC,male,2011,yes,63.8,20
+38,Harry Walsh,Baldoyle BC,male,2011,yes,65.1,8
+39,Will Steele,The Academy Boxing Club,male,2011,yes,65.8,0
+40,Reuben Marsh,Flookburgh ABC,male,2010,yes,66.2,0
+41,Kailem Kelly,Baldoyle BC,male,2009,yes,66.8,20
+42,Kane Brooker,The Academy Boxing Club,male,2009,yes,67.4,8
+43,Josh Flitton,Dale youth,male,2010,yes,67.8,5
+44,Tadhg Brennan,Baldoyle BC,male,2010,yes,68.2,20
+45,Finlay Chalmers,Hands Of Stone Montrose,male,2009,yes,68.4,0
+46,Phoenix Kenny,Baldoyle BC,male,2009,yes,70.1,35
+47,Samir Arndell,Team NL,male,2009,yes,75,20
+48,Finlay Coull,Hands Of Stone Montrose,male,2009,yes,75.6,5
+49,Killian Ritchie,The Academy Boxing Club,male,2009,yes,76.5,0
+50,Martin Collins,Baldoyle BC,male,2009,yes,79.8,25
+51,Jeremy Joel Tenezaca Sarche,DOBLE JAB BOXING CLUB,male,2011,yes,80,0
+52,CJ Maloney,Camac Boxing Club,male,2008,yes,50.8,5
+53,Jack Beattie,Arbroath Amateur Boxing Club,male,2008,yes,53.8,5
+54,Mohammed Noor Al-Amin,Finchley ABC,male,2008,yes,54.8,29
+55,Daniel Finnemore,Dale youth,male,2008,yes,56.9,2
+56,Bjarne Machielse,Team NL,male,2007,yes,60,23
+57,Yaassir Mohamed Hersi,Finchley ABC,male,2007,yes,61.4,10
+58,Charlie Borg,The Academy Boxing Club,male,2007,yes,62.3,16
+59,Dorian Scamardella,Islington,male,2008,yes,66.8,35
+60,Daniel Avellaneda Lario,Club Boxeo Los Álamos,male,2008,yes,67,0
+61,Aaron Ponce Romero,Team Ponce&Mary,male,2008,yes,66.9,3
+62,Ramsey Lumgair,Hands Of Stone Montrose,male,2007,yes,66.9,0
+63,Luca Pedretti,NoMercy/champscamp,male,2008,yes,68.3,9
+64,Flynn Anderson,Arbroath Amateur Boxing Club,male,2008,yes,69.8,4
+65,Alex Scholte,Team NL,male,2007,yes,70,25
+66,Youssef David Aguilera Benamra,Club Boxeo Los Álamos,male,2008,yes,72.3,0
+67,Sean Cargill,Arbroath Amateur Boxing Club,male,2008,yes,71.3,5
+68,Lewis Aitken,The Bronx,male,2008,yes,71.7,19
+69,Walter Christopher Smith,Finchley ABC,male,2007,yes,72,36
+70,Gentian Skiada,Finchley ABC,male,2008,yes,72.2,19
+71,Yaqob Gallimore,Finchley ABC,male,2008,yes,72.2,13
+72,Aiden McRae,Hands Of Stone Montrose,male,2008,yes,72.7,1
+73,Alfie Robertson,Arbroath Amateur Boxing Club,male,2008,yes,72.8,10
+74,JACK TORRES HINES,DOBLE JAB BOXING CLUB,male,2008,yes,75,0
+75,LUKA PHAIKIDZE,DOBLE JAB BOXING CLUB,male,2008,yes,79.5,4
+76,Danny Ball,NoMercy/champscamp,male,2007,yes,80,13
+77,Cees Jeuken,Team NL,male,2007,yes,80,15
+78,Tommy ward,Dale youth,male,2008,yes,81,5
+79,Evan Cochrane,Johnstone ABC,male,2007,yes,81,3
+80,Kian Terwint,Team NL,male,2006,yes,55,33
+81,Francisco Luis Rodriguez Martin,Hispaboxing,male,1989,yes,57,22
+82,Omid Ahmadisafa,Asc Nürnberg,male,1992,yes,59,230
+83,ALEJANDRO BELMONTE MULA,DOBLE JAB BOXING CLUB,male,2006,yes,60,1
+84,Mahmoud al Chabtun,Team NL,male,2001,yes,60,40
+85,Connor Marley,Dale youth,male,2006,yes,60.1,2
+86,Donagh Keary,Holy Family/Golden Gloves,male,2004,yes,60.4,110
+87,Roshan Patel,Dale youth,male,2004,yes,60.5,24
+88,Kyle Mason,Dale youth,male,2005,yes,61.1,5
+89,Joe McMullen,Johnstone ABC,male,2002,yes,61.4,8
+90,Martin Kerr,Johnstone ABC,male,1999,yes,61.9,48
+91,Zak Whote-Sey,The Academy Boxing Club,male,2002,yes,62.2,27
+92,Hal Webster,Arbroath Amateur Boxing Club,male,2004,yes,64,5
+93,Diego Farinelli,Fitsquare boxing team,male,2006,yes,64.9,24
+94,Robert Jitaru,JR Boxing Academy,male,1997,yes,65.5,100
+95,Adam Michie,Johnstone ABC,male,1997,yes,65.7,9
+96,LEONARDO UCHUARI IÑIGUEZ,DOBLE JAB BOXING CLUB,male,2002,yes,68.7,0
+97,Raphael Bruno Braun,GERMANY,male,2005,yes,66.5,70
+98,Rory Lavery,Holy Family/Golden Gloves,male,1995,yes,67.6,75
+99,Zacks Chingozha,Slough ABC,male,2000,yes,68.6,21
+100,THOMAS FORD,DOBLE JAB BOXING CLUB,male,1997,yes,70,0
+101,Jenairo Gomes,Team NL,male,2005,yes,70,50
+102,Lydon Coull,Hands Of Stone Montrose,male,2003,yes,71.1,0
+103,ABDULMAJID MAHMUD ADDE ICAR,Finchley ABC,male,2005,yes,71.2,9
+104,Nóel Freyr Ragnarsson,ICELAND,male,2006,yes,71.8,23
+105,Gavin Rushton,Arbroath Amateur Boxing Club,male,1991,yes,72.9,6
+106,Justo Quirelli,Club Boxeo Los Álamos,male,2001,yes,73,14
+107,Fionn Storey,Holy Family/Golden Gloves,male,2005,yes,73,0
+108,Joshua Moore,Arbroath Amateur Boxing Club,male,1998,yes,73.7,2
+109,Angel Fernández,Club boxeo los alamos,male,1999,yes,76.4,1
+110,Jesús Espín Mondejar,Team Ponce&Mary,male,1996,yes,77,2
+111,Finlay Brown,Johnstone ABC,male,2005,yes,78.1,23
+112,Charles Murray,Wolverhampton,male,2005,yes,78.5,32
+113,Henry Murray,Wolverhampton,male,2005,yes,78.7,33
+114,Ouassim,Club Boxeo Los Álamos,male,2001,yes,80,21
+115,TJ Haruvisi,Slough ABC,male,2004,yes,82.5,1
+116,Max Ramson,Elite Bolton,male,2002,yes,83,16
+117,Saeed Hassan Beza Yusufi,Finchley ABC,male,2000,yes,84,4
+118,Hayden Sutton,Hands Of Stone Montrose,male,2003,yes,85.2,16
+119,Elyes Layouni,GERMANY,male,2005,yes,90.5,18
+120,Masimba Sitole,Slough ABC,male,1991,yes,97.7,5
+121,ALFONSO MARTINEZ MARTINEZ,DOBLE JAB BOXING CLUB,male,2004,yes,98,0
+122,Jamal Mustapha Royes,Finchley ABC,male,2003,yes,100.8,4
+123,Michel Erpelding,Holy Family/Golden Gloves,male,1994,yes,102.1,63
+124,Jack webster,Arbroath Amateur Boxing Club,male,2001,yes,107.3,7
+125,Carson McAdams,Holy Family/Golden Gloves,male,2000,yes,107.6,0
+126,Bailey Michael Gayle,Finchley ABC,male,2004,yes,120.7,10
+127,Mileigh Addicott,Sydenham ABC,female,2012,yes,53,21
+128,Summer Chandler,The Academy Boxing Club,female,2009,yes,62.7,5
+129,Kimberly-May Barnsley,Finchley ABC,female,2008,yes,59.3,10
+130,Liz Thijssen,Team NL,female,2008,yes,60,24
+131,Aaliyah Hoppema,Team NL,female,2007,yes,65,36
+132,María del Carmen Romero Molina,Team Ponce&Mary,female,1985,yes,54.9,0
+133,Gabriella Weerheim,Team NL,female,2005,yes,57,49
+134,Fatima Anejdam,Club Boxeo Los Álamos,female,2003,yes,60,11
+135,LORENA PÉREZ CARRASCO,Team Ponce&Mary,female,1993,yes,67.1,3
+136,Elle Wright,Johnstone ABC,female,2002,yes,68.6,2
+137,ELISABETH MONTAÑEZ MARTIN,DOBLE JAB BOXING CLUB,female,2006,yes,69,0

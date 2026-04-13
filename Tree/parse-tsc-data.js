@@ -1,0 +1,200 @@
+/**
+ * Parse TSC Boxer PDF Data and Convert to CSV
+ * Extracts boxer data from the PDF and creates a properly formatted CSV
+ */
+
+const fs = require('fs');
+
+// Manually extracted data from PDF (since we have it in context)
+// We'll structure it properly for our system
+
+const boxers = [
+  // JUNIORS (Male Junior - 2009 & younger)
+  { id: 1, name: "Tom Coyle", club: "Cookstown ABC", gender: "male", yob: 2013, fit: true, weight: 33.2, experience: 10 },
+  { id: 2, name: "Fred Trevett", club: "The Academy Boxing Club", gender: "male", yob: 2011, fit: true, weight: 38.4, experience: 0 },
+  { id: 3, name: "Mika Díaz Schimansky", club: "Club Boxeo Los Álamos", gender: "male", yob: 2011, fit: true, weight: 40, experience: 1 },
+  { id: 4, name: "Abraham Ponce Romero", club: "Team Ponce&Mary", gender: "male", yob: 2013, fit: true, weight: 40.5, experience: 3 },
+  { id: 5, name: "Levi Smith", club: "The Academy Boxing Club", gender: "male", yob: 2011, fit: true, weight: 43.9, experience: 12 },
+  { id: 6, name: "Noah Aitken", club: "The Bronx", gender: "male", yob: 2012, fit: true, weight: 43.2, experience: 15 },
+  { id: 7, name: "Ben Lane", club: "The Academy Boxing Club", gender: "male", yob: 2011, fit: true, weight: 45.8, experience: 17 },
+  { id: 8, name: "Peter Smith", club: "The Academy Boxing Club", gender: "male", yob: 2009, fit: true, weight: 46.9, experience: 9 },
+  { id: 9, name: "Billy Thelwell", club: "The Academy Boxing Club", gender: "male", yob: 2011, fit: true, weight: 47.2, experience: 10 },
+  { id: 10, name: "John Joe Coyle", club: "Cookstown ABC", gender: "male", yob: 2011, fit: true, weight: 49.8, experience: 19 },
+  { id: 11, name: "Christian McLoughlin", club: "Baldoyle BC", gender: "male", yob: 2011, fit: true, weight: 50.3, experience: 16 },
+  { id: 12, name: "Tommy Bowman", club: "Johnstone ABC", gender: "male", yob: 2011, fit: true, weight: 50.7, experience: 12 },
+  { id: 13, name: "Jack Delaney", club: "Baldoyle BC", gender: "male", yob: 2010, fit: true, weight: 51.5, experience: 26 },
+  { id: 14, name: "Beau Dixon", club: "Flookburgh ABC", gender: "male", yob: 2011, fit: true, weight: 51.6, experience: 8 },
+  { id: 15, name: "Michael Cash", club: "The Academy Boxing Club", gender: "male", yob: 2011, fit: true, weight: 52.2, experience: 1 },
+  { id: 16, name: "Leon Mcdade", club: "Johnstone ABC", gender: "male", yob: 2010, fit: true, weight: 52.4, experience: 7 },
+  { id: 17, name: "Harrison Degirgio-Lewis", club: "The Academy Boxing Club", gender: "male", yob: 2010, fit: true, weight: 53, experience: 0 },
+  { id: 18, name: "John Mcdonagh", club: "Camac Boxing Club", gender: "male", yob: 2010, fit: true, weight: 53.6, experience: 10 },
+  { id: 19, name: "Conor kenny", club: "Baldoyle BC", gender: "male", yob: 2011, fit: true, weight: 53.7, experience: 7 },
+  { id: 20, name: "Bobby Borg", club: "The Academy Boxing Club", gender: "male", yob: 2009, fit: true, weight: 53.9, experience: 11 },
+  { id: 21, name: "Muhammad Mehmood", club: "Slough ABC", gender: "male", yob: 2009, fit: true, weight: 54.1, experience: 8 },
+  { id: 22, name: "Jude Kelly", club: "Baldoyle BC", gender: "male", yob: 2011, fit: true, weight: 55.3, experience: 16 },
+  { id: 23, name: "Alex Collins", club: "Baldoyle BC", gender: "male", yob: 2009, fit: true, weight: 56.6, experience: 4 },
+  { id: 24, name: "Jimmy McDonagh", club: "Cherry Orchard", gender: "male", yob: 2009, fit: true, weight: 57.4, experience: 20 },
+  { id: 25, name: "Valentino Gabriel Taylor", club: "Finchley ABC", gender: "male", yob: 2012, fit: true, weight: 57.5, experience: 9 },
+  { id: 26, name: "Jamie Ball", club: "NoMercy/champscamp", gender: "male", yob: 2010, fit: true, weight: 57.8, experience: 11 },
+  { id: 27, name: "Caleb Williams", club: "Cricklewood Boxing Club", gender: "male", yob: 2009, fit: true, weight: 59.8, experience: 3 },
+  { id: 28, name: "Hamza Bahji Nimou", club: "Club Boxeo Los Álamos", gender: "male", yob: 2009, fit: true, weight: 62.2, experience: 3 },
+  { id: 29, name: "Mason Harris", club: "Baldoyle BC", gender: "male", yob: 2011, fit: true, weight: 60.1, experience: 24 },
+  { id: 30, name: "Leo Trevett", club: "The Academy Boxing Club", gender: "male", yob: 2009, fit: true, weight: 61.7, experience: 1 },
+  { id: 31, name: "Christian Amigo", club: "Slough ABC", gender: "male", yob: 2009, fit: true, weight: 62.2, experience: 4 },
+  { id: 32, name: "Reece Evans", club: "Dale youth", gender: "male", yob: 2010, fit: true, weight: 62.9, experience: 9 },
+  { id: 33, name: "Ilyas Douif Benreddad", club: "Club Boxeo Los Álamos", gender: "male", yob: 2009, fit: true, weight: 61.5, experience: 0 },
+  { id: 34, name: "Freddie Gilchrist", club: "The Academy Boxing Club", gender: "male", yob: 2009, fit: true, weight: 63.3, experience: 15 },
+  { id: 35, name: "Ellis Payne", club: "Flookburgh ABC", gender: "male", yob: 2010, fit: true, weight: 63.5, experience: 4 },
+  { id: 36, name: "Oscar Reid", club: "Arklow BC", gender: "male", yob: 2010, fit: true, weight: 63.6, experience: 6 },
+  { id: 37, name: "Sean Collins", club: "Baldoyle BC", gender: "male", yob: 2011, fit: true, weight: 63.8, experience: 20 },
+  { id: 38, name: "Harry Walsh", club: "Baldoyle BC", gender: "male", yob: 2011, fit: true, weight: 65.1, experience: 8 },
+  { id: 39, name: "Will Steele", club: "The Academy Boxing Club", gender: "male", yob: 2011, fit: true, weight: 65.8, experience: 0 },
+  { id: 40, name: "Reuben Marsh", club: "Flookburgh ABC", gender: "male", yob: 2010, fit: true, weight: 66.2, experience: 0 },
+  { id: 41, name: "Kailem Kelly", club: "Baldoyle BC", gender: "male", yob: 2009, fit: true, weight: 66.8, experience: 20 },
+  { id: 42, name: "Kane Brooker", club: "The Academy Boxing Club", gender: "male", yob: 2009, fit: true, weight: 67.4, experience: 8 },
+  { id: 43, name: "Josh Flitton", club: "Dale youth", gender: "male", yob: 2010, fit: true, weight: 67.8, experience: 5 },
+  { id: 44, name: "Tadhg Brennan", club: "Baldoyle BC", gender: "male", yob: 2010, fit: true, weight: 68.2, experience: 20 },
+  { id: 45, name: "Finlay Chalmers", club: "Hands Of Stone Montrose", gender: "male", yob: 2009, fit: true, weight: 68.4, experience: 0 },
+  { id: 46, name: "Phoenix Kenny", club: "Baldoyle BC", gender: "male", yob: 2009, fit: true, weight: 70.1, experience: 35 },
+  { id: 47, name: "Samir Arndell", club: "Team NL", gender: "male", yob: 2009, fit: true, weight: 75, experience: 20 },
+  { id: 48, name: "Finlay Coull", club: "Hands Of Stone Montrose", gender: "male", yob: 2009, fit: true, weight: 75.6, experience: 5 },
+  { id: 49, name: "Killian Ritchie", club: "The Academy Boxing Club", gender: "male", yob: 2009, fit: true, weight: 76.5, experience: 0 },
+  { id: 50, name: "Martin Collins", club: "Baldoyle BC", gender: "male", yob: 2009, fit: true, weight: 79.8, experience: 25 },
+  { id: 51, name: "Jeremy Joel Tenezaca Sarche", club: "DOBLE JAB BOXING CLUB", gender: "male", yob: 2011, fit: true, weight: 80, experience: 0 },
+  
+  // YOUTH (Male Youth - 2007 & 2008)
+  { id: 52, name: "CJ Maloney", club: "Camac Boxing Club", gender: "male", yob: 2008, fit: true, weight: 50.8, experience: 5 },
+  { id: 53, name: "Jack Beattie", club: "Arbroath Amateur Boxing Club", gender: "male", yob: 2008, fit: true, weight: 53.8, experience: 5 },
+  { id: 54, name: "Mohammed Noor Al-Amin", club: "Finchley ABC", gender: "male", yob: 2008, fit: true, weight: 54.8, experience: 29 },
+  { id: 55, name: "Daniel Finnemore", club: "Dale youth", gender: "male", yob: 2008, fit: true, weight: 56.9, experience: 2 },
+  { id: 56, name: "Bjarne Machielse", club: "Team NL", gender: "male", yob: 2007, fit: true, weight: 60, experience: 23 },
+  { id: 57, name: "Yaassir Mohamed Hersi", club: "Finchley ABC", gender: "male", yob: 2007, fit: true, weight: 61.4, experience: 10 },
+  { id: 58, name: "Charlie Borg", club: "The Academy Boxing Club", gender: "male", yob: 2007, fit: true, weight: 62.3, experience: 16 },
+  { id: 59, name: "Dorian Scamardella", club: "Islington", gender: "male", yob: 2008, fit: true, weight: 66.8, experience: 35 },
+  { id: 60, name: "Daniel Avellaneda Lario", club: "Club Boxeo Los Álamos", gender: "male", yob: 2008, fit: true, weight: 67, experience: 0 },
+  { id: 61, name: "Aaron Ponce Romero", club: "Team Ponce&Mary", gender: "male", yob: 2008, fit: true, weight: 66.9, experience: 3 },
+  { id: 62, name: "Ramsey Lumgair", club: "Hands Of Stone Montrose", gender: "male", yob: 2007, fit: true, weight: 66.9, experience: 0 },
+  { id: 63, name: "Luca Pedretti", club: "NoMercy/champscamp", gender: "male", yob: 2008, fit: true, weight: 68.3, experience: 9 },
+  { id: 64, name: "Flynn Anderson", club: "Arbroath Amateur Boxing Club", gender: "male", yob: 2008, fit: true, weight: 69.8, experience: 4 },
+  { id: 65, name: "Alex Scholte", club: "Team NL", gender: "male", yob: 2007, fit: true, weight: 70, experience: 25 },
+  { id: 66, name: "Youssef David Aguilera Benamra", club: "Club Boxeo Los Álamos", gender: "male", yob: 2008, fit: true, weight: 72.3, experience: 0 },
+  { id: 67, name: "Sean Cargill", club: "Arbroath Amateur Boxing Club", gender: "male", yob: 2008, fit: true, weight: 71.3, experience: 5 },
+  { id: 68, name: "Lewis Aitken", club: "The Bronx", gender: "male", yob: 2008, fit: true, weight: 71.7, experience: 19 },
+  { id: 69, name: "Walter Christopher Smith", club: "Finchley ABC", gender: "male", yob: 2007, fit: true, weight: 72, experience: 36 },
+  { id: 70, name: "Gentian Skiada", club: "Finchley ABC", gender: "male", yob: 2008, fit: true, weight: 72.2, experience: 19 },
+  { id: 71, name: "Yaqob Gallimore", club: "Finchley ABC", gender: "male", yob: 2008, fit: true, weight: 72.2, experience: 13 },
+  { id: 72, name: "Aiden McRae", club: "Hands Of Stone Montrose", gender: "male", yob: 2008, fit: true, weight: 72.7, experience: 1 },
+  { id: 73, name: "Alfie Robertson", club: "Arbroath Amateur Boxing Club", gender: "male", yob: 2008, fit: true, weight: 72.8, experience: 10 },
+  { id: 74, name: "JACK TORRES HINES", club: "DOBLE JAB BOXING CLUB", gender: "male", yob: 2008, fit: true, weight: 75, experience: 0 },
+  { id: 75, name: "LUKA PHAIKIDZE", club: "DOBLE JAB BOXING CLUB", gender: "male", yob: 2008, fit: true, weight: 79.5, experience: 4 },
+  { id: 76, name: "Danny Ball", club: "NoMercy/champscamp", gender: "male", yob: 2007, fit: true, weight: 80, experience: 13 },
+  { id: 77, name: "Cees Jeuken", club: "Team NL", gender: "male", yob: 2007, fit: true, weight: 80, experience: 15 },
+  { id: 78, name: "Tommy ward", club: "Dale youth", gender: "male", yob: 2008, fit: true, weight: 81, experience: 5 },
+  { id: 79, name: "Evan Cochrane", club: "Johnstone ABC", gender: "male", yob: 2007, fit: true, weight: 81, experience: 3 },
+  
+  // SENIORS (Male Senior - 2006 & older)
+  { id: 80, name: "Kian Terwint", club: "Team NL", gender: "male", yob: 2006, fit: true, weight: 55, experience: 33 },
+  { id: 81, name: "Francisco Luis Rodriguez Martin", club: "Hispaboxing", gender: "male", yob: 1989, fit: true, weight: 57, experience: 22 },
+  { id: 82, name: "Omid Ahmadisafa", club: "Asc Nürnberg", gender: "male", yob: 1992, fit: true, weight: 59, experience: 230 },
+  { id: 83, name: "ALEJANDRO BELMONTE MULA", club: "DOBLE JAB BOXING CLUB", gender: "male", yob: 2006, fit: true, weight: 60, experience: 1 },
+  { id: 84, name: "Mahmoud al Chabtun", club: "Team NL", gender: "male", yob: 2001, fit: true, weight: 60, experience: 40 },
+  { id: 85, name: "Connor Marley", club: "Dale youth", gender: "male", yob: 2006, fit: true, weight: 60.1, experience: 2 },
+  { id: 86, name: "Donagh Keary", club: "Holy Family/Golden Gloves", gender: "male", yob: 2004, fit: true, weight: 60.4, experience: 110 },
+  { id: 87, name: "Roshan Patel", club: "Dale youth", gender: "male", yob: 2004, fit: true, weight: 60.5, experience: 24 },
+  { id: 88, name: "Kyle Mason", club: "Dale youth", gender: "male", yob: 2005, fit: true, weight: 61.1, experience: 5 },
+  { id: 89, name: "Joe McMullen", club: "Johnstone ABC", gender: "male", yob: 2002, fit: true, weight: 61.4, experience: 8 },
+  { id: 90, name: "Martin Kerr", club: "Johnstone ABC", gender: "male", yob: 1999, fit: true, weight: 61.9, experience: 48 },
+  { id: 91, name: "Zak Whote-Sey", club: "The Academy Boxing Club", gender: "male", yob: 2002, fit: true, weight: 62.2, experience: 27 },
+  { id: 92, name: "Hal Webster", club: "Arbroath Amateur Boxing Club", gender: "male", yob: 2004, fit: true, weight: 64, experience: 5 },
+  { id: 93, name: "Diego Farinelli", club: "Fitsquare boxing team", gender: "male", yob: 2006, fit: true, weight: 64.9, experience: 24 },
+  { id: 94, name: "Robert Jitaru", club: "JR Boxing Academy", gender: "male", yob: 1997, fit: true, weight: 65.5, experience: 100 },
+  { id: 95, name: "Adam Michie", club: "Johnstone ABC", gender: "male", yob: 1997, fit: true, weight: 65.7, experience: 9 },
+  { id: 96, name: "LEONARDO UCHUARI IÑIGUEZ", club: "DOBLE JAB BOXING CLUB", gender: "male", yob: 2002, fit: true, weight: 68.7, experience: 0 },
+  { id: 97, name: "Raphael Bruno Braun", club: "GERMANY", gender: "male", yob: 2005, fit: true, weight: 66.5, experience: 70 },
+  { id: 98, name: "Rory Lavery", club: "Holy Family/Golden Gloves", gender: "male", yob: 1995, fit: true, weight: 67.6, experience: 75 },
+  { id: 99, name: "Zacks Chingozha", club: "Slough ABC", gender: "male", yob: 2000, fit: true, weight: 68.6, experience: 21 },
+  { id: 100, name: "THOMAS FORD", club: "DOBLE JAB BOXING CLUB", gender: "male", yob: 1997, fit: true, weight: 70, experience: 0 },
+  { id: 101, name: "Jenairo Gomes", club: "Team NL", gender: "male", yob: 2005, fit: true, weight: 70, experience: 50 },
+  { id: 102, name: "Lydon Coull", club: "Hands Of Stone Montrose", gender: "male", yob: 2003, fit: true, weight: 71.1, experience: 0 },
+  { id: 103, name: "ABDULMAJID MAHMUD ADDE ICAR", club: "Finchley ABC", gender: "male", yob: 2005, fit: true, weight: 71.2, experience: 9 },
+  { id: 104, name: "Nóel Freyr Ragnarsson", club: "ICELAND", gender: "male", yob: 2006, fit: true, weight: 71.8, experience: 23 },
+  { id: 105, name: "Gavin Rushton", club: "Arbroath Amateur Boxing Club", gender: "male", yob: 1991, fit: true, weight: 72.9, experience: 6 },
+  { id: 106, name: "Justo Quirelli", club: "Club Boxeo Los Álamos", gender: "male", yob: 2001, fit: true, weight: 73, experience: 14 },
+  { id: 107, name: "Fionn Storey", club: "Holy Family/Golden Gloves", gender: "male", yob: 2005, fit: true, weight: 73, experience: 0 },
+  { id: 108, name: "Joshua Moore", club: "Arbroath Amateur Boxing Club", gender: "male", yob: 1998, fit: true, weight: 73.7, experience: 2 },
+  { id: 109, name: "Angel Fernández", club: "Club boxeo los alamos", gender: "male", yob: 1999, fit: true, weight: 76.4, experience: 1 },
+  { id: 110, name: "Jesús Espín Mondejar", club: "Team Ponce&Mary", gender: "male", yob: 1996, fit: true, weight: 77, experience: 2 },
+  { id: 111, name: "Finlay Brown", club: "Johnstone ABC", gender: "male", yob: 2005, fit: true, weight: 78.1, experience: 23 },
+  { id: 112, name: "Charles Murray", club: "Wolverhampton", gender: "male", yob: 2005, fit: true, weight: 78.5, experience: 32 },
+  { id: 113, name: "Henry Murray", club: "Wolverhampton", gender: "male", yob: 2005, fit: true, weight: 78.7, experience: 33 },
+  { id: 114, name: "Ouassim", club: "Club Boxeo Los Álamos", gender: "male", yob: 2001, fit: true, weight: 80, experience: 21 },
+  { id: 115, name: "TJ Haruvisi", club: "Slough ABC", gender: "male", yob: 2004, fit: true, weight: 82.5, experience: 1 },
+  { id: 116, name: "Max Ramson", club: "Elite Bolton", gender: "male", yob: 2002, fit: true, weight: 83, experience: 16 },
+  { id: 117, name: "Saeed Hassan Beza Yusufi", club: "Finchley ABC", gender: "male", yob: 2000, fit: true, weight: 84, experience: 4 },
+  { id: 118, name: "Hayden Sutton", club: "Hands Of Stone Montrose", gender: "male", yob: 2003, fit: true, weight: 85.2, experience: 16 },
+  { id: 119, name: "Elyes Layouni", club: "GERMANY", gender: "male", yob: 2005, fit: true, weight: 90.5, experience: 18 },
+  { id: 120, name: "Masimba Sitole", club: "Slough ABC", gender: "male", yob: 1991, fit: true, weight: 97.7, experience: 5 },
+  { id: 121, name: "ALFONSO MARTINEZ MARTINEZ", club: "DOBLE JAB BOXING CLUB", gender: "male", yob: 2004, fit: true, weight: 98, experience: 0 },
+  { id: 122, name: "Jamal Mustapha Royes", club: "Finchley ABC", gender: "male", yob: 2003, fit: true, weight: 100.8, experience: 4 },
+  { id: 123, name: "Michel Erpelding", club: "Holy Family/Golden Gloves", gender: "male", yob: 1994, fit: true, weight: 102.1, experience: 63 },
+  { id: 124, name: "Jack webster", club: "Arbroath Amateur Boxing Club", gender: "male", yob: 2001, fit: true, weight: 107.3, experience: 7 },
+  { id: 125, name: "Carson McAdams", club: "Holy Family/Golden Gloves", gender: "male", yob: 2000, fit: true, weight: 107.6, experience: 0 },
+  { id: 126, name: "Bailey Michael Gayle", club: "Finchley ABC", gender: "male", yob: 2004, fit: true, weight: 120.7, experience: 10 },
+  
+  // FEMALE JUNIORS (2009 & younger)
+  { id: 127, name: "Mileigh Addicott", club: "Sydenham ABC", gender: "female", yob: 2012, fit: true, weight: 53, experience: 21 },
+  { id: 128, name: "Summer Chandler", club: "The Academy Boxing Club", gender: "female", yob: 2009, fit: true, weight: 62.7, experience: 5 },
+  
+  // FEMALE YOUTH (2007 & 2008)
+  { id: 129, name: "Kimberly-May Barnsley", club: "Finchley ABC", gender: "female", yob: 2008, fit: true, weight: 59.3, experience: 10 },
+  { id: 130, name: "Liz Thijssen", club: "Team NL", gender: "female", yob: 2008, fit: true, weight: 60, experience: 24 },
+  { id: 131, name: "Aaliyah Hoppema", club: "Team NL", gender: "female", yob: 2007, fit: true, weight: 65, experience: 36 },
+  
+  // FEMALE SENIORS (2006 & older)
+  { id: 132, name: "María del Carmen Romero Molina", club: "Team Ponce&Mary", gender: "female", yob: 1985, fit: true, weight: 54.9, experience: 0 },
+  { id: 133, name: "Gabriella Weerheim", club: "Team NL", gender: "female", yob: 2005, fit: true, weight: 57, experience: 49 },
+  { id: 134, name: "Fatima Anejdam", club: "Club Boxeo Los Álamos", gender: "female", yob: 2003, fit: true, weight: 60, experience: 11 },
+  { id: 135, name: "LORENA PÉREZ CARRASCO", club: "Team Ponce&Mary", gender: "female", yob: 1993, fit: true, weight: 67.1, experience: 3 },
+  { id: 136, name: "Elle Wright", club: "Johnstone ABC", gender: "female", yob: 2002, fit: true, weight: 68.6, experience: 2 },
+  { id: 137, name: "ELISABETH MONTAÑEZ MARTIN", club: "DOBLE JAB BOXING CLUB", gender: "female", yob: 2006, fit: true, weight: 69, experience: 0 }
+];
+
+// Create CSV content
+function createCSV() {
+  let csv = 'id,name,club,gender,yob,fit,weight,experience\n';
+  
+  boxers.forEach(boxer => {
+    const fit = boxer.fit ? 'yes' : 'no';
+    // Escape commas in names and clubs
+    const name = boxer.name.includes(',') ? `"${boxer.name}"` : boxer.name;
+    const club = boxer.club.includes(',') ? `"${boxer.club}"` : boxer.club;
+    
+    csv += `${boxer.id},${name},${club},${boxer.gender},${boxer.yob},${fit},${boxer.weight},${boxer.experience}\n`;
+  });
+  
+  return csv;
+}
+
+// Save to file
+const csvContent = createCSV();
+fs.writeFileSync('Tree/data/tsc-boxers-2025.csv', csvContent);
+
+console.log('✓ Created CSV file: Tree/data/tsc-boxers-2025.csv');
+console.log(`✓ Total boxers: ${boxers.length}`);
+console.log(`  - Males: ${boxers.filter(b => b.gender === 'male').length}`);
+console.log(`  - Females: ${boxers.filter(b => b.gender === 'female').length}`);
+console.log('\nBreakdown by category:');
+
+const maleJuniors = boxers.filter(b => b.gender === 'male' && b.yob >= 2009);
+const maleYouth = boxers.filter(b => b.gender === 'male' && (b.yob === 2007 || b.yob === 2008));
+const maleSeniors = boxers.filter(b => b.gender === 'male' && b.yob <= 2006);
+const femaleJuniors = boxers.filter(b => b.gender === 'female' && b.yob >= 2009);
+const femaleYouth = boxers.filter(b => b.gender === 'female' && (b.yob === 2007 || b.yob === 2008));
+const femaleSeniors = boxers.filter(b => b.gender === 'female' && b.yob <= 2006);
+
+console.log(`  - Male Juniors (2009+): ${maleJuniors.length}`);
+console.log(`  - Male Youth (2007-2008): ${maleYouth.length}`);
+console.log(`  - Male Seniors (2006-): ${maleSeniors.length}`);
+console.log(`  - Female Juniors (2009+): ${femaleJuniors.length}`);
+console.log(`  - Female Youth (2007-2008): ${femaleYouth.length}`);
+console.log(`  - Female Seniors (2006-): ${femaleSeniors.length}`);

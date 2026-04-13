@@ -7,42 +7,34 @@ graph LR
   MaleJunior["Male Junior"]
   MaleYouth["Male Youth"]
   MaleSenior["Male Senior"]
-
-  FemaleJunior["Female Junior"]
-  FemaleYouth["Female Youth"]
-  FemaleSenior["Female Senior"]
-
+  
   Boxers --> Male
   Boxers -->|Not Fit| Notfit
   Boxers --> Female
 
-  Male -->|<15| MaleJunior
-  Male -->|16/17| MaleYouth
-  Male -->|18+| MaleSenior
+  Male -->|YOB 2007| MaleSenior
+  Male -->|YOB 2008,2009| MaleYouth
+  Male -->|YOB 2010,2011,2012,2013| MaleJunior
 
-  Female -->|<15| FemaleJunior
-  Female -->|16/17| FemaleYouth
-  Female -->|18+| FemaleSenior
+  Female -->| |FemaleSparMatch1
+  Female -->| |FemaleSparMatch2
+  Female -->| |FemaleSparMatch3
 
-  MaleJunior -->| |MaleJuniorSparMatch1
-  MaleJunior -->| |MaleJuniorSparMatch2
-  MaleJunior -->| |MaleJuniorSparMatch3
-  MaleYouth -->| |MaleYouthSparMatch1
-  MaleYouth -->| |MaleYouthSparMatch2
-  MaleYouth -->| |MaleYouthSparMatch3
-  MaleSenior -->| |MaleSeniorSparMatch1
-  MaleSenior -->| |MaleSeniorSparMatch2 
-  MaleSenior -->| |MaleSeniorSparMatch3
+  MaleJunior -->| |MaleJuniorWeightClasses
+  MaleYouth -->| |MaleYouthWeightClasses
+  MaleSenior -->| |MaleSeniorWeightClasses
+  
+
+    
+  MaleJuniorWeightClasses -->| |MaleJuniorSparMatch1
+  MaleJuniorWeightClasses -->| |MaleJuniorSparMatch2
+  MaleJuniorWeightClasses -->| |MaleJuniorSparMatch3
+  MaleYouthWeightClasses -->| |MaleYouthSparMatch1
+  MaleYouthWeightClasses -->| |MaleYouthSparMatch2
+  MaleYouthWeightClasses -->| |MaleYouthSparMatch3
+  MaleSeniorWeightClasses -->| |MaleSeniorSparMatch1
+  MaleSeniorWeightClasses -->| |MaleSeniorSparMatch2 
+  MaleSeniorWeightClasses -->| |MaleSeniorSparMatch3
 
   
-  FemaleJunior -->| |FemaleJuniorSparMatch1
-  FemaleJunior -->| |FemaleJuniorSparMatch2
-  FemaleJunior -->| |FemaleJuniorSparMatch3
-  FemaleYouth -->| |FemaleYouthSparMatch1
-  FemaleYouth -->| |FemaleYouthSparMatch2
-  FemaleYouth -->| |FemaleYouthSparMatch3
-  FemaleSenior -->| |FemaleSeniorSparMatch1
-  FemaleSenior -->| |FemaleSeniorSparMatch2 
-  FemaleSenior -->| |FemaleSeniorSparMatch3
-
   
