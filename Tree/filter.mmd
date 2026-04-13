@@ -1,0 +1,121 @@
+graph TD
+    %% TSC 2025 Boxing Tournament Petri Net
+    %% Places are shown as rounded boxes
+    %% Transitions are shown as rectangles
+    
+    %% Initial Place
+    AllBoxers([All Boxers<br/>137 tokens])
+    
+    %% Fitness Check Transitions
+    AllBoxers -->|fit = no| T1[Check Not Fit]
+    AllBoxers -->|fit = yes| T2[Check Fit]
+    
+    %% Fitness Places
+    T1 --> NotFit([NotFit<br/>1 token])
+    T2 --> Fit([Fit Boxers<br/>136 tokens])
+    
+    %% Gender Transitions
+    Fit -->|gender = male| T3[Is Male]
+    Fit -->|gender = female| T4[Is Female]
+    
+    %% Gender Places
+    T3 --> FitMales([Fit Males<br/>126 tokens])
+    T4 --> FitFemales([Fit Females<br/>11 tokens])
+    
+    %% Male Age Transitions
+    FitMales -->|yob >= 2009| T5[Junior Filter]
+    FitMales -->|yob 2007-2008| T6[Youth Filter]
+    FitMales -->|yob <= 2006| T7[Senior Filter]
+    
+    %% Male Age Places
+    T5 --> MaleJunior([Male Junior<br/>51 tokens])
+    T6 --> MaleYouth([Male Youth<br/>28 tokens])
+    T7 --> MaleSenior([Male Senior<br/>47 tokens])
+    
+    %% Female Age Transitions (to final buckets)
+    FitFemales -->|yob >= 2009| TF1[F Junior]
+    FitFemales -->|yob 2007-2008| TF2[F Youth]
+    FitFemales -->|yob <= 2006| TF3[F Senior]
+    
+    %% Female Final Buckets
+    TF1 --> FemaleJunior([Female Junior<br/>2 tokens]):::final
+    TF2 --> FemaleYouth([Female Youth<br/>3 tokens]):::final
+    TF3 --> FemaleSenior([Female Senior<br/>6 tokens]):::final
+    
+    %% Junior Weight Transitions
+    MaleJunior -->|weight < 60kg| T8[Jr WC1]
+    MaleJunior -->|weight >= 60kg| T9[Jr WC2]
+    
+    %% Junior Weight Places
+    T8 --> JuniorWC1([Jr WC1<br/>27 tokens])
+    T9 --> JuniorWC2([Jr WC2<br/>24 tokens])
+    
+    %% Youth Weight Transitions
+    MaleYouth -->|weight < 70kg| T10[Yt WC1]
+    MaleYouth -->|weight >= 70kg| T11[Yt WC2]
+    
+    %% Youth Weight Places
+    T10 --> YouthWC1([Yt WC1<br/>13 tokens])
+    T11 --> YouthWC2([Yt WC2<br/>15 tokens])
+    
+    %% Senior Weight Transitions
+    MaleSenior -->|weight < 70kg| T12[Sr WC1]
+    MaleSenior -->|weight >= 70kg| T13[Sr WC2]
+    
+    %% Senior Weight Places
+    T12 --> SeniorWC1([Sr WC1<br/>20 tokens])
+    T13 --> SeniorWC2([Sr WC2<br/>27 tokens])
+    
+    %% Junior WC1 Experience Transitions
+    JuniorWC1 -->|exp <= 5| T14[Jr WC1 Nov]
+    JuniorWC1 -->|exp > 5| T15[Jr WC1 Exp]
+    
+    %% Junior WC1 Final Buckets
+    T14 --> JrWC1Nov([Jr WC1 Novice<br/>7 tokens]):::final
+    T15 --> JrWC1Exp([Jr WC1 Experienced<br/>19 tokens]):::final
+    
+    %% Junior WC2 Experience Transitions
+    JuniorWC2 -->|exp <= 5| T16[Jr WC2 Nov]
+    JuniorWC2 -->|exp > 5| T17[Jr WC2 Exp]
+    
+    %% Junior WC2 Final Buckets
+    T16 --> JrWC2Nov([Jr WC2 Novice<br/>12 tokens]):::final
+    T17 --> JrWC2Exp([Jr WC2 Experienced<br/>12 tokens]):::final
+    
+    %% Youth WC1 Experience Transitions
+    YouthWC1 -->|exp <= 5| T18[Yt WC1 Nov]
+    YouthWC1 -->|exp > 5| T19[Yt WC1 Exp]
+    
+    %% Youth WC1 Final Buckets
+    T18 --> YtWC1Nov([Yt WC1 Novice<br/>7 tokens]):::final
+    T19 --> YtWC1Exp([Yt WC1 Experienced<br/>6 tokens]):::final
+    
+    %% Youth WC2 Experience Transitions
+    YouthWC2 -->|exp <= 5| T20[Yt WC2 Nov]
+    YouthWC2 -->|exp > 5| T21[Yt WC2 Exp]
+    
+    %% Youth WC2 Final Buckets
+    T20 --> YtWC2Nov([Yt WC2 Novice<br/>7 tokens]):::final
+    T21 --> YtWC2Exp([Yt WC2 Experienced<br/>8 tokens]):::final
+    
+    %% Senior WC1 Experience Transitions
+    SeniorWC1 -->|exp <= 5| T22[Sr WC1 Nov]
+    SeniorWC1 -->|exp > 5| T23[Sr WC1 Exp]
+    
+    %% Senior WC1 Final Buckets
+    T22 --> SrWC1Nov([Sr WC1 Novice<br/>5 tokens]):::final
+    T23 --> SrWC1Exp([Sr WC1 Experienced<br/>15 tokens]):::final
+    
+    %% Senior WC2 Experience Transitions
+    SeniorWC2 -->|exp <= 5| T24[Sr WC2 Nov]
+    SeniorWC2 -->|exp > 5| T25[Sr WC2 Exp]
+    
+    %% Senior WC2 Final Buckets
+    T24 --> SrWC2Nov([Sr WC2 Novice<br/>12 tokens]):::final
+    T25 --> SrWC2Exp([Sr WC2 Experienced<br/>15 tokens]):::final
+    
+    %% Styling
+    classDef final fill:#90EE90,stroke:#333,stroke-width:2px
+    classDef initial fill:#FFD700,stroke:#333,stroke-width:2px
+    
+    class AllBoxers initial

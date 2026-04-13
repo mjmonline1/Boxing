@@ -1,0 +1,17 @@
+id,name,gender,yob,fit,weightClass,experience
+1,John Smith,male,2010,no,1,3
+2,Mike Johnson,male,2010,yes,1,3
+3,Tom Brown,male,2011,yes,1,7
+4,Jake Wilson,male,2012,yes,2,2
+5,Sam Davis,male,2013,yes,2,8
+6,Chris Taylor,male,2008,yes,1,4
+7,Ryan Miller,male,2009,yes,1,10
+8,Alex Garcia,male,2008,yes,2,5
+9,Ben Martinez,male,2009,yes,2,12
+10,David Lee,male,2007,yes,1,3
+11,Kevin White,male,2007,yes,1,9
+12,Mark Harris,male,2007,yes,2,4
+13,Paul Clark,male,2007,yes,2,15
+14,Sarah Jones,female,2008,yes,1,5
+15,Emily Davis,female,2010,yes,1,3
+16,Lisa Wilson,female,2007,yes,2,8

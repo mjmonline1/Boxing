@@ -26,15 +26,28 @@ graph LR
   
 
     
- MaleJuniorWeightClasses -->| |MaleJuniorSparMatch1
-  MaleJuniorWeightClasses -->| |MaleJuniorSparMatch2
-  MaleJuniorWeightClasses -->| |MaleJuniorSparMatch3
-  MaleYouthWeightClasses -->| |MaleYouthSparMatch1
-  MaleYouthWeightClasses -->| |MaleYouthSparMatch2
-  MaleYouthWeightClasses -->| |MaleYouthSparMatch3
-  MaleSeniorWeightClasses -->| |MaleSeniorSparMatch1
-  MaleSeniorWeightClasses -->| |MaleSeniorSparMatch2 
-  MaleSeniorWeightClasses -->| |MaleSeniorSparMatch3
+  MaleJuniorWeightClasses -->| |MaleJuniorEXC1
+  MaleJuniorWeightClasses -->| |MaleJuniorEXC2
+  
+  MaleYouthWeightClasses -->| |MaleYouthEXC1
+  MaleYouthWeightClasses -->| |MaleYouthEXC2
+  
+  MaleSeniorWeightClasses -->| |MaleSeniorEXC1
+  MaleSeniorWeightClasses -->| |MaleSeniorEXC2 
+  
+  MaleJuniorEXC1 -->| |MaleJuniorSparMatch1
+  MaleJuniorEXC1 -->| |MaleJuniorSparMatch2
+  MaleJuniorEXC2 -->| |MaleJuniorSparMatch3
+  MaleJuniorEXC2 -->| |MaleJuniorSparMatch4
+  
+  MaleYouthEXC1 -->| |MaleYouthSparMatch1
+  MaleYouthEXC1 -->| |MaleYouthSparMatch2
+  MaleYouthEXC2 -->| |MaleYouthSparMatch3
+  MaleYouthEXC2 -->| |MaleYouthSparMatch4
 
+  MaleSeniorEXC1 -->| |MaleSeniorSparMatch1
+  MaleSeniorEXC1 -->| |MaleSeniorSparMatch2
+  MaleSeniorEXC2 -->| |MaleSeniorSparMatch3
+  MaleSeniorEXC2 -->| |MaleSeniorSparMatch4
   
-  
+

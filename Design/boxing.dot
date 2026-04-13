@@ -1,0 +1,14 @@
+digraph Boxing {
+  rankdir=TD;
+  node [shape=box, style=rounded];
+
+  Start->ReadData;
+  ReadData->MarkUnavailable ;
+  MarkUnavailable -> Bucketiser   [label="Unfit/Absent Removed"];
+  Bucketiser -> SparCreation;
+  SparCreation -> RingAllocation;
+  RingAllocation->End;
+
+
+
+}
