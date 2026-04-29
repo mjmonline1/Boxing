@@ -3,7 +3,7 @@
     "totalOriginal": 137,
     "totalDistributed": 137,
     "finalBuckets": {
-      "NotFit": 0,
+      "NotFit": 3,
       "MaleJuniorWC1_EXC1_Match1": 2,
       "MaleJuniorWC1_EXC1_Match2": 5,
       "MaleJuniorWC1_EXC2_Match3": 11,
@@ -18,8 +18,8 @@
       "MaleYouthWC1_EXC2_Match4": 3,
       "MaleYouthWC2_EXC1_Match1": 4,
       "MaleYouthWC2_EXC1_Match2": 3,
-      "MaleYouthWC2_EXC2_Match3": 3,
-      "MaleYouthWC2_EXC2_Match4": 5,
+      "MaleYouthWC2_EXC2_Match3": 2,
+      "MaleYouthWC2_EXC2_Match4": 4,
       "MaleSeniorWC1_EXC1_Match1": 3,
       "MaleSeniorWC1_EXC1_Match2": 2,
       "MaleSeniorWC1_EXC2_Match3": 7,
@@ -29,12 +29,46 @@
       "MaleSeniorWC2_EXC2_Match3": 8,
       "MaleSeniorWC2_EXC2_Match4": 7,
       "FemaleSparMatch1": 3,
-      "FemaleSparMatch2": 4,
+      "FemaleSparMatch2": 3,
       "FemaleSparMatch3": 4
     }
   },
   "finalBuckets": {
-    "NotFit": [],
+    "NotFit": [
+      {
+        "id": 73,
+        "name": "Alfie Robertson",
+        "club": "Arbroath Amateur Boxing Club",
+        "gender": "male",
+        "yob": 2008,
+        "fit": false,
+        "weight": 72.8,
+        "experience": 10,
+        "weightClass": 2
+      },
+      {
+        "id": 76,
+        "name": "Danny Ball",
+        "club": "NoMercy/champscamp",
+        "gender": "male",
+        "yob": 2007,
+        "fit": false,
+        "weight": 80,
+        "experience": 13,
+        "weightClass": 2
+      },
+      {
+        "id": 133,
+        "name": "Gabriella Weerheim",
+        "club": "Team NL",
+        "gender": "female",
+        "yob": 2005,
+        "fit": false,
+        "weight": 57,
+        "experience": 49,
+        "weightClass": 1
+      }
+    ],
     "MaleJuniorWC1_EXC1_Match1": [
       {
         "id": 2,
@@ -866,17 +900,6 @@
         "weight": 72.2,
         "experience": 19,
         "weightClass": 2
-      },
-      {
-        "id": 76,
-        "name": "Danny Ball",
-        "club": "NoMercy/champscamp",
-        "gender": "male",
-        "yob": 2007,
-        "fit": true,
-        "weight": 80,
-        "experience": 13,
-        "weightClass": 2
       }
     ],
     "MaleYouthWC2_EXC2_Match4": [
@@ -911,17 +934,6 @@
         "fit": true,
         "weight": 72.2,
         "experience": 13,
-        "weightClass": 2
-      },
-      {
-        "id": 73,
-        "name": "Alfie Robertson",
-        "club": "Arbroath Amateur Boxing Club",
-        "gender": "male",
-        "yob": 2008,
-        "fit": true,
-        "weight": 72.8,
-        "experience": 10,
         "weightClass": 2
       },
       {
@@ -1525,17 +1537,6 @@
         "fit": true,
         "weight": 60,
         "experience": 24,
-        "weightClass": 1
-      },
-      {
-        "id": 133,
-        "name": "Gabriella Weerheim",
-        "club": "Team NL",
-        "gender": "female",
-        "yob": 2005,
-        "fit": true,
-        "weight": 57,
-        "experience": 49,
         "weightClass": 1
       },
       {

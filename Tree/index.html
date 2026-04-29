@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Boxing Ring Allocator</title>
+  <style>
+  body {
+  font-family: Arial;
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  padding: 12px;
+  align-items: flex-start;
+}
+
+#board {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  width: 100%;
+  overflow-x: auto;
+}
+
+    .ring {
+      flex: 1;
+      border: 2px solid #333;
+      min-height: 400px;
+      padding: 8px;
+    }
+
+    .ring h2 {
+      margin: 0 0 10px 0;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    .bout {
+      background: #f2f2f2;
+      margin: 6px 0;
+      padding: 8px;
+      border-radius: 6px;
+      cursor: grab;
+      font-size: 12px;
+    }
+
+    .female {
+      border-left: 6px solid pink;
+    }
+
+    .male {
+      border-left: 6px solid lightblue;
+     }
+
+     .male.junior {
+      border-left: 6px solid lightsteelblue;
+    }
+
+    .male.youth {
+      border-left: 6px solid lightgreen;
+    }
+ .male.senior {
+      border-left: 6px solid lightblue;
+    }
+    .youth {
+      border-left: 6px solid orange;
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="board"></div>
+
+<script src="app.js"></script>
+
+</body>
+</html>

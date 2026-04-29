@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Boxing Sparring CRUD</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #111;
+    color: white;
+    padding: 10px;
+}
+
+h2 { margin-bottom: 10px; }
+
+#toolbar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #1c1c1c;
+}
+
+th, td {
+    border: 1px solid #333;
+    padding: 6px;
+    text-align: left;
+    font-size: 14px;
+}
+
+th {
+    background: #222;
+}
+
+input, select {
+    width: 100%;
+    background: #333;
+    color: white;
+    border: none;
+    padding: 4px;
+}
+
+button {
+    padding: 6px 10px;
+    cursor: pointer;
+}
+
+.actions button {
+    margin-right: 5px;
+}
+
+tr:hover {
+    background: #2a2a2a;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🥊 Sparring CRUD Manager</h2>
+
+<div id="toolbar">
+    <input type="file" accept=".json" onchange="loadFile(event)">
+    <button onclick="addRow()">➕ Add Bout</button>
+    <button onclick="exportJSON()">💾 Export JSON</button>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Ring</th>
+            <th>Red Corner</th>
+            <th>Blue Corner</th>
+            <th>Category</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+</table>
+
+<script>
+// ===============================
+// STATE
+// ===============================
+
+const rings = ["R1","R2","R3","R4","R5"];
+
+let state = [];
+
+// ===============================
+// LOAD FILE
+// ===============================
+
+function loadFile(event) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        const data = JSON.parse(e.target.result);
+        build(data);
+    };
+
+    reader.readAsText(file);
+}
+
+// ===============================
+// BUILD TABLE DATA
+// ===============================
+
+function build(data) {
+    state = data.matches.map((m, i) => ({
+        id: i,
+        ring: rings[i % rings.length],
+        red: m.red.name,
+        blue: m.blue.name,
+        category: m.category
+    }));
+
+    render();
+}
+
+// ===============================
+// RENDER TABLE
+// ===============================
+
+function render() {
+    const tbody = document.getElementById("tableBody");
+    tbody.innerHTML = "";
+
+    state.forEach((row, index) => {
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+            <td>
+                <select onchange="update(${index}, 'ring', this.value)">
+                    ${rings.map(r => `
+                        <option ${r === row.ring ? "selected" : ""}>${r}</option>
+                    `).join("")}
+                </select>
+            </td>
+
+            <td>
+                <input value="${row.red}" 
+                       onchange="update(${index}, 'red', this.value)">
+            </td>
+
+            <td>
+                <input value="${row.blue}" 
+                       onchange="update(${index}, 'blue', this.value)">
+            </td>
+
+            <td>
+                <input value="${row.category}" 
+                       onchange="update(${index}, 'category', this.value)">
+            </td>
+
+            <td class="actions">
+                <button onclick="deleteRow(${index})">🗑 Delete</button>
+            </td>
+        `;
+
+        tbody.appendChild(tr);
+    });
+}
+
+// ===============================
+// UPDATE CELL
+// ===============================
+
+function update(index, field, value) {
+    state[index][field] = value;
+}
+
+// ===============================
+// ADD ROW
+// ===============================
+
+function addRow() {
+    state.push({
+        id: state.length,
+        ring: "R1",
+        red: "New Red",
+        blue: "New Blue",
+        category: "New Category"
+    });
+
+    render();
+}
+
+// ===============================
+// DELETE ROW
+// ===============================
+
+function deleteRow(index) {
+    state.splice(index, 1);
+    render();
+}
+
+// ===============================
+// EXPORT JSON
+// ===============================
+
+function exportJSON() {
+    const output = {
+        matches: state.map(r => ({
+            red: { name: r.red },
+            blue: { name: r.blue },
+            category: r.category
+        }))
+    };
+
+    const blob = new Blob(
+        [JSON.stringify(output, null, 2)],
+        { type: "application/json" }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "sparrings-updated.json";
+    a.click();
+}
+</script>
+
+</body>
+</html>

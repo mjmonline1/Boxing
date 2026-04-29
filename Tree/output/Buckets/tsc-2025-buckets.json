@@ -3,46 +3,57 @@
     "totalOriginal": 137,
     "totalDistributed": 137,
     "finalBuckets": {
-      "NotFit": 2,
+      "NotFit": 3,
       "MaleJunior_WC1_Novice": 7,
-      "MaleJunior_WC1_Experienced": 18,
+      "MaleJunior_WC1_Experienced": 20,
       "MaleJunior_WC2_Novice": 12,
       "MaleJunior_WC2_Experienced": 12,
       "MaleYouth_WC1_Novice": 7,
       "MaleYouth_WC1_Experienced": 6,
       "MaleYouth_WC2_Novice": 7,
-      "MaleYouth_WC2_Experienced": 8,
+      "MaleYouth_WC2_Experienced": 6,
       "MaleSenior_WC1_Novice": 5,
       "MaleSenior_WC1_Experienced": 15,
       "MaleSenior_WC2_Novice": 12,
       "MaleSenior_WC2_Experienced": 15,
       "Female_Junior": 2,
       "Female_Youth": 3,
-      "Female_Senior": 6
+      "Female_Senior": 5
     }
   },
   "finalBuckets": {
     "NotFit": [
       {
-        "id": 1,
-        "name": "Tom Coyle",
-        "club": "Cookstown ABC",
+        "id": 73,
+        "name": "Alfie Robertson",
+        "club": "Arbroath Amateur Boxing Club",
         "gender": "male",
-        "yob": 2013,
+        "yob": 2008,
         "fit": false,
-        "weight": 33.2,
+        "weight": 72.8,
         "experience": 10,
-        "weightClass": 1
+        "weightClass": 2
       },
       {
-        "id": 20,
-        "name": "Bobby Borg",
-        "club": "The Academy Boxing Club",
+        "id": 76,
+        "name": "Danny Ball",
+        "club": "NoMercy/champscamp",
         "gender": "male",
-        "yob": 2009,
+        "yob": 2007,
         "fit": false,
-        "weight": 53.9,
-        "experience": 11,
+        "weight": 80,
+        "experience": 13,
+        "weightClass": 2
+      },
+      {
+        "id": 133,
+        "name": "Gabriella Weerheim",
+        "club": "Team NL",
+        "gender": "female",
+        "yob": 2005,
+        "fit": false,
+        "weight": 57,
+        "experience": 49,
         "weightClass": 1
       }
     ],
@@ -126,6 +137,17 @@
       }
     ],
     "MaleJunior_WC1_Experienced": [
+      {
+        "id": 1,
+        "name": "Tom Coyle",
+        "club": "Cookstown ABC",
+        "gender": "male",
+        "yob": 2013,
+        "fit": true,
+        "weight": 33.2,
+        "experience": 10,
+        "weightClass": 1
+      },
       {
         "id": 5,
         "name": "Levi Smith",
@@ -267,6 +289,17 @@
         "fit": true,
         "weight": 53.7,
         "experience": 7,
+        "weightClass": 1
+      },
+      {
+        "id": 20,
+        "name": "Bobby Borg",
+        "club": "The Academy Boxing Club",
+        "gender": "male",
+        "yob": 2009,
+        "fit": true,
+        "weight": 53.9,
+        "experience": 11,
         "weightClass": 1
       },
       {
@@ -876,28 +909,6 @@
         "weightClass": 2
       },
       {
-        "id": 73,
-        "name": "Alfie Robertson",
-        "club": "Arbroath Amateur Boxing Club",
-        "gender": "male",
-        "yob": 2008,
-        "fit": true,
-        "weight": 72.8,
-        "experience": 10,
-        "weightClass": 2
-      },
-      {
-        "id": 76,
-        "name": "Danny Ball",
-        "club": "NoMercy/champscamp",
-        "gender": "male",
-        "yob": 2007,
-        "fit": true,
-        "weight": 80,
-        "experience": 13,
-        "weightClass": 2
-      },
-      {
         "id": 77,
         "name": "Cees Jeuken",
         "club": "Team NL",
@@ -1503,17 +1514,6 @@
         "fit": true,
         "weight": 54.9,
         "experience": 0,
-        "weightClass": 1
-      },
-      {
-        "id": 133,
-        "name": "Gabriella Weerheim",
-        "club": "Team NL",
-        "gender": "female",
-        "yob": 2005,
-        "fit": true,
-        "weight": 57,
-        "experience": 49,
         "weightClass": 1
       },
       {

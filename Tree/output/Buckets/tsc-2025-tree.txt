@@ -2,7 +2,7 @@ Dataset Filter Tree Structure
 ================================
 
 [FILTER] root (137 items)
-  [BUCKET] NotFit (2 items)
+  [BUCKET] NotFit (3 items)
            Boxers who are not fit to compete
   [FILTER] FitMales (0 items)
            Fit male boxers
@@ -12,7 +12,7 @@ Dataset Filter Tree Structure
                Male Junior Weight Class 1 (Lighter)
         [BUCKET] MaleJunior_WC1_Novice (7 items)
                  Novice (0-5 bouts)
-        [BUCKET] MaleJunior_WC1_Experienced (18 items)
+        [BUCKET] MaleJunior_WC1_Experienced (20 items)
                  Experienced (6+ bouts)
       [FILTER] MaleJunior_WC2 (0 items)
                Male Junior Weight Class 2 (Heavier)
@@ -32,7 +32,7 @@ Dataset Filter Tree Structure
                Male Youth Weight Class 2 (Heavier)
         [BUCKET] MaleYouth_WC2_Novice (7 items)
                  Novice (0-5 bouts)
-        [BUCKET] MaleYouth_WC2_Experienced (8 items)
+        [BUCKET] MaleYouth_WC2_Experienced (6 items)
                  Experienced (6+ bouts)
     [FILTER] MaleSenior (0 items)
              Male Senior (YOB 2006 & older)
@@ -54,5 +54,5 @@ Dataset Filter Tree Structure
              Female Junior (2009 & younger)
     [BUCKET] Female_Youth (3 items)
              Female Youth (2007 & 2008)
-    [BUCKET] Female_Senior (6 items)
+    [BUCKET] Female_Senior (5 items)
              Female Senior (2006 & older)

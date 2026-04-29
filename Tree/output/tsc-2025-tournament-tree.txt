@@ -2,7 +2,7 @@ Dataset Filter Tree Structure
 ================================
 
 [FILTER] root (137 items)
-  [BUCKET] NotFit (0 items)
+  [BUCKET] NotFit (3 items)
            Boxers who are not fit to compete
   [FILTER] FitMales (0 items)
            Fit male boxers
@@ -62,9 +62,9 @@ Dataset Filter Tree Structure
                    Match 2
         [FILTER] MaleYouthWC2_EXC2 (0 items)
                  Male Youth WC2 - Experienced (6+ bouts)
-          [BUCKET] MaleYouthWC2_EXC2_Match3 (3 items)
+          [BUCKET] MaleYouthWC2_EXC2_Match3 (2 items)
                    Match 3
-          [BUCKET] MaleYouthWC2_EXC2_Match4 (5 items)
+          [BUCKET] MaleYouthWC2_EXC2_Match4 (4 items)
                    Match 4
     [FILTER] MaleSenior (0 items)
              Male Senior (YOB 2006 & older)
@@ -100,7 +100,7 @@ Dataset Filter Tree Structure
            Fit female boxers
     [BUCKET] FemaleSparMatch1 (3 items)
              Female Spar Match 1
-    [BUCKET] FemaleSparMatch2 (4 items)
+    [BUCKET] FemaleSparMatch2 (3 items)
              Female Spar Match 2
     [BUCKET] FemaleSparMatch3 (4 items)
              Female Spar Match 3

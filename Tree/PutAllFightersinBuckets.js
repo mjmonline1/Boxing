@@ -6,9 +6,16 @@
 const HierarchicalFilter = require('./hierarchical-filter');
 const fs = require('fs');
 
+const path = require('path');
+
+// Configuration
+const SOURCE_FILE = path.join(__dirname, 'output', 'tsc-2025-tournament-results.json');
+const OUTPUT_FILE = path.join(__dirname, 'output/Spars', 'tsc-sparring-matches.json');
+
 /**
  * Weight class assignment based on actual weight
  */
+
 function getWeightClass(boxer) {
   const weight = boxer.weight;
   
@@ -252,6 +259,7 @@ function runTSCBuckets(csvPath) {
   console.log(`✓ Loaded ${boxers.length} boxers\n`);
   
   // Show statistics
+  //this creates 2 data sets - one for male and the other female
   const maleBoxers = boxers.filter(b => b.gender === 'male');
   const femaleBoxers = boxers.filter(b => b.gender === 'female');
   
@@ -261,7 +269,6 @@ function runTSCBuckets(csvPath) {
   console.log(`    - Youth (2007-2008): ${maleBoxers.filter(b => b.yob === 2007 || b.yob === 2008).length}`);
   console.log(`    - Seniors (2006-): ${maleBoxers.filter(b => b.yob <= 2006).length}`);
   console.log(`  Females: ${femaleBoxers.length}\n`);
-  
   // Apply tournament structure
   const filter = new HierarchicalFilter(boxers);
   
@@ -335,15 +342,15 @@ function runTSCBuckets(csvPath) {
   }
   
   // Export results
-  if (!fs.existsSync('output')) {
-    fs.mkdirSync('output');
+  if (!fs.existsSync('Tree/output/Buckets')) {
+    fs.mkdirSync('Tree/output/Buckets');
   }
   
   // Export each bucket as a separate CSV file
   console.log('\n=== Exporting CSV Files ===');
   Object.entries(buckets).forEach(([bucketName, boxers]) => {
     if (boxers.length > 0) {
-      const csvFilename = `output/${bucketName}.csv`;
+      const csvFilename = `Tree/output/Buckets/${bucketName}.csv`;
       
       // Create CSV content
       let csvContent = 'id,name,club,gender,yob,fit,weight,experience,weightClass\n';
@@ -360,12 +367,12 @@ function runTSCBuckets(csvPath) {
     }
   });
   
-  filter.exportToFile('output/tsc-2025-buckets.json');
-  filter.exportTreeVisualization('output/tsc-2025-tree.txt');
+  filter.exportToFile('Tree/output/Buckets/tsc-2025-buckets.json');
+  filter.exportTreeVisualization('Tree/output/Buckets/tsc-2025-tree.txt');
   
   console.log('\n=== Summary Files ===');
-  console.log('✓ output/tsc-2025-buckets.json');
-  console.log('✓ output/tsc-2025-tree.txt');
+  console.log('✓ Tree/output/Buckets/tsc-2025-buckets.json');
+  console.log('✓ Tree/output/Buckets/tsc-2025-tree.txt');
   
   // Verification
   console.log('\n=== Verification ===');
@@ -375,14 +382,14 @@ function runTSCBuckets(csvPath) {
   console.log(`✓ All boxers accounted for: ${totalAssigned === boxers.length ? 'YES' : 'NO'}`);
   
   console.log(`\n✓ Total final buckets: ${Object.keys(buckets).length}`);
-  console.log('  (12 male buckets + 3 female buckets = 15 total)');
+  //console.log('  (12 male buckets + 3 female buckets = 15 total)');
   
   return filter;
 }
 
 // Run if executed directly
 if (require.main === module) {
-  const csvPath = 'data/tsc-boxers-2025.csv';
+  const csvPath = 'Tree/data/RegisteredBoxers2025.csv';
   
   if (fs.existsSync(csvPath)) {
     runTSCBuckets(csvPath);

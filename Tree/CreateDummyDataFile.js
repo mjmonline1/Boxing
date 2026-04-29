@@ -7,6 +7,11 @@ const fs = require('fs');
 
 // Manually extracted data from PDF (since we have it in context)
 // We'll structure it properly for our system
+const path = require('path');
+
+// Configuration
+const SOURCE_FILE = path.join(__dirname, 'output', 'tsc-2025-tournament-results.json');
+const OUTPUT_FILE = path.join(__dirname, 'output/Spars', 'tsc-sparring-matches.json');
 
 const boxers = [
   // JUNIORS (Male Junior - 2009 & younger)
@@ -177,7 +182,7 @@ function createCSV() {
 
 // Save to file
 const csvContent = createCSV();
-fs.writeFileSync('Tree/data/tsc-boxers-2025.csv', csvContent);
+fs.writeFileSync('Tree/data/RegisteredBoxers2025.csv', csvContent);
 
 console.log('✓ Created CSV file: Tree/data/tsc-boxers-2025.csv');
 console.log(`✓ Total boxers: ${boxers.length}`);

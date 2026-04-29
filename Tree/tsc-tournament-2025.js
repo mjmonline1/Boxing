@@ -487,15 +487,15 @@ function runTSCTournament(csvPath) {
   }
   
   // Export results
-  if (!fs.existsSync('output')) {
-    fs.mkdirSync('output');
+  if (!fs.existsSync('Tree/output')) {
+    fs.mkdirSync('Tree/output');
   }
-  filter.exportToFile('output/tsc-2025-tournament-results.json');
-  filter.exportTreeVisualization('output/tsc-2025-tournament-tree.txt');
+  filter.exportToFile('Tree/output/tsc-2025-tournament-results.json');
+  filter.exportTreeVisualization('Tree/output/tsc-2025-tournament-tree.txt');
   
   console.log('\n=== Files Created ===');
-  console.log('✓ output/tsc-2025-tournament-results.json');
-  console.log('✓ output/tsc-2025-tournament-tree.txt');
+  console.log('✓ Tree/output/tsc-2025-tournament-results.json');
+  console.log('✓ Tree/output/tsc-2025-tournament-tree.txt');
   
   // Verification
   console.log('\n=== Verification ===');
@@ -509,7 +509,7 @@ function runTSCTournament(csvPath) {
 
 // Run if executed directly
 if (require.main === module) {
-  const csvPath = 'data/tsc-boxers-2025.csv';
+  const csvPath = 'Tree/data/RegisteredBoxers2025.csv';
   
   if (fs.existsSync(csvPath)) {
     runTSCTournament(csvPath);

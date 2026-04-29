@@ -16,7 +16,7 @@
  * - 12 Male matches (4 Junior + 4 Youth + 4 Senior)
  */
 
-const HierarchicalFilter = require('./hierarchical-filter');
+const HierarchicalFilter = require('./Examples/hierarchical-filter');
 const fs = require('fs');
 
 /**

@@ -10,7 +10,11 @@
  */
 
 const fs = require('fs');
+const path = require('path');
 
+// Configuration
+const SOURCE_FILE = path.join(__dirname, 'output', 'tsc-2025-tournament-results.json');
+const OUTPUT_FILE = path.join(__dirname, 'output/Spars', 'tsc-sparring-matches.json');
 /**
  * Create Petri Net in PNML format
  */
@@ -277,8 +281,7 @@ function createPetriNet() {
 
 // Generate the Petri net
 const pnml = createPetriNet();
-fs.writeFileSync('output/TSC_Boxing_Tournament_PetriNet.pnml', pnml);
-
+fs.writeFileSync('Tree/output/Diagrams/TSC_Boxing_Tournament_PetriNet.pnml', pnml);
 console.log('✓ Petri Net created: output/TSC_Boxing_Tournament_PetriNet.pnml');
 console.log('\nPetri Net Structure:');
 console.log('- Places (circles): States where boxers can be');
