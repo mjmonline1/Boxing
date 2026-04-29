@@ -149,7 +149,7 @@ function loadBoxingTournament(csvPath) {
 
 // Run if executed directly
 if (require.main === module) {
-  const csvPath = 'data/boxing-boxers.csv';
+  const csvPath = 'Tree/data/boxing-boxers.csv';
   
   if (fs.existsSync(csvPath)) {
     loadBoxingTournament(csvPath);

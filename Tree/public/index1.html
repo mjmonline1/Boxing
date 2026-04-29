@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sparring CRUD</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    input { margin: 5px; }
+    .row { margin: 5px 0; }
+  </style>
+</head>
+<body>
+
+<h2>Add Spar</h2>
+
+<input id="red" placeholder="Red Corner">
+<input id="blue" placeholder="Blue Corner">
+<input id="weight" placeholder="Weight">
+<input id="category" placeholder="Category">
+
+<button onclick="add()">Add</button>
+
+<hr>
+
+<h2>All Spars</h2>
+<div id="list"></div>
+
+<script>
+const API = "/api/sparrings";http://localhost:5500/api/sparrings
+
+async function load() {
+  const res = await fetch(API);
+  const data = await res.json();
+
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  data.forEach((s, i) => {
+    list.innerHTML += `
+      <div class="row">
+        <b>${s.red}</b> vs <b>${s.blue}</b>
+        (${s.weight}, ${s.category})
+
+        <button onclick="del(${i})">Delete</button>
+        <button onclick="edit(${i})">Edit</button>
+      </div>
+    `;
+  });
+}
+
+async function add() {
+  const spar = {
+    red: red.value,
+    blue: blue.value,
+    weight: weight.value,
+    category: category.value
+  };
+
+  await fetch(API, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(spar)
+  });
+
+  load();
+}
+
+async function del(i) {
+  await fetch(`${API}/${i}`, { method: "DELETE" });
+  load();
+}
+
+async function edit(i) {
+  const redName = prompt("Red?");
+  const blueName = prompt("Blue?");
+  const weightVal = prompt("Weight?");
+  const cat = prompt("Category?");
+
+  await fetch(`${API}/${i}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      red: redName,
+      blue: blueName,
+      weight: weightVal,
+      category: cat
+    })
+  });
+
+  load();
+}
+
+load();
+</script>
+
+</body>
+</html>

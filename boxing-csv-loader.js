@@ -4,7 +4,7 @@
  */
 
 const fs = require('fs');
-const HierarchicalFilter = require('./hierarchical-filter');
+const HierarchicalFilter = require('./Examples/hierarchical-filter');
 const { boxingTreeStructure } = require('./boxing-tournament-filter');
 
 /**
@@ -149,7 +149,7 @@ function loadBoxingTournament(csvPath) {
 
 // Run if executed directly
 if (require.main === module) {
-  const csvPath = 'data/boxing-boxers.csv';
+  const csvPath = 'Tree/data/boxing-boxers.csv';
   
   if (fs.existsSync(csvPath)) {
     loadBoxingTournament(csvPath);

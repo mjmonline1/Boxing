@@ -1,0 +1,179 @@
+{
+  "summary": {
+    "totalOriginal": 137,
+    "totalDistributed": 11,
+    "finalBuckets": {
+      "NotFit": 0,
+      "MaleJuniorWC1_EXC1_Match1": 0,
+      "MaleJuniorWC1_EXC1_Match2": 0,
+      "MaleJuniorWC1_EXC2_Match3": 0,
+      "MaleJuniorWC1_EXC2_Match4": 0,
+      "MaleJuniorWC2_EXC1_Match1": 0,
+      "MaleJuniorWC2_EXC1_Match2": 0,
+      "MaleJuniorWC2_EXC2_Match3": 0,
+      "MaleJuniorWC2_EXC2_Match4": 0,
+      "MaleYouthWC1_EXC1_Match1": 0,
+      "MaleYouthWC1_EXC1_Match2": 0,
+      "MaleYouthWC1_EXC2_Match3": 0,
+      "MaleYouthWC1_EXC2_Match4": 0,
+      "MaleYouthWC2_EXC1_Match1": 0,
+      "MaleYouthWC2_EXC1_Match2": 0,
+      "MaleYouthWC2_EXC2_Match3": 0,
+      "MaleYouthWC2_EXC2_Match4": 0,
+      "MaleSeniorWC1_EXC1_Match1": 0,
+      "MaleSeniorWC1_EXC1_Match2": 0,
+      "MaleSeniorWC1_EXC2_Match3": 0,
+      "MaleSeniorWC1_EXC2_Match4": 0,
+      "MaleSeniorWC2_EXC1_Match1": 0,
+      "MaleSeniorWC2_EXC1_Match2": 0,
+      "MaleSeniorWC2_EXC2_Match3": 0,
+      "MaleSeniorWC2_EXC2_Match4": 0,
+      "FemaleSparMatch1": 3,
+      "FemaleSparMatch2": 4,
+      "FemaleSparMatch3": 4
+    }
+  },
+  "finalBuckets": {
+    "NotFit": [],
+    "MaleJuniorWC1_EXC1_Match1": [],
+    "MaleJuniorWC1_EXC1_Match2": [],
+    "MaleJuniorWC1_EXC2_Match3": [],
+    "MaleJuniorWC1_EXC2_Match4": [],
+    "MaleJuniorWC2_EXC1_Match1": [],
+    "MaleJuniorWC2_EXC1_Match2": [],
+    "MaleJuniorWC2_EXC2_Match3": [],
+    "MaleJuniorWC2_EXC2_Match4": [],
+    "MaleYouthWC1_EXC1_Match1": [],
+    "MaleYouthWC1_EXC1_Match2": [],
+    "MaleYouthWC1_EXC2_Match3": [],
+    "MaleYouthWC1_EXC2_Match4": [],
+    "MaleYouthWC2_EXC1_Match1": [],
+    "MaleYouthWC2_EXC1_Match2": [],
+    "MaleYouthWC2_EXC2_Match3": [],
+    "MaleYouthWC2_EXC2_Match4": [],
+    "MaleSeniorWC1_EXC1_Match1": [],
+    "MaleSeniorWC1_EXC1_Match2": [],
+    "MaleSeniorWC1_EXC2_Match3": [],
+    "MaleSeniorWC1_EXC2_Match4": [],
+    "MaleSeniorWC2_EXC1_Match1": [],
+    "MaleSeniorWC2_EXC1_Match2": [],
+    "MaleSeniorWC2_EXC2_Match3": [],
+    "MaleSeniorWC2_EXC2_Match4": [],
+    "FemaleSparMatch1": [
+      {
+        "id": 129,
+        "name": "Kimberly-May Barnsley",
+        "club": "Finchley ABC",
+        "gender": "female",
+        "yob": 2008,
+        "fit": true,
+        "weight": "59.3",
+        "experience": 10
+      },
+      {
+        "id": 132,
+        "name": "María del Carmen Romero Molina",
+        "club": "Team Ponce&Mary",
+        "gender": "female",
+        "yob": 1985,
+        "fit": true,
+        "weight": "54.9",
+        "experience": 0
+      },
+      {
+        "id": 135,
+        "name": "LORENA PÉREZ CARRASCO",
+        "club": "Team Ponce&Mary",
+        "gender": "female",
+        "yob": 1993,
+        "fit": true,
+        "weight": "67.1",
+        "experience": 3
+      }
+    ],
+    "FemaleSparMatch2": [
+      {
+        "id": 127,
+        "name": "Mileigh Addicott",
+        "club": "Sydenham ABC",
+        "gender": "female",
+        "yob": 2012,
+        "fit": true,
+        "weight": "53",
+        "experience": 21
+      },
+      {
+        "id": 130,
+        "name": "Liz Thijssen",
+        "club": "Team NL",
+        "gender": "female",
+        "yob": 2008,
+        "fit": true,
+        "weight": "60",
+        "experience": 24
+      },
+      {
+        "id": 133,
+        "name": "Gabriella Weerheim",
+        "club": "Team NL",
+        "gender": "female",
+        "yob": 2005,
+        "fit": true,
+        "weight": "57",
+        "experience": 49
+      },
+      {
+        "id": 136,
+        "name": "Elle Wright",
+        "club": "Johnstone ABC",
+        "gender": "female",
+        "yob": 2002,
+        "fit": true,
+        "weight": "68.6",
+        "experience": 2
+      }
+    ],
+    "FemaleSparMatch3": [
+      {
+        "id": 128,
+        "name": "Summer Chandler",
+        "club": "The Academy Boxing Club",
+        "gender": "female",
+        "yob": 2009,
+        "fit": true,
+        "weight": "62.7",
+        "experience": 5
+      },
+      {
+        "id": 131,
+        "name": "Aaliyah Hoppema",
+        "club": "Team NL",
+        "gender": "female",
+        "yob": 2007,
+        "fit": true,
+        "weight": "65",
+        "experience": 36
+      },
+      {
+        "id": 134,
+        "name": "Fatima Anejdam",
+        "club": "Club Boxeo Los Álamos",
+        "gender": "female",
+        "yob": 2003,
+        "fit": true,
+        "weight": "60",
+        "experience": 11
+      },
+      {
+        "id": 137,
+        "name": "ELISABETH MONTAÑEZ MARTIN",
+        "club": "DOBLE JAB BOXING CLUB",
+        "gender": "female",
+        "yob": 2006,
+        "fit": true,
+        "weight": "69",
+        "experience": 0
+      }
+    ]
+  }
+}

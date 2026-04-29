@@ -1,0 +1,106 @@
+Dataset Filter Tree Structure
+================================
+
+[FILTER] root (137 items)
+  [BUCKET] NotFit (0 items)
+           Boxers who are not fit to compete
+  [FILTER] FitMales (0 items)
+           Fit male boxers
+    [FILTER] MaleJunior (0 items)
+             Male Junior (YOB 2010-2013)
+      [FILTER] MaleJuniorWeightClass1 (0 items)
+               Male Junior Weight Class 1
+        [FILTER] MaleJuniorWC1_EXC1 (0 items)
+                 Male Junior WC1 - Novice (0-5 bouts)
+          [BUCKET] MaleJuniorWC1_EXC1_Match1 (0 items)
+                   Male Junior WC1 EXC1 - Match 1
+          [BUCKET] MaleJuniorWC1_EXC1_Match2 (0 items)
+                   Male Junior WC1 EXC1 - Match 2
+        [FILTER] MaleJuniorWC1_EXC2 (0 items)
+                 Male Junior WC1 - Experienced (6+ bouts)
+          [BUCKET] MaleJuniorWC1_EXC2_Match3 (0 items)
+                   Male Junior WC1 EXC2 - Match 3
+          [BUCKET] MaleJuniorWC1_EXC2_Match4 (0 items)
+                   Male Junior WC1 EXC2 - Match 4
+      [FILTER] MaleJuniorWeightClass2 (0 items)
+               Male Junior Weight Class 2
+        [FILTER] MaleJuniorWC2_EXC1 (0 items)
+                 Male Junior WC2 - Novice (0-5 bouts)
+          [BUCKET] MaleJuniorWC2_EXC1_Match1 (0 items)
+                   Male Junior WC2 EXC1 - Match 1
+          [BUCKET] MaleJuniorWC2_EXC1_Match2 (0 items)
+                   Male Junior WC2 EXC1 - Match 2
+        [FILTER] MaleJuniorWC2_EXC2 (0 items)
+                 Male Junior WC2 - Experienced (6+ bouts)
+          [BUCKET] MaleJuniorWC2_EXC2_Match3 (0 items)
+                   Male Junior WC2 EXC2 - Match 3
+          [BUCKET] MaleJuniorWC2_EXC2_Match4 (0 items)
+                   Male Junior WC2 EXC2 - Match 4
+    [FILTER] MaleYouth (0 items)
+             Male Youth (YOB 2008-2009)
+      [FILTER] MaleYouthWeightClass1 (0 items)
+               Male Youth Weight Class 1
+        [FILTER] MaleYouthWC1_EXC1 (0 items)
+                 Male Youth WC1 - Novice (0-5 bouts)
+          [BUCKET] MaleYouthWC1_EXC1_Match1 (0 items)
+                   Male Youth WC1 EXC1 - Match 1
+          [BUCKET] MaleYouthWC1_EXC1_Match2 (0 items)
+                   Male Youth WC1 EXC1 - Match 2
+        [FILTER] MaleYouthWC1_EXC2 (0 items)
+                 Male Youth WC1 - Experienced (6+ bouts)
+          [BUCKET] MaleYouthWC1_EXC2_Match3 (0 items)
+                   Male Youth WC1 EXC2 - Match 3
+          [BUCKET] MaleYouthWC1_EXC2_Match4 (0 items)
+                   Male Youth WC1 EXC2 - Match 4
+      [FILTER] MaleYouthWeightClass2 (0 items)
+               Male Youth Weight Class 2
+        [FILTER] MaleYouthWC2_EXC1 (0 items)
+                 Male Youth WC2 - Novice (0-5 bouts)
+          [BUCKET] MaleYouthWC2_EXC1_Match1 (0 items)
+                   Male Youth WC2 EXC1 - Match 1
+          [BUCKET] MaleYouthWC2_EXC1_Match2 (0 items)
+                   Male Youth WC2 EXC1 - Match 2
+        [FILTER] MaleYouthWC2_EXC2 (0 items)
+                 Male Youth WC2 - Experienced (6+ bouts)
+          [BUCKET] MaleYouthWC2_EXC2_Match3 (0 items)
+                   Male Youth WC2 EXC2 - Match 3
+          [BUCKET] MaleYouthWC2_EXC2_Match4 (0 items)
+                   Male Youth WC2 EXC2 - Match 4
+    [FILTER] MaleSenior (0 items)
+             Male Senior (YOB 2007)
+      [FILTER] MaleSeniorWeightClass1 (0 items)
+               Male Senior Weight Class 1
+        [FILTER] MaleSeniorWC1_EXC1 (0 items)
+                 Male Senior WC1 - Novice (0-5 bouts)
+          [BUCKET] MaleSeniorWC1_EXC1_Match1 (0 items)
+                   Male Senior WC1 EXC1 - Match 1
+          [BUCKET] MaleSeniorWC1_EXC1_Match2 (0 items)
+                   Male Senior WC1 EXC1 - Match 2
+        [FILTER] MaleSeniorWC1_EXC2 (0 items)
+                 Male Senior WC1 - Experienced (6+ bouts)
+          [BUCKET] MaleSeniorWC1_EXC2_Match3 (0 items)
+                   Male Senior WC1 EXC2 - Match 3
+          [BUCKET] MaleSeniorWC1_EXC2_Match4 (0 items)
+                   Male Senior WC1 EXC2 - Match 4
+      [FILTER] MaleSeniorWeightClass2 (0 items)
+               Male Senior Weight Class 2
+        [FILTER] MaleSeniorWC2_EXC1 (0 items)
+                 Male Senior WC2 - Novice (0-5 bouts)
+          [BUCKET] MaleSeniorWC2_EXC1_Match1 (0 items)
+                   Male Senior WC2 EXC1 - Match 1
+          [BUCKET] MaleSeniorWC2_EXC1_Match2 (0 items)
+                   Male Senior WC2 EXC1 - Match 2
+        [FILTER] MaleSeniorWC2_EXC2 (0 items)
+                 Male Senior WC2 - Experienced (6+ bouts)
+          [BUCKET] MaleSeniorWC2_EXC2_Match3 (0 items)
+                   Male Senior WC2 EXC2 - Match 3
+          [BUCKET] MaleSeniorWC2_EXC2_Match4 (0 items)
+                   Male Senior WC2 EXC2 - Match 4
+  [FILTER] FitFemales (0 items)
+           Fit female boxers
+    [BUCKET] FemaleSparMatch1 (3 items)
+             Female Spar Match 1
+    [BUCKET] FemaleSparMatch2 (4 items)
+             Female Spar Match 2
+    [BUCKET] FemaleSparMatch3 (4 items)
+             Female Spar Match 3

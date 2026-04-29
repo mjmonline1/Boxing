@@ -1,0 +1,20 @@
+Dataset Filter Tree Structure
+================================
+
+[FILTER] root (10 items)
+  [FILTER] males (0 items)
+           Male employees
+    [BUCKET] males_highPerformers (2 items)
+             Male high performers (score >= 80)
+    [BUCKET] males_standard (3 items)
+             Male standard performers (score < 80)
+  [FILTER] females (0 items)
+           Female employees
+    [FILTER] females_engineering (0 items)
+             Female engineers
+      [BUCKET] females_engineering_senior (1 items)
+               Senior female engineers (age >= 30)
+      [BUCKET] females_engineering_junior (2 items)
+               Junior female engineers (age < 30)
+    [BUCKET] females_nonEngineering (2 items)
+             Female non-engineers

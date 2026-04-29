@@ -529,6 +529,32 @@
     },
     {
       "red": {
+        "id": 71,
+        "name": "Yaqob Gallimore",
+        "club": "Finchley ABC",
+        "gender": "male",
+        "yob": 2008,
+        "fit": true,
+        "weight": 72.2,
+        "experience": 13,
+        "weightClass": 2
+      },
+      "blue": {
+        "id": 73,
+        "name": "Alfie Robertson",
+        "club": "Arbroath Amateur Boxing Club",
+        "gender": "male",
+        "yob": 2008,
+        "fit": true,
+        "weight": 72.8,
+        "experience": 10,
+        "weightClass": 2
+      },
+      "weightDiff": "0.60",
+      "category": "MaleYouthWC2_EXC2_Match4"
+    },
+    {
+      "red": {
         "id": 83,
         "name": "ALEJANDRO BELMONTE MULA",
         "club": "DOBLE JAB BOXING CLUB",
@@ -837,7 +863,7 @@
         "weightClass": 1
       },
       "weightDiff": "1.60",
-      "category": "Junior_Rescue"
+      "category": "Junior"
     },
     {
       "red": {
@@ -863,7 +889,7 @@
         "weightClass": 1
       },
       "weightDiff": "0.30",
-      "category": "Junior_Rescue"
+      "category": "Junior"
     },
     {
       "red": {
@@ -889,7 +915,7 @@
         "weightClass": 1
       },
       "weightDiff": "1.30",
-      "category": "Junior_Rescue"
+      "category": "Junior"
     },
     {
       "red": {
@@ -915,7 +941,7 @@
         "weightClass": 2
       },
       "weightDiff": "0.30",
-      "category": "Junior_Rescue"
+      "category": "Junior"
     },
     {
       "red": {
@@ -941,7 +967,7 @@
         "weightClass": 2
       },
       "weightDiff": "0.30",
-      "category": "Junior_Rescue"
+      "category": "Junior"
     },
     {
       "red": {
@@ -967,7 +993,7 @@
         "weightClass": 2
       },
       "weightDiff": "0.60",
-      "category": "Junior_Rescue"
+      "category": "Junior"
     },
     {
       "red": {
@@ -993,7 +1019,7 @@
         "weightClass": 2
       },
       "weightDiff": "1.70",
-      "category": "Junior_Rescue"
+      "category": "Junior"
     },
     {
       "red": {
@@ -1019,7 +1045,7 @@
         "weightClass": 2
       },
       "weightDiff": "0.60",
-      "category": "Junior_Rescue"
+      "category": "Junior"
     },
     {
       "red": {
@@ -1045,7 +1071,7 @@
         "weightClass": 2
       },
       "weightDiff": "0.20",
-      "category": "Junior_Rescue"
+      "category": "Junior"
     },
     {
       "red": {
@@ -1071,7 +1097,7 @@
         "weightClass": 1
       },
       "weightDiff": "1.00",
-      "category": "Youth_Rescue"
+      "category": "Youth"
     },
     {
       "red": {
@@ -1097,7 +1123,7 @@
         "weightClass": 1
       },
       "weightDiff": "1.40",
-      "category": "Youth_Rescue"
+      "category": "Youth"
     },
     {
       "red": {
@@ -1123,33 +1149,7 @@
         "weightClass": 2
       },
       "weightDiff": "1.50",
-      "category": "Youth_Rescue"
-    },
-    {
-      "red": {
-        "id": 71,
-        "name": "Yaqob Gallimore",
-        "club": "Finchley ABC",
-        "gender": "male",
-        "yob": 2008,
-        "fit": true,
-        "weight": 72.2,
-        "experience": 13,
-        "weightClass": 2
-      },
-      "blue": {
-        "id": 73,
-        "name": "Alfie Robertson",
-        "club": "Arbroath Amateur Boxing Club",
-        "gender": "male",
-        "yob": 2008,
-        "fit": false,
-        "weight": 72.8,
-        "experience": 10,
-        "weightClass": 2
-      },
-      "weightDiff": "0.60",
-      "category": "Youth_Rescue"
+      "category": "Youth"
     },
     {
       "red": {
@@ -1158,7 +1158,7 @@
         "club": "NoMercy/champscamp",
         "gender": "male",
         "yob": 2007,
-        "fit": false,
+        "fit": true,
         "weight": 80,
         "experience": 13,
         "weightClass": 2
@@ -1175,7 +1175,7 @@
         "weightClass": 2
       },
       "weightDiff": "0.00",
-      "category": "Youth_Rescue"
+      "category": "Youth"
     },
     {
       "red": {
@@ -1201,7 +1201,7 @@
         "weightClass": 1
       },
       "weightDiff": "2.00",
-      "category": "Senior_Rescue"
+      "category": "Senior"
     },
     {
       "red": {
@@ -1227,7 +1227,7 @@
         "weightClass": 1
       },
       "weightDiff": "1.10",
-      "category": "Senior_Rescue"
+      "category": "Senior"
     },
     {
       "red": {
@@ -1253,7 +1253,7 @@
         "weightClass": 1
       },
       "weightDiff": "1.50",
-      "category": "Senior_Rescue"
+      "category": "Senior"
     },
     {
       "red": {
@@ -1279,7 +1279,7 @@
         "weightClass": 1
       },
       "weightDiff": "1.10",
-      "category": "Senior_Rescue"
+      "category": "Senior"
     },
     {
       "red": {
@@ -1305,7 +1305,7 @@
         "weightClass": 1
       },
       "weightDiff": "0.10",
-      "category": "Senior_Rescue"
+      "category": "Senior"
     },
     {
       "red": {
@@ -1331,7 +1331,7 @@
         "weightClass": 2
       },
       "weightDiff": "0.10",
-      "category": "Senior_Rescue"
+      "category": "Senior"
     },
     {
       "red": {
@@ -1357,7 +1357,7 @@
         "weightClass": 2
       },
       "weightDiff": "0.60",
-      "category": "Senior_Rescue"
+      "category": "Senior"
     },
     {
       "red": {
@@ -1383,7 +1383,7 @@
         "weightClass": 2
       },
       "weightDiff": "0.30",
-      "category": "Senior_Rescue"
+      "category": "Senior"
     },
     {
       "red": {
@@ -1409,7 +1409,7 @@
         "weightClass": 2
       },
       "weightDiff": "1.30",
-      "category": "Senior_Rescue"
+      "category": "Senior"
     },
     {
       "red": {
@@ -1435,7 +1435,7 @@
         "weightClass": 2
       },
       "weightDiff": "0.30",
-      "category": "Senior_Rescue"
+      "category": "Senior"
     },
     {
       "red": {
@@ -1461,7 +1461,7 @@
         "weightClass": 1
       },
       "weightDiff": "1.90",
-      "category": "Female_Rescue"
+      "category": "Female"
     },
     {
       "red": {
@@ -1487,7 +1487,7 @@
         "weightClass": 1
       },
       "weightDiff": "0.70",
-      "category": "Female_Rescue"
+      "category": "Female"
     },
     {
       "red": {
@@ -1513,7 +1513,7 @@
         "weightClass": 1
       },
       "weightDiff": "1.50",
-      "category": "Female_Rescue"
+      "category": "Female"
     }
   ],
   "unmatched": [
@@ -1578,7 +1578,7 @@
       "club": "Team NL",
       "gender": "female",
       "yob": 2005,
-      "fit": false,
+      "fit": true,
       "weight": 57,
       "experience": 49,
       "weightClass": 1

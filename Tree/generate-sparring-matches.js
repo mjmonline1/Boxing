@@ -3,7 +3,7 @@ const path = require('path');
 
 // Configuration
 const SOURCE_FILE = path.join(__dirname, 'output', 'tsc-2025-tournament-results.json');
-const OUTPUT_FILE = path.join(__dirname, 'output', 'tsc-sparring-matches.json');
+const OUTPUT_FILE = path.join(__dirname, 'output/Spars', 'tsc-sparring-matches.json');
 const WEIGHT_TOLERANCE = 2.0;
 
 /**

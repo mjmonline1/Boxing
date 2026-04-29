@@ -1,0 +1,226 @@
+{
+  "summary": {
+    "totalOriginal": 16,
+    "totalDistributed": 16,
+    "finalBuckets": {
+      "NotFit": 1,
+      "MaleJuniorWC1_EXC1_Match1": 1,
+      "MaleJuniorWC1_EXC1_Match2": 0,
+      "MaleJuniorWC1_EXC2_Match3": 0,
+      "MaleJuniorWC1_EXC2_Match4": 1,
+      "MaleJuniorWC2_EXC1_Match1": 1,
+      "MaleJuniorWC2_EXC1_Match2": 0,
+      "MaleJuniorWC2_EXC2_Match3": 0,
+      "MaleJuniorWC2_EXC2_Match4": 1,
+      "MaleYouthWC1_EXC1_Match1": 1,
+      "MaleYouthWC1_EXC1_Match2": 0,
+      "MaleYouthWC1_EXC2_Match3": 0,
+      "MaleYouthWC1_EXC2_Match4": 1,
+      "MaleYouthWC2_EXC1_Match1": 1,
+      "MaleYouthWC2_EXC1_Match2": 0,
+      "MaleYouthWC2_EXC2_Match3": 0,
+      "MaleYouthWC2_EXC2_Match4": 1,
+      "MaleSeniorWC1_EXC1_Match1": 1,
+      "MaleSeniorWC1_EXC1_Match2": 0,
+      "MaleSeniorWC1_EXC2_Match3": 0,
+      "MaleSeniorWC1_EXC2_Match4": 1,
+      "MaleSeniorWC2_EXC1_Match1": 1,
+      "MaleSeniorWC2_EXC1_Match2": 0,
+      "MaleSeniorWC2_EXC2_Match3": 0,
+      "MaleSeniorWC2_EXC2_Match4": 1,
+      "FemaleSparMatch1": 1,
+      "FemaleSparMatch2": 1,
+      "FemaleSparMatch3": 1
+    }
+  },
+  "finalBuckets": {
+    "NotFit": [
+      {
+        "id": 1,
+        "name": "John Smith",
+        "gender": "male",
+        "yob": 2010,
+        "fit": false,
+        "weightClass": 1,
+        "experience": 3
+      }
+    ],
+    "MaleJuniorWC1_EXC1_Match1": [
+      {
+        "id": 2,
+        "name": "Mike Johnson",
+        "gender": "male",
+        "yob": 2010,
+        "fit": true,
+        "weightClass": 1,
+        "experience": 3
+      }
+    ],
+    "MaleJuniorWC1_EXC1_Match2": [],
+    "MaleJuniorWC1_EXC2_Match3": [],
+    "MaleJuniorWC1_EXC2_Match4": [
+      {
+        "id": 3,
+        "name": "Tom Brown",
+        "gender": "male",
+        "yob": 2011,
+        "fit": true,
+        "weightClass": 1,
+        "experience": 7
+      }
+    ],
+    "MaleJuniorWC2_EXC1_Match1": [
+      {
+        "id": 4,
+        "name": "Jake Wilson",
+        "gender": "male",
+        "yob": 2012,
+        "fit": true,
+        "weightClass": 2,
+        "experience": 2
+      }
+    ],
+    "MaleJuniorWC2_EXC1_Match2": [],
+    "MaleJuniorWC2_EXC2_Match3": [],
+    "MaleJuniorWC2_EXC2_Match4": [
+      {
+        "id": 5,
+        "name": "Sam Davis",
+        "gender": "male",
+        "yob": 2013,
+        "fit": true,
+        "weightClass": 2,
+        "experience": 8
+      }
+    ],
+    "MaleYouthWC1_EXC1_Match1": [
+      {
+        "id": 6,
+        "name": "Chris Taylor",
+        "gender": "male",
+        "yob": 2008,
+        "fit": true,
+        "weightClass": 1,
+        "experience": 4
+      }
+    ],
+    "MaleYouthWC1_EXC1_Match2": [],
+    "MaleYouthWC1_EXC2_Match3": [],
+    "MaleYouthWC1_EXC2_Match4": [
+      {
+        "id": 7,
+        "name": "Ryan Miller",
+        "gender": "male",
+        "yob": 2009,
+        "fit": true,
+        "weightClass": 1,
+        "experience": 10
+      }
+    ],
+    "MaleYouthWC2_EXC1_Match1": [
+      {
+        "id": 8,
+        "name": "Alex Garcia",
+        "gender": "male",
+        "yob": 2008,
+        "fit": true,
+        "weightClass": 2,
+        "experience": 5
+      }
+    ],
+    "MaleYouthWC2_EXC1_Match2": [],
+    "MaleYouthWC2_EXC2_Match3": [],
+    "MaleYouthWC2_EXC2_Match4": [
+      {
+        "id": 9,
+        "name": "Ben Martinez",
+        "gender": "male",
+        "yob": 2009,
+        "fit": true,
+        "weightClass": 2,
+        "experience": 12
+      }
+    ],
+    "MaleSeniorWC1_EXC1_Match1": [
+      {
+        "id": 10,
+        "name": "David Lee",
+        "gender": "male",
+        "yob": 2007,
+        "fit": true,
+        "weightClass": 1,
+        "experience": 3
+      }
+    ],
+    "MaleSeniorWC1_EXC1_Match2": [],
+    "MaleSeniorWC1_EXC2_Match3": [],
+    "MaleSeniorWC1_EXC2_Match4": [
+      {
+        "id": 11,
+        "name": "Kevin White",
+        "gender": "male",
+        "yob": 2007,
+        "fit": true,
+        "weightClass": 1,
+        "experience": 9
+      }
+    ],
+    "MaleSeniorWC2_EXC1_Match1": [
+      {
+        "id": 12,
+        "name": "Mark Harris",
+        "gender": "male",
+        "yob": 2007,
+        "fit": true,
+        "weightClass": 2,
+        "experience": 4
+      }
+    ],
+    "MaleSeniorWC2_EXC1_Match2": [],
+    "MaleSeniorWC2_EXC2_Match3": [],
+    "MaleSeniorWC2_EXC2_Match4": [
+      {
+        "id": 13,
+        "name": "Paul Clark",
+        "gender": "male",
+        "yob": 2007,
+        "fit": true,
+        "weightClass": 2,
+        "experience": 15
+      }
+    ],
+    "FemaleSparMatch1": [
+      {
+        "id": 15,
+        "name": "Emily Davis",
+        "gender": "female",
+        "yob": 2010,
+        "fit": true,
+        "weightClass": 1,
+        "experience": 3
+      }
+    ],
+    "FemaleSparMatch2": [
+      {
+        "id": 16,
+        "name": "Lisa Wilson",
+        "gender": "female",
+        "yob": 2007,
+        "fit": true,
+        "weightClass": 2,
+        "experience": 8
+      }
+    ],
+    "FemaleSparMatch3": [
+      {
+        "id": 14,
+        "name": "Sarah Jones",
+        "gender": "female",
+        "yob": 2008,
+        "fit": true,
+        "weightClass": 1,
+        "experience": 5
+      }
+    ]
+  }
+}

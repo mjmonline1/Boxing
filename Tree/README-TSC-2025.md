@@ -5,6 +5,7 @@ Complete implementation of your boxing tournament bracket structure using the ac
 ## 🥊 Tournament Results Summary
 
 **Total Boxers: 137**
+
 - Male: 126 boxers
   - Juniors (2009 & younger): 51 boxers
   - Youth (2007-2008): 28 boxers
@@ -22,6 +23,7 @@ node tsc-tournament-2025.js
 ```
 
 This will:
+
 - Load all 137 boxers from the CSV
 - Assign each to their match bracket
 - Show detailed match assignments
@@ -30,6 +32,7 @@ This will:
 ### 2. Modify Data
 
 Edit `data/tsc-boxers-2025.csv` to:
+
 - Update boxer information
 - Add/remove boxers
 - Change weight/experience
@@ -38,7 +41,7 @@ Then re-run the tournament assignment.
 
 ## How It Works
 
-### Filter Hierarchy (matching your boxing.mmd diagram):
+### Filter Hierarchy (matching your boxing.mmd diagram)
 
 ```
 All Boxers (137)
@@ -78,6 +81,7 @@ All Boxers (137)
 ### Weight Class Divisions
 
 The system automatically assigns weight classes based on actual weight:
+
 - **Juniors**: Split at 60kg
 - **Youth**: Split at 70kg
 - **Seniors**: Split at 70kg
@@ -112,15 +116,18 @@ Within each experience level, boxers are distributed between 2 matches using a s
 ## Files
 
 ### Input Files
+
 - **2025_TSC_Boxer_details.pdf** - Original PDF data
 - **data/tsc-boxers-2025.csv** - Parsed CSV data (137 boxers)
 
 ### Processing Files
+
 - **parse-tsc-data.js** - Converts PDF data to CSV
 - **tsc-tournament-2025.js** - Main tournament assignment script
 - **hierarchical-filter.js** - Core filtering engine
 
 ### Output Files (generated)
+
 - **output/tsc-2025-tournament-results.json** - Complete results in JSON
 - **output/tsc-2025-tournament-tree.txt** - Tree visualization
 
@@ -188,21 +195,25 @@ rule: (boxer) => boxer.weight < medianWeight
 ## Statistics from Actual Data
 
 ### Male Juniors (51 boxers)
+
 - Weight Class 1: 27 boxers (27-59.8kg)
 - Weight Class 2: 24 boxers (60-80kg)
 - Experience range: 0-35 bouts
 
 ### Male Youth (28 boxers)
+
 - Weight Class 1: 13 boxers (50.8-69.8kg)
 - Weight Class 2: 15 boxers (70-81kg)
 - Experience range: 0-36 bouts
 
 ### Male Seniors (47 boxers)
+
 - Weight Class 1: 20 boxers (55-68.7kg)
 - Weight Class 2: 27 boxers (70-120.7kg)
 - Experience range: 0-230 bouts (!)
 
 ### Females (11 boxers)
+
 - Distributed across 3 matches
 - Weight range: 53-69kg
 - Experience range: 0-49 bouts
@@ -210,17 +221,21 @@ rule: (boxer) => boxer.weight < medianWeight
 ## Notable Boxers
 
 **Most Experienced:**
+
 - Omid Ahmadisafa (Senior) - 230 bouts!
 - Donagh Keary (Senior) - 110 bouts
 - Robert Jitaru (Senior) - 100 bouts
 
 **Most Experienced Junior:**
+
 - Phoenix Kenny - 35 bouts
 
 **Youngest:**
+
 - Tom Coyle (2013) - Irish National Champion at 31kg
 
 **Heaviest:**
+
 - Bailey Michael Gayle (Senior) - 120.7kg
 
 ## Using the Results
@@ -277,6 +292,7 @@ Object.entries(results.results)
 ## Verification
 
 The system automatically verifies:
+
 - ✅ Every boxer assigned to exactly one match
 - ✅ No boxers lost or duplicated
 - ✅ Total in = Total out (137 = 137)
@@ -292,6 +308,7 @@ The system automatically verifies:
 ## Support
 
 This system ensures:
+
 - ✅ Each boxer in exactly ONE match (mutually exclusive)
 - ✅ Proper age group classification
 - ✅ Weight-based divisions
