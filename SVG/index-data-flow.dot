@@ -1,0 +1,89 @@
+digraph IndexDataFlow {
+  rankdir=TB;
+  graph [fontname="Arial" fontsize=11 splines=ortho];
+  node  [fontname="Arial" fontsize=11 shape=box style="filled,rounded" margin="0.15,0.08"];
+  edge  [fontname="Arial" fontsize=9];
+
+  // ════════════════════════════════════════════════
+  // FILES
+  // ════════════════════════════════════════════════
+
+  subgraph cluster_files {
+    label="Files on disk"; style=filled; color="#e8f4ff"; fontname="Arial"; fontsize=11;
+
+    F_csv       [label="data/Registered Boxer2026.csv\n(source roster)" fillcolor="#cce5ff" color="#4a90d9" shape=note];
+    F_buckets   [label="output/Buckets/tsc-2025-buckets.json\noutput/Buckets/<bucket>.csv  (per bracket)" fillcolor="#cce5ff" color="#4a90d9" shape=note];
+    F_spars     [label="output/Spars/Spars.json\n(matched pairs)" fillcolor="#cce5ff" color="#4a90d9" shape=note];
+    F_schedule  [label="output/Spars/schedule_grouped.json\noutput/Spars/schedule.json\noutput/Spars/allocations.json" fillcolor="#cce5ff" color="#4a90d9" shape=note];
+  }
+
+  // ════════════════════════════════════════════════
+  // SERVER
+  // ════════════════════════════════════════════════
+
+  subgraph cluster_server {
+    label="Server.js  (localhost:5500)"; style=filled; color="#fff3cd"; fontname="Arial"; fontsize=11;
+
+    SRV_boxers   [label="GET  /api/data/boxers\nPUT  /api/data/boxers\n(parses CSV ↔ mapHeader2026)" fillcolor="#fff3cd" color="#e6a817"];
+    SRV_buckets  [label="POST /api/run/buckets\n→ PutAllFightersinBuckets.js" fillcolor="#fff3cd" color="#e6a817"];
+    SRV_spars    [label="POST /api/run/spar-maker\n→ SparMaker.js\nGET/PUT /api/data/spars" fillcolor="#fff3cd" color="#e6a817"];
+    SRV_rings    [label="POST /api/run/ring-assigner  {day:N}\n→ RingAssigner.js\nGET/PUT /api/data/schedule" fillcolor="#fff3cd" color="#e6a817"];
+  }
+
+  // ════════════════════════════════════════════════
+  // UI TOOLS  (steps 1 → 7)
+  // ════════════════════════════════════════════════
+
+  S1 [label="Step 1 — BoxerManager.html\nAdd / edit / view boxer roster" fillcolor="#d4edda" color="#2e7d32"];
+  S2 [label="Step 2 — BucketAssigner.html\nDistribute into weight + age brackets" fillcolor="#d4edda" color="#2e7d32"];
+  S3 [label="Step 3 — 'Create Spars' button\n(index.html)" fillcolor="#d4edda" color="#2e7d32"];
+  S4 [label="Step 4 — SparManager.html\nReview + adjust pairs\n+ localStorage (corner assignments)" fillcolor="#d4edda" color="#2e7d32"];
+  S5 [label="Step 5 — 'Assign Rings' button\n(index.html)  day input → odd/even sort" fillcolor="#d4edda" color="#2e7d32"];
+  S6 [label="Step 6 — RingManager.html\nView + tweak ring allocations" fillcolor="#d4edda" color="#2e7d32"];
+  S7 [label="Step 7 — TimelineView.html\nGantt chart — every ring minute-by-minute" fillcolor="#d4edda" color="#2e7d32"];
+
+  Modal [label="Output modal (index.html)\nshows stdout / errors" fillcolor="#f8d7da" color="#c0392b" shape=parallelogram];
+
+  // ════════════════════════════════════════════════
+  // EDGES
+  // ════════════════════════════════════════════════
+
+  // Step 1 — Boxer Manager
+  S1          -> SRV_boxers  [label="GET /api/data/boxers"];
+  SRV_boxers  -> F_csv       [label="reads"];
+  S1          -> SRV_boxers  [label="PUT /api/data/boxers (save edits)" style=dashed];
+  SRV_boxers  -> F_csv       [label="writes back" style=dashed];
+
+  // Step 2 — Bucket Assigner
+  S2          -> SRV_buckets [label="POST /api/run/buckets"];
+  SRV_buckets -> F_csv       [label="reads"];
+  SRV_buckets -> F_buckets   [label="writes"];
+  SRV_buckets -> Modal       [label="stdout"];
+
+  // Step 3 — Create Spars
+  S3          -> SRV_spars   [label="POST /api/run/spar-maker"];
+  SRV_spars   -> F_buckets   [label="reads"];
+  SRV_spars   -> F_spars     [label="writes"];
+  SRV_spars   -> Modal       [label="stdout"];
+
+  // Step 4 — Spar Manager
+  S4          -> SRV_spars   [label="GET /api/data/spars"];
+  SRV_spars   -> F_spars     [label="reads"];
+  S4          -> SRV_spars   [label="PUT /api/data/spars (save edits)" style=dashed];
+  SRV_spars   -> F_spars     [label="writes back" style=dashed];
+
+  // Step 5 — Assign Rings
+  S5          -> SRV_rings   [label="POST /api/run/ring-assigner"];
+  SRV_rings   -> F_spars     [label="reads"];
+  SRV_rings   -> F_schedule  [label="writes"];
+  SRV_rings   -> Modal       [label="stdout"];
+
+  // Step 6 — Ring Manager
+  S6          -> SRV_rings   [label="GET /api/data/schedule"];
+  SRV_rings   -> F_schedule  [label="reads"];
+  S6          -> SRV_rings   [label="PUT /api/data/schedule (save edits)" style=dashed];
+  SRV_rings   -> F_schedule  [label="writes back" style=dashed];
+
+  // Step 7 — Timeline View
+  S7          -> SRV_rings   [label="GET /api/data/schedule"];
+}
