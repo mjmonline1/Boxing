@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Security-Policy"
+      content="
+        default-src 'self';
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' data:;
+        script-src 'self';
+      ">
+
+<meta charset="UTF-8">
+<title>Boxer Pairing Explainer</title>
+
+<style>
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 40px;
+}
+
+.diagram {
+  margin-bottom: 20px;
+}
+
+.step {
+  opacity: 0;
+  animation: reveal 0.5s forwards;
+}
+
+.step:nth-child(1) { animation-delay: 0.5s; }
+.step:nth-child(2) { animation-delay: 1.2s; }
+.step:nth-child(3) { animation-delay: 2.0s; }
+.step:nth-child(4) { animation-delay: 3.0s; }
+.step:nth-child(5) { animation-delay: 4.0s; }
+
+
+@keyframes reveal {
+  to { opacity: 1; }
+}
+</style>
+</head>
+
+<body>
+
+<h2>How Boxers Are Paired</h2>
+
+<div class="diagram">
+  <object type="image/svg+xml" data="boxinggg.svg" width="900" height="420"></object>
+</div>
+
+<h3>Step-by-step</h3>
+
+<ol>
+  <li class="step">
+    All registered boxers enter the system as a single group.
+  </li>
+  <li class="step">
+    Any boxers marked not fit will be excluded.
+  </li>
+  
+  <li class="step">
+    Boxers are first separated by gender into male and female divisions.
+  </li>
+  <li class="step">
+    Each division is then split by age: Junior (&lt;15), Youth (16/17), and Senior (18+).
+  </li>
+  <li class="step">
+    Boxers in the same category can now be paired fairly for bouts.
+  </li>
+  
+</ol>
+
+</body>
+</html>
