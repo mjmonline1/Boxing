@@ -1,0 +1,730 @@
+<!-- Copyright (c) 2026 ITLR Assets. All rights reserved. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Boxer Manager 2026</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body { font-family: Arial, sans-serif; margin: 0; background: #f0f2f5; }
+
+    /* ── Toolbar ── */
+    #toolbar {
+      display: flex; align-items: center; gap: 16px;
+      padding: 10px 16px; background: var(--toolbar-bg); color: var(--toolbar-text);
+      position: sticky; top: 0; z-index: 10;
+    }
+    #toolbar h1 { margin: 0; font-size: 18px; flex: 1; }
+    #toolbar button {
+      padding: 7px 16px; border: none; border-radius: 6px;
+      cursor: pointer; font-size: 13px; font-weight: bold;
+    }
+    #toolbar a.nav-btn {
+      padding: 7px 14px; border: 1px solid var(--nav-btn-border); border-radius: 6px;
+      color: var(--nav-btn-color); text-decoration: none; font-size: 13px;
+      font-weight: bold; white-space: nowrap;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    #toolbar a.nav-btn:hover { border-color: var(--nav-btn-hover-border); color: var(--nav-btn-hover-color); }
+    #toolbar button:disabled { opacity: .45; cursor: default; }
+    #openBtn  { background: #4a90d9; color: white; }
+    #saveBtn  { background: #4caf50; color: white; }
+    #addBtn   { background: #ff9800; color: white; }
+    #searchInput {
+      padding: 6px 10px; border: none; border-radius: 6px;
+      font-size: 13px; width: 200px;
+    }
+
+    /* ── Stats bar ── */
+    #statsBar {
+      display: none; gap: 20px;
+      padding: 6px 16px; background: white;
+      border-bottom: 1px solid #ddd; font-size: 12px; color: #555;
+    }
+
+    /* ── Table ── */
+    #tableWrap { padding: 12px; overflow-x: auto; }
+
+    #emptyState {
+      text-align: center; padding: 60px 20px;
+      color: #999; font-size: 15px;
+    }
+
+    table {
+      width: 100%; border-collapse: collapse; background: white;
+      border-radius: 8px; overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,.1); font-size: 13px;
+    }
+    thead th {
+      background: #1a1a2e; color: white;
+      padding: 10px 12px; text-align: left;
+      cursor: pointer; white-space: nowrap; user-select: none;
+    }
+    thead th:last-child { cursor: default; }
+    thead th:hover:not(:last-child) { background: #2a2a4e; }
+    thead th.sort-asc::after  { content: ' ↑'; }
+    thead th.sort-desc::after { content: ' ↓'; }
+
+    tbody tr:nth-child(even) { background: #f9f9f9; }
+    tbody tr:hover           { background: #e8f4ff; }
+    td { padding: 8px 12px; border-bottom: 1px solid #eee; }
+    td.actions { white-space: nowrap; }
+    td.truncate { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .btn-edit      { padding: 4px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; background: #4a90d9; color: white; margin-right: 4px; }
+    .btn-delete    { padding: 4px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; background: #e53935; color: white; }
+    .btn-fit-yes   { padding: 4px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; background: #4caf50; color: white; margin-right: 4px; }
+    .btn-fit-no    { padding: 4px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; background: #ff9800; color: white; margin-right: 4px; }
+
+    .fit-yes { color: #4caf50; font-weight: bold; }
+    .fit-no  { color: #e53935; font-weight: bold; }
+    .gender-female { color: #e91e8c; }
+
+    /* ── Modal ── */
+    #modalOverlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.5); z-index: 100;
+      align-items: center; justify-content: center;
+    }
+    #modalOverlay.open { display: flex; }
+
+    #modal {
+      background: white; border-radius: 10px;
+      width: 560px; max-width: 95vw; max-height: 92vh; overflow-y: auto;
+      padding: 24px; box-shadow: 0 8px 32px rgba(0,0,0,.3);
+    }
+    #modal h2 { margin: 0 0 20px; font-size: 17px; color: #1a1a2e; }
+
+    .form-row        { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .form-row.full   { grid-template-columns: 1fr; }
+    .form-row.three  { grid-template-columns: 1fr 1fr 1fr; }
+    .form-group      { display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; font-weight: bold; color: #555; text-transform: uppercase; letter-spacing: .4px; }
+    .form-group input, .form-group select, .form-group textarea {
+      padding: 7px 10px; border: 1px solid #ccc;
+      border-radius: 6px; font-size: 13px; font-family: inherit;
+    }
+    .form-group textarea { resize: vertical; min-height: 60px; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none; border-color: #4a90d9;
+      box-shadow: 0 0 0 2px rgba(74,144,217,.2);
+    }
+    .form-group input:disabled, .form-group select:disabled, .form-group textarea:disabled {
+      background: #f5f5f5; color: #888; cursor: default;
+    }
+    .form-group input.error { border-color: #e53935; }
+
+    .form-section { border-top: 1px solid #eee; margin-top: 16px; padding-top: 12px; }
+    .form-section-title { font-size: 11px; font-weight: bold; color: #aaa; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+    .modal-actions button {
+      padding: 8px 22px; border: none; border-radius: 6px;
+      cursor: pointer; font-size: 13px; font-weight: bold;
+    }
+    #cancelBtn  { background: #eee; color: #333; }
+    #saveRowBtn { background: #4caf50; color: white; }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      background: #333; color: white; padding: 10px 20px; border-radius: 6px;
+      font-size: 13px; opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 200;
+    }
+    #toast.show { opacity: 1; }
+  </style>
+  <link rel="stylesheet" href="theme.css">
+</head>
+<body>
+
+<div id="toolbar">
+  <a class="nav-btn" href="index.html">&#8592; Home</a>
+  <h1>Boxer Manager 2026</h1>
+  <input type="text" id="searchInput" placeholder="Search name / club…" oninput="filterTable()">
+  <button id="addBtn"  onclick="openModal(null)" disabled>+ Add Boxer</button>
+  <button id="openBtn" onclick="openFile()">Open CSV</button>
+  <button id="saveBtn" onclick="saveToServer()" disabled>Save</button>
+  <button class="theme-btn"></button>
+  <a class="nav-btn" href="BucketAssigner.html">Put Fighters in Buckets &#8594;</a>
+</div>
+
+<div id="statsBar">
+  <span id="statTotal"></span>
+  <span id="statMale"></span>
+  <span id="statFemale"></span>
+  <span id="statUnfit"></span>
+  <span id="statShowing" style="margin-left:auto;color:#999"></span>
+</div>
+
+<div id="tableWrap">
+  <div id="emptyState">Loading boxer data from server…</div>
+  <table id="boxerTable" style="display:none">
+    <thead>
+      <tr>
+        <th onclick="sortBy('id')">ID</th>
+        <th onclick="sortBy('name')">Name</th>
+        <th onclick="sortBy('club')">Club</th>
+        <th onclick="sortBy('gender')">Gender</th>
+        <th onclick="sortBy('yob')">YOB</th>
+        <th onclick="sortBy('category')">Category</th>
+        <th onclick="sortBy('fit')">Fit</th>
+        <th onclick="sortBy('weight')">Weight (kg)</th>
+        <th onclick="sortBy('bouts')">Bouts</th>
+        <th onclick="sortBy('won')">Won</th>
+        <th onclick="sortBy('lost')">Lost</th>
+        <th onclick="sortBy('dob')">DOB</th>
+        <th onclick="sortBy('email')">Email</th>
+        <th onclick="sortBy('comments')">Comments</th>
+        <th onclick="sortBy('submissionDate')">Submitted</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+<!-- Add / Edit Modal -->
+<div id="modalOverlay">
+  <div id="modal">
+    <h2 id="modalTitle">Add Boxer</h2>
+
+    <div class="form-row full">
+      <div class="form-group">
+        <label>Name</label>
+        <input id="f_name" type="text" placeholder="Full name">
+      </div>
+    </div>
+
+    <div class="form-row full">
+      <div class="form-group">
+        <label>Club</label>
+        <input id="f_club" type="text" placeholder="Club name" list="clubsList">
+        <datalist id="clubsList"></datalist>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Gender</label>
+        <select id="f_gender">
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Category</label>
+        <input id="f_category" type="text" placeholder="e.g. Junior (2009 &amp; younger)" list="categoriesList">
+        <datalist id="categoriesList"></datalist>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Date of Birth</label>
+        <input id="f_dob" type="text" placeholder="DD/MM/YYYY">
+      </div>
+      <div class="form-group">
+        <label>Weight (kg)</label>
+        <input id="f_weight" type="number" min="20" max="250" step="0.1" placeholder="e.g. 65.5">
+      </div>
+    </div>
+
+    <div class="form-row three">
+      <div class="form-group">
+        <label>Total Bouts</label>
+        <input id="f_bouts" type="number" min="0" step="1" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>Won</label>
+        <input id="f_won" type="number" min="0" step="1" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>Lost</label>
+        <input id="f_lost" type="number" min="0" step="1" placeholder="0">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Fit to compete?</label>
+        <select id="f_fit">
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row full">
+      <div class="form-group">
+        <label>Email</label>
+        <input id="f_email" type="email" placeholder="Email address">
+      </div>
+    </div>
+
+    <div class="form-row full">
+      <div class="form-group">
+        <label>Comments</label>
+        <textarea id="f_comments" rows="2" placeholder="Additional information…"></textarea>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title">Registration info (read-only)</div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label>Submission Date</label>
+          <input id="f_submission_date" type="text" disabled>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Consent: Weigh-in</label>
+          <input id="f_consent1" type="text" disabled>
+        </div>
+        <div class="form-group">
+          <label>Consent: Gloves/Gear</label>
+          <input id="f_consent2" type="text" disabled>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button id="cancelBtn"  onclick="closeModal()">Cancel</button>
+      <button id="saveRowBtn" onclick="saveRow()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────────
+
+let boxers     = [];
+let filtered   = [];
+let fileHandle = null;
+let editingId  = null;
+let sortCol    = 'id';
+let sortDir    = 1;
+
+// ── CSV helpers ───────────────────────────────────────────────────────────────
+
+function splitCSVLine(line) {
+  const cols = [];
+  let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') {
+      if (inQ && line[i + 1] === '"') { cur += '"'; i++; }
+      else inQ = !inQ;
+    } else if (c === ',' && !inQ) {
+      cols.push(cur); cur = '';
+    } else {
+      cur += c;
+    }
+  }
+  cols.push(cur);
+  return cols;
+}
+
+function mapHeader(raw) {
+  const norm = raw.trim().toLowerCase();
+  if (norm === 'date') return 'submissionDate';
+  if (norm === 'full name') return 'name';
+  if (norm === 'club') return 'club';
+  if (norm === 'gender') return 'gender';
+  if (norm === 'category') return 'category';
+  if (norm === 'date of birth') return 'dob';
+  if (norm === 'current weight (kg)') return 'weight';
+  if (norm === 'bouts (the number only)') return 'bouts';
+  if (norm === 'won (the number only)') return 'won';
+  if (norm === 'lost (the number only)') return 'lost';
+  if (norm.startsWith('additional information')) return 'comments';
+  if (norm.startsWith('i understand')) return 'consent1';
+  if (norm.startsWith('i accept')) return 'consent2';
+  if (norm === 'email address') return 'email';
+  if (norm === 'fit') return 'fit';
+  return norm;
+}
+
+function parseCSV(text) {
+  const lines = text.replace(/\r/g, '').trim().split('\n');
+  const rawHeaders = splitCSVLine(lines[0]);
+  const headers = rawHeaders.map(mapHeader);
+  return lines.slice(1).filter(l => l.trim()).map((line, idx) => {
+    const cols = splitCSVLine(line);
+    const o = {};
+    headers.forEach((h, i) => { o[h] = (cols[i] || '').trim(); });
+    o.weight = parseFloat(o.weight) || 0;
+    o.bouts  = parseInt(o.bouts, 10)  || 0;
+    o.won    = parseInt(o.won, 10)    || 0;
+    o.lost   = parseInt(o.lost, 10)   || 0;
+    const dobParts = (o.dob || '').split('/');
+    o.yob = parseInt(dobParts[2]) || 0;
+    o.experience = o.bouts;
+    o.id = idx + 1;
+    if (!o.fit) o.fit = 'yes';
+    o.gender = o.gender ? o.gender.toLowerCase() : 'male';
+    return o;
+  });
+}
+
+function serializeCSV(data) {
+  const headers = ['submissionDate','name','club','gender','category','dob','weight','bouts','won','lost','comments','consent1','consent2','email','fit'];
+  const esc = v => {
+    const s = String(v ?? '');
+    return /[,"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  return [
+    headers.join(','),
+    ...data.map(b => headers.map(h => esc(b[h])).join(','))
+  ].join('\n') + '\n';
+}
+
+// ── File I/O (File System Access API — Chrome/Edge) ───────────────────────────
+
+async function openFile() {
+  if (!window.showOpenFilePicker) {
+    const input = document.createElement('input');
+    input.type = 'file'; input.accept = '.csv';
+    input.onchange = async () => {
+      const text = await input.files[0].text();
+      loadData(text, input.files[0].name);
+      showToast('Read-only mode — Save will download a new file');
+    };
+    input.click();
+    return;
+  }
+  try {
+    [fileHandle] = await window.showOpenFilePicker({
+      types: [{ description: 'CSV Files', accept: { 'text/csv': ['.csv'] } }],
+      multiple: false
+    });
+    const file = await fileHandle.getFile();
+    loadData(await file.text(), file.name);
+  } catch (e) {
+    if (e.name !== 'AbortError') showToast('Open failed: ' + e.message);
+  }
+}
+
+async function saveFile() {
+  if (!fileHandle) {
+    const blob = new Blob([serializeCSV(boxers)], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'RegisteredBoxers2026.csv';
+    a.click();
+    showToast('Downloaded RegisteredBoxers2026.csv');
+    return;
+  }
+  try {
+    const writable = await fileHandle.createWritable();
+    await writable.write(serializeCSV(boxers));
+    await writable.close();
+    showToast(`Saved ${boxers.length} boxers`);
+  } catch (e) {
+    showToast('Save failed: ' + e.message);
+  }
+}
+
+function loadData(text, filename) {
+  boxers = parseCSV(text);
+  document.getElementById('addBtn').disabled = false;
+  document.getElementById('saveBtn').disabled = false;
+  document.getElementById('statsBar').style.display = 'flex';
+  updateClubsList();
+  updateCategoriesList();
+  applySort();
+  updateStats();
+  showToast(`Loaded ${boxers.length} boxers from ${filename}`);
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+
+function renderTable() {
+  const tbody = document.getElementById('tbody');
+  const table = document.getElementById('boxerTable');
+  const empty = document.getElementById('emptyState');
+
+  if (!boxers.length) {
+    table.style.display = 'none';
+    empty.style.display = '';
+    return;
+  }
+  table.style.display = '';
+  empty.style.display = 'none';
+
+  tbody.innerHTML = filtered.map(b => `
+    <tr>
+      <td>${b.id}</td>
+      <td>${escHtml(b.name)}</td>
+      <td>${escHtml(b.club)}</td>
+      <td class="${b.gender === 'female' ? 'gender-female' : ''}">${b.gender}</td>
+      <td>${b.yob || ''}</td>
+      <td class="truncate">${escHtml(b.category || '')}</td>
+      <td class="${b.fit === 'yes' ? 'fit-yes' : 'fit-no'}">${b.fit}</td>
+      <td>${b.weight}</td>
+      <td>${b.bouts}</td>
+      <td>${b.won}</td>
+      <td>${b.lost}</td>
+      <td>${escHtml(b.dob || '')}</td>
+      <td class="truncate">${escHtml(b.email || '')}</td>
+      <td class="truncate">${escHtml(b.comments || '')}</td>
+      <td class="truncate">${escHtml(b.submissionDate || '')}</td>
+      <td class="actions">
+        <button class="${b.fit === 'yes' ? 'btn-fit-yes' : 'btn-fit-no'}" onclick="toggleFit(${b.id})">${b.fit === 'yes' ? 'Fit ✓' : 'Unfit ✗'}</button>
+        <button class="btn-edit"   onclick="openModal(${b.id})">Edit</button>
+        <button class="btn-delete" onclick="deleteBoxer(${b.id})">Delete</button>
+      </td>
+    </tr>
+  `).join('');
+
+  document.querySelectorAll('thead th').forEach(th => th.classList.remove('sort-asc', 'sort-desc'));
+  const cols = ['id','name','club','gender','yob','category','fit','weight','bouts','won','lost','dob','email','comments','submissionDate'];
+  const idx  = cols.indexOf(sortCol);
+  if (idx >= 0) document.querySelectorAll('thead th')[idx].classList.add(sortDir === 1 ? 'sort-asc' : 'sort-desc');
+
+  const showing = document.getElementById('statShowing');
+  showing.textContent = filtered.length < boxers.length
+    ? `Showing ${filtered.length} of ${boxers.length}` : '';
+}
+
+function updateStats() {
+  const males   = boxers.filter(b => b.gender === 'male').length;
+  const females = boxers.filter(b => b.gender === 'female').length;
+  const unfit   = boxers.filter(b => b.fit === 'no').length;
+  document.getElementById('statTotal').textContent  = `Total: ${boxers.length}`;
+  document.getElementById('statMale').textContent   = `Male: ${males}`;
+  document.getElementById('statFemale').textContent = `Female: ${females}`;
+  document.getElementById('statUnfit').textContent  = `Not fit: ${unfit}`;
+}
+
+function updateClubsList() {
+  const clubs = [...new Set(boxers.map(b => b.club))].sort();
+  document.getElementById('clubsList').innerHTML = clubs.map(c => `<option value="${escHtml(c)}">`).join('');
+}
+
+function updateCategoriesList() {
+  const cats = [...new Set(boxers.map(b => b.category).filter(Boolean))].sort();
+  document.getElementById('categoriesList').innerHTML = cats.map(c => `<option value="${escHtml(c)}">`).join('');
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Sort & filter ─────────────────────────────────────────────────────────────
+
+function sortBy(col) {
+  sortDir = (sortCol === col) ? sortDir * -1 : 1;
+  sortCol = col;
+  applySort();
+  renderTable();
+}
+
+function applySort() {
+  const dir = sortDir;
+  boxers.sort((a, b) => {
+    const av = a[sortCol], bv = b[sortCol];
+    if (typeof av === 'number') return (av - bv) * dir;
+    return String(av).localeCompare(String(bv)) * dir;
+  });
+  filterTable();
+}
+
+function filterTable() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  filtered = q
+    ? boxers.filter(b =>
+        (b.name     || '').toLowerCase().includes(q) ||
+        (b.club     || '').toLowerCase().includes(q) ||
+        (b.category || '').toLowerCase().includes(q) ||
+        (b.email    || '').toLowerCase().includes(q) ||
+        (b.comments || '').toLowerCase().includes(q))
+    : [...boxers];
+  renderTable();
+}
+
+// ── CRUD ──────────────────────────────────────────────────────────────────────
+
+function openModal(id) {
+  editingId = id;
+  document.getElementById('modalTitle').textContent = id === null ? 'Add Boxer' : 'Edit Boxer';
+
+  if (id === null) {
+    document.getElementById('f_name').value            = '';
+    document.getElementById('f_club').value            = '';
+    document.getElementById('f_gender').value          = 'male';
+    document.getElementById('f_category').value        = '';
+    document.getElementById('f_dob').value             = '';
+    document.getElementById('f_weight').value          = '';
+    document.getElementById('f_bouts').value           = '0';
+    document.getElementById('f_won').value             = '0';
+    document.getElementById('f_lost').value            = '0';
+    document.getElementById('f_fit').value             = 'yes';
+    document.getElementById('f_email').value           = '';
+    document.getElementById('f_comments').value        = '';
+    document.getElementById('f_submission_date').value = '';
+    document.getElementById('f_consent1').value        = '';
+    document.getElementById('f_consent2').value        = '';
+  } else {
+    const b = boxers.find(x => x.id === id);
+    document.getElementById('f_name').value            = b.name || '';
+    document.getElementById('f_club').value            = b.club || '';
+    document.getElementById('f_gender').value          = b.gender || 'male';
+    document.getElementById('f_category').value        = b.category || '';
+    document.getElementById('f_dob').value             = b.dob || '';
+    document.getElementById('f_weight').value          = b.weight || '';
+    document.getElementById('f_bouts').value           = b.bouts ?? 0;
+    document.getElementById('f_won').value             = b.won   ?? 0;
+    document.getElementById('f_lost').value            = b.lost  ?? 0;
+    document.getElementById('f_fit').value             = b.fit || 'yes';
+    document.getElementById('f_email').value           = b.email || '';
+    document.getElementById('f_comments').value        = b.comments || '';
+    document.getElementById('f_submission_date').value = b.submissionDate || '';
+    document.getElementById('f_consent1').value        = b.consent1 || '';
+    document.getElementById('f_consent2').value        = b.consent2 || '';
+  }
+
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('f_name').focus();
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  editingId = null;
+}
+
+function saveRow() {
+  const name     = document.getElementById('f_name').value.trim();
+  const club     = document.getElementById('f_club').value.trim();
+  const gender   = document.getElementById('f_gender').value;
+  const category = document.getElementById('f_category').value.trim();
+  const dob      = document.getElementById('f_dob').value.trim();
+  const weight   = parseFloat(document.getElementById('f_weight').value);
+  const bouts    = parseInt(document.getElementById('f_bouts').value, 10)  || 0;
+  const won      = parseInt(document.getElementById('f_won').value, 10)    || 0;
+  const lost     = parseInt(document.getElementById('f_lost').value, 10)   || 0;
+  const fit      = document.getElementById('f_fit').value;
+  const email    = document.getElementById('f_email').value.trim();
+  const comments = document.getElementById('f_comments').value.trim();
+  const submissionDate = document.getElementById('f_submission_date').value;
+  const consent1 = document.getElementById('f_consent1').value;
+  const consent2 = document.getElementById('f_consent2').value;
+
+  if (!name)                        return flash('f_name');
+  if (!club)                        return flash('f_club');
+  if (!dob)                         return flash('f_dob');
+  if (isNaN(weight) || weight < 20) return flash('f_weight');
+
+  const dobParts = dob.split('/');
+  const yob = parseInt(dobParts[2]) || 0;
+  const experience = bouts;
+
+  if (editingId === null) {
+    const newId = boxers.length ? Math.max(...boxers.map(b => b.id)) + 1 : 1;
+    boxers.push({ id: newId, name, club, gender, category, dob, yob, weight, bouts, won, lost, fit, email, comments, submissionDate, consent1, consent2, experience });
+    showToast(`Added ${name} (ID ${newId})`);
+  } else {
+    const idx = boxers.findIndex(b => b.id === editingId);
+    boxers[idx] = { ...boxers[idx], name, club, gender, category, dob, yob, weight, bouts, won, lost, fit, email, comments, experience };
+    showToast(`Updated ${name}`);
+  }
+
+  closeModal();
+  updateClubsList();
+  updateCategoriesList();
+  applySort();
+  updateStats();
+}
+
+function toggleFit(id) {
+  const b = boxers.find(x => x.id === id);
+  b.fit = b.fit === 'yes' ? 'no' : 'yes';
+  filterTable();
+  updateStats();
+  showToast(`${b.name} marked as ${b.fit === 'yes' ? 'fit' : 'unfit'}`);
+}
+
+function deleteBoxer(id) {
+  const b = boxers.find(x => x.id === id);
+  if (!b || !confirm(`Delete ${b.name}?`)) return;
+  boxers = boxers.filter(x => x.id !== id);
+  filterTable();
+  updateStats();
+  showToast(`Deleted ${b.name}`);
+}
+
+function flash(fieldId) {
+  const el = document.getElementById(fieldId);
+  el.classList.add('error');
+  el.focus();
+  setTimeout(() => el.classList.remove('error'), 1500);
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── Server I/O ────────────────────────────────────────────────────────────────
+
+const SERVER = 'http://localhost:5500';
+
+async function loadFromServer() {
+  try {
+    const res = await fetch(`${SERVER}/api/data/boxers`);
+    if (!res.ok) throw new Error((await res.json()).error);
+    boxers = await res.json();
+    boxers.forEach(b => { b.fit = (b.fit === true || b.fit === 'yes') ? 'yes' : 'no'; });
+    document.getElementById('addBtn').disabled = false;
+    document.getElementById('saveBtn').disabled = false;
+    document.getElementById('statsBar').style.display = 'flex';
+    updateClubsList();
+    updateCategoriesList();
+    applySort();
+    updateStats();
+    showToast(`Loaded ${boxers.length} boxers from server`);
+  } catch (e) {
+    document.getElementById('emptyState').innerHTML =
+      `Could not load from server: ${e.message}<br><small>Use <strong>Open CSV</strong> as fallback, or start Server.js.</small>`;
+  }
+}
+
+async function saveToServer() {
+  try {
+    const res = await fetch(`${SERVER}/api/data/boxers`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(boxers)
+    });
+    if (!res.ok) throw new Error((await res.json()).error);
+    showToast(`Saved ${boxers.length} boxers to server`);
+  } catch (e) {
+    showToast('Server save failed — downloading CSV instead');
+    const blob = new Blob([serializeCSV(boxers)], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'RegisteredBoxers2026.csv'; a.click();
+  }
+}
+
+// ── Keyboard shortcuts ────────────────────────────────────────────────────────
+
+document.addEventListener('keydown', e => {
+  const modalOpen = document.getElementById('modalOverlay').classList.contains('open');
+  if (e.key === 'Escape' && modalOpen) closeModal();
+  if (e.key === 'Enter'  && modalOpen) saveRow();
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveToServer(); }
+});
+
+// ── Auto-load ─────────────────────────────────────────────────────────────────
+loadFromServer();
+</script>
+<script src="theme.js"></script>
+</body>
+</html>

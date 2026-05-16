@@ -1,0 +1,483 @@
+<!-- Copyright (c) 2026 ITLR Assets. All rights reserved. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Put Fighters in Buckets</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #22272e;
+    --surface: #2d333b;
+    --surface2: #373e47;
+    --border: #444c56;
+    --blue: #58a6ff;
+    --blue-dim: rgba(88,166,255,0.16);
+    --red: #f85149;
+    --red-dim: rgba(248,81,73,0.16);
+    --green: #3fb950;
+    --green-dim: rgba(63,185,80,0.16);
+    --text: #cdd9e5;
+    --muted: #768390;
+    --faint: #4a5568;
+  }
+
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse 60% 40% at 15% 60%, rgba(88,166,255,0.04) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 35% at 85% 25%, rgba(248,81,73,0.04) 0%, transparent 70%);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    padding: 2rem;
+  }
+
+  #toolbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 16px;
+    background: var(--toolbar-bg);
+    color: var(--toolbar-text);
+    font-family: Arial, sans-serif;
+  }
+  #toolbar h1 { margin: 0; font-size: 18px; flex: 1; }
+  #toolbar a.nav-btn {
+    padding: 7px 14px;
+    border: 1px solid var(--nav-btn-border);
+    border-radius: 6px;
+    color: var(--nav-btn-color);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: bold;
+    white-space: nowrap;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  #toolbar a.nav-btn:hover { border-color: var(--nav-btn-hover-border); color: var(--nav-btn-hover-color); }
+  #toolbar button {
+    padding: 7px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+  }
+  #toolbar button:disabled { opacity: 0.4; cursor: default; }
+  #reloadBtn  { background: #2196f3; color: white; }
+  #exportBtn  { background: #4caf50; color: white; }
+  .btn-file {
+    padding: 7px 14px;
+    border: 1px solid var(--nav-btn-border);
+    border-radius: 6px;
+    color: var(--nav-btn-color);
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .btn-file:hover { border-color: var(--nav-btn-hover-border); color: var(--nav-btn-hover-color); }
+
+  .summary-bar {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+    padding: 12px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+  }
+  .summary-bar span { color: var(--muted); text-transform: uppercase; }
+  .summary-bar strong { color: var(--text); }
+
+  .buckets {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  .bucket {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .bucket-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+  .bucket-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+  .bucket-count {
+    font-family: 'Barlow', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: var(--blue-dim);
+    color: var(--blue);
+  }
+  .bucket-count.zero { background: var(--surface); color: var(--faint); }
+  .bucket-count.notfit { background: var(--red-dim); color: var(--red); }
+
+  .bucket-list {
+    padding: 8px 0;
+  }
+
+  .boxer-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 5px 14px;
+    border-bottom: 1px solid rgba(68,76,86,0.4);
+    font-size: 12px;
+  }
+  .boxer-row:last-child { border-bottom: none; }
+  .boxer-row { cursor: grab; user-select: none; }
+  .boxer-row:active { cursor: grabbing; }
+  .boxer-row.dragging { opacity: 0.4; }
+  .bucket-list { min-height: 44px; }
+  .bucket.drag-over { border-color: var(--blue); }
+  .bucket.drag-over .bucket-list {
+    background: var(--blue-dim);
+    outline: 2px dashed var(--blue);
+    outline-offset: -3px;
+  }
+  .boxer-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: var(--text);
+    flex: 1;
+  }
+  .boxer-meta { color: var(--muted); font-size: 11px; white-space: nowrap; }
+
+  .empty-state {
+    padding: 2.5rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    font-style: italic;
+    grid-column: 1/-1;
+  }
+</style>
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+
+<div id="toolbar">
+  <a class="nav-btn" href="index.html">&#8592; Home</a>
+  <h1>Put Fighters in Buckets</h1>
+  <button id="reloadBtn">&#8635; Reload from Server</button>
+  <label class="btn-file" title="Fallback: load a local CSV file">
+    Load CSV
+    <input type="file" accept=".csv" id="csvInput" style="display:none">
+  </label>
+  <button id="exportBtn" disabled>Export All CSVs</button>
+  <button class="theme-btn"></button>
+  <a class="nav-btn" href="SparManager.html">Spar Manager &#8594;</a>
+</div>
+
+<div class="summary-bar" id="summaryBar" style="display:none">
+  <div><span>Total </span><strong id="statTotal">0</strong></div>
+  <div><span>Assigned </span><strong id="statAssigned">0</strong></div>
+  <div><span>Not Fit </span><strong id="statNotFit">0</strong></div>
+  <div><span>Buckets </span><strong id="statBuckets">0</strong></div>
+</div>
+
+<div class="buckets" id="buckets">
+  <p class="empty-state" id="emptyState">Loading fighter data from server…</p>
+</div>
+
+<script>
+  let lastBuckets = null;
+  let lastTotal   = 0;
+  let dragged     = null; // { boxer, fromKey }
+
+  const BUCKET_ORDER = [
+    'NotFit',
+    'MaleSchools_Novice', 'MaleSchools_Experienced', 'MaleSchools_OpenClass',
+    'MaleJunior_Novice',  'MaleJunior_Experienced',  'MaleJunior_OpenClass',
+    'MaleYouth_Novice',   'MaleYouth_Experienced',   'MaleYouth_OpenClass',
+    'MaleSenior_Novice',  'MaleSenior_Experienced',  'MaleSenior_OpenClass',
+    'FitFemales',
+  ];
+
+  const BUCKET_LABELS = {
+    NotFit:                  'Not Fit',
+    MaleSchools_Novice:      'Male Schools · Novice (0-5)',
+    MaleSchools_Experienced: 'Male Schools · Experienced (6-10)',
+    MaleSchools_OpenClass:   'Male Schools · Open Class (11+)',
+    MaleJunior_Novice:       'Male Junior · Novice (0-5)',
+    MaleJunior_Experienced:  'Male Junior · Experienced (6-10)',
+    MaleJunior_OpenClass:    'Male Junior · Open Class (11+)',
+    MaleYouth_Novice:        'Male Youth · Novice (0-5)',
+    MaleYouth_Experienced:   'Male Youth · Experienced (6-10)',
+    MaleYouth_OpenClass:     'Male Youth · Open Class (11+)',
+    MaleSenior_Novice:       'Male Senior · Novice (0-5)',
+    MaleSenior_Experienced:  'Male Senior · Experienced (6-10)',
+    MaleSenior_OpenClass:    'Male Senior · Open Class (11+)',
+    FitFemales:              'Female',
+  };
+
+  function assignBucket(boxer) {
+    const fit = boxer.fit === true || String(boxer.fit).toLowerCase() === 'yes';
+    if (!fit) return 'NotFit';
+
+    const g   = String(boxer.gender).toLowerCase();
+    const yob = boxer.yob;
+    const exp = boxer.experience;
+
+    if (g === 'female' || g === 'f') return 'FitFemales';
+
+    let agePrefix;
+    if      (yob >= 2012 && yob <= 2014) agePrefix = 'MaleSchools';
+    else if (yob >= 2010 && yob <= 2011) agePrefix = 'MaleJunior';
+    else if (yob >= 2008 && yob <= 2009) agePrefix = 'MaleYouth';
+    else                                 agePrefix = 'MaleSenior';
+
+    const expLabel = exp <= 5 ? 'Novice' : exp <= 10 ? 'Experienced' : 'OpenClass';
+    return `${agePrefix}_${expLabel}`;
+  }
+
+  function splitCSVLine(line) {
+    const result = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') {
+        if (inQ && line[i+1] === '"') { cur += '"'; i++; }
+        else inQ = !inQ;
+      } else if (ch === ',' && !inQ) {
+        result.push(cur); cur = '';
+      } else cur += ch;
+    }
+    result.push(cur);
+    return result;
+  }
+
+  function parseCSV(text) {
+    const lines = text.trim().split(/\r?\n/);
+    const headers = splitCSVLine(lines[0]).map(h => h.trim().toLowerCase());
+    return lines.slice(1).filter(l => l.trim()).map(line => {
+      const vals = splitCSVLine(line);
+      const obj = {};
+      headers.forEach((h, i) => {
+        const v = (vals[i] || '').trim();
+        if (['id','yob','experience'].includes(h)) obj[h] = parseInt(v) || 0;
+        else if (h === 'weight') obj[h] = parseFloat(v) || 0;
+        else obj[h] = v;
+      });
+      return obj;
+    });
+  }
+
+  function process(boxers) {
+    const buckets = {};
+    BUCKET_ORDER.forEach(k => { buckets[k] = []; });
+    boxers.forEach(b => {
+      const key = assignBucket(b);
+      if (!buckets[key]) buckets[key] = [];
+      buckets[key].push(b);
+    });
+    return buckets;
+  }
+
+  async function saveToServer(buckets, total) {
+    const counts = {};
+    Object.entries(buckets).forEach(([k, v]) => { counts[k] = v.length; });
+    const payload = {
+      summary: { totalOriginal: total, totalDistributed: total, finalBuckets: counts },
+      finalBuckets: buckets
+    };
+    try {
+      await fetch(`${SERVER}/api/data/buckets`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } catch (e) { /* server not running — silent, local display still works */ }
+  }
+
+  function render(buckets, total) {
+    const wrap = document.getElementById('buckets');
+    const assigned = Object.entries(buckets)
+      .filter(([k]) => k !== 'NotFit')
+      .reduce((s,[,v]) => s + v.length, 0);
+    const notFit = (buckets.NotFit || []).length;
+    const filledBuckets = Object.values(buckets).filter(v => v.length > 0).length;
+
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statAssigned').textContent = assigned;
+    document.getElementById('statNotFit').textContent = notFit;
+    document.getElementById('statBuckets').textContent = filledBuckets;
+    document.getElementById('summaryBar').style.display = 'flex';
+
+    wrap.innerHTML = BUCKET_ORDER.map(key => {
+      const list = buckets[key] || [];
+      const isNotFit = key === 'NotFit';
+      const countClass = list.length === 0 ? 'zero' : isNotFit ? 'notfit' : '';
+      const rows = list.length === 0
+        ? '<p style="padding:10px 14px; font-size:12px; color:var(--faint); font-style:italic;">Empty</p>'
+        : list.map(b => `
+            <div class="boxer-row" draggable="true" data-id="${b.id}" data-bucket="${key}">
+              <span class="boxer-name">${esc(b.name)}</span>
+              <span class="boxer-meta">${b.weight}kg · ${b.bouts ?? b.experience} bouts</span>
+            </div>`).join('');
+      return `
+        <div class="bucket" data-bucket="${key}">
+          <div class="bucket-header">
+            <span class="bucket-name">${BUCKET_LABELS[key] || key}</span>
+            <span class="bucket-count ${countClass}">${list.length}</span>
+          </div>
+          <div class="bucket-list">${rows}</div>
+        </div>`;
+    }).join('');
+
+    document.getElementById('exportBtn').disabled = false;
+    setupDragHandlers(buckets);
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function toCSV(boxers) {
+    const header = 'id,name,club,gender,yob,fit,weight,experience\n';
+    return header + boxers.map(b => {
+      const name = b.name.includes(',') ? `"${b.name}"` : b.name;
+      const club = (b.club||'').includes(',') ? `"${b.club}"` : (b.club||'');
+      return `${b.id},${name},${club},${b.gender},${b.yob},${b.fit},${b.weight},${b.experience}`;
+    }).join('\n');
+  }
+
+  function download(filename, content) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([content], { type: 'text/csv' }));
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+  }
+
+  const SERVER = 'http://localhost:5500';
+
+  async function loadFromServer() {
+    document.getElementById('emptyState') && (document.getElementById('emptyState').textContent = 'Loading fighter data from server…');
+    try {
+      const res = await fetch(`${SERVER}/api/data/boxers`);
+      if (!res.ok) throw new Error((await res.json()).error);
+      const boxers = await res.json();
+      lastBuckets = process(boxers);
+      lastTotal = boxers.length;
+      render(lastBuckets, lastTotal);
+    } catch (e) {
+      const el = document.getElementById('emptyState') || document.querySelector('.empty-state');
+      if (el) el.textContent = `Could not load from server: ${e.message} — use Load CSV instead.`;
+    }
+  }
+
+  document.getElementById('reloadBtn').addEventListener('click', loadFromServer);
+
+  document.getElementById('csvInput').addEventListener('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const boxers = parseCSV(e.target.result);
+      lastBuckets = process(boxers);
+      lastTotal = boxers.length;
+      render(lastBuckets, lastTotal);
+      saveToServer(lastBuckets, lastTotal);
+    };
+    reader.readAsText(file);
+    this.value = '';
+  });
+
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    if (!lastBuckets) return;
+    BUCKET_ORDER.forEach(key => {
+      const list = lastBuckets[key];
+      if (list && list.length > 0) download(`${key}.csv`, toCSV(list));
+    });
+  });
+
+  // ── Drag-and-drop (HTML5 DnD — same pattern as RingManager.html) ────────────
+  function clearDropIndicators() {
+    document.querySelectorAll('.bucket.drag-over').forEach(b => b.classList.remove('drag-over'));
+  }
+
+  function setupDragHandlers(buckets) {
+    const wrap = document.getElementById('buckets');
+
+    wrap.querySelectorAll('.boxer-row').forEach(row => {
+      row.addEventListener('dragstart', () => {
+        const key   = row.dataset.bucket;
+        const boxer = (buckets[key] || []).find(b => String(b.id) === String(row.dataset.id));
+        if (!boxer) return;
+        dragged = { boxer, fromKey: key };
+        row.classList.add('dragging');
+      });
+      row.addEventListener('dragend', () => {
+        row.classList.remove('dragging');
+        dragged = null;
+        clearDropIndicators();
+      });
+    });
+
+    wrap.querySelectorAll('.bucket').forEach(col => {
+      col.addEventListener('dragover', e => {
+        e.preventDefault();
+        col.classList.add('drag-over');
+      });
+      col.addEventListener('dragleave', e => {
+        if (!col.contains(e.relatedTarget)) col.classList.remove('drag-over');
+      });
+      col.addEventListener('drop', e => {
+        e.preventDefault();
+        col.classList.remove('drag-over');
+        if (!dragged) return;
+        const { boxer, fromKey } = dragged;
+        const toKey = col.dataset.bucket;
+        if (!toKey || toKey === fromKey) return;
+        const src = lastBuckets[fromKey];
+        if (!src) return;
+        const idx = src.findIndex(b => String(b.id) === String(boxer.id));
+        if (idx === -1) return;
+        const [b] = src.splice(idx, 1);
+        if (!lastBuckets[toKey]) lastBuckets[toKey] = [];
+        lastBuckets[toKey].push(b);
+        render(lastBuckets, lastTotal);
+        saveToServer(lastBuckets, lastTotal);
+      });
+    });
+  }
+
+  // Auto-load on page open
+  loadFromServer();
+</script>
+<script src="theme.js"></script>
+</body>
+</html>
