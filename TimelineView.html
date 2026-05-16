@@ -1,0 +1,368 @@
+<!-- Copyright (c) 2026 ITLR Assets. All rights reserved. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Timeline View</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; background: #f0f2f5; }
+
+    #toolbar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 10px 16px;
+      background: var(--toolbar-bg);
+      color: var(--toolbar-text);
+    }
+    #toolbar h1 { margin: 0; font-size: 18px; flex: 1; }
+    #toolbar .stats { font-size: 13px; color: var(--toolbar-subtext); }
+    #toolbar a.nav-btn {
+      padding: 7px 14px;
+      border: 1px solid var(--nav-btn-border);
+      border-radius: 6px;
+      color: var(--nav-btn-color);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: bold;
+      white-space: nowrap;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    #toolbar a.nav-btn:hover { border-color: var(--nav-btn-hover-border); color: var(--nav-btn-hover-color); }
+
+    #legend {
+      display: flex;
+      gap: 16px;
+      padding: 6px 16px;
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+      font-size: 12px;
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-swatch { width: 12px; height: 12px; border-radius: 2px; }
+
+    #grid-wrap {
+      display: flex;
+      overflow: auto;
+      height: calc(100vh - 88px);
+    }
+
+    #ruler {
+      flex: 0 0 54px;
+      position: relative;
+      background: #fff;
+      border-right: 2px solid #ccc;
+    }
+    .tick-label {
+      position: absolute;
+      left: 4px;
+      font-size: 10px;
+      color: #555;
+      transform: translateY(-50%);
+      white-space: nowrap;
+    }
+    .tick-label.major { font-size: 11px; font-weight: bold; color: #222; }
+    .tick-line { position: absolute; right: 0; height: 1px; }
+    .tick-line.major { background: #666; width: 20px; }
+    .tick-line.mid   { background: #999; width: 13px; }
+    .tick-line.minor { background: #bbb; width: 7px; }
+
+    #rings {
+      flex: 1;
+      display: flex;
+      position: relative;
+      min-width: 0;
+    }
+
+    .ring-col {
+      flex: 1;
+      min-width: 160px;
+      border-right: 1px solid #ddd;
+      position: relative;
+
+    }
+    .ring-col:last-child { border-right: none; }
+
+    .ring-col-header {
+      position: sticky;
+      top: 0;
+      background: #1a1a2e;
+      color: white;
+      text-align: center;
+      padding: 6px 4px;
+      z-index: 10;
+      border-right: 1px solid #2d3550;
+    }
+    .ring-col-header h2 { margin: 0; font-size: 14px; }
+    .ring-col-header .hdr-info   { font-size: 10px; color: #aaa; margin-top: 2px; }
+    .ring-col-header .hdr-finish { font-size: 10px; margin-top: 1px; }
+    .ring-col-header .hdr-finish.ok   { color: #4caf50; }
+    .ring-col-header .hdr-finish.over { color: #f44336; font-weight: bold; }
+
+    .bout-block {
+      position: absolute;
+      left: 3px;
+      right: 3px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      border-left: 5px solid #ccc;
+      background: #fafafa;
+      overflow: hidden;
+      padding: 7px 8px;
+      z-index: 2;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .bout-block.senior { border-left-color: #4a90d9; }
+    .bout-block.youth  { border-left-color: #f0ad4e; }
+    .bout-block.junior { border-left-color: #5cb85c; }
+    .bout-block.female { border-left-color: #e91e8c; }
+
+    .bb-names   { font-weight: bold; color: #222; font-size: 12px; line-height: 1.4; }
+    .bb-cat     { color: #777; font-size: 10px; margin-top: 2px; }
+    .bb-time    { color: #4a90d9; font-size: 10px; margin-top: 2px; font-weight: bold; }
+    .bb-format  { color: #888; font-size: 10px; margin-top: 3px; border-top: 1px solid #eee; padding-top: 3px; }
+
+    #tea-line {
+      position: absolute;
+      left: 0; right: 0;
+      border-top: 2px dashed #f44336;
+      z-index: 8;
+      pointer-events: none;
+    }
+    #tea-label {
+      position: absolute;
+      right: 6px;
+      color: #f44336;
+      font-size: 10px;
+      font-weight: bold;
+      z-index: 8;
+      pointer-events: none;
+    }
+
+    .hour-line {
+      position: absolute;
+      left: 0; right: 0;
+      border-top: 1px solid #ececec;
+      pointer-events: none;
+      z-index: 1;
+    }
+  </style>
+  <link rel="stylesheet" href="theme.css">
+</head>
+<body>
+
+<div id="toolbar">
+  <a class="nav-btn" href="index.html">&#8592; Home</a>
+  <h1>Timeline View</h1>
+  <span class="stats" id="stats"></span>
+  <button class="theme-btn"></button>
+  <a class="nav-btn" href="RingManager.html">&#8592; Ring Manager</a>
+</div>
+
+<div id="legend">
+  <span style="font-weight:bold;font-size:12px;">Key:</span>
+  <span class="legend-item"><span class="legend-swatch" style="background:#4a90d9"></span>Senior male <span style="color:#999;font-size:10px;">(YOB ≤ 2006 · 3×3 min)</span></span>
+  <span class="legend-item"><span class="legend-swatch" style="background:#f0ad4e"></span>Youth male <span style="color:#999;font-size:10px;">(YOB 2007–2008 · 3×2 min)</span></span>
+  <span class="legend-item"><span class="legend-swatch" style="background:#5cb85c"></span>Junior male <span style="color:#999;font-size:10px;">(YOB ≥ 2009 · 3×2 min)</span></span>
+  <span class="legend-item"><span class="legend-swatch" style="background:#e91e8c"></span>Female <span style="color:#999;font-size:10px;">(either boxer)</span></span>
+</div>
+
+<div id="grid-wrap">
+  <div id="ruler"></div>
+  <div id="rings"></div>
+</div>
+
+<script>
+const PX_PER_MIN = 12;
+const START_MINS = 15 * 60;   // 900 — 15:00
+const TEA_TIME   = 18 * 60;   // 1080 — 18:00
+const CHANGEOVER = 1;
+const HEADER_PX  = 52;        // matches .ring-col-header rendered height
+const GAP_PX     = 10;        // breathing room below header before first bout
+
+function fmtTime(mins) {
+  return `${Math.floor(mins / 60)}:${String(mins % 60).padStart(2, '0')}`;
+}
+
+function topPx(mins) {
+  return HEADER_PX + GAP_PX + (mins - START_MINS) * PX_PER_MIN;
+}
+
+function boutType(bout) {
+  if (bout.red.gender === 'female' || bout.blue.gender === 'female') return 'female';
+  const yob = bout.red.yob;
+  if (yob >= 2009) return 'junior';
+  if (yob >= 2007) return 'youth';
+  return 'senior';
+}
+
+function boutFormat(category) {
+  const senior   = category && category.includes('Senior');
+  const roundLen = senior ? 3 : 2;
+  const total    = senior ? 11 : 8;
+  return `<span style="color:#e67e22;font-weight:bold;">${total} min</span>  |  3 × ${roundLen} min rounds  |  1 min rest  |  1 min changeover`;
+}
+
+function computeTimes(state) {
+  for (const bouts of Object.values(state)) {
+    let cur = START_MINS;
+    for (const bout of bouts) {
+      const dur        = bout.duration ?? (bout.category.includes('Senior') ? 11 : 8);
+      bout.duration     = dur;
+      bout.startMinutes = cur;
+      bout.startTime    = fmtTime(cur);
+      bout.endMinutes   = cur + dur;
+      bout.endTime      = fmtTime(cur + dur);
+      cur += dur + CHANGEOVER;
+    }
+  }
+}
+
+function scheduleToState(schedule) {
+  const state = { R1: [], R2: [], R3: [], R4: [], R5: [] };
+  for (const slot of schedule.slots) {
+    for (const bout of slot.bouts) {
+      state[bout.ring].push({ ...bout, slot: slot.slot });
+    }
+  }
+  return state;
+}
+
+const SERVER = 'http://localhost:5500';
+
+async function loadSchedule() {
+  try {
+    const r = await fetch(`${SERVER}/api/data/schedule`);
+    if (!r.ok) throw new Error(r.statusText);
+    return r.json();
+  } catch (e) {
+    document.getElementById('rings').innerHTML =
+      `<div style="padding:40px;color:red;font-size:14px;">
+         <b>Could not load schedule_grouped.json.</b><br><br>
+         Run RingAssigner.js first, then start the server:<br>
+         <code>node Server.js</code>
+       </div>`;
+    throw e;
+  }
+}
+
+function updateStats(state) {
+  const total      = Object.values(state).reduce((n, r) => n + r.length, 0);
+  const latestMins = Math.max(...Object.values(state).map(r =>
+    r.length ? r[r.length - 1].endMinutes : START_MINS
+  ));
+  const overrun = latestMins > TEA_TIME;
+  document.getElementById('stats').innerHTML =
+    `${total} bouts &nbsp;·&nbsp; ` +
+    `<span style="color:${overrun ? '#f44336' : '#4caf50'};font-weight:bold;">` +
+    `${overrun ? '⚠' : '✓'} Latest finish ${fmtTime(latestMins)}</span>`;
+}
+
+function buildRuler(endMins) {
+  const ruler = document.getElementById('ruler');
+  ruler.style.height = (topPx(endMins) + 40) + 'px';
+
+  for (let m = START_MINS; m <= endMins + 15; m += 5) {
+    const major = m % 60 === 0;
+    const mid   = !major && m % 15 === 0;
+    const y     = topPx(m);
+
+    const line = document.createElement('div');
+    line.className = `tick-line ${major ? 'major' : mid ? 'mid' : 'minor'}`;
+    line.style.top = y + 'px';
+    ruler.appendChild(line);
+
+    if (major || mid) {
+      const label = document.createElement('div');
+      label.className = `tick-label${major ? ' major' : ''}`;
+      label.style.top = y + 'px';
+      label.textContent = fmtTime(m);
+      ruler.appendChild(label);
+    }
+  }
+}
+
+function buildGrid(state) {
+  let endMins = TEA_TIME;
+  for (const bouts of Object.values(state)) {
+    if (bouts.length) endMins = Math.max(endMins, bouts[bouts.length - 1].endMinutes);
+  }
+  endMins += 15;
+
+  const colHeight = topPx(endMins) + 40;
+  const rings = document.getElementById('rings');
+  rings.innerHTML = '';
+
+  // Tea-time line
+  const teaLine = document.createElement('div');
+  teaLine.id = 'tea-line';
+  teaLine.style.top = topPx(TEA_TIME) + 'px';
+  rings.appendChild(teaLine);
+
+  const teaLabel = document.createElement('div');
+  teaLabel.id = 'tea-label';
+  teaLabel.style.top = (topPx(TEA_TIME) - 16) + 'px';
+  teaLabel.textContent = '18:00 — Tea Time';
+  rings.appendChild(teaLabel);
+
+  ['R1', 'R2', 'R3', 'R4', 'R5'].forEach(ringId => {
+    const bouts     = state[ringId];
+    const lastBout  = bouts[bouts.length - 1];
+    const overrun   = lastBout ? lastBout.endMinutes > TEA_TIME : false;
+
+    const col = document.createElement('div');
+    col.className = 'ring-col';
+    col.style.height = colHeight + 'px';
+
+    // Sticky header
+    const hdr = document.createElement('div');
+    hdr.className = 'ring-col-header';
+    hdr.innerHTML = `
+      <h2>${ringId}${ringId === 'R5' ? ' <small style="font-size:10px;opacity:.5">(Y/J/F)</small>' : ''}</h2>
+      <div class="hdr-info">${bouts.length} bout${bouts.length !== 1 ? 's' : ''}</div>
+      <div class="hdr-finish ${overrun ? 'over' : 'ok'}">${overrun ? '⚠' : '✓'} ${lastBout ? lastBout.endTime : '—'}</div>
+    `;
+    col.appendChild(hdr);
+
+    // Hour grid lines
+    for (let m = START_MINS; m <= endMins; m += 60) {
+      const line = document.createElement('div');
+      line.className = 'hour-line';
+      line.style.top = topPx(m) + 'px';
+      col.appendChild(line);
+    }
+
+    // Bout blocks
+    bouts.forEach(bout => {
+      const block = document.createElement('div');
+      block.className = `bout-block ${boutType(bout)}`;
+      block.style.top    = topPx(bout.startMinutes) + 'px';
+      block.style.height = (bout.duration * PX_PER_MIN) + 'px';
+      block.innerHTML = `
+        <div class="bb-names">${bout.red.name}<br>vs ${bout.blue.name}</div>
+        <div class="bb-cat">${bout.category}</div>
+        <div class="bb-time">⏱ ${bout.startTime} – ${bout.endTime}</div>
+        <div class="bb-format">${boutFormat(bout.category)}</div>
+      `;
+      col.appendChild(block);
+    });
+
+    rings.appendChild(col);
+  });
+
+  buildRuler(endMins);
+}
+
+(async () => {
+  const schedule = await loadSchedule();
+  const state    = scheduleToState(schedule);
+  computeTimes(state);
+  buildGrid(state);
+  updateStats(state);
+})();
+</script>
+<script src="theme.js"></script>
+</body>
+</html>

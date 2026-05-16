@@ -1,0 +1,331 @@
+<!-- Copyright (c) 2026 ITLR Assets. All rights reserved. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Boxing Tournament Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #22272e;
+    --surface: #2d333b;
+    --surface2: #373e47;
+    --border: #444c56;
+    --blue: #58a6ff;
+    --blue-dim: rgba(88,166,255,0.16);
+    --red: #f85149;
+    --red-dim: rgba(248,81,73,0.16);
+    --text: #cdd9e5;
+    --muted: #768390;
+    --faint: #4a5568;
+  }
+
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse 60% 40% at 15% 60%, rgba(88,166,255,0.04) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 35% at 85% 25%, rgba(248,81,73,0.04) 0%, transparent 70%);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .eyebrow {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+
+  h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(2.2rem, 6vw, 3.5rem);
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  h1 span {
+    color: var(--blue);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    width: 100%;
+    max-width: 760px;
+  }
+
+  @media (max-width: 600px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 1.25rem 1.25rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text);
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .card:hover {
+    background: var(--surface2);
+    border-color: var(--muted);
+    transform: translateY(-2px);
+  }
+
+  .card:active { transform: translateY(0); }
+
+  .card.cli {
+    cursor: default;
+    opacity: 0.65;
+  }
+  .card.cli:hover {
+    transform: none;
+    border-color: var(--border);
+    background: var(--surface);
+  }
+
+  .step {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .card-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+    margin-bottom: 0.1rem;
+  }
+
+  .card-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  .card-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  .badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 20px;
+    background: var(--surface2);
+    color: var(--faint);
+    border: 1px solid var(--border);
+  }
+
+  .divider {
+    width: 100%;
+    max-width: 760px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 1.25rem 0;
+  }
+  .divider-line { flex: 1; height: 1px; background: var(--border); }
+  .divider-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--faint);
+    white-space: nowrap;
+  }
+</style>
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+
+<button class="theme-btn" style="position:fixed;top:12px;right:16px;z-index:50;"></button>
+
+<header>
+  <a href="SVG/boxing.png" target="_blank" rel="noopener">
+    <img src="SVG/boxing.png" alt="Boxing Tournament" style="max-width:320px;width:100%;margin-bottom:1.5rem;opacity:0.9;cursor:pointer;">
+  </a>
+  <p class="eyebrow">TSC 2026</p>
+  <h1>Boxing <span>Tournament</span> Manager</h1>
+</header>
+
+<div class="grid">
+
+  <!-- Step 1 -->
+  <a class="card" href="BoxerManager.html">
+    <span class="step">Step 1</span>
+    <div class="card-icon">🥊</div>
+    <div class="card-title">Boxer Manager</div>
+    <div class="card-desc">Add, edit and review the boxer roster</div>
+  </a>
+
+  <!-- Step 2 -->
+  <a class="card" href="BucketAssigner.html">
+    <span class="step">Step 2</span>
+    <div class="card-icon">🪣</div>
+    <div class="card-title">Put Fighters in Buckets</div>
+    <div class="card-desc">Distribute boxers into weight &amp; age brackets</div>
+  </a>
+
+  <!-- Step 3 -->
+  <a class="card" id="runSparMakerBtn" data-icon="⚡" data-endpoint="/api/run/spar-maker" data-title="Create Spars">
+    <span class="step">Step 3</span>
+    <div class="card-icon">⚡</div>
+    <div class="card-title">Create Spars</div>
+    <div class="card-desc">Auto-pair boxers by weight &amp; club</div>
+  </a>
+
+  <!-- Step 4 -->
+  <a class="card" href="SparManager.html">
+    <span class="step">Step 4</span>
+    <div class="card-icon">📋</div>
+    <div class="card-title">Spar Manager</div>
+    <div class="card-desc">Review and manage sparring assignments</div>
+  </a>
+
+  <!-- Step 5 -->
+  <a class="card" id="runRingAssignerBtn" data-icon="🔔" data-endpoint="/api/run/ring-assigner" data-title="Assign Rings">
+    <span class="step">Step 5</span>
+    <div class="card-icon">🔔</div>
+    <div class="card-title">Assign Rings</div>
+    <div class="card-desc">Auto-allocate bouts to rings &amp; time slots</div>
+    <div style="margin-top:8px;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);" onclick="event.preventDefault();event.stopPropagation();">
+      <label for="dayInput" style="white-space:nowrap;">Day:</label>
+      <input id="dayInput" type="number" min="1" value="1" style="width:48px;padding:3px 6px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;">
+      <span id="dayParity" style="font-size:10px;color:var(--muted);"></span>
+    </div>
+  </a>
+
+  <!-- Step 6 -->
+  <a class="card" href="RingManager.html">
+    <span class="step">Step 6</span>
+    <div class="card-icon">🏟️</div>
+    <div class="card-title">Ring Manager</div>
+    <div class="card-desc">View and adjust ring &amp; schedule allocations</div>
+  </a>
+
+  <!-- Step 7 -->
+  <a class="card" href="TimelineView.html">
+    <span class="step">Step 7</span>
+    <div class="card-icon">📅</div>
+    <div class="card-title">Timeline View</div>
+    <div class="card-desc">Gantt chart — see every ring minute by minute</div>
+  </a>
+
+</div>
+
+<!-- Output modal -->
+<div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:100; align-items:center; justify-content:center; padding:2rem;">
+  <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; width:100%; max-width:700px; max-height:80vh; display:flex; flex-direction:column; overflow:hidden;">
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:var(--surface2); border-bottom:1px solid var(--border); flex-shrink:0;">
+      <strong id="modalTitle" style="font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase;"></strong>
+      <button onclick="closeModal()" style="background:none; border:none; color:var(--muted); font-size:20px; cursor:pointer; line-height:1; padding:2px 6px;">&times;</button>
+    </div>
+    <pre id="modalOutput" style="margin:0; padding:1.25rem 1.5rem; font-family:'Courier New',monospace; font-size:12px; line-height:1.6; color:var(--text); overflow-y:auto; flex:1; white-space:pre-wrap; word-break:break-word;"></pre>
+  </div>
+</div>
+
+<script>
+  const SERVER = 'http://localhost:5500';
+
+  // Update day parity label live
+  const dayInput   = document.getElementById('dayInput');
+  const dayParity  = document.getElementById('dayParity');
+  const ODD_DAYS   = ['Mon','Wed','Fri','Sun'];
+  const EVEN_DAYS  = ['Tue','Thu','Sat'];
+  function updateParity() {
+    const d = parseInt(dayInput.value) || 1;
+    dayParity.textContent = d % 2 === 1 ? `(odd — ${ODD_DAYS.join('/')}, wt desc)` : `(even — ${EVEN_DAYS.join('/')}, wt asc)`;
+  }
+  dayInput.addEventListener('input', updateParity);
+  updateParity();
+
+  async function runScript(endpoint, title, btn) {
+    const iconEl = btn.querySelector('.card-icon');
+    const origIcon = btn.dataset.icon;
+    btn.style.opacity = '0.55';
+    btn.style.pointerEvents = 'none';
+    iconEl.textContent = '⏳';
+    showModal(title, 'Running…');
+    const body = endpoint.includes('ring-assigner')
+      ? JSON.stringify({ day: parseInt(document.getElementById('dayInput').value) || 1 })
+      : undefined;
+    try {
+      const res = await fetch(SERVER + endpoint, { method: 'POST', headers: body ? { 'Content-Type': 'application/json' } : {}, body });
+      const data = await res.json();
+      showModal(title, data.output || data.error || '(no output)');
+    } catch {
+      showModal(title, `Could not reach server.\n\nMake sure Server.js is running:\n  node Server.js`);
+    } finally {
+      btn.style.opacity = '';
+      btn.style.pointerEvents = '';
+      iconEl.textContent = origIcon;
+    }
+  }
+
+  function showModal(title, text) {
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalOutput').textContent = text;
+    document.getElementById('modal').style.display = 'flex';
+  }
+
+  function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+  }
+
+  document.getElementById('modal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeModal();
+  });
+
+  ['runSparMakerBtn', 'runRingAssignerBtn'].forEach(id => {
+    const btn = document.getElementById(id);
+    btn.addEventListener('click', () => runScript(btn.dataset.endpoint, btn.dataset.title, btn));
+  });
+</script>
+
+<script src="theme.js"></script>
+</body>
+</html>

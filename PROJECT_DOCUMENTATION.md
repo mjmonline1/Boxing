@@ -38,8 +38,8 @@ The project uses multiple formats to visualize the tournament structure and flow
 
 Tools for generating and managing sparring matches, which follow a different logic than tournament brackets.
 
-- **`generate-sparring-matches.js`**: Logic for pairing boxers for sparring sessions.
-- **`SparManager.html`**: A web-based interface for managing sparring sessions.
+- **`SparMaker.js`**: Logic for pairing boxers for sparring sessions.
+- **`RingManager.html`**: A web-based interface for managing ring allocations.
 - **`Sparrings.json`**: Data storage for generated sparring matches.
 
 ### 5. Data and Output

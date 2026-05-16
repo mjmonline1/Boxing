@@ -1,10 +1,11 @@
+// Copyright (c) 2026 ITLR Assets. All rights reserved.
 /**
  * Boxing Tournament CSV Loader
  * Load boxer data from CSV and apply tournament structure
  */
 
 const fs = require('fs');
-const HierarchicalFilter = require('./Examples/hierarchical-filter');
+const HierarchicalFilter = require('./hierarchical-filter');
 const { boxingTreeStructure } = require('./boxing-tournament-filter');
 
 /**

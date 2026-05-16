@@ -1,0 +1,689 @@
+<!-- Copyright (c) 2026 ITLR Assets. All rights reserved. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Spar Manager</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; margin: 0; background: #f0f2f5; }
+
+    /* ── Toolbar ── */
+    #toolbar {
+      display: flex; align-items: center; gap: 16px;
+      padding: 10px 16px; background: var(--toolbar-bg); color: var(--toolbar-text);
+      position: sticky; top: 0; z-index: 20;
+    }
+    #toolbar h1 { margin: 0; font-size: 18px; flex: 1; }
+    .stats { font-size: 13px; color: var(--toolbar-subtext); }
+    #toolbar button {
+      padding: 7px 16px; border: none; border-radius: 6px;
+      cursor: pointer; font-size: 13px; font-weight: bold;
+    }
+    #exportBtn { background: #4caf50; color: white; }
+    #resetBtn  { background: #666;    color: white; }
+    #toolbar a.nav-btn {
+      padding: 7px 14px; border: 1px solid var(--nav-btn-border); border-radius: 6px;
+      color: var(--nav-btn-color); text-decoration: none; font-size: 13px;
+      font-weight: bold; white-space: nowrap;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    #toolbar a.nav-btn:hover { border-color: var(--nav-btn-hover-border); color: var(--nav-btn-hover-color); }
+
+    /* ── Legend + filter bar ── */
+    #legend {
+      display: flex; gap: 16px; padding: 6px 16px;
+      background: #fff; border-bottom: 1px solid #ddd; font-size: 12px;
+      flex-wrap: wrap; align-items: center;
+    }
+    .legend-item { display: flex; align-items: center; gap: 5px; }
+    .swatch { width: 11px; height: 11px; border-radius: 2px; flex-shrink: 0; }
+
+    #filterbar {
+      display: flex; gap: 10px; padding: 8px 16px;
+      background: #f7f7f7; border-bottom: 1px solid #ddd;
+      align-items: center; flex-wrap: wrap;
+    }
+    #filterbar label { font-size: 12px; font-weight: bold; color: #555; }
+    #filterbar select, #filterbar input {
+      padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;
+    }
+    #searchInput { width: 180px; }
+
+    /* ── Layout ── */
+    #content {
+      display: flex; gap: 0; height: calc(100vh - 96px);
+    }
+
+    /* ── Pairs column ── */
+    #pairs-col {
+      flex: 1; overflow-y: auto; padding: 12px;
+    }
+    .col-title {
+      font-size: 12px; font-weight: bold; color: #888;
+      text-transform: uppercase; letter-spacing: .5px;
+      margin-bottom: 10px;
+    }
+
+    /* ── Match card ── */
+    .match-card {
+      background: white; border: 1px solid #ddd;
+      border-left: 5px solid #ccc; border-radius: 8px;
+      padding: 10px 12px; margin-bottom: 10px;
+    }
+    .match-card.senior { border-left-color: #4a90d9; }
+    .match-card.junior { border-left-color: #5cb85c; }
+    .match-card.youth  { border-left-color: #f0ad4e; }
+    .match-card.female { border-left-color: #e91e8c; }
+
+    .card-header {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 8px; flex-wrap: wrap;
+    }
+    .spar-id  { font-size: 10px; color: #bbb; }
+    .cat-badge {
+      font-size: 10px; color: #666; background: #f0f0f0;
+      padding: 2px 6px; border-radius: 3px;
+    }
+    .warn-badge {
+      font-size: 10px; color: #c62828; background: #ffebee;
+      padding: 2px 6px; border-radius: 3px;
+    }
+    .diff-badge {
+      font-size: 10px; color: #555; background: #f5f5f5;
+      padding: 2px 6px; border-radius: 3px;
+    }
+    .card-actions { margin-left: auto; display: flex; gap: 6px; }
+    .card-actions button {
+      padding: 3px 9px; border: none; border-radius: 4px;
+      cursor: pointer; font-size: 11px; font-weight: bold;
+    }
+    .btn-swap   { background: #e8f0fe; color: #1565c0; }
+    .btn-swap:hover   { background: #cfe0ff; }
+    .btn-delete { background: #ffebee; color: #c62828; }
+    .btn-delete:hover { background: #ffcdd2; }
+
+    /* ── Matchup row ── */
+    .matchup { display: flex; align-items: stretch; gap: 8px; }
+    .corner-wrap { flex: 1; }
+    .corner-label {
+      font-size: 9px; font-weight: bold; text-transform: uppercase;
+      color: #999; margin-bottom: 4px; letter-spacing: .5px;
+    }
+    .vs-col {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: bold; color: #ccc;
+      min-width: 28px;
+    }
+
+    /* ── Boxer tile (shared by pairs and unmatched pool) ── */
+    .boxer-tile {
+      border: 1px solid #ddd; border-radius: 6px; padding: 8px 10px;
+      font-size: 12px; cursor: grab; user-select: none;
+      transition: box-shadow .1s, opacity .15s, background .1s;
+      background: #fafafa;
+    }
+    .boxer-tile:active { cursor: grabbing; }
+    .boxer-tile.dragging { opacity: .35; }
+    .boxer-tile.drop-target {
+      outline: 2px dashed #4caf50; background: #f0fff0;
+      box-shadow: 0 0 0 3px #c8f7c5;
+    }
+
+    /* corner-specific colours */
+    .red-corner  .boxer-tile { border-top: 2px solid #e53935; }
+    .blue-corner .boxer-tile { border-top: 2px solid #1e88e5; }
+
+    /* type accent on left edge for unmatched tiles */
+    .boxer-tile.senior { border-left: 3px solid #4a90d9; }
+    .boxer-tile.junior { border-left: 3px solid #5cb85c; }
+    .boxer-tile.youth  { border-left: 3px solid #f0ad4e; }
+    .boxer-tile.female { border-left: 3px solid #e91e8c; }
+
+    .boxer-name  { font-weight: bold; color: #222; }
+    .boxer-club  { color: #777; font-size: 11px; margin-top: 2px; }
+    .boxer-stats { color: #999; font-size: 10px; margin-top: 3px; }
+
+    .drag-hint {
+      font-size: 10px; color: #ccc; margin-top: 6px; text-align: right;
+      font-style: italic;
+    }
+
+    /* ── Unmatched panel ── */
+    #unmatched-col {
+      width: 230px; flex-shrink: 0; border-left: 2px solid #e0e0e0;
+      display: flex; flex-direction: column;
+      background: white;
+    }
+    #unmatched-header {
+      padding: 12px 12px 8px; border-bottom: 1px solid #eee;
+      font-size: 13px; font-weight: bold; color: #333;
+      background: #fafafa; flex-shrink: 0;
+    }
+    #unmatched-header .sub {
+      font-size: 11px; color: #aaa; font-weight: normal; margin-top: 2px;
+    }
+
+    #unmatched-zone {
+      flex: 1; overflow-y: auto; padding: 10px;
+      transition: background .15s;
+    }
+    #unmatched-zone.drop-active {
+      background: #fff3e0;
+      outline: 2px dashed #ff9800;
+    }
+    .unmatched-tile {
+      margin-bottom: 7px;
+    }
+    .pool-empty { font-size: 12px; color: #bbb; font-style: italic; padding: 4px 0; }
+    .drop-prompt {
+      font-size: 11px; color: #aaa; text-align: center;
+      padding: 8px; border: 1px dashed #ddd; border-radius: 6px;
+      margin-bottom: 8px;
+    }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      background: #333; color: white; padding: 10px 20px; border-radius: 6px;
+      font-size: 13px; opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 99;
+    }
+    #toast.show { opacity: 1; }
+  </style>
+  <link rel="stylesheet" href="theme.css">
+</head>
+<body>
+
+<div id="toolbar">
+  <a class="nav-btn" href="index.html">&#8592; Home</a>
+  <h1>Spar Manager</h1>
+  <span class="stats" id="stats"></span>
+  <button id="resetBtn">Reset</button>
+  <button id="exportBtn">Save Spars</button>
+  <button class="theme-btn"></button>
+  <a class="nav-btn" href="RingManager.html">Ring Manager &#8594;</a>
+</div>
+
+<div id="legend">
+  <b style="font-size:12px;">Key:</b>
+  <span class="legend-item"><span class="swatch" style="background:#4a90d9"></span>Senior male</span>
+  <span class="legend-item"><span class="swatch" style="background:#5cb85c"></span>Junior male</span>
+  <span class="legend-item"><span class="swatch" style="background:#f0ad4e"></span>Youth male</span>
+  <span class="legend-item"><span class="swatch" style="background:#e91e8c"></span>Female</span>
+  <span style="margin-left:16px;font-size:12px;color:#888;">
+    Drag any boxer onto another to swap them · Drop onto the pool panel to unmatch · Drop an unmatched boxer onto another unmatched boxer to create a new pair
+  </span>
+</div>
+
+<div id="filterbar">
+  <label>Category:</label>
+  <select id="filterCat"><option value="">All categories</option></select>
+  <label style="margin-left:8px;">Search:</label>
+  <input id="searchInput" type="text" placeholder="name or club…" />
+</div>
+
+<div id="content">
+  <div id="pairs-col">
+    <div class="col-title" id="list-title"></div>
+    <div id="pairs"></div>
+  </div>
+
+  <div id="unmatched-col">
+    <div id="unmatched-header">
+      <div id="unmatched-title">Unmatched Pool</div>
+      <div class="sub">Drop a paired boxer here to free them</div>
+    </div>
+    <div id="unmatched-zone">
+      <div id="pair-hint" style="font-size:11px;color:#aaa;background:#f9f9f9;border:1px dashed #ddd;border-radius:6px;padding:7px 9px;margin-bottom:8px;line-height:1.5;display:none;">
+        Drop one boxer onto another below to create a new pair
+      </div>
+      <div id="unmatched-list"></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+const SERVER = 'http://localhost:5500';
+
+let originalData = null;
+let state        = { matches: [], unmatched: [] };
+let draggedId    = null;   // boxer.id currently being dragged
+
+// ── Boot ─────────────────────────────────────────────────────────────────────
+
+(async () => {
+  try {
+    const r = await fetch(`${SERVER}/api/data/spars`);
+    if (!r.ok) throw new Error(r.statusText);
+    originalData = await r.json();
+  } catch {
+    document.getElementById('pairs').innerHTML =
+      `<div style="padding:40px;color:red;font-size:14px;">
+         <b>Could not load Spars.json.</b><br><br>
+         Run SparMaker.js first, then start the server:<br>
+         <code>node Server.js</code>
+       </div>`;
+    return;
+  }
+  resetState();
+  populateCategoryFilter();
+  render();
+  bindStaticEvents();
+})();
+
+// ── State ─────────────────────────────────────────────────────────────────────
+
+function resetState() {
+  state.matches   = originalData.matches.map((m, i) => ({
+    ...clone(m), sparId: `S${i + 1}`
+  }));
+  state.unmatched = (originalData.unmatched || []).map(u => clone(u.red || u));
+}
+
+function clone(x) { return JSON.parse(JSON.stringify(x)); }
+
+// ── Lookups ───────────────────────────────────────────────────────────────────
+
+function findBoxer(id) {
+  for (let i = 0; i < state.matches.length; i++) {
+    const m = state.matches[i];
+    if (m.red.id  === id) return { boxer: m.red,  loc: { type: 'match', idx: i, corner: 'red'  } };
+    if (m.blue.id === id) return { boxer: m.blue, loc: { type: 'match', idx: i, corner: 'blue' } };
+  }
+  const ui = state.unmatched.findIndex(b => b.id === id);
+  if (ui >= 0) return { boxer: state.unmatched[ui], loc: { type: 'unmatched', idx: ui } };
+  return null;
+}
+
+// ── Classification ────────────────────────────────────────────────────────────
+
+function ageGroup(yob) {
+  if (yob >= 2009) return 'junior';
+  if (yob >= 2007) return 'youth';
+  return 'senior';
+}
+function boutType(m)  {
+  if (m.red.gender === 'female' || m.blue.gender === 'female') return 'female';
+  return ageGroup(m.red.yob);
+}
+function boxerType(b) {
+  return b.gender === 'female' ? 'female' : ageGroup(b.yob);
+}
+function deriveCategory(a, b) {
+  const g  = (a.gender === 'female' || b.gender === 'female') ? 'Female' : 'Male';
+  const ag = ageGroup(a.yob);
+  return `${g}${ag[0].toUpperCase()}${ag.slice(1)}_Manual`;
+}
+
+// ── Mutations ─────────────────────────────────────────────────────────────────
+
+// Swap boxer aId and boxer bId — they exchange positions.
+// Old partners end up facing each other (or swapped into unmatched as appropriate).
+function swapBoxers(aId, bId) {
+  if (aId === bId) return;
+
+  const aInfo = findBoxer(aId);
+  const bInfo = findBoxer(bId);
+  if (!aInfo || !bInfo) return;
+
+  const aBoxer = clone(aInfo.boxer);
+  const bBoxer = clone(bInfo.boxer);
+
+  if (aInfo.loc.type === 'match' && bInfo.loc.type === 'match') {
+    if (aInfo.loc.idx === bInfo.loc.idx) {
+      // Same pair — just swap corners
+      const m = state.matches[aInfo.loc.idx];
+      [m.red, m.blue] = [m.blue, m.red];
+    } else {
+      // Different pairs — swap the two boxers in-place; old partners stay
+      const mA = state.matches[aInfo.loc.idx];
+      const mB = state.matches[bInfo.loc.idx];
+      if (aInfo.loc.corner === 'red') mA.red  = bBoxer; else mA.blue = bBoxer;
+      if (bInfo.loc.corner === 'red') mB.red  = aBoxer; else mB.blue = aBoxer;
+      mA.weightDiff = Math.abs(mA.red.weight - mA.blue.weight).toFixed(2);
+      mB.weightDiff = Math.abs(mB.red.weight - mB.blue.weight).toFixed(2);
+      mA.category   = deriveCategory(mA.red, mA.blue);
+      mB.category   = deriveCategory(mB.red, mB.blue);
+    }
+  } else if (aInfo.loc.type === 'match' && bInfo.loc.type === 'unmatched') {
+    // A is in a pair, B is unmatched — swap: B takes A's slot, A goes to pool
+    const m = state.matches[aInfo.loc.idx];
+    if (aInfo.loc.corner === 'red') m.red = bBoxer; else m.blue = bBoxer;
+    state.unmatched = state.unmatched.filter(b => b.id !== bId);
+    state.unmatched.push(aBoxer);
+    m.weightDiff = Math.abs(m.red.weight - m.blue.weight).toFixed(2);
+    m.category   = deriveCategory(m.red, m.blue);
+  } else if (aInfo.loc.type === 'unmatched' && bInfo.loc.type === 'match') {
+    // A is unmatched, B is in a pair — swap: A takes B's slot, B goes to pool
+    const m = state.matches[bInfo.loc.idx];
+    if (bInfo.loc.corner === 'red') m.red = aBoxer; else m.blue = aBoxer;
+    state.unmatched = state.unmatched.filter(b => b.id !== aId);
+    state.unmatched.push(bBoxer);
+    m.weightDiff = Math.abs(m.red.weight - m.blue.weight).toFixed(2);
+    m.category   = deriveCategory(m.red, m.blue);
+  } else {
+    // Both unmatched — create a new pair
+    state.unmatched = state.unmatched.filter(b => b.id !== aId && b.id !== bId);
+    const diff = Math.abs(aBoxer.weight - bBoxer.weight).toFixed(2);
+    state.matches.push({
+      sparId:     `S${Date.now()}`,
+      red:        aBoxer,
+      blue:       bBoxer,
+      weightDiff: diff,
+      category:   deriveCategory(aBoxer, bBoxer)
+    });
+  }
+}
+
+// Move boxer back to unmatched pool, freeing their partner too.
+function unmatchBoxer(id) {
+  const info = findBoxer(id);
+  if (!info) return;
+  if (info.loc.type === 'unmatched') return;  // already free
+
+  const m       = state.matches[info.loc.idx];
+  const partner = info.loc.corner === 'red' ? clone(m.blue) : clone(m.red);
+
+  state.matches.splice(info.loc.idx, 1);
+  if (!state.unmatched.some(b => b.id === id))         state.unmatched.push(clone(info.boxer));
+  if (!state.unmatched.some(b => b.id === partner.id)) state.unmatched.push(partner);
+}
+
+function deleteMatch(sparId) {
+  const idx = state.matches.findIndex(m => m.sparId === sparId);
+  if (idx < 0) return;
+  const m = state.matches[idx];
+  state.unmatched.push(clone(m.red), clone(m.blue));
+  state.matches.splice(idx, 1);
+}
+
+function swapMatch(sparId) {
+  const m = state.matches.find(m => m.sparId === sparId);
+  if (m) [m.red, m.blue] = [m.blue, m.red];
+}
+
+// ── Filtering ─────────────────────────────────────────────────────────────────
+
+function filteredMatches() {
+  const cat    = document.getElementById('filterCat').value;
+  const search = document.getElementById('searchInput').value.toLowerCase().trim();
+  return state.matches.filter(m => {
+    if (cat && m.category !== cat) return false;
+    if (search) {
+      const hay = `${m.red.name} ${m.red.club} ${m.blue.name} ${m.blue.club}`.toLowerCase();
+      if (!hay.includes(search)) return false;
+    }
+    return true;
+  });
+}
+
+function populateCategoryFilter() {
+  const cats = [...new Set(state.matches.map(m => m.category))].sort();
+  const sel  = document.getElementById('filterCat');
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">All categories</option>';
+  cats.forEach(c => {
+    const o = document.createElement('option');
+    o.value = c; o.textContent = c;
+    if (c === prev) o.selected = true;
+    sel.appendChild(o);
+  });
+}
+
+// ── Boxer tile (drag source + drop target) ────────────────────────────────────
+
+function makeBoxerTile(boxer, extraClass) {
+  const type = boxerType(boxer);
+  const div  = document.createElement('div');
+  div.className  = `boxer-tile ${type}${extraClass ? ' ' + extraClass : ''}`;
+  div.draggable  = true;
+  div.dataset.id = boxer.id;
+
+  div.innerHTML = `
+    <div class="boxer-name">${boxer.name}</div>
+    <div class="boxer-club">${boxer.club}</div>
+    <div class="boxer-stats">${boxer.weight} kg &middot; YOB ${boxer.yob} &middot; ${boxer.experience} bouts</div>
+  `;
+
+  div.addEventListener('dragstart', e => {
+    draggedId = boxer.id;
+    e.dataTransfer.setData('text/plain', String(boxer.id));
+    e.dataTransfer.effectAllowed = 'move';
+    setTimeout(() => div.classList.add('dragging'), 0);
+  });
+  div.addEventListener('dragend', () => {
+    draggedId = null;
+    div.classList.remove('dragging');
+  });
+
+  // This tile as drop target: drop → pair them
+  div.addEventListener('dragover', e => {
+    if (draggedId !== null && draggedId !== boxer.id) {
+      e.preventDefault();
+      e.stopPropagation();   // don't bubble to unmatched-zone
+      div.classList.add('drop-target');
+    }
+  });
+  div.addEventListener('dragleave', () => div.classList.remove('drop-target'));
+  div.addEventListener('drop', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    div.classList.remove('drop-target');
+    const fromId = parseInt(e.dataTransfer.getData('text/plain'));
+    if (fromId === boxer.id) return;
+    swapBoxers(fromId, boxer.id);
+    populateCategoryFilter();
+    render();
+    showToast(`Swapped: ${findBoxerName(fromId)} ↔ ${boxer.name}`);
+  });
+
+  return div;
+}
+
+function findBoxerName(id) {
+  const info = findBoxer(id);
+  return info ? info.boxer.name : `#${id}`;
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+
+function render() {
+  renderPairs();
+  renderUnmatched();
+  updateStats();
+}
+
+function renderPairs() {
+  const matches   = filteredMatches();
+  const container = document.getElementById('pairs');
+  document.getElementById('list-title').textContent =
+    `${matches.length} of ${state.matches.length} pair${state.matches.length !== 1 ? 's' : ''}`;
+
+  container.innerHTML = '';
+
+  if (matches.length === 0) {
+    container.innerHTML =
+      '<div style="padding:24px;color:#bbb;font-style:italic;text-align:center;">No pairs match the filter</div>';
+    return;
+  }
+
+  matches.forEach(m => {
+    const type     = boutType(m);
+    const diff     = parseFloat(m.weightDiff);
+    const sameClub = m.red.club === m.blue.club;
+    const bigDiff  = diff > 3;
+
+    const card = document.createElement('div');
+    card.className = `match-card ${type}`;
+
+    // ── Header
+    const hdr = document.createElement('div');
+    hdr.className = 'card-header';
+
+    const meta = document.createElement('div');
+    meta.style.display = 'flex'; meta.style.gap = '6px'; meta.style.alignItems = 'center'; meta.style.flexWrap = 'wrap';
+    meta.innerHTML = `<span class="spar-id">${m.sparId}</span>
+      <span class="cat-badge">${m.category}</span>
+      <span class="${bigDiff ? 'warn-badge' : 'diff-badge'}">⚖ ${m.weightDiff} kg</span>
+      ${sameClub ? '<span class="warn-badge">⚠ same club</span>' : ''}`;
+
+    const actions = document.createElement('div');
+    actions.className = 'card-actions';
+    const swapBtn = document.createElement('button');
+    swapBtn.className = 'btn-swap'; swapBtn.textContent = '⇄ Swap';
+    const delBtn  = document.createElement('button');
+    delBtn.className = 'btn-delete'; delBtn.textContent = '✕';
+
+    swapBtn.addEventListener('click', () => { swapMatch(m.sparId); render(); });
+    delBtn.addEventListener('click',  () => {
+      deleteMatch(m.sparId);
+      populateCategoryFilter();
+      render();
+      showToast('Pair removed — both boxers moved to pool');
+    });
+
+    actions.append(swapBtn, delBtn);
+    hdr.append(meta, actions);
+    card.appendChild(hdr);
+
+    // ── Matchup row
+    const matchup = document.createElement('div');
+    matchup.className = 'matchup';
+
+    const redWrap = document.createElement('div');
+    redWrap.className = 'corner-wrap red-corner';
+    redWrap.innerHTML = '<div class="corner-label">🔴 Red corner</div>';
+    redWrap.appendChild(makeBoxerTile(m.red));
+
+    const vsEl = document.createElement('div');
+    vsEl.className = 'vs-col'; vsEl.textContent = 'vs';
+
+    const blueWrap = document.createElement('div');
+    blueWrap.className = 'corner-wrap blue-corner';
+    blueWrap.innerHTML = '<div class="corner-label">🔵 Blue corner</div>';
+    blueWrap.appendChild(makeBoxerTile(m.blue));
+
+    matchup.append(redWrap, vsEl, blueWrap);
+    card.appendChild(matchup);
+
+    const hint = document.createElement('div');
+    hint.className = 'drag-hint';
+    hint.textContent = 'drag to re-pair';
+    card.appendChild(hint);
+
+    container.appendChild(card);
+  });
+}
+
+function renderUnmatched() {
+  const list  = document.getElementById('unmatched-list');
+  const title = document.getElementById('unmatched-title');
+  const hint  = document.getElementById('pair-hint');
+  title.textContent = `Unmatched Pool (${state.unmatched.length})`;
+  list.innerHTML = '';
+
+  if (state.unmatched.length === 0) {
+    hint.style.display = 'none';
+    list.innerHTML = '<div class="pool-empty">All boxers paired ✓</div>';
+    return;
+  }
+
+  // Show the pairing hint whenever there are 2+ free boxers
+  hint.style.display = state.unmatched.length >= 2 ? 'block' : 'none';
+
+  state.unmatched.forEach(b => {
+    const tile = makeBoxerTile(b, 'unmatched-tile');
+    list.appendChild(tile);
+  });
+}
+
+function updateStats() {
+  document.getElementById('stats').textContent =
+    `${state.matches.length} pairs · ${state.unmatched.length} unmatched`;
+}
+
+// ── Static event bindings ─────────────────────────────────────────────────────
+
+function bindStaticEvents() {
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    resetState();
+    populateCategoryFilter();
+    render();
+    showToast('Reset to original pairings');
+  });
+
+  document.getElementById('exportBtn').addEventListener('click', exportJSON);
+  document.getElementById('filterCat').addEventListener('change', render);
+  document.getElementById('searchInput').addEventListener('input', render);
+
+  // Unmatched zone: drop a boxer here to unmatch them
+  const zone = document.getElementById('unmatched-zone');
+  zone.addEventListener('dragover', e => {
+    if (draggedId !== null) { e.preventDefault(); zone.classList.add('drop-active'); }
+  });
+  zone.addEventListener('dragleave', e => {
+    // Only remove if leaving the zone entirely (not entering a child tile)
+    if (!zone.contains(e.relatedTarget)) zone.classList.remove('drop-active');
+  });
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drop-active');
+    const id = parseInt(e.dataTransfer.getData('text/plain'));
+    const info = findBoxer(id);
+    if (!info || info.loc.type === 'unmatched') return;  // already unmatched
+    const name = info.boxer.name;
+    unmatchBoxer(id);
+    populateCategoryFilter();
+    render();
+    showToast(`${name} moved to unmatched pool`);
+  });
+}
+
+// ── Export ────────────────────────────────────────────────────────────────────
+
+async function exportJSON() {
+  const total = originalData.summary.totalBoxers;
+  const output = {
+    summary: {
+      totalBoxers:    total,
+      matchedCount:   state.matches.length * 2,
+      unmatchedCount: state.unmatched.length,
+      matchCount:     state.matches.length,
+      successRate:    ((state.matches.length * 2) / total * 100).toFixed(1) + '%'
+    },
+    matches:   state.matches.map(({ sparId, ...rest }) => rest),
+    unmatched: state.unmatched.map(b => ({ red: b }))
+  };
+  try {
+    const res = await fetch(`${SERVER}/api/data/spars`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(output)
+    });
+    if (!res.ok) throw new Error();
+    showToast('Saved to server — Spars.json updated');
+  } catch {
+    const blob = new Blob([JSON.stringify(output, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'Spars.json';
+    a.click();
+    showToast('Server unavailable — downloaded Spars.json');
+  }
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
+<script src="theme.js"></script>
+</body>
+</html>

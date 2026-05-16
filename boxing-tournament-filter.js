@@ -1,3 +1,4 @@
+// Copyright (c) 2026 ITLR Assets. All rights reserved.
 /**
  * Boxing Tournament Hierarchical Filter
  * Based on boxing.mmd structure
@@ -16,7 +17,7 @@
  * - 12 Male matches (4 Junior + 4 Youth + 4 Senior)
  */
 
-const HierarchicalFilter = require('./Examples/hierarchical-filter');
+const HierarchicalFilter = require('./hierarchical-filter');
 const fs = require('fs');
 
 /**

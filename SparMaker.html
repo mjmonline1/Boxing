@@ -1,0 +1,613 @@
+<!-- Copyright (c) 2026 ITLR Assets. All rights reserved. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Spar Matcher</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #22272e;
+    --surface: #2d333b;
+    --surface2: #373e47;
+    --border: #444c56;
+    --blue: #58a6ff;
+    --blue-dim: rgba(88,166,255,0.16);
+    --red: #f85149;
+    --red-dim: rgba(248,81,73,0.16);
+    --text: #cdd9e5;
+    --muted: #768390;
+    --faint: #4a5568;
+  }
+
+  body {
+    background: var(--bg);
+    /* subtle warm/cool glow matching the corner colours */
+    background-image:
+      radial-gradient(ellipse 60% 40% at 15% 60%, rgba(88,166,255,0.04) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 35% at 85% 25%, rgba(248,81,73,0.04) 0%, transparent 70%);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    padding: 2rem;
+  }
+
+  h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+    color: var(--text);
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    letter-spacing: 0.02em;
+  }
+
+  .toolbar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 1.25rem;
+  }
+
+  .btn {
+    padding: 7px 14px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.1s, border-color 0.1s;
+    display: inline-flex;
+    align-items: center;
+  }
+  .btn:hover { background: var(--surface); border-color: var(--muted); }
+  .btn-blue { border-color: var(--blue); color: var(--blue); }
+  .btn-blue:hover { background: var(--blue-dim); }
+  .btn-danger { border-color: var(--red); color: var(--red); }
+  .btn-danger:hover { background: var(--red-dim); }
+
+  .toolbar-sep {
+    width: 1px;
+    height: 24px;
+    background: var(--border);
+    margin: 0 4px;
+  }
+
+  .legend {
+    display: flex;
+    gap: 16px;
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: 'Barlow Condensed', sans-serif;
+  }
+  .legend-item { display: flex; align-items: center; gap: 7px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .dot-blue { background: var(--blue); }
+  .dot-red { background: var(--red); }
+
+  .grid-wrap { overflow-x: auto; margin-bottom: 2rem; }
+
+  table { border-collapse: collapse; font-size: 12px; }
+  th, td { border: 1px solid var(--border); }
+
+  thead th {
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 8px 10px;
+    white-space: nowrap;
+    text-align: center;
+  }
+  thead th:first-child { text-align: left; min-width: 150px; }
+
+  th.row-header {
+    background: var(--surface);
+    text-align: left;
+    padding: 0 12px;
+    white-space: nowrap;
+    min-width: 150px;
+  }
+  .row-header-inner {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 40px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  .badge {
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 20px;
+    padding: 1px 7px;
+    margin-left: auto;
+    font-family: 'Barlow', sans-serif;
+  }
+  .badge-active { background: var(--blue-dim); color: var(--blue); }
+  .badge-zero { background: var(--surface2); color: var(--faint); }
+
+  td.cell {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    text-align: center;
+    vertical-align: middle;
+    background: var(--bg);
+    transition: background 0.1s;
+  }
+  td.cell:hover { background: var(--surface2); }
+  td.cell.matched-blue { background: var(--blue-dim); }
+  td.cell.matched-blue:hover { background: rgba(43,127,255,0.25); }
+  td.cell.matched-red { background: var(--red-dim); }
+  td.cell.matched-red:hover { background: rgba(230,57,70,0.25); }
+  td.self { background: var(--surface); cursor: default; }
+
+  .x { font-size: 15px; font-weight: 700; line-height: 1; }
+  .x-blue { color: var(--blue); }
+  .x-red { color: var(--red); }
+
+  .spar-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .spar-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+  .spar-panel-header strong {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+  .spar-panel-header span {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-family: 'Barlow Condensed', sans-serif;
+  }
+
+  .spar-table { width: 100%; border-collapse: collapse; }
+
+  .spar-table thead th {
+    background: var(--surface2);
+    color: var(--muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 8px 20px;
+    border-bottom: 1px solid var(--border);
+    border-top: 1px solid var(--border);
+    text-align: left;
+  }
+  .spar-table thead th.center { text-align: center; }
+  .spar-table thead th.num { text-align: center; width: 44px; }
+
+  .spar-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .spar-table tbody tr:last-child { border-bottom: none; }
+  .spar-table tbody tr:hover { background: var(--surface2); }
+  .spar-table tbody tr:hover .remove-hint { opacity: 1; }
+
+  .spar-table td {
+    padding: 11px 20px;
+    font-size: 13px;
+    color: var(--text);
+    vertical-align: middle;
+  }
+  .spar-table td.num {
+    text-align: center;
+    color: var(--faint);
+    font-size: 11px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .spar-table td.center { text-align: center; }
+
+  .fighter-cell { display: flex; align-items: center; gap: 9px; }
+  .fighter-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .fighter-name.blue { color: var(--blue); }
+  .fighter-name.red { color: var(--red); }
+
+  .vs-badge {
+    display: inline-block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .remove-hint {
+    opacity: 0;
+    font-size: 11px;
+    color: var(--red);
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: opacity 0.15s;
+  }
+
+  .empty-spars {
+    padding: 2rem 20px;
+    color: var(--muted);
+    font-size: 13px;
+    text-align: center;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<a href="index.html" style="display:inline-block; margin-bottom:1rem; padding:6px 13px; border:1px solid var(--border); border-radius:5px; color:var(--muted); text-decoration:none; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase;">&#8592; Home</a>
+<h1>Spar Matcher</h1>
+<p class="subtitle">Click to assign &middot; Click again to swap corners &middot; Click again to remove</p>
+
+<div class="toolbar">
+  <label class="btn btn-blue" title="Load boxers from CSV (must have a 'name' column; rows with fit=no are skipped)">
+    Load CSV
+    <input type="file" accept=".csv" id="csvInput" style="display:none">
+  </label>
+  <button class="btn btn-blue" id="exportBtn">Export CSV</button>
+  <div class="toolbar-sep"></div>
+  <button class="btn btn-danger" id="clearSparsBtn">Clear Spars</button>
+  <button class="btn" id="resetAllBtn" title="Revert to dummy data and clear all spars">Reset All</button>
+  <div class="legend">
+    <span class="legend-item"><span class="dot dot-blue"></span> Blue corner</span>
+    <span class="legend-item"><span class="dot dot-red"></span> Red corner</span>
+  </div>
+</div>
+
+<div class="grid-wrap">
+  <table id="grid"></table>
+</div>
+
+<div class="spar-panel">
+  <div class="spar-panel-header">
+    <strong id="sparCount">0 Spars</strong>
+    <span>hover a row &amp; click to remove</span>
+  </div>
+  <div id="sparList"></div>
+</div>
+
+<script>
+  // Separator unlikely to appear in boxer names; safe in HTML attributes after esc()
+  const SEP = '‖'; // DOUBLE VERTICAL LINE
+
+  const DEFAULT_BOXERS = [
+    'Tommy Reeves','Jake Moran','Danny Cruz','Liam Walsh',
+    'Callum Ford','Sean Briggs','Rico Vega','Matty Bell',
+    'Aaron Price','Curtis Webb','Joel Tanner','Dom Harte',
+    'Reece Flood','Tyler Nash','Ben Okoro','Karl Duffy'
+  ];
+
+  const DEFAULT_PAIRS = [
+    ['Tommy Reeves','Jake Moran'],['Tommy Reeves','Danny Cruz'],
+    ['Jake Moran','Liam Walsh'],['Jake Moran','Callum Ford'],
+    ['Danny Cruz','Rico Vega'],['Danny Cruz','Sean Briggs'],
+    ['Liam Walsh','Matty Bell'],['Callum Ford','Rico Vega'],
+    ['Callum Ford','Sean Briggs'],['Sean Briggs','Matty Bell'],
+    ['Rico Vega','Tommy Reeves'],['Matty Bell','Jake Moran'],
+    ['Aaron Price','Curtis Webb'],['Aaron Price','Joel Tanner'],
+    ['Curtis Webb','Dom Harte'],['Joel Tanner','Reece Flood'],
+    ['Dom Harte','Tyler Nash'],['Reece Flood','Ben Okoro'],
+    ['Tyler Nash','Karl Duffy'],['Ben Okoro','Aaron Price'],
+    ['Karl Duffy','Curtis Webb'],['Dom Harte','Karl Duffy'],
+  ];
+
+  let boxers, matches, corners;
+
+  function matchKey(a, b) { return [a, b].sort().join(SEP); }
+
+  function initDefaults() {
+    boxers = [...DEFAULT_BOXERS];
+    matches = {};
+    corners = {};
+    DEFAULT_PAIRS.forEach(([a, b]) => {
+      const key = matchKey(a, b);
+      matches[key] = true;
+      corners[key] = { blue: a, red: b };
+    });
+  }
+
+  // --- Persistence (localStorage) ---
+  function save() {
+    try {
+      localStorage.setItem('sm_boxers', JSON.stringify(boxers));
+      localStorage.setItem('sm_matches', JSON.stringify(matches));
+      localStorage.setItem('sm_corners', JSON.stringify(corners));
+    } catch (e) {}
+  }
+
+  function loadSaved() {
+    try {
+      const b = localStorage.getItem('sm_boxers');
+      const m = localStorage.getItem('sm_matches');
+      const c = localStorage.getItem('sm_corners');
+      if (b && m && c) {
+        boxers = JSON.parse(b);
+        matches = JSON.parse(m);
+        corners = JSON.parse(c);
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  // --- Click cycle: unmatched → row=blue → row=red → unmatched ---
+  function cycleCell(rowB, colB) {
+    if (rowB === colB) return;
+    const key = matchKey(rowB, colB);
+    if (!matches[key]) {
+      matches[key] = true;
+      corners[key] = { blue: rowB, red: colB };
+    } else if (corners[key].blue === rowB) {
+      corners[key] = { blue: colB, red: rowB };
+    } else {
+      delete matches[key];
+      delete corners[key];
+    }
+    save();
+    render();
+  }
+
+  function removeMatch(key) {
+    delete matches[key];
+    delete corners[key];
+    save();
+    render();
+  }
+
+  // --- Toolbar actions ---
+  document.getElementById('clearSparsBtn').addEventListener('click', () => {
+    if (!Object.keys(matches).length) return;
+    if (!confirm('Clear all spars? Boxers list will be kept.')) return;
+    matches = {};
+    corners = {};
+    save();
+    render();
+  });
+
+  document.getElementById('resetAllBtn').addEventListener('click', () => {
+    if (!confirm('Reset to dummy data? This will clear all current spars and boxers.')) return;
+    localStorage.removeItem('sm_boxers');
+    localStorage.removeItem('sm_matches');
+    localStorage.removeItem('sm_corners');
+    initDefaults();
+    render();
+  });
+
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    const pairs = Object.keys(matches).map(k => corners[k]).filter(Boolean);
+    if (!pairs.length) { alert('No spars to export.'); return; }
+    const csvQ = s => `"${s.replace(/"/g, '""')}"`;
+    const rows = ['Blue,Red', ...pairs.map(p => `${csvQ(p.blue)},${csvQ(p.red)}`)];
+    const blob = new Blob([rows.join('\r\n')], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'spars.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+  });
+
+  // --- CSV loading ---
+  document.getElementById('csvInput').addEventListener('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      try { importCSV(e.target.result); }
+      catch (err) { alert('CSV error: ' + err.message); }
+    };
+    reader.readAsText(file);
+    this.value = '';
+  });
+
+  function importCSV(text) {
+    const lines = text.trim().split(/\r?\n/);
+    const header = splitCSVLine(lines[0]).map(h => h.toLowerCase().trim());
+    const nameIdx = header.indexOf('name');
+    const fitIdx  = header.indexOf('fit');
+    if (nameIdx === -1) throw new Error('CSV must have a "name" column');
+    const names = [];
+    for (let i = 1; i < lines.length; i++) {
+      if (!lines[i].trim()) continue;
+      const cols = splitCSVLine(lines[i]);
+      if (fitIdx !== -1 && cols[fitIdx]?.trim().toLowerCase() === 'no') continue;
+      const name = cols[nameIdx]?.trim();
+      if (name) names.push(name);
+    }
+    if (!names.length) throw new Error('No boxers found in CSV');
+    boxers = names;
+    matches = {};
+    corners = {};
+    save();
+    render();
+  }
+
+  function splitCSVLine(line) {
+    const result = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') {
+        if (inQ && line[i + 1] === '"') { cur += '"'; i++; }
+        else inQ = !inQ;
+      } else if (ch === ',' && !inQ) {
+        result.push(cur); cur = '';
+      } else {
+        cur += ch;
+      }
+    }
+    result.push(cur);
+    return result;
+  }
+
+  // --- Render ---
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function sparCount(name) {
+    return Object.keys(matches).filter(k => {
+      const parts = k.split(SEP);
+      return parts[0] === name || parts[1] === name;
+    }).length;
+  }
+
+  function renderGrid() {
+    const grid = document.getElementById('grid');
+    let html = '<thead><tr><th></th>';
+    boxers.forEach(b => { html += `<th>${esc(b)}</th>`; });
+    html += '</tr></thead><tbody>';
+
+    boxers.forEach(rowB => {
+      const count = sparCount(rowB);
+      html += `<tr>
+        <th class="row-header">
+          <div class="row-header-inner">
+            <span class="dot dot-blue"></span>
+            ${esc(rowB)}
+            <span class="badge ${count > 0 ? 'badge-active' : 'badge-zero'}">${count}</span>
+          </div>
+        </th>`;
+      boxers.forEach(colB => {
+        if (rowB === colB) { html += `<td class="self"></td>`; return; }
+        const key = matchKey(rowB, colB);
+        const isMatch = !!matches[key];
+        let cls = 'cell', mark = '', tip = `${esc(rowB)} vs ${esc(colB)}`;
+        if (isMatch) {
+          const c = corners[key];
+          if (c.blue === rowB) {
+            cls += ' matched-blue';
+            mark = `<span class="x x-blue">&#x2715;</span>`;
+            tip += ' · click to swap corners';
+          } else {
+            cls += ' matched-red';
+            mark = `<span class="x x-red">&#x2715;</span>`;
+            tip += ' · click to remove';
+          }
+        }
+        // data attributes avoid inline JS — names with quotes/apostrophes are safe
+        html += `<td class="${cls}" data-row="${esc(rowB)}" data-col="${esc(colB)}" title="${tip}">${mark}</td>`;
+      });
+      html += '</tr>';
+    });
+
+    html += '</tbody>';
+    grid.innerHTML = html;
+  }
+
+  function renderSparList() {
+    const listEl   = document.getElementById('sparList');
+    const countEl  = document.getElementById('sparCount');
+    const keys     = Object.keys(matches);
+
+    countEl.textContent = `${keys.length} Spar${keys.length !== 1 ? 's' : ''}`;
+
+    if (!keys.length) {
+      listEl.innerHTML = '<p class="empty-spars">No spars assigned yet — click a cell in the grid above.</p>';
+      return;
+    }
+
+    let html = `<table class="spar-table">
+      <thead><tr>
+        <th class="num">#</th>
+        <th>Blue corner</th>
+        <th class="center">vs</th>
+        <th>Red corner</th>
+        <th></th>
+      </tr></thead><tbody>`;
+
+    keys.forEach((key, i) => {
+      const c = corners[key];
+      if (!c) return;
+      // Store key in data attribute; esc() handles HTML-special chars; dataset reads back decoded
+      html += `<tr data-key="${esc(key)}">
+        <td class="num">${i + 1}</td>
+        <td><div class="fighter-cell"><span class="dot dot-blue"></span><span class="fighter-name blue">${esc(c.blue)}</span></div></td>
+        <td class="center"><span class="vs-badge">vs</span></td>
+        <td><div class="fighter-cell"><span class="dot dot-red"></span><span class="fighter-name red">${esc(c.red)}</span></div></td>
+        <td><span class="remove-hint">remove</span></td>
+      </tr>`;
+    });
+
+    html += '</tbody></table>';
+    listEl.innerHTML = html;
+  }
+
+  function render() { renderGrid(); renderSparList(); }
+
+  // --- Event delegation (no inline onclick) ---
+  document.getElementById('grid').addEventListener('click', e => {
+    const cell = e.target.closest('td[data-row]');
+    if (cell) cycleCell(cell.dataset.row, cell.dataset.col);
+  });
+
+  document.getElementById('sparList').addEventListener('click', e => {
+    const row = e.target.closest('tr[data-key]');
+    if (row) removeMatch(row.dataset.key);
+  });
+
+  // --- Init ---
+  if (!loadSaved()) initDefaults();
+  render();
+</script>
+</body>
+</html>

@@ -7,6 +7,7 @@ Implementation of your boxing tournament bracket structure from `boxing.mmd`. Ea
 Based on your mermaid diagram, the structure is:
 
 ```
+
 All Boxers
 ├── Not Fit (1 bucket)
 ├── Fit Males
@@ -38,6 +39,7 @@ All Boxers
 ```
 
 **Total Final Buckets: 28**
+
 - 1 Not Fit
 - 24 Male matches (3 age groups × 2 weight classes × 2 experience × 2 matches)
 - 3 Female matches
@@ -45,11 +47,13 @@ All Boxers
 ## Quick Start
 
 ### Run with Sample Data
+
 ```bash
 node boxing-tournament-filter.js
 ```
 
 ### Run with Your CSV Data
+
 ```bash
 node boxing-csv-loader.js
 ```
@@ -85,27 +89,33 @@ id,name,gender,yob,fit,weightClass,experience
 The system applies these filters progressively:
 
 ### 1. Fitness Filter
+
 - **Not Fit**: Boxers marked as not fit → separate bucket
 - **Fit**: Continue to gender filtering
 
 ### 2. Gender Filter
+
 - **Male**: Continue to age group filtering
 - **Female**: Split into 3 matches (evenly distributed)
 
 ### 3. Male Age Group Filter (by YOB)
+
 - **Junior**: 2010, 2011, 2012, 2013
 - **Youth**: 2008, 2009
 - **Senior**: 2007
 
 ### 4. Weight Class Filter
+
 - **Class 1**: weightClass = 1 or 'A'
 - **Class 2**: weightClass = 2 or 'B'
 
 ### 5. Experience Filter
+
 - **Novice (EXC1)**: 0-5 bouts
 - **Experienced (EXC2)**: 6+ bouts
 
 ### 6. Match Assignment
+
 - Within each experience level, boxers are split into 2 matches
 - Currently uses simple distribution (even/odd ID)
 - Can be customized with your own logic
@@ -141,15 +151,18 @@ rule: (boxer) => assignmentCounter++ % 2 === 0
 ## Files
 
 ### Core Files
+
 - **hierarchical-filter.js** - Core tree filtering engine
 - **boxing-tournament-filter.js** - Boxing tournament structure with sample data
 - **boxing-csv-loader.js** - Load boxers from CSV file
 - **boxing.mmd** - Your original Mermaid diagram (reference)
 
 ### Data Files
+
 - **data/boxing-boxers.csv** - Sample boxer data template
 
 ### Output Files (generated)
+
 - **output/boxing-tournament-results.json** - Full results in JSON
 - **output/boxing-tournament-tree.txt** - Tree visualization
 - **output/boxing-csv-results.json** - Results from CSV data

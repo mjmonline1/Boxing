@@ -1,0 +1,258 @@
+/* Copyright (c) 2026 ITLR Assets. All rights reserved. */
+/* ── Theme variables ── */
+:root {
+  /* Toolbar */
+  --toolbar-bg:           #1a1a2e;
+  --toolbar-text:         #ffffff;
+  --toolbar-subtext:      #aaaaaa;
+  --nav-btn-border:       #444444;
+  --nav-btn-color:        #aaaaaa;
+  --nav-btn-hover-border: #888888;
+  --nav-btn-hover-color:  #ffffff;
+
+  /* Body / surfaces (dark defaults) */
+  --body-bg:        #12121e;
+  --surface-bg:     #1e1e30;
+  --panel-bg:       #191928;
+  --card-bg:        #252540;
+  --surface-border: #2d3050;
+  --text-primary:   #e0e0f0;
+  --text-muted:     #8888aa;
+  --row-alt-bg:     #191928;
+  --row-hover-bg:   #1e2d5e;
+  --input-bg:       #12121e;
+  --input-border:   #3d4466;
+}
+
+[data-theme="light"] {
+  /* Toolbar */
+  --toolbar-bg:           #f0f0f0;
+  --toolbar-text:         #1a1a2e;
+  --toolbar-subtext:      #666666;
+  --nav-btn-border:       #bbbbbb;
+  --nav-btn-color:        #444444;
+  --nav-btn-hover-border: #888888;
+  --nav-btn-hover-color:  #000000;
+
+  /* Body / surfaces */
+  --body-bg:        #f0f2f5;
+  --surface-bg:     #ffffff;
+  --panel-bg:       #f7f7f7;
+  --card-bg:        #fafafa;
+  --surface-border: #dddddd;
+  --text-primary:   #111111;
+  --text-muted:     #555555;
+  --row-alt-bg:     #f9f9f9;
+  --row-hover-bg:   #e8f4ff;
+  --input-bg:       #ffffff;
+  --input-border:   #cccccc;
+
+  /* BucketAssigner internal vars */
+  --bg:        #f0f2f5;
+  --surface:   #ffffff;
+  --surface2:  #f5f5f5;
+  --border:    #dddddd;
+  --text:      #111111;
+  --muted:     #666666;
+  --faint:     #bbbbbb;
+  --blue:      #1a73e8;
+  --blue-dim:  rgba(26,115,232,0.12);
+  --red:       #d32f2f;
+  --red-dim:   rgba(211,47,47,0.12);
+  --green:     #2e7d32;
+  --green-dim: rgba(46,125,50,0.12);
+}
+
+[data-theme="boxing"] {
+  /* Toolbar */
+  --toolbar-bg:           #7b0000;
+  --toolbar-text:         #ffe082;
+  --toolbar-subtext:      #ffca7a;
+  --nav-btn-border:       #c62828;
+  --nav-btn-color:        #ffca7a;
+  --nav-btn-hover-border: #ffe082;
+  --nav-btn-hover-color:  #ffffff;
+
+  /* Body / surfaces */
+  --body-bg:        #1a0000;
+  --surface-bg:     #2a0808;
+  --panel-bg:       #220606;
+  --card-bg:        #300a0a;
+  --surface-border: #5c1010;
+  --text-primary:   #ffe082;
+  --text-muted:     #ffca7a;
+  --row-alt-bg:     #220606;
+  --row-hover-bg:   #3a1010;
+  --input-bg:       #220606;
+  --input-border:   #7b0000;
+
+  /* BucketAssigner internal vars */
+  --bg:        #1a0000;
+  --surface:   #2a0808;
+  --surface2:  #300a0a;
+  --border:    #5c1010;
+  --text:      #ffe082;
+  --muted:     #ffca7a;
+  --faint:     #7b0000;
+  --blue:      #ffe082;
+  --blue-dim:  rgba(255,224,130,0.12);
+  --red:       #f85149;
+  --red-dim:   rgba(248,81,73,0.16);
+  --green:     #ffe082;
+  --green-dim: rgba(255,224,130,0.12);
+}
+
+/* ── Theme toggle button ── */
+.theme-btn {
+  padding: 7px 14px;
+  border: 1px solid var(--nav-btn-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--nav-btn-color);
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, color 0.15s;
+}
+.theme-btn:hover {
+  border-color: var(--nav-btn-hover-border);
+  color: var(--nav-btn-hover-color);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   Global surface overrides — theme.css loads AFTER inline <style>
+   so same-specificity rules here win via cascade order.
+   ════════════════════════════════════════════════════════════════ */
+
+body {
+  background: var(--body-bg);
+  color: var(--text-primary);
+}
+
+/* ── Shared legend bar (SparManager, RingManager, TimelineView) ── */
+#legend {
+  background: var(--surface-bg);
+  border-bottom-color: var(--surface-border);
+  color: var(--text-primary);
+}
+
+/* ── BoxerManager: stats bar ── */
+#statsBar {
+  background: var(--surface-bg);
+  border-bottom-color: var(--surface-border);
+  color: var(--text-muted);
+}
+
+/* ── BoxerManager: table ── */
+table { background: var(--surface-bg); }
+tbody tr:nth-child(even) { background: var(--row-alt-bg); }
+tbody tr:hover { background: var(--row-hover-bg); }
+td {
+  border-bottom-color: var(--surface-border);
+  color: var(--text-primary);
+}
+
+/* ── BoxerManager: modal ── */
+#modal { background: var(--surface-bg); color: var(--text-primary); }
+#modal h2 { color: var(--text-primary); }
+.form-group label { color: var(--text-muted); }
+.form-group input,
+.form-group select {
+  background: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--text-primary);
+}
+#cancelBtn { background: var(--panel-bg); color: var(--text-primary); }
+
+/* ── SparManager: filter bar ── */
+#filterbar {
+  background: var(--panel-bg);
+  border-bottom-color: var(--surface-border);
+}
+#filterbar label { color: var(--text-muted); }
+#filterbar select,
+#filterbar input {
+  background: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--text-primary);
+}
+
+/* ── SparManager: cards and tiles ── */
+.match-card {
+  background: var(--card-bg);
+  border-color: var(--surface-border);
+}
+.boxer-tile {
+  background: var(--card-bg);
+  border-color: var(--surface-border);
+}
+.boxer-name { color: var(--text-primary); }
+.boxer-club,
+.boxer-stats { color: var(--text-muted); }
+.col-title { color: var(--text-muted); }
+.corner-label { color: var(--text-muted); }
+.cat-badge { background: var(--panel-bg); color: var(--text-muted); }
+.diff-badge { background: var(--panel-bg); color: var(--text-muted); }
+.spar-id { color: var(--text-muted); }
+.vs-col { color: var(--surface-border); }
+.drag-hint { color: var(--text-muted); }
+.pool-empty { color: var(--text-muted); }
+.drop-prompt {
+  border-color: var(--surface-border);
+  color: var(--text-muted);
+}
+
+/* ── SparManager: unmatched panel ── */
+#unmatched-col {
+  background: var(--surface-bg);
+  border-left-color: var(--surface-border);
+}
+#unmatched-header {
+  background: var(--panel-bg);
+  border-bottom-color: var(--surface-border);
+  color: var(--text-primary);
+}
+#unmatched-header .sub { color: var(--text-muted); }
+
+/* ── RingManager: ring columns and bout cards ── */
+.ring {
+  background: var(--surface-bg);
+  border-color: var(--surface-border);
+}
+.ring-header .ring-count { color: var(--text-muted); }
+.bout {
+  background: var(--card-bg);
+  border-color: var(--surface-border);
+}
+.bout-names { color: var(--text-primary); }
+.bout-cat,
+.bout-weight { color: var(--text-muted); }
+.bout-pos { color: var(--text-muted); }
+.bout-format {
+  color: var(--text-muted);
+  border-top-color: var(--surface-border);
+}
+
+/* ── TimelineView ── */
+#ruler {
+  background: var(--surface-bg);
+  border-right-color: var(--surface-border);
+}
+.tick-label { color: var(--text-muted); }
+.tick-label.major { color: var(--text-primary); }
+.ring-col {
+  background: var(--surface-bg);
+  border-right-color: var(--surface-border);
+}
+.hour-line { border-top-color: var(--surface-border); }
+.bout-block {
+  background: var(--card-bg);
+  border-color: var(--surface-border);
+}
+.bb-names { color: var(--text-primary); }
+.bb-cat { color: var(--text-muted); }
+.bb-format {
+  color: var(--text-muted);
+  border-top-color: var(--surface-border);
+}
