@@ -261,9 +261,19 @@ let draggedId    = null;   // boxer.id currently being dragged
   } catch {
     document.getElementById('pairs').innerHTML =
       `<div style="padding:40px;color:red;font-size:14px;">
-         <b>Could not load Spars.json.</b><br><br>
+         <b>Could not load spar data.</b><br><br>
          Run SparMaker.js first, then start the server:<br>
          <code>node Server.js</code>
+       </div>`;
+    return;
+  }
+  if (!originalData) {
+    document.getElementById('pairs').innerHTML =
+      `<div style="padding:40px;color:#888;font-size:14px;">
+         <b>No spar data in database yet.</b><br><br>
+         Run <code>node SparMaker.js</code> locally, open this page via
+         <code>node Server.js</code>, then click <b>Save to Server</b> once
+         to push the pairs to the database.
        </div>`;
     return;
   }
