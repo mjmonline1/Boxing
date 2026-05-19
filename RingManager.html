@@ -476,7 +476,17 @@ function showToast(msg) {
 // ── Boot ─────────────────────────────────────────────────────────────────────
 
 (async () => {
-  const schedule     = await loadSchedule();
+  const schedule = await loadSchedule();
+  if (!schedule) {
+    document.getElementById('board').innerHTML =
+      `<div style="padding:40px;color:#888;font-size:14px;">
+         <b>No schedule in database yet.</b><br><br>
+         Run <code>node SparMaker.js</code> then <code>node RingAssigner.js</code>
+         locally, open this page via <code>node Server.js</code>, and click
+         <b>Save</b> once to push the schedule to the database.
+       </div>`;
+    return;
+  }
   const initialState = scheduleToState(schedule);
   let   state        = JSON.parse(JSON.stringify(initialState)); // deep copy for reset
 
