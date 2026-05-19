@@ -244,9 +244,11 @@
 
 <div id="toast"></div>
 
+<script src="atlas-config.js"></script>
+<script src="data-client.js"></script>
 <script>
 'use strict';
-const SERVER = 'http://localhost:5500';
+const SERVER = window.location.origin;
 
 let originalData = null;
 let state        = { matches: [], unmatched: [] };
@@ -256,9 +258,7 @@ let draggedId    = null;   // boxer.id currently being dragged
 
 (async () => {
   try {
-    const r = await fetch(`${SERVER}/api/data/spars`);
-    if (!r.ok) throw new Error(r.statusText);
-    originalData = await r.json();
+    originalData = await DataClient.get('spars');
   } catch {
     document.getElementById('pairs').innerHTML =
       `<div style="padding:40px;color:red;font-size:14px;">
@@ -658,12 +658,7 @@ async function exportJSON() {
     unmatched: state.unmatched.map(b => ({ red: b }))
   };
   try {
-    const res = await fetch(`${SERVER}/api/data/spars`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(output)
-    });
-    if (!res.ok) throw new Error();
+    await DataClient.save('spars', output);
     showToast('Saved to server — Spars.json updated');
   } catch {
     const blob = new Blob([JSON.stringify(output, null, 2)], { type: 'application/json' });

@@ -1,4 +1,5 @@
 // Copyright (c) 2026 ITLR Assets. All rights reserved.
+require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
 const fs = require("fs");
@@ -207,4 +208,4 @@ Object.entries(DATA_FILES).forEach(([key, filePath]) => {
 // ---- FRONTEND ----
 app.use(express.static("public"));
 
-app.listen(PORT, () => console.log("http://localhost:5500"));
+app.listen(PORT, () => console.log(`http://localhost:${PORT}`));
