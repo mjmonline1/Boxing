@@ -476,16 +476,21 @@ function showToast(msg) {
 // ── Boot ─────────────────────────────────────────────────────────────────────
 
 (async () => {
-  const schedule = await loadSchedule();
+  let schedule = await loadSchedule();
   if (!schedule) {
-    document.getElementById('board').innerHTML =
-      `<div style="padding:40px;color:#888;font-size:14px;">
-         <b>No schedule in database yet.</b><br><br>
-         Run <code>node SparMaker.js</code> then <code>node RingAssigner.js</code>
-         locally, open this page via <code>node Server.js</code>, and click
-         <b>Save</b> once to push the schedule to the database.
-       </div>`;
-    return;
+    showToast('Generating ring schedule…');
+    try {
+      const res = await fetch('/api/generate-schedule', { method: 'POST' });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || res.statusText);
+      schedule = await res.json();
+    } catch (e) {
+      document.getElementById('board').innerHTML =
+        `<div style="padding:40px;color:#888;font-size:14px;">
+           <b>Could not generate schedule: ${e.message}</b><br><br>
+           Go to <a href="SparManager.html" style="color:#4a90d9;">Spar Manager</a> first.
+         </div>`;
+      return;
+    }
   }
   const initialState = scheduleToState(schedule);
   let   state        = JSON.parse(JSON.stringify(initialState)); // deep copy for reset
@@ -507,10 +512,9 @@ function showToast(msg) {
     document.getElementById('regenBtn').disabled = true;
     showToast('Running RingAssigner…');
     try {
-      const res = await fetch(`${SERVER}/api/run/ring-assigner`, { method: 'POST',
-        headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ day: 1 }) });
-      if (!res.ok) throw new Error();
-      const freshSchedule = await loadSchedule();
+      const res = await fetch('/api/generate-schedule', { method: 'POST' });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || res.statusText);
+      const freshSchedule = await res.json();
       const freshInitial  = scheduleToState(freshSchedule);
       state = JSON.parse(JSON.stringify(freshInitial));
       render(state);

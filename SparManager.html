@@ -253,89 +253,6 @@ let originalData = null;
 let state        = { matches: [], unmatched: [] };
 let draggedId    = null;   // boxer.id currently being dragged
 
-// ── Auto-pairing (ported from SparMaker.js) ───────────────────────────────────
-
-const W_TOL1 = 2.0, W_TOL2 = 2.5, W_TOL3 = 20.0;
-
-function pairBoxers(boxers, category, tolerance) {
-  const sorted = [...boxers].sort((a, b) => a.weight - b.weight);
-  const matches = [], unmatched = [];
-  while (sorted.length > 0) {
-    const cur = sorted.shift();
-    let bestIdx = -1, diffClub = false, minDiff = Infinity;
-    for (let i = 0; i < sorted.length; i++) {
-      const opp = sorted[i];
-      const diff = Math.abs(cur.weight - opp.weight);
-      if (diff > tolerance) break;
-      const isDiff = cur.club !== opp.club;
-      if (isDiff && !diffClub) { bestIdx = i; diffClub = true; minDiff = diff; }
-      else if (isDiff === diffClub && diff < minDiff) { bestIdx = i; minDiff = diff; }
-    }
-    if (bestIdx !== -1) {
-      const opp = sorted.splice(bestIdx, 1)[0];
-      matches.push({ red: cur, blue: opp, weightDiff: Math.abs(cur.weight - opp.weight).toFixed(2), category });
-    } else {
-      unmatched.push(cur);
-    }
-  }
-  return { matches, unmatched };
-}
-
-function generateFromBuckets(bucketsData) {
-  const buckets = bucketsData.finalBuckets;
-  let allMatches = [], bucketRemainder = {};
-
-  for (const [cat, boxers] of Object.entries(buckets)) {
-    if (cat === 'NotFit' || !boxers.length) continue;
-    const { matches, unmatched } = pairBoxers(boxers, cat, W_TOL1);
-    allMatches = allMatches.concat(matches);
-    bucketRemainder[cat] = unmatched;
-  }
-
-  let allUnmatched = [];
-  for (const [cat, boxers] of Object.entries(bucketRemainder)) {
-    if (!boxers.length) continue;
-    const { matches, unmatched } = pairBoxers(boxers, cat, W_TOL2);
-    allMatches = allMatches.concat(matches);
-    allUnmatched = allUnmatched.concat(unmatched);
-  }
-
-  const ageGroups = ['Schools','Junior','Youth','Senior'];
-  const expTiers  = [{name:'Novice',min:0,max:5},{name:'Experienced',min:6,max:10},{name:'OpenClass',min:11,max:Infinity}];
-  const remaining = [];
-
-  for (const grp of ageGroups) {
-    for (const tier of expTiers) {
-      const pool = allUnmatched.filter(b =>
-        b.gender === 'male' && b.experience >= tier.min && b.experience <= tier.max &&
-        ((grp==='Schools'&&b.yob>=2012&&b.yob<=2014)||(grp==='Junior'&&b.yob>=2010&&b.yob<=2011)||
-         (grp==='Youth'&&b.yob>=2008&&b.yob<=2009)||(grp==='Senior'&&b.yob<=2007))
-      );
-      if (pool.length) {
-        const { matches, unmatched } = pairBoxers(pool, `${grp}_${tier.name}_Rescue`, W_TOL3);
-        allMatches = allMatches.concat(matches);
-        remaining.push(...unmatched);
-      }
-    }
-  }
-
-  const femalePool = allUnmatched.filter(b => b.gender === 'female');
-  if (femalePool.length) {
-    const { matches, unmatched } = pairBoxers(femalePool, 'Female_Rescue', W_TOL3);
-    allMatches = allMatches.concat(matches);
-    remaining.push(...unmatched);
-  }
-
-  const total = bucketsData.summary?.totalDistributed ?? (allMatches.length * 2 + remaining.length);
-  return {
-    summary: { totalBoxers: total, matchedCount: allMatches.length * 2,
-               unmatchedCount: remaining.length, matchCount: allMatches.length,
-               successRate: ((allMatches.length * 2 / total) * 100).toFixed(1) + '%' },
-    matches: allMatches,
-    unmatched: remaining
-  };
-}
-
 // ── Boot ─────────────────────────────────────────────────────────────────────
 
 (async () => {
@@ -348,21 +265,19 @@ function generateFromBuckets(bucketsData) {
   }
 
   if (!originalData) {
-    let bucketsData;
-    try { bucketsData = await DataClient.get('buckets'); } catch { bucketsData = null; }
-
-    if (!bucketsData?.finalBuckets) {
+    showToast('Generating spar pairs…');
+    try {
+      const res = await fetch('/api/generate-spars', { method: 'POST' });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || res.statusText);
+      originalData = await res.json();
+    } catch (e) {
       document.getElementById('pairs').innerHTML =
         `<div style="padding:40px;color:#888;font-size:14px;">
-           <b>No bucket data yet.</b><br><br>
-           Go to <a href="BucketAssigner.html" style="color:#4a90d9;">Bucket Assigner</a>
-           and load your boxers first.
+           <b>Could not generate pairs: ${e.message}</b><br><br>
+           Go to <a href="BucketAssigner.html" style="color:#4a90d9;">Bucket Assigner</a> first.
          </div>`;
       return;
     }
-
-    originalData = generateFromBuckets(bucketsData);
-    DataClient.save('spars', originalData).catch(() => {});
   }
 
   resetState();
