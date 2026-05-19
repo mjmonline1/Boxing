@@ -5,3 +5,13 @@
   from = "/api/db"
   to = "/.netlify/functions/db"
   status = 200
+
+[[redirects]]
+  from = "/api/generate-spars"
+  to = "/.netlify/functions/generate-spars"
+  status = 200
+
+[[redirects]]
+  from = "/api/generate-schedule"
+  to = "/.netlify/functions/generate-schedule"
+  status = 200
