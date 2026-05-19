@@ -388,6 +388,7 @@
       lastBuckets = process(boxers);
       lastTotal = boxers.length;
       render(lastBuckets, lastTotal);
+      await saveToServer(lastBuckets, lastTotal);
     } catch (e) {
       const el = document.getElementById('emptyState') || document.querySelector('.empty-state');
       if (el) el.textContent = `Could not load from server: ${e.message} — use Load CSV instead.`;
