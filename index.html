@@ -211,7 +211,7 @@
   </a>
 
   <!-- Step 3 -->
-  <a class="card" id="runSparMakerBtn" data-icon="⚡" data-endpoint="/api/run/spar-maker" data-title="Create Spars">
+  <a class="card" id="runSparMakerBtn" data-icon="⚡" data-endpoint="/api/generate-spars" data-title="Create Spars">
     <span class="step">Step 3</span>
     <div class="card-icon">⚡</div>
     <div class="card-title">Create Spars</div>
@@ -227,7 +227,7 @@
   </a>
 
   <!-- Step 5 -->
-  <a class="card" id="runRingAssignerBtn" data-icon="🔔" data-endpoint="/api/run/ring-assigner" data-title="Assign Rings">
+  <a class="card" id="runRingAssignerBtn" data-icon="🔔" data-endpoint="/api/generate-schedule" data-title="Assign Rings">
     <span class="step">Step 5</span>
     <div class="card-icon">🔔</div>
     <div class="card-title">Assign Rings</div>
@@ -290,15 +290,20 @@
     btn.style.pointerEvents = 'none';
     iconEl.textContent = '⏳';
     showModal(title, 'Running…');
-    const body = endpoint.includes('ring-assigner')
-      ? JSON.stringify({ day: parseInt(document.getElementById('dayInput').value) || 1 })
-      : undefined;
+    const url = endpoint.includes('generate-schedule')
+      ? `${endpoint}?day=${parseInt(document.getElementById('dayInput').value) || 1}`
+      : endpoint;
     try {
-      const res = await fetch(SERVER + endpoint, { method: 'POST', headers: body ? { 'Content-Type': 'application/json' } : {}, body });
+      const res = await fetch(url, { method: 'POST' });
       const data = await res.json();
-      showModal(title, data.output || data.error || '(no output)');
-    } catch {
-      showModal(title, `Could not reach server.\n\nMake sure Server.js is running:\n  node Server.js`);
+      if (!res.ok) { showModal(title, data.error || res.statusText); return; }
+      const s = data.summary;
+      const text = s
+        ? Object.entries(s).map(([k, v]) => `${k}: ${v}`).join('\n')
+        : data.output || JSON.stringify(data, null, 2);
+      showModal(title, `✓ Done\n\n${text}`);
+    } catch (e) {
+      showModal(title, `Error: ${e.message}`);
     } finally {
       btn.style.opacity = '';
       btn.style.pointerEvents = '';
