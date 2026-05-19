@@ -1,0 +1,10 @@
+services:
+  boxing-manager:
+    build: .
+    env_file: .env
+    ports:
+      - "${PORT:-5500}:${PORT:-5500}"
+    volumes:
+      - ./data:/app/data
+      - ./output:/app/output
+    restart: unless-stopped

@@ -210,6 +210,8 @@
   <p class="empty-state" id="emptyState">Loading fighter data from server…</p>
 </div>
 
+<script src="atlas-config.js"></script>
+<script src="data-client.js"></script>
 <script>
   let lastBuckets = null;
   let lastTotal   = 0;
@@ -312,11 +314,7 @@
       finalBuckets: buckets
     };
     try {
-      await fetch(`${SERVER}/api/data/buckets`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      await DataClient.save('buckets', payload);
     } catch (e) { /* server not running — silent, local display still works */ }
   }
 
@@ -382,14 +380,12 @@
     URL.revokeObjectURL(a.href);
   }
 
-  const SERVER = 'http://localhost:5500';
+  const SERVER = window.location.origin;
 
   async function loadFromServer() {
     document.getElementById('emptyState') && (document.getElementById('emptyState').textContent = 'Loading fighter data from server…');
     try {
-      const res = await fetch(`${SERVER}/api/data/boxers`);
-      if (!res.ok) throw new Error((await res.json()).error);
-      const boxers = await res.json();
+      const boxers = await DataClient.get('boxers');
       lastBuckets = process(boxers);
       lastTotal = boxers.length;
       render(lastBuckets, lastTotal);

@@ -298,6 +298,8 @@
 
 <div id="toast"></div>
 
+<script src="atlas-config.js"></script>
+<script src="data-client.js"></script>
 <script>
 // ── State ─────────────────────────────────────────────────────────────────────
 
@@ -674,13 +676,11 @@ function showToast(msg) {
 
 // ── Server I/O ────────────────────────────────────────────────────────────────
 
-const SERVER = 'http://localhost:5500';
+const SERVER = window.location.origin;
 
 async function loadFromServer() {
   try {
-    const res = await fetch(`${SERVER}/api/data/boxers`);
-    if (!res.ok) throw new Error((await res.json()).error);
-    boxers = await res.json();
+    boxers = await DataClient.get('boxers');
     boxers.forEach(b => { b.fit = (b.fit === true || b.fit === 'yes') ? 'yes' : 'no'; });
     document.getElementById('addBtn').disabled = false;
     document.getElementById('saveBtn').disabled = false;
@@ -698,12 +698,7 @@ async function loadFromServer() {
 
 async function saveToServer() {
   try {
-    const res = await fetch(`${SERVER}/api/data/boxers`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(boxers)
-    });
-    if (!res.ok) throw new Error((await res.json()).error);
+    await DataClient.save('boxers', boxers);
     showToast(`Saved ${boxers.length} boxers to server`);
   } catch (e) {
     showToast('Server save failed — downloading CSV instead');

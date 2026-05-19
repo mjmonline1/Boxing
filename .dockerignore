@@ -1,0 +1,14 @@
+node_modules/
+npm-debug.log*
+.git/
+.gitignore
+.claude/
+Analysis/
+Examples/
+old/
+planning/
+*.md
+*.bat
+dist/
+build/
+out/

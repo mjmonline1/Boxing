@@ -5,7 +5,11 @@ Design/
 Examples/
 old/
 planning/
-SVG/
+
+
+# Credentials (never commit)
+.env
+atlas-config.js
 
 # Docs
 PROJECT_DOCUMENTATION.md
