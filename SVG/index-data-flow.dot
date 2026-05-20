@@ -40,7 +40,6 @@ digraph IndexDataFlow {
   S4 [label="Step 4 — SparManager.html\nReview + adjust pairs\n+ localStorage (corner assignments)" fillcolor="#d4edda" color="#2e7d32"];
   S5 [label="Step 5 — 'Assign Rings' button\n(index.html)  day input → odd/even sort" fillcolor="#d4edda" color="#2e7d32"];
   S6 [label="Step 6 — RingManager.html\nView + tweak ring allocations" fillcolor="#d4edda" color="#2e7d32"];
-  S7 [label="Step 7 — TimelineView.html\nGantt chart — every ring minute-by-minute" fillcolor="#d4edda" color="#2e7d32"];
 
   Modal [label="Output modal (index.html)\nshows stdout / errors" fillcolor="#f8d7da" color="#c0392b" shape=parallelogram];
 
@@ -84,6 +83,4 @@ digraph IndexDataFlow {
   S6          -> SRV_rings   [label="PUT /api/data/schedule (save edits)" style=dashed];
   SRV_rings   -> F_schedule  [label="writes back" style=dashed];
 
-  // Step 7 — Timeline View
-  S7          -> SRV_rings   [label="GET /api/data/schedule"];
 }
