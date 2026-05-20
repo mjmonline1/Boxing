@@ -638,6 +638,7 @@ function saveRow() {
   updateCategoriesList();
   applySort();
   updateStats();
+  saveToServer();
 }
 
 function toggleFit(id) {
@@ -646,6 +647,7 @@ function toggleFit(id) {
   filterTable();
   updateStats();
   showToast(`${b.name} marked as ${b.fit === 'yes' ? 'fit' : 'unfit'}`);
+  saveToServer();
 }
 
 function deleteBoxer(id) {

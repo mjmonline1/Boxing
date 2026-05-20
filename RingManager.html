@@ -32,7 +32,6 @@
       font-size: 13px;
       font-weight: bold;
     }
-    #regenBtn   { background: #9c27b0; color: white; }
     #saveBtn    { background: #2196f3; color: white; }
     #exportBtn  { background: #4caf50; color: white; }
     #resetBtn   { background: #666;    color: white; }
@@ -151,8 +150,7 @@
   <a class="nav-btn" href="index.html">&#8592; Home</a>
   <h1>Ring Manager</h1>
   <span class="stats" id="stats"></span>
-  <button id="regenBtn">&#8635; Re-run from Spars</button>
-  <button id="resetBtn">Reset to Auto</button>
+<button id="resetBtn">Reset to Auto</button>
   <button id="saveBtn">Save</button>
   <button id="exportBtn">Export Allocation</button>
   <button class="theme-btn"></button>
@@ -507,25 +505,6 @@ function showToast(msg) {
 
   document.getElementById('saveBtn').addEventListener('click', () => saveToServer(state));
   document.getElementById('exportBtn').addEventListener('click', () => exportAllocation(state));
-
-  document.getElementById('regenBtn').addEventListener('click', async () => {
-    document.getElementById('regenBtn').disabled = true;
-    showToast('Running RingAssigner…');
-    try {
-      const res = await fetch('/api/generate-schedule', { method: 'POST' });
-      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || res.statusText);
-      const freshSchedule = await res.json();
-      const freshInitial  = scheduleToState(freshSchedule);
-      state = JSON.parse(JSON.stringify(freshInitial));
-      render(state);
-      updateStats(state);
-      showToast('✓ Schedule regenerated from Spars.json');
-    } catch {
-      showToast('⚠ Server unavailable — run node RingAssigner.js manually');
-    } finally {
-      document.getElementById('regenBtn').disabled = false;
-    }
-  });
 })();
 </script>
 <script src="theme.js"></script>
