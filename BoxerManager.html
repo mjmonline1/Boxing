@@ -270,7 +270,7 @@
     </div>
 
     <div class="form-section">
-      <div class="form-section-title">Registration info (read-only)</div>
+      <div class="form-section-title">Registration info</div>
       <div class="form-row full">
         <div class="form-group">
           <label>Submission Date</label>
@@ -280,11 +280,19 @@
       <div class="form-row">
         <div class="form-group">
           <label>Consent: Weigh-in</label>
-          <input id="f_consent1" type="text" disabled>
+          <select id="f_consent1">
+            <option value="">—</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
         </div>
         <div class="form-group">
           <label>Consent: Gloves/Gear</label>
-          <input id="f_consent2" type="text" disabled>
+          <select id="f_consent2">
+            <option value="">—</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
         </div>
       </div>
     </div>
