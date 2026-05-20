@@ -1,19 +1,7 @@
 {
   "summary": {
-    "strategy": "GROUPED",
-    "totalMatches": 63,
-    "seniorMale": 19,
-    "female": 5,
-    "juniorMale": 19,
-    "youthCrossAge": 20,
-    "totalSlots": 15,
-    "matchesPerRing": {
-      "R1": 15,
-      "R2": 15,
-      "R3": 14,
-      "R4": 14,
-      "R5": 5
-    }
+    "strategy": "MANUAL",
+    "totalMatches": 63
   },
   "slots": [
     {
@@ -23,7 +11,6 @@
           "ring": "R1",
           "sparId": "S62",
           "category": "Senior_Experienced_Rescue",
-          "duration": 11,
           "red": {
             "submissionDate": "15/06/2025 20:27",
             "name": "Masayoshi Nakatani",
@@ -70,7 +57,6 @@
           "ring": "R2",
           "sparId": "S38",
           "category": "MaleSenior_OpenClass",
-          "duration": 11,
           "red": {
             "submissionDate": "09/06/2025 22:45",
             "name": "Demetrius Andrade",
@@ -117,7 +103,6 @@
           "ring": "R3",
           "sparId": "S25",
           "category": "MaleYouth_OpenClass",
-          "duration": 8,
           "red": {
             "submissionDate": "10/06/2025 19:37",
             "name": "Ryan Garcia",
@@ -164,7 +149,6 @@
           "ring": "R4",
           "sparId": "S52",
           "category": "Junior_Novice_Rescue",
-          "duration": 8,
           "red": {
             "submissionDate": "09/06/2025 19:11",
             "name": "Oscar De La Hoya",
@@ -211,7 +195,6 @@
           "ring": "R5",
           "sparId": "S51",
           "category": "FitFemales",
-          "duration": 8,
           "red": {
             "submissionDate": "09/06/2025 22:57",
             "name": "Regina Halmich",
@@ -263,7 +246,6 @@
           "ring": "R1",
           "sparId": "S61",
           "category": "Senior_Novice_Rescue",
-          "duration": 11,
           "red": {
             "submissionDate": "22/06/2025 21:55",
             "name": "Ray Beltran",
@@ -310,7 +292,6 @@
           "ring": "R2",
           "sparId": "S27",
           "category": "MaleSenior_Novice",
-          "duration": 11,
           "red": {
             "submissionDate": "19/06/2025 22:18",
             "name": "Wladimir Klitschko",
@@ -357,7 +338,6 @@
           "ring": "R3",
           "sparId": "S3",
           "category": "MaleJunior_Novice",
-          "duration": 8,
           "red": {
             "submissionDate": "12/06/2025 15:30",
             "name": "Chris Eubank",
@@ -404,7 +384,6 @@
           "ring": "R4",
           "sparId": "S56",
           "category": "Youth_Experienced_Rescue",
-          "duration": 8,
           "red": {
             "submissionDate": "09/06/2025 19:02",
             "name": "Lennox Lewis",
@@ -451,7 +430,6 @@
           "ring": "R5",
           "sparId": "S50",
           "category": "FitFemales",
-          "duration": 8,
           "red": {
             "submissionDate": "09/06/2025 19:00",
             "name": "Nicola Adams",
@@ -503,7 +481,6 @@
           "ring": "R1",
           "sparId": "S31",
           "category": "MaleSenior_Novice",
-          "duration": 11,
           "red": {
             "submissionDate": "28/06/2025 12:54",
             "name": "Isaac Cruz",
@@ -550,7 +527,6 @@
           "ring": "R2",
           "sparId": "S36",
           "category": "MaleSenior_OpenClass",
-          "duration": 11,
           "red": {
             "submissionDate": "30/06/2025 22:33",
             "name": "David Haye",
@@ -597,7 +573,6 @@
           "ring": "R3",
           "sparId": "S2",
           "category": "MaleJunior_Novice",
-          "duration": 8,
           "red": {
             "submissionDate": "09/06/2025 19:13",
             "name": "Callum Smith",
@@ -644,7 +619,6 @@
           "ring": "R4",
           "sparId": "S8",
           "category": "MaleJunior_OpenClass",
-          "duration": 8,
           "red": {
             "submissionDate": "25/06/2025 10:47",
             "name": "Evander Holyfield",
@@ -691,7 +665,6 @@
           "ring": "R5",
           "sparId": "S49",
           "category": "FitFemales",
-          "duration": 8,
           "red": {
             "submissionDate": "17/06/2025 15:15",
             "name": "Ann Wolfe",
@@ -743,7 +716,6 @@
           "ring": "R1",
           "sparId": "S63",
           "category": "Senior_OpenClass_Rescue",
-          "duration": 11,
           "red": {
             "submissionDate": "13/06/2025 19:03",
             "name": "Roman Gonzalez",
@@ -790,7 +762,6 @@
           "ring": "R2",
           "sparId": "S26",
           "category": "MaleSenior_Novice",
-          "duration": 11,
           "red": {
             "submissionDate": "19/06/2025 22:22",
             "name": "Jack Johnson",
@@ -837,7 +808,6 @@
           "ring": "R3",
           "sparId": "S6",
           "category": "MaleJunior_Experienced",
-          "duration": 8,
           "red": {
             "submissionDate": "19/06/2025 22:11",
             "name": "Terence Crawford",
@@ -884,7 +854,6 @@
           "ring": "R4",
           "sparId": "S54",
           "category": "Junior_OpenClass_Rescue",
-          "duration": 8,
           "red": {
             "submissionDate": "10/06/2025 19:21",
             "name": "Manny Pacquiao",
@@ -931,7 +900,6 @@
           "ring": "R5",
           "sparId": "S48",
           "category": "FitFemales",
-          "duration": 8,
           "red": {
             "submissionDate": "11/06/2025 19:08",
             "name": "Katie Taylor",
@@ -983,7 +951,6 @@
           "ring": "R1",
           "sparId": "S45",
           "category": "MaleSenior_OpenClass",
-          "duration": 11,
           "red": {
             "submissionDate": "09/06/2025 22:52",
             "name": "Mikey Garcia",
@@ -1030,7 +997,6 @@
           "ring": "R2",
           "sparId": "S35",
           "category": "MaleSenior_OpenClass",
-          "duration": 11,
           "red": {
             "submissionDate": "19/06/2025 22:20",
             "name": "Joe Gans",
@@ -1077,7 +1043,6 @@
           "ring": "R3",
           "sparId": "S14",
           "category": "MaleYouth_Novice",
-          "duration": 8,
           "red": {
             "submissionDate": "09/06/2025 22:30",
             "name": "Vasyl Lomachenko",
@@ -1124,7 +1089,6 @@
           "ring": "R4",
           "sparId": "S7",
           "category": "MaleJunior_OpenClass",
-          "duration": 8,
           "red": {
             "submissionDate": "09/06/2025 18:57",
             "name": "Joe Frazier",
@@ -1171,7 +1135,6 @@
           "ring": "R5",
           "sparId": "S47",
           "category": "FitFemales",
-          "duration": 8,
           "red": {
             "submissionDate": "16/06/2025 10:17",
             "name": "Laila Ali",
@@ -1223,7 +1186,6 @@
           "ring": "R1",
           "sparId": "S60",
           "category": "Senior_Novice_Rescue",
-          "duration": 11,
           "red": {
             "submissionDate": "22/06/2025 03:27",
             "name": "Josh Taylor",
@@ -1270,7 +1232,6 @@
           "ring": "R2",
           "sparId": "S34",
           "category": "MaleSenior_OpenClass",
-          "duration": 11,
           "red": {
             "submissionDate": "18/06/2025 15:17",
             "name": "Jack Dempsey",
@@ -1317,7 +1278,6 @@
           "ring": "R3",
           "sparId": "S13",
           "category": "MaleYouth_Novice",
-          "duration": 8,
           "red": {
             "submissionDate": "11/06/2025 10:47",
             "name": "Deontay Wilder",
@@ -1364,7 +1324,6 @@
           "ring": "R4",
           "sparId": "S1",
           "category": "MaleJunior_Novice",
-          "duration": 8,
           "red": {
             "submissionDate": "09/06/2025 20:34",
             "name": "Joe Louis",
@@ -1416,7 +1375,6 @@
           "ring": "R1",
           "sparId": "S29",
           "category": "MaleSenior_Novice",
-          "duration": 11,
           "red": {
             "submissionDate": "28/06/2025 11:26",
             "name": "David Benavidez",
@@ -1463,7 +1421,6 @@
           "ring": "R2",
           "sparId": "S30",
           "category": "MaleSenior_Novice",
-          "duration": 11,
           "red": {
             "submissionDate": "01/07/2025 12:41",
             "name": "Carlos Ortiz",
@@ -1510,7 +1467,6 @@
           "ring": "R3",
           "sparId": "S12",
           "category": "MaleYouth_Novice",
-          "duration": 8,
           "red": {
             "submissionDate": "09/06/2025 17:54",
             "name": "Andre Ward",
@@ -1557,7 +1513,6 @@
           "ring": "R4",
           "sparId": "S42",
           "category": "MaleSenior_OpenClass",
-          "duration": 11,
           "red": {
             "submissionDate": "18/06/2025 15:05",
             "name": "Shawn Porter",
@@ -1609,7 +1564,6 @@
           "ring": "R1",
           "sparId": "S43",
           "category": "MaleSenior_OpenClass",
-          "duration": 11,
           "red": {
             "submissionDate": "17/06/2025 15:09",
             "name": "Badou Jack",
@@ -1656,7 +1610,6 @@
           "ring": "R2",
           "sparId": "S46",
           "category": "MaleSenior_OpenClass",
-          "duration": 11,
           "red": {
             "submissionDate": "09/06/2025 19:46",
             "name": "Aaron Pryor",
@@ -1703,7 +1656,6 @@
           "ring": "R3",
           "sparId": "S10",
           "category": "MaleJunior_OpenClass",
-          "duration": 8,
           "red": {
             "submissionDate": "09/06/2025 19:22",
             "name": "Bob Fitzsimmons",
@@ -1750,7 +1702,6 @@
           "ring": "R4",
           "sparId": "S24",
           "category": "MaleYouth_OpenClass",
-          "duration": 8,
           "red": {
             "submissionDate": "09/06/2025 22:03",
             "name": "Jermell Charlo",
@@ -1802,7 +1753,6 @@
           "ring": "R1",
           "sparId": "S33",
           "category": "MaleSenior_Experienced",
-          "duration": 11,
           "red": {
             "submissionDate": "11/06/2025 19:21",
             "name": "Nathan Cleverly",
@@ -1849,7 +1799,6 @@
           "ring": "R2",
           "sparId": "S20",
           "category": "MaleYouth_Novice",
-          "duration": 8,
           "red": {
             "submissionDate": "09/06/2025 19:15",
             "name": "Regis Prograis",
@@ -1896,7 +1845,6 @@
           "ring": "R3",
           "sparId": "S57",
           "category": "Youth_OpenClass_Rescue",
-          "duration": 8,
           "red": {
             "submissionDate": "09/06/2025 18:02",
             "name": "Barney Ross",
@@ -1943,7 +1891,6 @@
           "ring": "R4",
           "sparId": "S16",
           "category": "MaleYouth_Novice",
-          "duration": 8,
           "red": {
             "submissionDate": "15/06/2025 20:30",
             "name": "Micky Ward",
@@ -1995,7 +1942,6 @@
           "ring": "R1",
           "sparId": "S41",
           "category": "MaleSenior_OpenClass",
-          "duration": 11,
           "red": {
             "submissionDate": "28/06/2025 20:19",
             "name": "Danny Garcia",
@@ -2042,7 +1988,6 @@
           "ring": "R2",
           "sparId": "S44",
           "category": "MaleSenior_OpenClass",
-          "duration": 11,
           "red": {
             "submissionDate": "09/06/2025 17:38",
             "name": "Jack Catterall",
@@ -2089,7 +2034,6 @@
           "ring": "R3",
           "sparId": "S9",
           "category": "MaleJunior_OpenClass",
-          "duration": 8,
           "red": {
             "submissionDate": "10/06/2025 19:23",
             "name": "Jersey Joe Walcott",
@@ -2136,7 +2080,6 @@
           "ring": "R4",
           "sparId": "S21",
           "category": "MaleYouth_Experienced",
-          "duration": 8,
           "red": {
             "submissionDate": "09/06/2025 19:25",
             "name": "Jeff Fenech",
@@ -2188,7 +2131,6 @@
           "ring": "R1",
           "sparId": "S59",
           "category": "Senior_Novice_Rescue",
-          "duration": 11,
           "red": {
             "submissionDate": "22/06/2025 21:59",
             "name": "Ken Norton",
@@ -2235,7 +2177,6 @@
           "ring": "R2",
           "sparId": "S19",
           "category": "MaleYouth_Novice",
-          "duration": 8,
           "red": {
             "submissionDate": "13/06/2025 18:43",
             "name": "Caleb Plant",
@@ -2282,7 +2223,6 @@
           "ring": "R3",
           "sparId": "S5",
           "category": "MaleJunior_Experienced",
-          "duration": 8,
           "red": {
             "submissionDate": "09/06/2025 23:17",
             "name": "Carlos Monzon",
@@ -2329,7 +2269,6 @@
           "ring": "R4",
           "sparId": "S28",
           "category": "MaleSenior_Novice",
-          "duration": 11,
           "red": {
             "submissionDate": "15/06/2025 20:22",
             "name": "Juan Marquez",
@@ -2381,7 +2320,6 @@
           "ring": "R1",
           "sparId": "S40",
           "category": "MaleSenior_OpenClass",
-          "duration": 11,
           "red": {
             "submissionDate": "28/06/2025 12:52",
             "name": "Jack Sharkey",
@@ -2428,7 +2366,6 @@
           "ring": "R2",
           "sparId": "S18",
           "category": "MaleYouth_Novice",
-          "duration": 8,
           "red": {
             "submissionDate": "15/06/2025 20:26",
             "name": "Sergey Kovalev",
@@ -2475,7 +2412,6 @@
           "ring": "R3",
           "sparId": "S53",
           "category": "Junior_Experienced_Rescue",
-          "duration": 8,
           "red": {
             "submissionDate": "09/06/2025 18:56",
             "name": "Mike Tyson",
@@ -2522,7 +2458,6 @@
           "ring": "R4",
           "sparId": "S58",
           "category": "Youth_OpenClass_Rescue",
-          "duration": 8,
           "red": {
             "submissionDate": "10/06/2025 19:35",
             "name": "Riddick Bowe",
@@ -2574,7 +2509,6 @@
           "ring": "R1",
           "sparId": "S39",
           "category": "MaleSenior_OpenClass",
-          "duration": 11,
           "red": {
             "submissionDate": "11/06/2025 17:44",
             "name": "Sonny Liston",
@@ -2621,7 +2555,6 @@
           "ring": "R2",
           "sparId": "S17",
           "category": "MaleYouth_Novice",
-          "duration": 8,
           "red": {
             "submissionDate": "15/06/2025 20:23",
             "name": "Jermall Charlo",
@@ -2668,7 +2601,6 @@
           "ring": "R3",
           "sparId": "S4",
           "category": "MaleJunior_Experienced",
-          "duration": 8,
           "red": {
             "submissionDate": "12/06/2025 15:27",
             "name": "Marvin Hagler",
@@ -2715,7 +2647,6 @@
           "ring": "R4",
           "sparId": "S15",
           "category": "MaleYouth_Novice",
-          "duration": 8,
           "red": {
             "submissionDate": "11/06/2025 20:23",
             "name": "Max Schmeling",
@@ -2767,7 +2698,6 @@
           "ring": "R1",
           "sparId": "S23",
           "category": "MaleYouth_OpenClass",
-          "duration": 8,
           "red": {
             "submissionDate": "10/06/2025 19:33",
             "name": "Naoya Inoue",
@@ -2814,7 +2744,6 @@
           "ring": "R2",
           "sparId": "S32",
           "category": "MaleSenior_Experienced",
-          "duration": 11,
           "red": {
             "submissionDate": "09/06/2025 22:50",
             "name": "Billy Saunders",
@@ -2861,7 +2790,6 @@
           "ring": "R3",
           "sparId": "S37",
           "category": "MaleSenior_OpenClass",
-          "duration": 11,
           "red": {
             "submissionDate": "18/06/2025 14:59",
             "name": "Joe Calzaghe",
@@ -2908,7 +2836,6 @@
           "ring": "R4",
           "sparId": "S11",
           "category": "MaleYouth_Novice",
-          "duration": 8,
           "red": {
             "submissionDate": "19/06/2025 22:17",
             "name": "Sandy Saddler",
@@ -2960,7 +2887,6 @@
           "ring": "R1",
           "sparId": "S55",
           "category": "Youth_Novice_Rescue",
-          "duration": 8,
           "red": {
             "submissionDate": "11/06/2025 13:04",
             "name": "Thomas Hearns",
@@ -3007,7 +2933,6 @@
           "ring": "R2",
           "sparId": "S22",
           "category": "MaleYouth_OpenClass",
-          "duration": 8,
           "red": {
             "submissionDate": "09/06/2025 18:55",
             "name": "Sugar Ray Leonard",

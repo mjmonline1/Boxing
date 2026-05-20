@@ -68,7 +68,7 @@
     font-weight: bold;
   }
   #toolbar button:disabled { opacity: 0.4; cursor: default; }
-  #reloadBtn  { background: #2196f3; color: white; }
+  #saveBtn    { background: #2196f3; color: white; }
   #exportBtn  { background: #4caf50; color: white; }
   .btn-file {
     padding: 7px 14px;
@@ -189,7 +189,7 @@
 <div id="toolbar">
   <a class="nav-btn" href="index.html">&#8592; Home</a>
   <h1>Put Fighters in Buckets</h1>
-  <button id="reloadBtn">&#8635; Reload from Server</button>
+  <button id="saveBtn" disabled>&#128190; Save</button>
   <label class="btn-file" title="Fallback: load a local CSV file">
     Load CSV
     <input type="file" accept=".csv" id="csvInput" style="display:none">
@@ -353,6 +353,7 @@
     }).join('');
 
     document.getElementById('exportBtn').disabled = false;
+    document.getElementById('saveBtn').disabled = false;
     setupDragHandlers(buckets);
   }
 
@@ -395,7 +396,9 @@
     }
   }
 
-  document.getElementById('reloadBtn').addEventListener('click', loadFromServer);
+  document.getElementById('saveBtn').addEventListener('click', () => {
+    if (lastBuckets) saveToServer(lastBuckets, lastTotal);
+  });
 
   document.getElementById('csvInput').addEventListener('change', function () {
     const file = this.files[0];
