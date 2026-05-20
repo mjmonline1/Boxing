@@ -1,56 +1,12 @@
 {
   "summary": {
     "totalBoxers": 137,
-    "matchedCount": 126,
-    "unmatchedCount": 11,
-    "matchCount": 63,
-    "successRate": "92.0%"
+    "matchedCount": 124,
+    "unmatchedCount": 13,
+    "matchCount": 62,
+    "successRate": "90.5%"
   },
   "matches": [
-    {
-      "red": {
-        "submissionDate": "09/06/2025 20:34",
-        "name": "Joe Louis",
-        "club": "The Academy Boxing Club",
-        "gender": "male",
-        "category": "Junior (2009 & younger)",
-        "dob": "21/10/2011",
-        "weight": 38,
-        "bouts": 0,
-        "won": 0,
-        "lost": 0,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "joe.louis@example.com",
-        "yob": 2011,
-        "experience": 0,
-        "id": 2,
-        "fit": "yes"
-      },
-      "blue": {
-        "submissionDate": "09/06/2025 21:50",
-        "name": "Sugar Ray Robinson",
-        "club": "Club Boxeo Los Álamos",
-        "gender": "male",
-        "category": "Junior (2009 & younger)",
-        "dob": "13/07/2011",
-        "weight": 40,
-        "bouts": 1,
-        "won": 0,
-        "lost": 1,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "sugar.robinson@example.com",
-        "yob": 2011,
-        "experience": 1,
-        "id": 3,
-        "fit": "yes"
-      },
-      "weightDiff": "2.00",
-      "category": "MaleJunior_Novice"
-    },
     {
       "red": {
         "submissionDate": "09/06/2025 19:13",
@@ -3020,6 +2976,50 @@
         "yob": 1994,
         "experience": 63,
         "id": 134,
+        "fit": "yes"
+      }
+    },
+    {
+      "red": {
+        "submissionDate": "09/06/2025 20:34",
+        "name": "Joe Louis",
+        "club": "The Academy Boxing Club",
+        "gender": "male",
+        "category": "Junior (2009 & younger)",
+        "dob": "21/10/2011",
+        "weight": 38,
+        "bouts": 0,
+        "won": 0,
+        "lost": 0,
+        "comments": "",
+        "consent1": "Yes",
+        "consent2": "Yes",
+        "email": "joe.louis@example.com",
+        "yob": 2011,
+        "experience": 0,
+        "id": 2,
+        "fit": "yes"
+      }
+    },
+    {
+      "red": {
+        "submissionDate": "09/06/2025 21:50",
+        "name": "Sugar Ray Robinson",
+        "club": "Club Boxeo Los Álamos",
+        "gender": "male",
+        "category": "Junior (2009 & younger)",
+        "dob": "13/07/2011",
+        "weight": 40,
+        "bouts": 1,
+        "won": 0,
+        "lost": 1,
+        "comments": "",
+        "consent1": "Yes",
+        "consent2": "Yes",
+        "email": "sugar.robinson@example.com",
+        "yob": 2011,
+        "experience": 1,
+        "id": 3,
         "fit": "yes"
       }
     }
