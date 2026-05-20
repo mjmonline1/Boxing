@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Utilities — Boxing Tournament Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #22272e;
+    --surface: #2d333b;
+    --surface2: #373e47;
+    --border: #444c56;
+    --blue: #58a6ff;
+    --blue-dim: rgba(88,166,255,0.16);
+    --green: #3fb950;
+    --green-dim: rgba(63,185,80,0.16);
+    --red: #f85149;
+    --red-dim: rgba(248,81,73,0.16);
+    --text: #cdd9e5;
+    --muted: #768390;
+    --faint: #4a5568;
+    --nav-btn-border: #444c56;
+    --nav-btn-color: #768390;
+    --nav-btn-hover-border: #768390;
+    --nav-btn-hover-color: #cdd9e5;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  #toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  #toolbar h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text);
+    flex: 1;
+  }
+
+  #toolbar a.nav-btn {
+    padding: 6px 14px;
+    border: 1px solid var(--nav-btn-border);
+    border-radius: 6px;
+    color: var(--nav-btn-color);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: bold;
+    white-space: nowrap;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  #toolbar a.nav-btn:hover { border-color: var(--nav-btn-hover-border); color: var(--nav-btn-hover-color); }
+
+  .content {
+    max-width: 720px;
+    margin: 3rem auto;
+    padding: 0 1.5rem;
+  }
+
+  .util-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .util-card h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+  }
+
+  .util-card p {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 1.1rem;
+    line-height: 1.5;
+  }
+
+  .btn-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 8px 18px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    font-family: 'Barlow', sans-serif;
+    transition: opacity 0.15s;
+  }
+  .btn:disabled { opacity: 0.4; cursor: default; }
+  .btn-blue  { background: #2196f3; color: white; }
+  .btn-green { background: #4caf50; color: white; }
+
+  .btn-file-label {
+    padding: 8px 18px;
+    border: 1px solid var(--nav-btn-border);
+    border-radius: 6px;
+    color: var(--nav-btn-color);
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .btn-file-label:hover { border-color: var(--nav-btn-hover-border); color: var(--nav-btn-hover-color); }
+
+  #statusBox {
+    display: none;
+    margin-top: 1rem;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  #statusBox.info    { background: var(--blue-dim);  color: var(--blue);  border: 1px solid rgba(88,166,255,0.3); }
+  #statusBox.success { background: var(--green-dim); color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
+  #statusBox.error   { background: var(--red-dim);   color: var(--red);   border: 1px solid rgba(248,81,73,0.3); }
+
+  #fileNameLabel {
+    font-size: 12px;
+    color: var(--muted);
+    font-style: italic;
+  }
+</style>
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+
+<div id="toolbar">
+  <a class="nav-btn" href="index.html">&#8592; Home</a>
+  <h1>Utilities</h1>
+  <button class="theme-btn"></button>
+</div>
+
+<div class="content">
+
+  <div class="util-card">
+    <h2>&#128196; Import Spreadsheet</h2>
+    <p>Load a CSV registration spreadsheet and import all boxers into the database. Replaces the existing boxer list.</p>
+    <div class="btn-row">
+      <label class="btn-file-label">
+        Choose CSV
+        <input type="file" accept=".csv" id="csvInput" style="display:none">
+      </label>
+      <span id="fileNameLabel">No file chosen</span>
+      <button class="btn btn-blue" id="importBtn" disabled>&#8679; Import to Database</button>
+    </div>
+    <div id="statusBox"></div>
+  </div>
+
+</div>
+
+<script src="data-client.js"></script>
+<script>
+  function splitCSVRecords(text) {
+    const records = [];
+    let current = '', inQuotes = false;
+    for (const c of text) {
+      if (c === '"') { inQuotes = !inQuotes; current += c; }
+      else if (c === '\n' && !inQuotes) {
+        const rec = current.replace(/\r$/, '').trim();
+        if (rec) records.push(rec);
+        current = '';
+      } else { current += c; }
+    }
+    const rec = current.trim();
+    if (rec) records.push(rec);
+    return records;
+  }
+
+  function splitCSV(line) {
+    const result = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { if (inQ && line[i+1] === '"') { cur += '"'; i++; } else inQ = !inQ; }
+      else if (ch === ',' && !inQ) { result.push(cur); cur = ''; }
+      else cur += ch;
+    }
+    result.push(cur);
+    return result;
+  }
+
+  function mapHeader(raw) {
+    const norm = raw.trim().toLowerCase();
+    if (norm === 'date') return 'submissionDate';
+    if (norm === 'full name') return 'name';
+    if (norm === 'club') return 'club';
+    if (norm === 'gender') return 'gender';
+    if (norm === 'category') return 'category';
+    if (norm === 'date of birth') return 'dob';
+    if (norm === 'current weight (kg)') return 'weight';
+    if (norm === 'bouts (the number only)') return 'bouts';
+    if (norm === 'won (the number only)') return 'won';
+    if (norm === 'lost (the number only)') return 'lost';
+    if (norm.startsWith('additional information')) return 'comments';
+    if (norm.startsWith('i understand')) return 'consent1';
+    if (norm.startsWith('i accept')) return 'consent2';
+    if (norm === 'email address') return 'email';
+    if (norm === 'fit') return 'fit';
+    return norm;
+  }
+
+  function parseBoxers(text) {
+    const lines = splitCSVRecords(text);
+    const headers = splitCSV(lines[0]).map(mapHeader);
+    return lines.slice(1).filter(l => l.trim()).map((line, idx) => {
+      const vals = splitCSV(line);
+      const obj = {};
+      headers.forEach((h, i) => {
+        const v = (vals[i] || '').trim();
+        if (h === 'weight') obj[h] = parseFloat(v) || 0;
+        else if (['bouts', 'won', 'lost'].includes(h)) obj[h] = parseInt(v) || 0;
+        else obj[h] = v;
+      });
+      obj.gender = obj.gender ? obj.gender.toLowerCase() : 'male';
+      const dobParts = (obj.dob || '').split('/');
+      obj.yob = parseInt(dobParts[2]) || 0;
+      obj.experience = obj.bouts || 0;
+      obj.id = idx + 1;
+      if (!obj.fit) obj.fit = 'yes';
+      return obj;
+    });
+  }
+
+  function setStatus(type, msg) {
+    const el = document.getElementById('statusBox');
+    el.className = type;
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  let parsedBoxers = null;
+
+  document.getElementById('csvInput').addEventListener('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+    document.getElementById('fileNameLabel').textContent = file.name;
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        parsedBoxers = parseBoxers(e.target.result);
+        document.getElementById('importBtn').disabled = false;
+        setStatus('info', `Ready to import ${parsedBoxers.length} boxers from "${file.name}"`);
+      } catch (err) {
+        parsedBoxers = null;
+        document.getElementById('importBtn').disabled = true;
+        setStatus('error', `Could not parse CSV: ${err.message}`);
+      }
+    };
+    reader.readAsText(file);
+    this.value = '';
+  });
+
+  document.getElementById('importBtn').addEventListener('click', async () => {
+    if (!parsedBoxers) return;
+    const btn = document.getElementById('importBtn');
+    btn.disabled = true;
+    setStatus('info', `Importing ${parsedBoxers.length} boxers…`);
+    try {
+      await DataClient.save('boxers', parsedBoxers);
+      setStatus('success', `✓ Imported ${parsedBoxers.length} boxers into the database`);
+    } catch (e) {
+      setStatus('error', `Import failed: ${e.message}`);
+      btn.disabled = false;
+    }
+  });
+</script>
+<script src="theme.js"></script>
+</body>
+</html>
