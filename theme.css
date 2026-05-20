@@ -130,7 +130,7 @@ body {
   color: var(--text-primary);
 }
 
-/* ── Shared legend bar (SparManager, RingManager, TimelineView) ── */
+/* ── Shared legend bar (SparManager, RingManager) ── */
 #legend {
   background: var(--surface-bg);
   border-bottom-color: var(--surface-border);
@@ -234,7 +234,7 @@ td {
   border-top-color: var(--surface-border);
 }
 
-/* ── TimelineView ── */
+/* ── RingManager (timeline) ── */
 #ruler {
   background: var(--surface-bg);
   border-right-color: var(--surface-border);

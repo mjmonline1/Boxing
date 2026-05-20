@@ -57,130 +57,82 @@
       width: 12px; height: 12px; border-radius: 2px;
     }
 
-    /* ── Grid wrap ── */
-    #grid-wrap {
+    /* ── Board ── */
+    #board {
       display: flex;
+      gap: 10px;
+      padding: 12px;
       overflow: auto;
       height: calc(100vh - 90px);
-    }
-
-    /* ── Ruler ── */
-    #ruler {
-      flex: 0 0 54px;
-      position: relative;
-      background: #fff;
-      border-right: 2px solid #ccc;
-    }
-    .tick-label {
-      position: absolute;
-      left: 4px;
-      font-size: 10px;
-      color: #555;
-      transform: translateY(-50%);
-      white-space: nowrap;
-    }
-    .tick-label.major { font-size: 11px; font-weight: bold; color: #222; }
-    .tick-line { position: absolute; right: 0; height: 1px; }
-    .tick-line.major { background: #666; width: 20px; }
-    .tick-line.mid   { background: #999; width: 13px; }
-    .tick-line.minor { background: #bbb; width: 7px; }
-
-    /* ── Rings container ── */
-    #rings {
-      flex: 1;
-      display: flex;
-      position: relative;
-      min-width: 0;
+      align-items: flex-start;
     }
 
     /* ── Ring column ── */
-    .ring-col {
-      flex: 1;
-      min-width: 160px;
-      border-right: 1px solid #ddd;
-      position: relative;
-      transition: background 0.15s, box-shadow 0.15s;
+    .ring {
+      flex: 0 0 220px;
+      background: white;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      padding: 0;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.15s;
     }
-    .ring-col:last-child { border-right: none; }
-    .ring-col.drag-over  { background: #f0fff0; box-shadow: inset 0 0 0 2px #4caf50; }
-    .ring-col.drag-block { background: #fff0f0; box-shadow: inset 0 0 0 2px #f44336; }
+    .ring.drag-over  { border-color: #4caf50; background: #f0fff0; }
+    .ring.drag-block { border-color: #f44336; background: #fff0f0; }
 
-    .ring-col-header {
-      position: sticky;
-      top: 0;
+    .ring-header {
+      padding: 10px 12px 8px;
+      border-bottom: 2px solid #eee;
+      border-radius: 8px 8px 0 0;
       background: #1a1a2e;
       color: white;
-      text-align: center;
-      padding: 6px 4px;
-      z-index: 10;
-      border-right: 1px solid #2d3550;
+      position: sticky;
+      top: 0;
+      z-index: 5;
     }
-    .ring-col-header h2 { margin: 0; font-size: 14px; }
-    .ring-col-header .hdr-info   { font-size: 10px; color: #aaa; margin-top: 2px; }
-    .ring-col-header .hdr-finish { font-size: 10px; margin-top: 1px; }
-    .ring-col-header .hdr-finish.ok   { color: #4caf50; }
-    .ring-col-header .hdr-finish.over { color: #f44336; font-weight: bold; }
+    .ring-header h2 { margin: 0; font-size: 15px; }
+    .ring-header .ring-count { font-size: 12px; color: #aaa; margin-top: 2px; }
+    .ring-header .ring-finish { font-size: 11px; margin-top: 3px; }
+    .ring-header .ring-finish.ok   { color: #4caf50; }
+    .ring-header .ring-finish.over { color: #f44336; font-weight: bold; }
 
-    /* ── Bout block ── */
-    .bout-block {
-      position: absolute;
-      left: 3px;
-      right: 3px;
-      border-radius: 6px;
+    .ring-body {
+      padding: 8px;
+      flex: 1;
+    }
+
+    /* ── Bout card ── */
+    .bout {
+      background: #fafafa;
       border: 1px solid #ddd;
       border-left: 5px solid #ccc;
-      background: #fafafa;
-      overflow: hidden;
+      border-radius: 6px;
       padding: 7px 8px;
-      z-index: 2;
+      margin-bottom: 7px;
+      cursor: grab;
       font-size: 12px;
       line-height: 1.4;
-      cursor: grab;
       user-select: none;
       transition: box-shadow 0.1s, opacity 0.1s;
     }
-    .bout-block:active   { cursor: grabbing; }
-    .bout-block.dragging { opacity: 0.4; }
-    .bout-block.senior   { border-left-color: #4a90d9; }
-    .bout-block.youth    { border-left-color: #f0ad4e; }
-    .bout-block.junior   { border-left-color: #5cb85c; }
-    .bout-block.female   { border-left-color: #e91e8c; }
+    .bout:active  { cursor: grabbing; }
+    .bout.dragging { opacity: 0.4; }
 
-    .bb-names   { font-weight: bold; color: #222; font-size: 12px; line-height: 1.4; }
-    .bb-cat     { color: #777; font-size: 10px; margin-top: 2px; }
-    .bb-weight  { color: #555; font-size: 10px; margin-top: 2px; }
-    .bb-time    { color: #4a90d9; font-size: 10px; margin-top: 2px; font-weight: bold; }
-    .bb-format  { color: #888; font-size: 10px; margin-top: 3px; border-top: 1px solid #eee; padding-top: 3px; }
+    .bout.senior  { border-left-color: #4a90d9; }
+    .bout.junior  { border-left-color: #5cb85c; }
+    .bout.youth   { border-left-color: #f0ad4e; }
+    .bout.female  { border-left-color: #e91e8c; }
 
-    .bout-block.drop-before { box-shadow: inset 0 3px 0 #4caf50; }
-    .bout-block.drop-after  { box-shadow: inset 0 -3px 0 #4caf50; }
-
-    /* ── Tea time line ── */
-    #tea-line {
-      position: absolute;
-      left: 0; right: 0;
-      border-top: 2px dashed #f44336;
-      z-index: 8;
-      pointer-events: none;
-    }
-    #tea-label {
-      position: absolute;
-      right: 6px;
-      color: #f44336;
-      font-size: 10px;
-      font-weight: bold;
-      z-index: 8;
-      pointer-events: none;
-    }
-
-    /* ── Hour grid lines ── */
-    .hour-line {
-      position: absolute;
-      left: 0; right: 0;
-      border-top: 1px solid #ececec;
-      pointer-events: none;
-      z-index: 1;
-    }
+    .bout-pos    { font-size: 10px; color: #999; float: right; }
+    .bout-names  { font-weight: bold; color: #222; }
+    .bout-cat    { font-size: 10px; color: #777; margin-top: 2px; }
+    .bout-weight { font-size: 10px; color: #555; margin-top: 2px; }
+    .bout-time   { font-size: 10px; color: #4a90d9; margin-top: 2px; font-weight: bold; }
+    .bout-format { font-size: 10px; color: #888; margin-top: 3px; border-top: 1px solid #eee; padding-top: 3px; }
+    .bout.drop-before { border-top: 3px solid #4caf50; }
+    .bout.drop-after  { border-bottom: 3px solid #4caf50; }
 
     /* ── Toast ── */
     #toast {
@@ -202,6 +154,7 @@
   <button id="saveBtn">Save</button>
   <button id="exportBtn">Export Allocation</button>
   <button class="theme-btn"></button>
+  <a class="nav-btn" href="TimelineView.html">Timeline &#8594;</a>
 </div>
 
 <div id="legend">
@@ -212,10 +165,7 @@
   <span class="legend-item"><span class="legend-swatch" style="background:#e91e8c"></span>Female <span style="color:#999;font-size:10px;">(either boxer)</span></span>
 </div>
 
-<div id="grid-wrap">
-  <div id="ruler"></div>
-  <div id="rings"></div>
-</div>
+<div id="board"></div>
 <div id="toast"></div>
 
 <script src="data-client.js"></script>
@@ -228,7 +178,7 @@ async function loadSchedule() {
   try {
     return DataClient.get('schedule');
   } catch (e) {
-    document.getElementById('rings').innerHTML =
+    document.getElementById('board').innerHTML =
       `<div style="padding:40px;color:red;font-size:14px;">
          <b>Could not load schedule_grouped.json.</b><br><br>
          Run RingAssigner.js first, then start the server:<br>
@@ -272,26 +222,20 @@ let dragged    = null;  // { bout, fromRing }
 let dropTarget = null;  // { ringId, index }
 
 function clearDropIndicators() {
-  document.querySelectorAll('.bout-block.drop-before, .bout-block.drop-after')
+  document.querySelectorAll('.bout.drop-before, .bout.drop-after')
     .forEach(el => el.classList.remove('drop-before', 'drop-after'));
 }
 
 // ── Time calculation ─────────────────────────────────────────────────────────
 
-const PX_PER_MIN = 12;
-const START_MINS = 15 * 60;   // 900 — 15:00
-const TEA_TIME   = 18 * 60;   // 1080 — 18:00
-const CHANGEOVER = 1;         // minutes between bouts in same ring
-const HEADER_PX  = 52;        // matches .ring-col-header rendered height
-const GAP_PX     = 10;        // breathing room below header before first bout
+const START_MINUTES = 15 * 60; // 3:00 PM
+const CHANGEOVER    = 1;       // minutes between bouts in same ring
 
 function fmtTime(mins) {
   return `${Math.floor(mins / 60)}:${String(mins % 60).padStart(2, '0')}`;
 }
 
-function topPx(mins) {
-  return HEADER_PX + GAP_PX + (mins - START_MINS) * PX_PER_MIN;
-}
+const TEA_TIME = 18 * 60; // 18:00
 
 function boutFormat(category) {
   const senior = category && category.includes('Senior');
@@ -302,14 +246,12 @@ function boutFormat(category) {
 
 function computeTimes(state) {
   for (const bouts of Object.values(state)) {
-    let cur = START_MINS;
+    let cur = START_MINUTES;
     for (const bout of bouts) {
-      const dur         = bout.duration ?? (bout.category.includes('Senior') ? 11 : 8);
-      bout.duration     = dur;
-      bout.startMinutes = cur;
-      bout.startTime    = fmtTime(cur);
-      bout.endMinutes   = cur + dur;
-      bout.endTime      = fmtTime(cur + dur);
+      const dur = bout.duration ?? (bout.category.includes('Senior') ? 11 : 8);
+      bout.startTime  = fmtTime(cur);
+      bout.endMinutes = cur + dur;
+      bout.endTime    = fmtTime(bout.endMinutes);
       cur += dur + CHANGEOVER;
     }
   }
@@ -317,94 +259,46 @@ function computeTimes(state) {
 
 // ── Render ────────────────────────────────────────────────────────────────────
 
-function buildRuler(endMins) {
-  const ruler = document.getElementById('ruler');
-  ruler.innerHTML = '';
-  ruler.style.height = (topPx(endMins) + 40) + 'px';
-
-  for (let m = START_MINS; m <= endMins + 15; m += 5) {
-    const major = m % 60 === 0;
-    const mid   = !major && m % 15 === 0;
-    const y     = topPx(m);
-
-    const line = document.createElement('div');
-    line.className = `tick-line ${major ? 'major' : mid ? 'mid' : 'minor'}`;
-    line.style.top = y + 'px';
-    ruler.appendChild(line);
-
-    if (major || mid) {
-      const label = document.createElement('div');
-      label.className = `tick-label${major ? ' major' : ''}`;
-      label.style.top = y + 'px';
-      label.textContent = fmtTime(m);
-      ruler.appendChild(label);
-    }
-  }
-}
-
 function render(state) {
   computeTimes(state);
+  const board = document.getElementById('board');
+  board.innerHTML = '';
 
-  // Determine grid height (latest finish + a 15-min tail)
-  let endMins = TEA_TIME;
-  for (const bouts of Object.values(state)) {
-    if (bouts.length) endMins = Math.max(endMins, bouts[bouts.length - 1].endMinutes);
-  }
-  endMins += 15;
-  const colHeight = topPx(endMins) + 40;
+  const rings = ['R1', 'R2', 'R3', 'R4', 'R5'];
 
-  const rings = document.getElementById('rings');
-  rings.innerHTML = '';
-
-  // Tea-time line + label (span all columns inside #rings)
-  const teaLine = document.createElement('div');
-  teaLine.id = 'tea-line';
-  teaLine.style.top = topPx(TEA_TIME) + 'px';
-  rings.appendChild(teaLine);
-
-  const teaLabel = document.createElement('div');
-  teaLabel.id = 'tea-label';
-  teaLabel.style.top = (topPx(TEA_TIME) - 16) + 'px';
-  teaLabel.textContent = '18:00 — Tea Time';
-  rings.appendChild(teaLabel);
-
-  ['R1', 'R2', 'R3', 'R4', 'R5'].forEach(ringId => {
-    const bouts    = state[ringId];
-    const lastBout = bouts[bouts.length - 1];
-    const overrun  = lastBout ? lastBout.endMinutes > TEA_TIME : false;
+  rings.forEach(ringId => {
+    const bouts = state[ringId];
 
     const col = document.createElement('div');
-    col.className = 'ring-col';
+    col.className = 'ring';
     col.dataset.ring = ringId;
-    col.style.height = colHeight + 'px';
 
-    // Sticky header
-    const hdr = document.createElement('div');
-    hdr.className = 'ring-col-header';
-    hdr.innerHTML = `
-      <h2>${ringId}${ringId === 'R5' ? ' <small style="font-size:10px;opacity:.5">(Y/J/F)</small>' : ''}</h2>
-      <div class="hdr-info">${bouts.length} bout${bouts.length !== 1 ? 's' : ''}</div>
-      <div class="hdr-finish ${overrun ? 'over' : 'ok'}">${overrun ? '⚠' : '✓'} ${lastBout ? lastBout.endTime : '—'}</div>
+    const lastBout    = bouts[bouts.length - 1];
+    const finishMins  = lastBout ? lastBout.endMinutes : START_MINUTES;
+    const finishLabel = lastBout ? lastBout.endTime : '—';
+    const overrun     = finishMins > TEA_TIME;
+
+    col.innerHTML = `
+      <div class="ring-header">
+        <h2>${ringId}${ringId === 'R5' ? ' <small style="font-size:11px;opacity:.6">(Youth/Junior/F)</small>' : ''}</h2>
+        <div class="ring-count">${bouts.length} bout${bouts.length !== 1 ? 's' : ''}</div>
+        <div class="ring-finish ${overrun ? 'over' : 'ok'}">
+          ${overrun ? '⚠ Overruns' : '✓ Done'} ${finishLabel}
+        </div>
+      </div>
+      <div class="ring-body" data-ring="${ringId}"></div>
     `;
-    col.appendChild(hdr);
 
-    // Hour grid lines
-    for (let m = START_MINS; m <= endMins; m += 60) {
-      const line = document.createElement('div');
-      line.className = 'hour-line';
-      line.style.top = topPx(m) + 'px';
-      col.appendChild(line);
-    }
+    const body = col.querySelector('.ring-body');
 
-    // Column-level drop handlers
+    // Drop handlers
     col.addEventListener('dragover', e => {
-      if (!dragged) return;
       e.preventDefault();
-      const allowed = ringId !== 'R5' || canPlaceInR5(dragged.bout);
+      const allowed = ringId !== 'R5' || canPlaceInR5(dragged?.bout);
       col.classList.toggle('drag-over',  allowed);
       col.classList.toggle('drag-block', !allowed);
-      // When hovering empty/gap space (not over a block), target end of list
-      if (!e.target.closest('.bout-block')) {
+      // When hovering empty space below all cards, target end of list
+      if (!e.target.closest('.bout')) {
         clearDropIndicators();
         dropTarget = { ringId, index: state[ringId].length };
       }
@@ -434,6 +328,7 @@ function render(state) {
       state[fromRing] = state[fromRing].filter(b => b.sparId !== bout.sparId);
 
       let insertIdx = dropTarget?.ringId === ringId ? dropTarget.index : state[ringId].length;
+      // If reordering within same ring and the removal shifted positions, adjust
       if (fromRing === ringId && origIdx < insertIdx) insertIdx--;
       insertIdx = Math.max(0, Math.min(insertIdx, state[ringId].length));
 
@@ -443,50 +338,45 @@ function render(state) {
       updateStats(state);
     });
 
-    // Bout blocks (DnD wired)
+    // Bout cards
     bouts.forEach((bout, idx) => {
-      const block = document.createElement('div');
-      block.className = `bout-block ${boutType(bout)}`;
-      block.draggable = true;
-      block.style.top    = topPx(bout.startMinutes) + 'px';
-      block.style.height = (bout.duration * PX_PER_MIN) + 'px';
-      block.innerHTML = `
-        <div class="bb-names">${bout.red.name}<br>vs ${bout.blue.name}</div>
-        <div class="bb-cat">${bout.category}</div>
-        <div class="bb-weight">⚖ ${bout.weightDiff}kg diff</div>
-        <div class="bb-time">⏱ ${bout.startTime} – ${bout.endTime}</div>
-        <div class="bb-format">${boutFormat(bout.category)}</div>
+      const type = boutType(bout);
+      const card = document.createElement('div');
+      card.className = `bout ${type}`;
+      card.draggable = true;
+
+      card.innerHTML = `
+        <span class="bout-pos">#${idx + 1}</span>
+        <div class="bout-names">${bout.red.name}<br>vs ${bout.blue.name}</div>
+        <div class="bout-cat">${bout.category}</div>
+        <div class="bout-weight">⚖ ${bout.weightDiff}kg diff</div>
+        <div class="bout-time">⏱ ${bout.startTime} – ${bout.endTime}</div>
+        <div class="bout-format">${boutFormat(bout.category)}</div>
       `;
 
-      block.addEventListener('dragstart', e => {
+      card.addEventListener('dragstart', () => {
         dragged = { bout, fromRing: ringId };
-        block.classList.add('dragging');
-        if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move';
+        card.classList.add('dragging');
       });
-      block.addEventListener('dragend', () => {
+      card.addEventListener('dragend', () => {
         dragged = null;
-        block.classList.remove('dragging');
+        card.classList.remove('dragging');
         clearDropIndicators();
-        document.querySelectorAll('.ring-col.drag-over, .ring-col.drag-block')
-          .forEach(c => c.classList.remove('drag-over', 'drag-block'));
       });
-      block.addEventListener('dragover', e => {
-        if (!dragged) return;
+      card.addEventListener('dragover', e => {
         e.preventDefault();
-        const rect         = block.getBoundingClientRect();
+        const rect        = card.getBoundingClientRect();
         const insertBefore = e.clientY < rect.top + rect.height / 2;
         dropTarget = { ringId, index: insertBefore ? idx : idx + 1 };
         clearDropIndicators();
-        block.classList.add(insertBefore ? 'drop-before' : 'drop-after');
+        card.classList.add(insertBefore ? 'drop-before' : 'drop-after');
       });
 
-      col.appendChild(block);
+      body.appendChild(card);
     });
 
-    rings.appendChild(col);
+    board.appendChild(col);
   });
-
-  buildRuler(endMins);
 }
 
 function updateStats(state) {
@@ -494,7 +384,7 @@ function updateStats(state) {
   const maxSlots = Math.max(...Object.values(state).map(r => r.length));
 
   const latestMins = Math.max(
-    ...Object.values(state).map(r => r.length ? r[r.length - 1].endMinutes : START_MINS)
+    ...Object.values(state).map(r => r.length ? r[r.length - 1].endMinutes : START_MINUTES)
   );
   const latestLabel = fmtTime(latestMins);
   const overrun     = latestMins > TEA_TIME;
@@ -592,7 +482,7 @@ function showToast(msg) {
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || res.statusText);
       schedule = await res.json();
     } catch (e) {
-      document.getElementById('rings').innerHTML =
+      document.getElementById('board').innerHTML =
         `<div style="padding:40px;color:#888;font-size:14px;">
            <b>Could not generate schedule: ${e.message}</b><br><br>
            Go to <a href="SparManager.html" style="color:#4a90d9;">Spar Manager</a> first.
