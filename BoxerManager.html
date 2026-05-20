@@ -213,16 +213,16 @@
         </select>
       </div>
       <div class="form-group">
-        <label>Category</label>
-        <input id="f_category" type="text" placeholder="e.g. Junior (2009 &amp; younger)" list="categoriesList">
-        <datalist id="categoriesList"></datalist>
+        <label>Date of Birth</label>
+        <input id="f_dob" type="text" placeholder="DD/MM/YYYY">
       </div>
     </div>
 
     <div class="form-row">
       <div class="form-group">
-        <label>Date of Birth</label>
-        <input id="f_dob" type="text" placeholder="DD/MM/YYYY">
+        <label>Category</label>
+        <input id="f_category" type="text" placeholder="e.g. Junior (2009 &amp; younger)" list="categoriesList">
+        <datalist id="categoriesList"></datalist>
       </div>
       <div class="form-group">
         <label>Weight (kg)</label>
@@ -237,11 +237,11 @@
       </div>
       <div class="form-group">
         <label>Won</label>
-        <input id="f_won" type="number" min="0" step="1" placeholder="0">
+        <input id="f_won" type="number" min="0" step="1" placeholder="0" style="max-width:4.5em">
       </div>
       <div class="form-group">
         <label>Lost</label>
-        <input id="f_lost" type="number" min="0" step="1" placeholder="0">
+        <input id="f_lost" type="number" min="0" step="1" placeholder="0" style="max-width:4.5em">
       </div>
     </div>
 
@@ -574,7 +574,7 @@ function openModal(id) {
     document.getElementById('f_fit').value             = 'yes';
     document.getElementById('f_email').value           = '';
     document.getElementById('f_comments').value        = '';
-    document.getElementById('f_submission_date').value = '';
+    const _t = new Date(); document.getElementById('f_submission_date').value = `${String(_t.getDate()).padStart(2,'0')}/${String(_t.getMonth()+1).padStart(2,'0')}/${_t.getFullYear()}`;
     document.getElementById('f_consent1').value        = '';
     document.getElementById('f_consent2').value        = '';
   } else {
@@ -724,6 +724,25 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && modalOpen) closeModal();
   if (e.key === 'Enter'  && modalOpen) saveRow();
   if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveToServer(); }
+});
+
+// ── DOB → Category auto-fill ──────────────────────────────────────────────────
+
+function deriveCategory(yob) {
+  if (!yob) return '';
+  const age = new Date().getFullYear() - yob;
+  if (age >= 12 && age <= 14) return 'Schools';
+  if (age >= 15 && age <= 16) return 'Junior';
+  if (age >= 17 && age <= 18) return 'Youth';
+  if (age >= 19) return 'Senior';
+  return '';
+}
+
+document.getElementById('f_dob').addEventListener('change', () => {
+  const parts = document.getElementById('f_dob').value.split('/');
+  const yob = parseInt(parts[2]);
+  const cat = deriveCategory(yob);
+  if (cat) document.getElementById('f_category').value = cat;
 });
 
 // ── Auto-load ─────────────────────────────────────────────────────────────────
