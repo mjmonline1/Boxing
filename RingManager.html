@@ -152,8 +152,27 @@
     .bb-time    { color: #4a90d9; font-size: 10px; margin-top: 2px; font-weight: bold; }
     .bb-format  { color: #888; font-size: 10px; margin-top: 3px; border-top: 1px solid #eee; padding-top: 3px; }
 
-    .bout-block.drop-before { box-shadow: inset 0 3px 0 #4caf50; }
-    .bout-block.drop-after  { box-shadow: inset 0 -3px 0 #4caf50; }
+    .drop-line {
+      position: absolute;
+      left: 0; right: 0;
+      height: 0;
+      border-top: 3px solid #4caf50;
+      z-index: 9;
+      pointer-events: none;
+    }
+    .drop-time-label {
+      position: absolute;
+      right: 6px;
+      background: #4caf50;
+      color: white;
+      font-size: 10px;
+      font-weight: bold;
+      padding: 1px 6px;
+      border-radius: 3px;
+      z-index: 9;
+      pointer-events: none;
+      transform: translateY(-50%);
+    }
 
     /* ── Tea time line ── */
     #tea-line {
@@ -272,8 +291,7 @@ let dragged    = null;  // { bout, fromRing }
 let dropTarget = null;  // { ringId, index }
 
 function clearDropIndicators() {
-  document.querySelectorAll('.bout-block.drop-before, .bout-block.drop-after')
-    .forEach(el => el.classList.remove('drop-before', 'drop-after'));
+  document.querySelectorAll('.drop-line, .drop-time-label').forEach(el => el.remove());
 }
 
 // ── Time calculation ─────────────────────────────────────────────────────────
@@ -293,6 +311,13 @@ function topPx(mins) {
   return HEADER_PX + GAP_PX + (mins - START_MINS) * PX_PER_MIN;
 }
 
+// Inverse of topPx: cursor Y inside a ring-col → minutes (clamped, 1-min snap)
+function yToMins(clientY, col) {
+  const localY = clientY - col.getBoundingClientRect().top;
+  const raw = START_MINS + (localY - HEADER_PX - GAP_PX) / PX_PER_MIN;
+  return Math.max(START_MINS, Math.round(raw));
+}
+
 function boutFormat(category) {
   const senior = category && category.includes('Senior');
   const roundLen = senior ? 3 : 2;
@@ -306,6 +331,10 @@ function computeTimes(state) {
     for (const bout of bouts) {
       const dur         = bout.duration ?? (bout.category.includes('Senior') ? 11 : 8);
       bout.duration     = dur;
+      // Honor manual pin: cur jumps forward to pinnedStart if pin is later than auto-cur
+      if (bout.pinnedStart != null && bout.pinnedStart > cur) {
+        cur = bout.pinnedStart;
+      }
       bout.startMinutes = cur;
       bout.startTime    = fmtTime(cur);
       bout.endMinutes   = cur + dur;
@@ -396,17 +425,30 @@ function render(state) {
       col.appendChild(line);
     }
 
-    // Column-level drop handlers
+    // Column-level drop handlers (time-based)
     col.addEventListener('dragover', e => {
       if (!dragged) return;
       e.preventDefault();
       const allowed = ringId !== 'R5' || canPlaceInR5(dragged.bout);
       col.classList.toggle('drag-over',  allowed);
       col.classList.toggle('drag-block', !allowed);
-      // When hovering empty/gap space (not over a block), target end of list
-      if (!e.target.closest('.bout-block')) {
-        clearDropIndicators();
-        dropTarget = { ringId, index: state[ringId].length };
+
+      const pinnedStart = yToMins(e.clientY, col);
+      dropTarget = { ringId, pinnedStart };
+
+      // Indicator: horizontal line + time label at the drop Y
+      clearDropIndicators();
+      if (allowed) {
+        const line = document.createElement('div');
+        line.className = 'drop-line';
+        line.style.top = topPx(pinnedStart) + 'px';
+        col.appendChild(line);
+
+        const label = document.createElement('div');
+        label.className = 'drop-time-label';
+        label.style.top = topPx(pinnedStart) + 'px';
+        label.textContent = fmtTime(pinnedStart);
+        col.appendChild(label);
       }
     });
 
@@ -430,14 +472,24 @@ function render(state) {
         return;
       }
 
-      const origIdx = state[fromRing].findIndex(b => b.sparId === bout.sparId);
+      const pinnedStart = dropTarget?.ringId === ringId
+        ? dropTarget.pinnedStart
+        : yToMins(e.clientY, col);
+
+      // Remove from source ring
       state[fromRing] = state[fromRing].filter(b => b.sparId !== bout.sparId);
 
-      let insertIdx = dropTarget?.ringId === ringId ? dropTarget.index : state[ringId].length;
-      if (fromRing === ringId && origIdx < insertIdx) insertIdx--;
-      insertIdx = Math.max(0, Math.min(insertIdx, state[ringId].length));
+      // Apply the pin
+      bout.pinnedStart = pinnedStart;
 
-      state[ringId].splice(insertIdx, 0, bout);
+      // Insert at the chronological index in the target ring
+      const dest = state[ringId];
+      let insertIdx = dest.length;
+      for (let i = 0; i < dest.length; i++) {
+        const otherStart = dest[i].pinnedStart ?? dest[i].startMinutes;
+        if (otherStart >= pinnedStart) { insertIdx = i; break; }
+      }
+      dest.splice(insertIdx, 0, bout);
 
       render(state);
       updateStats(state);
@@ -470,16 +522,6 @@ function render(state) {
         document.querySelectorAll('.ring-col.drag-over, .ring-col.drag-block')
           .forEach(c => c.classList.remove('drag-over', 'drag-block'));
       });
-      block.addEventListener('dragover', e => {
-        if (!dragged) return;
-        e.preventDefault();
-        const rect         = block.getBoundingClientRect();
-        const insertBefore = e.clientY < rect.top + rect.height / 2;
-        dropTarget = { ringId, index: insertBefore ? idx : idx + 1 };
-        clearDropIndicators();
-        block.classList.add(insertBefore ? 'drop-before' : 'drop-after');
-      });
-
       col.appendChild(block);
     });
 
