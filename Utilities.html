@@ -151,6 +151,18 @@
     color: var(--muted);
     font-style: italic;
   }
+
+  #rptStatusBox {
+    display: none;
+    margin-top: 1rem;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  #rptStatusBox.info    { background: var(--blue-dim);  color: var(--blue);  border: 1px solid rgba(88,166,255,0.3); }
+  #rptStatusBox.success { background: var(--green-dim); color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
+  #rptStatusBox.error   { background: var(--red-dim);   color: var(--red);   border: 1px solid rgba(248,81,73,0.3); }
 </style>
 <link rel="stylesheet" href="theme.css">
 </head>
@@ -178,8 +190,22 @@
     <div id="statusBox"></div>
   </div>
 
+  <div class="util-card">
+    <h2>&#128196; Reports</h2>
+    <p>Generate a PDF report for each dataset. Data is loaded live from the database.</p>
+    <div class="btn-row">
+      <button class="btn btn-blue" id="rptFighters">Fighters</button>
+      <button class="btn btn-blue" id="rptBuckets">Buckets</button>
+      <button class="btn btn-blue" id="rptSpars">Spars</button>
+      <button class="btn btn-blue" id="rptRings">Rings</button>
+    </div>
+    <div id="rptStatusBox"></div>
+  </div>
+
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script src="data-client.js"></script>
 <script>
   function splitCSVRecords(text) {
@@ -297,6 +323,157 @@
       btn.disabled = false;
     }
   });
+</script>
+<script>
+// ── Reports ──────────────────────────────────────────────────────────────────
+
+function setRptStatus(type, msg) {
+  const el = document.getElementById('rptStatusBox');
+  el.className = type;
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function makePdf(title) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(16);
+  doc.text(title, 14, 16);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(120);
+  doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 23);
+  doc.setTextColor(0);
+  return doc;
+}
+
+document.getElementById('rptFighters').addEventListener('click', async () => {
+  try {
+    setRptStatus('info', 'Loading fighters…');
+    const boxers = await DataClient.get('boxers');
+    if (!boxers || !boxers.length) { setRptStatus('error', 'No fighters in database.'); return; }
+    const doc = makePdf('Fighters Report');
+    doc.autoTable({
+      startY: 28,
+      head: [['#', 'Name', 'Club', 'Gender', 'Category', 'DOB', 'Weight (kg)', 'Bouts', 'Won', 'Lost', 'Fit']],
+      body: boxers.map((b, i) => [
+        i + 1, b.name || '', b.club || '', b.gender || '', b.category || '',
+        b.dob || '', b.weight || '', b.bouts || 0, b.won || 0, b.lost || 0, b.fit || ''
+      ]),
+      styles: { fontSize: 7.5, cellPadding: 1.8 },
+      headStyles: { fillColor: [33, 150, 243] },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
+      columnStyles: { 0: { cellWidth: 8 }, 6: { cellWidth: 18 }, 7: { cellWidth: 12 }, 8: { cellWidth: 10 }, 9: { cellWidth: 10 }, 10: { cellWidth: 10 } }
+    });
+    doc.save('fighters.pdf');
+    setRptStatus('success', `✓ fighters.pdf — ${boxers.length} fighters`);
+  } catch (e) { setRptStatus('error', `Error: ${e.message}`); }
+});
+
+document.getElementById('rptBuckets').addEventListener('click', async () => {
+  try {
+    setRptStatus('info', 'Loading buckets…');
+    const data = await DataClient.get('buckets');
+    const fb = data && (data.finalBuckets || data);
+    if (!fb || typeof fb !== 'object') { setRptStatus('error', 'No bucket data.'); return; }
+    const doc = makePdf('Buckets Report');
+    let y = 28;
+    let totalFighters = 0;
+    for (const [bucketName, fighters] of Object.entries(fb)) {
+      if (!Array.isArray(fighters) || !fighters.length) continue;
+      totalFighters += fighters.length;
+      doc.autoTable({
+        startY: y,
+        head: [
+          [{ content: `${bucketName}  (${fighters.length} fighters)`, colSpan: 5, styles: { fillColor: [45, 51, 59], textColor: [205, 217, 229], fontStyle: 'bold', fontSize: 8 } }],
+          ['#', 'Name', 'Club', 'Weight (kg)', 'Bouts']
+        ],
+        body: fighters.map((b, i) => [i + 1, b.name || '', b.club || '', b.weight || '', b.bouts || 0]),
+        styles: { fontSize: 7.5, cellPadding: 1.8 },
+        headStyles: { fillColor: [33, 150, 243] },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
+        columnStyles: { 0: { cellWidth: 8 }, 3: { cellWidth: 20 }, 4: { cellWidth: 14 } }
+      });
+      y = doc.lastAutoTable.finalY + 6;
+      if (y > 175) { doc.addPage(); y = 20; }
+    }
+    doc.save('buckets.pdf');
+    setRptStatus('success', `✓ buckets.pdf — ${totalFighters} fighters across ${Object.keys(fb).length} buckets`);
+  } catch (e) { setRptStatus('error', `Error: ${e.message}`); }
+});
+
+document.getElementById('rptSpars').addEventListener('click', async () => {
+  try {
+    setRptStatus('info', 'Loading spars…');
+    const data = await DataClient.get('spars');
+    const matches = data && (data.matches || (Array.isArray(data) ? data : null));
+    if (!matches || !matches.length) { setRptStatus('error', 'No spar data.'); return; }
+    const doc = makePdf('Sparring Pairs Report');
+    doc.autoTable({
+      startY: 28,
+      head: [['#', 'Red Corner', 'Red Club', 'Blue Corner', 'Blue Club', 'Category', 'Weight Diff']],
+      body: matches.map((m, i) => {
+        const diff = (m.red && m.blue) ? Math.abs((m.red.weight || 0) - (m.blue.weight || 0)).toFixed(1) + ' kg' : '';
+        return [i + 1, m.red?.name || '', m.red?.club || '', m.blue?.name || '', m.blue?.club || '', m.category || '', diff];
+      }),
+      styles: { fontSize: 7.5, cellPadding: 1.8 },
+      headStyles: { fillColor: [33, 150, 243] },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
+      columnStyles: { 0: { cellWidth: 8 }, 6: { cellWidth: 18 } }
+    });
+    const unmatched = data.unmatched;
+    if (Array.isArray(unmatched) && unmatched.length) {
+      let y = doc.lastAutoTable.finalY + 8;
+      if (y > 175) { doc.addPage(); y = 20; }
+      doc.autoTable({
+        startY: y,
+        head: [
+          [{ content: `Unmatched Fighters (${unmatched.length})`, colSpan: 4, styles: { fillColor: [180, 50, 40], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 } }],
+          ['Name', 'Club', 'Category', 'Weight (kg)']
+        ],
+        body: unmatched.map(b => [b.name || '', b.club || '', b.category || '', b.weight || '']),
+        styles: { fontSize: 7.5, cellPadding: 1.8 },
+        headStyles: { fillColor: [200, 80, 70] },
+        alternateRowStyles: { fillColor: [245, 245, 245] }
+      });
+    }
+    doc.save('spars.pdf');
+    setRptStatus('success', `✓ spars.pdf — ${matches.length} pairs${unmatched?.length ? `, ${unmatched.length} unmatched` : ''}`);
+  } catch (e) { setRptStatus('error', `Error: ${e.message}`); }
+});
+
+document.getElementById('rptRings').addEventListener('click', async () => {
+  try {
+    setRptStatus('info', 'Loading schedule…');
+    const data = await DataClient.get('schedule');
+    const slots = data && (data.slots || (Array.isArray(data) ? data : null));
+    if (!slots || !slots.length) { setRptStatus('error', 'No schedule data.'); return; }
+    const doc = makePdf('Ring Schedule Report');
+    const rows = [];
+    for (const slot of slots) {
+      for (const bout of (slot.bouts || [])) {
+        rows.push([
+          slot.slot, bout.ring || '', bout.sparId || '',
+          bout.red?.name || '', bout.red?.club || '',
+          bout.blue?.name || '', bout.blue?.club || '',
+          bout.category || '', bout.weightDiff ? bout.weightDiff + ' kg' : ''
+        ]);
+      }
+    }
+    doc.autoTable({
+      startY: 28,
+      head: [['Slot', 'Ring', 'Spar', 'Red Corner', 'Red Club', 'Blue Corner', 'Blue Club', 'Category', 'Wt Diff']],
+      body: rows,
+      styles: { fontSize: 7.5, cellPadding: 1.8 },
+      headStyles: { fillColor: [33, 150, 243] },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
+      columnStyles: { 0: { cellWidth: 10 }, 1: { cellWidth: 10 }, 2: { cellWidth: 12 }, 8: { cellWidth: 14 } }
+    });
+    doc.save('rings.pdf');
+    setRptStatus('success', `✓ rings.pdf — ${rows.length} bouts across ${slots.length} slots`);
+  } catch (e) { setRptStatus('error', `Error: ${e.message}`); }
+});
 </script>
 <script src="theme.js"></script>
 </body>
