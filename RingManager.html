@@ -217,7 +217,7 @@
   <a class="nav-btn" href="index.html">&#8592; Home</a>
   <h1>Ring Manager</h1>
   <span class="stats" id="stats"></span>
-<button id="resetBtn">Reset to Auto</button>
+<button id="resetBtn">Undo Session Changes</button>
   <button id="saveBtn">Save</button>
   <button id="exportBtn">Export Allocation</button>
   <button class="theme-btn"></button>
@@ -491,6 +491,10 @@ function render(state) {
       }
       dest.splice(insertIdx, 0, bout);
 
+      // Clear time pins so all bouts pack sequentially — no gaps after a move
+      state[fromRing].forEach(b => { b.pinnedStart = null; });
+      if (fromRing !== ringId) state[ringId].forEach(b => { b.pinnedStart = null; });
+
       render(state);
       updateStats(state);
     });
@@ -652,7 +656,7 @@ function showToast(msg) {
     state = JSON.parse(JSON.stringify(initialState));
     render(state);
     updateStats(state);
-    showToast('Reset to auto allocation');
+    showToast('Session changes undone');
   });
 
   document.getElementById('saveBtn').addEventListener('click', () => saveToServer(state));
