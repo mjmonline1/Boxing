@@ -22,6 +22,14 @@ const DataClient = (() => {
         body: JSON.stringify(data)
       });
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || res.statusText);
+    },
+    async patch(key, id, fields) {
+      const res = await fetch(`${window.location.origin}/api/data/${key}/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fields)
+      });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || res.statusText);
     }
   };
 
@@ -38,6 +46,14 @@ const DataClient = (() => {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
+      });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || res.statusText);
+    },
+    async patch(key, id, fields) {
+      const res = await fetch(`/api/db?key=${key}&id=${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fields)
       });
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || res.statusText);
     }
