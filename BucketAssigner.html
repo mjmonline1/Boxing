@@ -195,8 +195,10 @@
     <input type="file" accept=".csv" id="csvInput" style="display:none">
   </label>
   <button id="exportBtn" disabled>Export All CSVs</button>
+  <input id="searchInput" type="search" placeholder="Find fighter…"
+    style="padding:6px 10px;border-radius:6px;border:1px solid var(--nav-btn-border);
+           background:transparent;color:var(--nav-btn-color);font-size:13px;width:160px;">
   <button class="theme-btn"></button>
-  <a class="nav-btn" href="SparManager.html">Spar Manager &#8594;</a>
 </div>
 
 <div class="summary-bar" id="summaryBar" style="display:none">
@@ -355,6 +357,7 @@
     document.getElementById('exportBtn').disabled = false;
     document.getElementById('saveBtn').disabled = false;
     setupDragHandlers(buckets);
+    applySearch(document.getElementById('searchInput')?.value || '');
   }
 
   function esc(s) {
@@ -497,6 +500,26 @@
       });
     });
   }
+
+  function applySearch(term) {
+    const q = term.trim().toLowerCase();
+    document.querySelectorAll('.boxer-row').forEach(row => {
+      const nameEl = row.querySelector('.boxer-name');
+      if (!nameEl) return;
+      if (!q) {
+        nameEl.style.color = '';
+        row.style.opacity  = '';
+      } else if (nameEl.textContent.toLowerCase().includes(q)) {
+        nameEl.style.color = '#f0ad4e';
+        row.style.opacity  = '1';
+      } else {
+        nameEl.style.color = '';
+        row.style.opacity  = '0.25';
+      }
+    });
+  }
+
+  document.getElementById('searchInput').addEventListener('input', e => applySearch(e.target.value));
 
   // Auto-load on page open
   loadFromServer();
