@@ -94,6 +94,12 @@ exports.handler = async (event) => {
   try {
     const boxers = parseBoxers();
     const db = await getDb();
+
+    // Reset all derived data before importing fresh boxers
+    await Promise.all(['buckets', 'spars', 'schedule'].map(name =>
+      db.collection(name).deleteMany({})
+    ));
+
     const col = db.collection('boxers');
     await col.deleteMany({});
     await col.insertMany(boxers);
