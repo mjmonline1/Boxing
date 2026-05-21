@@ -206,12 +206,12 @@
   <a class="card" href="BucketAssigner.html">
     <span class="step">Step 2</span>
     <div class="card-icon">🪣</div>
-    <div class="card-title">Put Fighters in Buckets</div>
+    <div class="card-title">Put Fighters into Categories</div>
     <div class="card-desc">Distribute boxers into weight &amp; age brackets</div>
   </a>
 
   <!-- Step 3 -->
-  <a class="card" id="runSparMakerBtn" data-icon="⚡" data-endpoint="/api/generate-spars" data-title="Create Spars">
+  <a class="card" id="runSparMakerBtn" data-icon="⚡" data-endpoint="/api/run/spar-maker" data-title="Create Spars">
     <span class="step">Step 3</span>
     <div class="card-icon">⚡</div>
     <div class="card-title">Create Spars</div>
@@ -227,14 +227,22 @@
   </a>
 
   <!-- Step 5 -->
-  <a class="card" id="runRingAssignerBtn" data-icon="🔔" data-endpoint="/api/generate-schedule" data-title="Assign Rings">
+  <a class="card" id="runRingAssignerBtn" data-icon="🔔" data-endpoint="/api/run/ring-assigner" data-title="Assign Rings">
     <span class="step">Step 5</span>
     <div class="card-icon">🔔</div>
     <div class="card-title">Assign Rings</div>
     <div class="card-desc">Auto-allocate bouts to rings &amp; time slots</div>
     <div style="margin-top:8px;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);" onclick="event.preventDefault();event.stopPropagation();">
       <label for="dayInput" style="white-space:nowrap;">Day:</label>
-      <input id="dayInput" type="number" min="1" value="1" style="width:48px;padding:3px 6px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;">
+      <select id="dayInput" style="padding:3px 6px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;cursor:pointer;">
+        <option value="1">Monday</option>
+        <option value="2">Tuesday</option>
+        <option value="3">Wednesday</option>
+        <option value="4">Thursday</option>
+        <option value="5">Friday</option>
+        <option value="6">Saturday</option>
+        <option value="7">Sunday</option>
+      </select>
       <span id="dayParity" style="font-size:10px;color:var(--muted);"></span>
     </div>
   </a>
@@ -272,15 +280,16 @@
   const SERVER = window.location.origin;
 
   // Update day parity label live
-  const dayInput   = document.getElementById('dayInput');
-  const dayParity  = document.getElementById('dayParity');
-  const ODD_DAYS   = ['Mon','Wed','Fri','Sun'];
-  const EVEN_DAYS  = ['Tue','Thu','Sat'];
+  const dayInput  = document.getElementById('dayInput');
+  const dayParity = document.getElementById('dayParity');
+  // Default to today: JS getDay() 0=Sun→7, 1=Mon→1 … 6=Sat→6
+  const jsDay = new Date().getDay();
+  dayInput.value = jsDay === 0 ? 7 : jsDay;
   function updateParity() {
     const d = parseInt(dayInput.value) || 1;
-    dayParity.textContent = d % 2 === 1 ? `(odd — ${ODD_DAYS.join('/')}, wt desc)` : `(even — ${EVEN_DAYS.join('/')}, wt asc)`;
+    dayParity.textContent = d % 2 === 1 ? '(wt desc)' : '(wt asc)';
   }
-  dayInput.addEventListener('input', updateParity);
+  dayInput.addEventListener('change', updateParity);
   updateParity();
 
   async function runScript(endpoint, title, btn) {

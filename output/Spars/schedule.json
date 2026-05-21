@@ -39,10 +39,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "masayoshi.nakatani@example.com",
+            "fit": "yes",
             "yob": 2001,
             "experience": 7,
-            "id": 135,
-            "fit": "yes"
+            "id": 135
           },
           "blue": {
             "submissionDate": "11/06/2025 19:18",
@@ -59,10 +59,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "liam.smith@example.com",
+            "fit": "yes",
             "yob": 2004,
             "experience": 10,
-            "id": 137,
-            "fit": "yes"
+            "id": 137
           },
           "weightDiff": "14.00"
         },
@@ -86,10 +86,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "ray.beltran@example.com",
+            "fit": "yes",
             "yob": 2004,
             "experience": 0,
-            "id": 133,
-            "fit": "yes"
+            "id": 133
           },
           "blue": {
             "submissionDate": "27/06/2025 18:57",
@@ -106,10 +106,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "jose.pedraza@example.com",
+            "fit": "yes",
             "yob": 2000,
             "experience": 0,
-            "id": 136,
-            "fit": "yes"
+            "id": 136
           },
           "weightDiff": "7.00"
         },
@@ -133,10 +133,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "isaac.cruz@example.com",
+            "fit": "yes",
             "yob": 1991,
             "experience": 5,
-            "id": 131,
-            "fit": "yes"
+            "id": 131
           },
           "blue": {
             "submissionDate": "01/07/2025 16:32",
@@ -153,10 +153,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "william.zepeda@example.com",
+            "fit": "yes",
             "yob": 2003,
             "experience": 4,
-            "id": 132,
-            "fit": "yes"
+            "id": 132
           },
           "weightDiff": "2.00"
         },
@@ -180,10 +180,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "roman.gonzalez@example.com",
+            "fit": "yes",
             "yob": 2003,
             "experience": 16,
-            "id": 129,
-            "fit": "yes"
+            "id": 129
           },
           "blue": {
             "submissionDate": "27/06/2025 10:44",
@@ -200,10 +200,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "juan.estrada@example.com",
+            "fit": "yes",
             "yob": 2005,
             "experience": 18,
-            "id": 130,
-            "fit": "yes"
+            "id": 130
           },
           "weightDiff": "6.00"
         },
@@ -227,10 +227,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "ryan.garcia@example.com",
+            "fit": "yes",
             "yob": 2009,
             "experience": 25,
-            "id": 111,
-            "fit": "yes"
+            "id": 111
           },
           "blue": {
             "submissionDate": "18/06/2025 15:18",
@@ -247,10 +247,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "devin.haney@example.com",
+            "fit": "yes",
             "yob": 2009,
             "experience": 20,
-            "id": 114,
-            "fit": "yes"
+            "id": 114
           },
           "weightDiff": "0.00"
         }
@@ -279,10 +279,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "carlos.ortiz@example.com",
+            "fit": "yes",
             "yob": 2000,
             "experience": 4,
-            "id": 126,
-            "fit": "yes"
+            "id": 126
           },
           "blue": {
             "submissionDate": "09/06/2025 22:54",
@@ -299,10 +299,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "flash.elorde@example.com",
+            "fit": "yes",
             "yob": 2007,
             "experience": 3,
-            "id": 127,
-            "fit": "yes"
+            "id": 127
           },
           "weightDiff": "1.00"
         },
@@ -326,10 +326,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "aaron.pryor@example.com",
+            "fit": "yes",
             "yob": 2002,
             "experience": 16,
-            "id": 124,
-            "fit": "yes"
+            "id": 124
           },
           "blue": {
             "submissionDate": "18/06/2025 15:02",
@@ -346,10 +346,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "edwin.rosario@example.com",
+            "fit": "yes",
             "yob": 2007,
             "experience": 15,
-            "id": 125,
-            "fit": "yes"
+            "id": 125
           },
           "weightDiff": "0.00"
         },
@@ -373,10 +373,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "mikey.garcia@example.com",
+            "fit": "yes",
             "yob": 2005,
             "experience": 23,
-            "id": 121,
-            "fit": "yes"
+            "id": 121
           },
           "blue": {
             "submissionDate": "09/06/2025 22:45",
@@ -393,10 +393,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "hector.camacho@example.com",
+            "fit": "yes",
             "yob": 2001,
             "experience": 21,
-            "id": 122,
-            "fit": "yes"
+            "id": 122
           },
           "weightDiff": "0.60"
         },
@@ -420,10 +420,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "josh.taylor@example.com",
+            "fit": "yes",
             "yob": 1996,
             "experience": 2,
-            "id": 116,
-            "fit": "yes"
+            "id": 116
           },
           "blue": {
             "submissionDate": "28/06/2025 12:49",
@@ -440,10 +440,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "carlos.zarate@example.com",
+            "fit": "yes",
             "yob": 2004,
             "experience": 1,
-            "id": 128,
-            "fit": "yes"
+            "id": 128
           },
           "weightDiff": "5.00"
         },
@@ -467,10 +467,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "regina.halmich@example.com",
+            "fit": "yes",
             "yob": 2002,
             "experience": 2,
-            "id": 87,
-            "fit": "yes"
+            "id": 87
           },
           "blue": {
             "submissionDate": "22/06/2025 22:01",
@@ -487,10 +487,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "holly.holm@example.com",
+            "fit": "yes",
             "yob": 2006,
             "experience": 0,
-            "id": 93,
-            "fit": "yes"
+            "id": 93
           },
           "weightDiff": "1.00"
         }
@@ -519,10 +519,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "regis.prograis@example.com",
+            "fit": "yes",
             "yob": 2009,
             "experience": 0,
-            "id": 118,
-            "fit": "yes"
+            "id": 118
           },
           "blue": {
             "submissionDate": "22/06/2025 21:57",
@@ -539,10 +539,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "ivan.baranchyk@example.com",
+            "fit": "yes",
             "yob": 2008,
             "experience": 4,
-            "id": 119,
-            "fit": "yes"
+            "id": 119
           },
           "weightDiff": "1.00"
         },
@@ -566,10 +566,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "jack.catterall@example.com",
+            "fit": "yes",
             "yob": 2005,
             "experience": 33,
-            "id": 117,
-            "fit": "yes"
+            "id": 117
           },
           "blue": {
             "submissionDate": "09/06/2025 19:19",
@@ -586,10 +586,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "jorge.linares@example.com",
+            "fit": "yes",
             "yob": 2007,
             "experience": 13,
-            "id": 120,
-            "fit": "yes"
+            "id": 120
           },
           "weightDiff": "2.00"
         },
@@ -613,10 +613,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "caleb.plant@example.com",
+            "fit": "yes",
             "yob": 2008,
             "experience": 1,
-            "id": 110,
-            "fit": "yes"
+            "id": 110
           },
           "blue": {
             "submissionDate": "03/07/2025 10:01",
@@ -633,10 +633,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "shakur.stevenson@example.com",
+            "fit": "yes",
             "yob": 2008,
             "experience": 0,
-            "id": 113,
-            "fit": "yes"
+            "id": 113
           },
           "weightDiff": "0.60"
         },
@@ -660,10 +660,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "david.benavidez@example.com",
+            "fit": "yes",
             "yob": 2005,
             "experience": 0,
-            "id": 109,
-            "fit": "yes"
+            "id": 109
           },
           "blue": {
             "submissionDate": "03/07/2025 07:23",
@@ -680,10 +680,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "gervonta.davis@example.com",
+            "fit": "yes",
             "yob": 1999,
             "experience": 1,
-            "id": 112,
-            "fit": "yes"
+            "id": 112
           },
           "weightDiff": "2.00"
         },
@@ -707,10 +707,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "chris.eubank@example.com",
+            "fit": "yes",
             "yob": 2010,
             "experience": 2,
-            "id": 71,
-            "fit": "yes"
+            "id": 71
           },
           "blue": {
             "submissionDate": "19/06/2025 22:13",
@@ -727,10 +727,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "larry.holmes@example.com",
+            "fit": "yes",
             "yob": 2010,
             "experience": 5,
-            "id": 75,
-            "fit": "yes"
+            "id": 75
           },
           "weightDiff": "1.00"
         }
@@ -759,10 +759,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "badou.jack@example.com",
+            "fit": "yes",
             "yob": 2001,
             "experience": 14,
-            "id": 107,
-            "fit": "yes"
+            "id": 107
           },
           "blue": {
             "submissionDate": "09/06/2025 17:40",
@@ -779,10 +779,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "jose.ramirez@example.com",
+            "fit": "yes",
             "yob": 2005,
             "experience": 32,
-            "id": 115,
-            "fit": "yes"
+            "id": 115
           },
           "weightDiff": "2.00"
         },
@@ -806,10 +806,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "sergey.kovalev@example.com",
+            "fit": "yes",
             "yob": 2008,
             "experience": 2,
-            "id": 103,
-            "fit": "yes"
+            "id": 103
           },
           "blue": {
             "submissionDate": "13/06/2025 18:46",
@@ -826,10 +826,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "edgar.berlanga@example.com",
+            "fit": "yes",
             "yob": 2009,
             "experience": 5,
-            "id": 108,
-            "fit": "yes"
+            "id": 108
           },
           "weightDiff": "1.00"
         },
@@ -853,10 +853,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "nathan.cleverly@example.com",
+            "fit": "yes",
             "yob": 2005,
             "experience": 9,
-            "id": 104,
-            "fit": "yes"
+            "id": 104
           },
           "blue": {
             "submissionDate": "15/06/2025 20:32",
@@ -873,10 +873,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "adonis.stevenson@example.com",
+            "fit": "yes",
             "yob": 1991,
             "experience": 6,
-            "id": 106,
-            "fit": "yes"
+            "id": 106
           },
           "weightDiff": "1.00"
         },
@@ -900,10 +900,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "jermall.charlo@example.com",
+            "fit": "yes",
             "yob": 2008,
             "experience": 5,
-            "id": 99,
-            "fit": "yes"
+            "id": 99
           },
           "blue": {
             "submissionDate": "09/06/2025 22:35",
@@ -920,10 +920,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "dmitry.bivol@example.com",
+            "fit": "yes",
             "yob": 2008,
             "experience": 0,
-            "id": 100,
-            "fit": "yes"
+            "id": 100
           },
           "weightDiff": "0.00"
         },
@@ -947,10 +947,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "callum.smith@example.com",
+            "fit": "yes",
             "yob": 2011,
             "experience": 0,
-            "id": 65,
-            "fit": "yes"
+            "id": 65
           },
           "blue": {
             "submissionDate": "12/06/2025 15:29",
@@ -967,10 +967,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "nigel.benn@example.com",
+            "fit": "yes",
             "yob": 2010,
             "experience": 4,
-            "id": 70,
-            "fit": "yes"
+            "id": 70
           },
           "weightDiff": "2.00"
         }
@@ -999,10 +999,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "shawn.porter@example.com",
+            "fit": "yes",
             "yob": 2007,
             "experience": 25,
-            "id": 97,
-            "fit": "yes"
+            "id": 97
           },
           "blue": {
             "submissionDate": "01/07/2025 16:31",
@@ -1019,10 +1019,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "tony.bellew@example.com",
+            "fit": "yes",
             "yob": 2007,
             "experience": 36,
-            "id": 105,
-            "fit": "yes"
+            "id": 105
           },
           "weightDiff": "2.00"
         },
@@ -1046,10 +1046,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "jermell.charlo@example.com",
+            "fit": "yes",
             "yob": 2008,
             "experience": 19,
-            "id": 98,
-            "fit": "yes"
+            "id": 98
           },
           "blue": {
             "submissionDate": "11/06/2025 19:11",
@@ -1066,10 +1066,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "artur.beterbiev@example.com",
+            "fit": "yes",
             "yob": 2008,
             "experience": 19,
-            "id": 101,
-            "fit": "yes"
+            "id": 101
           },
           "weightDiff": "1.00"
         },
@@ -1093,10 +1093,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "micky.ward@example.com",
+            "fit": "yes",
             "yob": 2008,
             "experience": 4,
-            "id": 91,
-            "fit": "yes"
+            "id": 91
           },
           "blue": {
             "submissionDate": "19/06/2025 22:15",
@@ -1113,10 +1113,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "diego.corrales@example.com",
+            "fit": "yes",
             "yob": 2008,
             "experience": 5,
-            "id": 92,
-            "fit": "yes"
+            "id": 92
           },
           "weightDiff": "0.00"
         },
@@ -1140,10 +1140,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "danny.garcia@example.com",
+            "fit": "yes",
             "yob": 2006,
             "experience": 23,
-            "id": 95,
-            "fit": "yes"
+            "id": 95
           },
           "blue": {
             "submissionDate": "18/06/2025 14:56",
@@ -1160,10 +1160,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "keith.thurman@example.com",
+            "fit": "yes",
             "yob": 2005,
             "experience": 50,
-            "id": 96,
-            "fit": "yes"
+            "id": 96
           },
           "weightDiff": "0.00"
         },
@@ -1187,10 +1187,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "terence.crawford@example.com",
+            "fit": "yes",
             "yob": 2010,
             "experience": 9,
-            "id": 60,
-            "fit": "yes"
+            "id": 60
           },
           "blue": {
             "submissionDate": "10/06/2025 20:38",
@@ -1207,10 +1207,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "johnny.nelson@example.com",
+            "fit": "yes",
             "yob": 2010,
             "experience": 6,
-            "id": 69,
-            "fit": "yes"
+            "id": 69
           },
           "weightDiff": "2.00"
         }
@@ -1239,10 +1239,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "jeff.fenech@example.com",
+            "fit": "yes",
             "yob": 2008,
             "experience": 9,
-            "id": 88,
-            "fit": "yes"
+            "id": 88
           },
           "blue": {
             "submissionDate": "15/06/2025 20:20",
@@ -1259,10 +1259,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "arturo.gatti@example.com",
+            "fit": "yes",
             "yob": 2008,
             "experience": 10,
-            "id": 90,
-            "fit": "yes"
+            "id": 90
           },
           "weightDiff": "1.00"
         },
@@ -1286,10 +1286,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "juan.marquez@example.com",
+            "fit": "yes",
             "yob": 2004,
             "experience": 5,
-            "id": 86,
-            "fit": "yes"
+            "id": 86
           },
           "blue": {
             "submissionDate": "13/06/2025 18:31",
@@ -1306,10 +1306,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "kostya.tszyu@example.com",
+            "fit": "yes",
             "yob": 2007,
             "experience": 0,
-            "id": 89,
-            "fit": "yes"
+            "id": 89
           },
           "weightDiff": "0.70"
         },
@@ -1333,10 +1333,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "riddick.bowe@example.com",
+            "fit": "yes",
             "yob": 2009,
             "experience": 20,
-            "id": 74,
-            "fit": "yes"
+            "id": 74
           },
           "blue": {
             "submissionDate": "11/06/2025 19:14",
@@ -1353,10 +1353,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "gilberto.ramirez@example.com",
+            "fit": "yes",
             "yob": 2008,
             "experience": 13,
-            "id": 102,
-            "fit": "yes"
+            "id": 102
           },
           "weightDiff": "5.00"
         },
@@ -1380,10 +1380,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "ken.norton@example.com",
+            "fit": "yes",
             "yob": 2002,
             "experience": 0,
-            "id": 76,
-            "fit": "yes"
+            "id": 76
           },
           "blue": {
             "submissionDate": "03/07/2025 09:59",
@@ -1400,10 +1400,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "jose.castillo@example.com",
+            "fit": "yes",
             "yob": 1997,
             "experience": 0,
-            "id": 94,
-            "fit": "yes"
+            "id": 94
           },
           "weightDiff": "4.00"
         },
@@ -1427,10 +1427,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "nicola.adams@example.com",
+            "fit": "yes",
             "yob": 2009,
             "experience": 5,
-            "id": 64,
-            "fit": "yes"
+            "id": 64
           },
           "blue": {
             "submissionDate": "18/06/2025 14:57",
@@ -1447,10 +1447,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "mary.kom@example.com",
+            "fit": "yes",
             "yob": 2007,
             "experience": 36,
-            "id": 72,
-            "fit": "yes"
+            "id": 72
           },
           "weightDiff": "2.00"
         }
@@ -1479,10 +1479,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "jack.sharkey@example.com",
+            "fit": "yes",
             "yob": 2000,
             "experience": 21,
-            "id": 82,
-            "fit": "yes"
+            "id": 82
           },
           "blue": {
             "submissionDate": "11/06/2025 18:38",
@@ -1499,10 +1499,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "marco.barrera@example.com",
+            "fit": "yes",
             "yob": 1997,
             "experience": 100,
-            "id": 85,
-            "fit": "yes"
+            "id": 85
           },
           "weightDiff": "1.00"
         },
@@ -1526,10 +1526,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "max.schmeling@example.com",
+            "fit": "yes",
             "yob": 2008,
             "experience": 0,
-            "id": 81,
-            "fit": "yes"
+            "id": 81
           },
           "blue": {
             "submissionDate": "17/06/2025 16:19",
@@ -1546,10 +1546,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "james.braddock@example.com",
+            "fit": "yes",
             "yob": 2008,
             "experience": 3,
-            "id": 83,
-            "fit": "yes"
+            "id": 83
           },
           "weightDiff": "0.00"
         },
@@ -1573,10 +1573,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "sonny.liston@example.com",
+            "fit": "yes",
             "yob": 2006,
             "experience": 24,
-            "id": 77,
-            "fit": "yes"
+            "id": 77
           },
           "blue": {
             "submissionDate": "01/07/2025 16:06",
@@ -1593,10 +1593,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "max.baer@example.com",
+            "fit": "yes",
             "yob": 2005,
             "experience": 70,
-            "id": 80,
-            "fit": "yes"
+            "id": 80
           },
           "weightDiff": "0.00"
         },
@@ -1620,10 +1620,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "naoya.inoue@example.com",
+            "fit": "yes",
             "yob": 2009,
             "experience": 35,
-            "id": 58,
-            "fit": "yes"
+            "id": 58
           },
           "blue": {
             "submissionDate": "10/06/2025 19:10",
@@ -1640,10 +1640,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "lawrence.okolie@example.com",
+            "fit": "yes",
             "yob": 2008,
             "experience": 35,
-            "id": 68,
-            "fit": "yes"
+            "id": 68
           },
           "weightDiff": "0.50"
         },
@@ -1667,10 +1667,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "vasyl.lomachenko@example.com",
+            "fit": "yes",
             "yob": 2009,
             "experience": 0,
-            "id": 59,
-            "fit": "yes"
+            "id": 59
           },
           "blue": {
             "submissionDate": "13/06/2025 18:37",
@@ -1687,10 +1687,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "errol.spence@example.com",
+            "fit": "yes",
             "yob": 2009,
             "experience": 0,
-            "id": 61,
-            "fit": "yes"
+            "id": 61
           },
           "weightDiff": "0.00"
         }
@@ -1719,10 +1719,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "billy.saunders@example.com",
+            "fit": "yes",
             "yob": 2002,
             "experience": 8,
-            "id": 63,
-            "fit": "yes"
+            "id": 63
           },
           "blue": {
             "submissionDate": "11/06/2025 19:16",
@@ -1739,10 +1739,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "joe.joyce@example.com",
+            "fit": "yes",
             "yob": 2007,
             "experience": 10,
-            "id": 66,
-            "fit": "yes"
+            "id": 66
           },
           "weightDiff": "0.50"
         },
@@ -1766,10 +1766,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "demetrius.andrade@example.com",
+            "fit": "yes",
             "yob": 1999,
             "experience": 48,
-            "id": 62,
-            "fit": "yes"
+            "id": 62
           },
           "blue": {
             "submissionDate": "27/06/2025 19:29",
@@ -1786,10 +1786,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "daniel.dubois@example.com",
+            "fit": "yes",
             "yob": 1995,
             "experience": 75,
-            "id": 67,
-            "fit": "yes"
+            "id": 67
           },
           "weightDiff": "0.50"
         },
@@ -1813,10 +1813,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "deontay.wilder@example.com",
+            "fit": "yes",
             "yob": 2009,
             "experience": 3,
-            "id": 55,
-            "fit": "yes"
+            "id": 55
           },
           "blue": {
             "submissionDate": "28/06/2025 12:47",
@@ -1833,10 +1833,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "oleksandr.usyk@example.com",
+            "fit": "yes",
             "yob": 2009,
             "experience": 4,
-            "id": 57,
-            "fit": "yes"
+            "id": 57
           },
           "weightDiff": "1.00"
         },
@@ -1860,10 +1860,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "wladimir.klitschko@example.com",
+            "fit": "yes",
             "yob": 2005,
             "experience": 5,
-            "id": 45,
-            "fit": "yes"
+            "id": 45
           },
           "blue": {
             "submissionDate": "13/06/2025 18:55",
@@ -1880,10 +1880,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "andy.ruiz@example.com",
+            "fit": "yes",
             "yob": 2002,
             "experience": 0,
-            "id": 56,
-            "fit": "yes"
+            "id": 56
           },
           "weightDiff": "2.00"
         },
@@ -1907,10 +1907,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "andre.ward@example.com",
+            "fit": "yes",
             "yob": 2009,
             "experience": 3,
-            "id": 43,
-            "fit": "yes"
+            "id": 43
           },
           "blue": {
             "submissionDate": "09/06/2025 19:14",
@@ -1927,10 +1927,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "anthony.joshua@example.com",
+            "fit": "yes",
             "yob": 2009,
             "experience": 1,
-            "id": 53,
-            "fit": "yes"
+            "id": 53
           },
           "weightDiff": "0.00"
         }
@@ -1959,10 +1959,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "david.haye@example.com",
+            "fit": "yes",
             "yob": 2004,
             "experience": 110,
-            "id": 47,
-            "fit": "yes"
+            "id": 47
           },
           "blue": {
             "submissionDate": "18/06/2025 14:53",
@@ -1979,10 +1979,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "carl.froch@example.com",
+            "fit": "yes",
             "yob": 2001,
             "experience": 40,
-            "id": 48,
-            "fit": "yes"
+            "id": 48
           },
           "weightDiff": "0.00"
         },
@@ -2006,10 +2006,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "joe.calzaghe@example.com",
+            "fit": "yes",
             "yob": 2007,
             "experience": 23,
-            "id": 50,
-            "fit": "yes"
+            "id": 50
           },
           "blue": {
             "submissionDate": "09/06/2025 19:04",
@@ -2026,10 +2026,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "amir.khan@example.com",
+            "fit": "yes",
             "yob": 2007,
             "experience": 13,
-            "id": 52,
-            "fit": "yes"
+            "id": 52
           },
           "weightDiff": "0.00"
         },
@@ -2053,10 +2053,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "jack.johnson@example.com",
+            "fit": "yes",
             "yob": 2006,
             "experience": 2,
-            "id": 40,
-            "fit": "yes"
+            "id": 40
           },
           "blue": {
             "submissionDate": "22/06/2025 22:00",
@@ -2073,10 +2073,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "vitali.klitschko@example.com",
+            "fit": "yes",
             "yob": 2006,
             "experience": 1,
-            "id": 46,
-            "fit": "yes"
+            "id": 46
           },
           "weightDiff": "2.00"
         },
@@ -2100,10 +2100,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "bob.fitzsimmons@example.com",
+            "fit": "yes",
             "yob": 2010,
             "experience": 11,
-            "id": 37,
-            "fit": "yes"
+            "id": 37
           },
           "blue": {
             "submissionDate": "25/06/2025 15:43",
@@ -2120,10 +2120,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "james.corbett@example.com",
+            "fit": "yes",
             "yob": 2011,
             "experience": 20,
-            "id": 39,
-            "fit": "yes"
+            "id": 39
           },
           "weightDiff": "1.00"
         },
@@ -2147,10 +2147,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "ann.wolfe@example.com",
+            "fit": "yes",
             "yob": 2003,
             "experience": 11,
-            "id": 44,
-            "fit": "yes"
+            "id": 44
           },
           "blue": {
             "submissionDate": "18/06/2025 14:58",
@@ -2167,10 +2167,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "cecilia.braekhus@example.com",
+            "fit": "yes",
             "yob": 2008,
             "experience": 24,
-            "id": 49,
-            "fit": "yes"
+            "id": 49
           },
           "weightDiff": "0.00"
         }
@@ -2199,10 +2199,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "joe.gans@example.com",
+            "fit": "yes",
             "yob": 2004,
             "experience": 24,
-            "id": 34,
-            "fit": "yes"
+            "id": 34
           },
           "blue": {
             "submissionDate": "29/06/2025 14:31",
@@ -2219,10 +2219,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "stanley.ketchel@example.com",
+            "fit": "yes",
             "yob": 1989,
             "experience": 22,
-            "id": 36,
-            "fit": "yes"
+            "id": 36
           },
           "weightDiff": "0.00"
         },
@@ -2246,10 +2246,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "barney.ross@example.com",
+            "fit": "yes",
             "yob": 2009,
             "experience": 20,
-            "id": 28,
-            "fit": "yes"
+            "id": 28
           },
           "blue": {
             "submissionDate": "09/06/2025 19:03",
@@ -2266,10 +2266,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "ricky.hatton@example.com",
+            "fit": "yes",
             "yob": 2009,
             "experience": 15,
-            "id": 51,
-            "fit": "yes"
+            "id": 51
           },
           "weightDiff": "6.00"
         },
@@ -2293,10 +2293,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "jack.dempsey@example.com",
+            "fit": "yes",
             "yob": 2006,
             "experience": 33,
-            "id": 30,
-            "fit": "yes"
+            "id": 30
           },
           "blue": {
             "submissionDate": "27/06/2025 10:50",
@@ -2313,10 +2313,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "harry.greb@example.com",
+            "fit": "yes",
             "yob": 1992,
             "experience": 230,
-            "id": 33,
-            "fit": "yes"
+            "id": 33
           },
           "weightDiff": "2.00"
         },
@@ -2340,10 +2340,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "jersey.walcott@example.com",
+            "fit": "yes",
             "yob": 2011,
             "experience": 16,
-            "id": 26,
-            "fit": "yes"
+            "id": 26
           },
           "blue": {
             "submissionDate": "10/06/2025 19:28",
@@ -2360,10 +2360,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "gene.tunney@example.com",
+            "fit": "yes",
             "yob": 2011,
             "experience": 24,
-            "id": 32,
-            "fit": "yes"
+            "id": 32
           },
           "weightDiff": "2.00"
         },
@@ -2387,10 +2387,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "katie.taylor@example.com",
+            "fit": "yes",
             "yob": 2008,
             "experience": 10,
-            "id": 35,
-            "fit": "yes"
+            "id": 35
           },
           "blue": {
             "submissionDate": "18/06/2025 14:52",
@@ -2407,10 +2407,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "amanda.serrano@example.com",
+            "fit": "yes",
             "yob": 2005,
             "experience": 49,
-            "id": 38,
-            "fit": "yes"
+            "id": 38
           },
           "weightDiff": "0.00"
         }
@@ -2425,26 +2425,6 @@
           "category": "MaleYouth_Novice",
           "duration": 8,
           "red": {
-            "submissionDate": "19/06/2025 22:17",
-            "name": "Sandy Saddler",
-            "club": "Dale youth",
-            "gender": "male",
-            "category": "Youth (2007 & 2008)",
-            "dob": "24/11/2008",
-            "weight": 53,
-            "bouts": 2,
-            "won": 1,
-            "lost": 1,
-            "comments": "Strong but raw .",
-            "consent1": "Yes",
-            "consent2": "Yes",
-            "email": "sandy.saddler@example.com",
-            "yob": 2008,
-            "experience": 2,
-            "id": 22,
-            "fit": "yes"
-          },
-          "blue": {
             "submissionDate": "15/06/2025 20:29",
             "name": "Ezzard Charles",
             "club": "Arbroath Amateur Boxing Club",
@@ -2459,12 +2439,32 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "ezzard.charles@example.com",
+            "fit": "yes",
             "yob": 2008,
             "experience": 5,
-            "id": 25,
-            "fit": "yes"
+            "id": 25
           },
-          "weightDiff": "1.00"
+          "blue": {
+            "submissionDate": "10/06/2025 19:31",
+            "name": "Tony Canzoneri",
+            "club": "Baldoyle BC",
+            "gender": "male",
+            "category": "Junior (2009 & younger)",
+            "dob": "06/06/2009",
+            "weight": 54,
+            "bouts": 4,
+            "won": 3,
+            "lost": 1,
+            "comments": "",
+            "consent1": "Yes",
+            "consent2": "Yes",
+            "email": "tony.canzoneri@example.com",
+            "fit": "yes",
+            "yob": 2009,
+            "experience": 4,
+            "id": 27
+          },
+          "weightDiff": "0.00"
         },
         {
           "ring": "R2",
@@ -2486,10 +2486,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "carlos.monzon@example.com",
+            "fit": "yes",
             "yob": 2010,
             "experience": 10,
-            "id": 20,
-            "fit": "yes"
+            "id": 20
           },
           "blue": {
             "submissionDate": "09/06/2025 23:02",
@@ -2506,10 +2506,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "archie.moore@example.com",
+            "fit": "yes",
             "yob": 2010,
             "experience": 7,
-            "id": 23,
-            "fit": "yes"
+            "id": 23
           },
           "weightDiff": "1.00"
         },
@@ -2533,10 +2533,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "mike.tyson@example.com",
+            "fit": "yes",
             "yob": 2011,
             "experience": 10,
-            "id": 9,
-            "fit": "yes"
+            "id": 9
           },
           "blue": {
             "submissionDate": "10/06/2025 19:29",
@@ -2553,10 +2553,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "gennady.golovkin@example.com",
+            "fit": "yes",
             "yob": 2011,
             "experience": 8,
-            "id": 41,
-            "fit": "yes"
+            "id": 41
           },
           "weightDiff": "14.00"
         },
@@ -2580,32 +2580,32 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "thomas.hearns@example.com",
+            "fit": "yes",
             "yob": 2008,
             "experience": 5,
-            "id": 15,
-            "fit": "yes"
+            "id": 15
           },
           "blue": {
-            "submissionDate": "10/06/2025 19:31",
-            "name": "Tony Canzoneri",
-            "club": "Baldoyle BC",
+            "submissionDate": "19/06/2025 22:17",
+            "name": "Sandy Saddler",
+            "club": "Dale youth",
             "gender": "male",
-            "category": "Junior (2009 & younger)",
-            "dob": "06/06/2009",
-            "weight": 54,
-            "bouts": 4,
-            "won": 3,
+            "category": "Youth (2007 & 2008)",
+            "dob": "24/11/2008",
+            "weight": 53,
+            "bouts": 2,
+            "won": 1,
             "lost": 1,
-            "comments": "",
+            "comments": "Strong but raw .",
             "consent1": "Yes",
             "consent2": "Yes",
-            "email": "tony.canzoneri@example.com",
-            "yob": 2009,
-            "experience": 4,
-            "id": 27,
-            "fit": "yes"
+            "email": "sandy.saddler@example.com",
+            "fit": "yes",
+            "yob": 2008,
+            "experience": 2,
+            "id": 22
           },
-          "weightDiff": "4.00"
+          "weightDiff": "3.00"
         },
         {
           "ring": "R5",
@@ -2627,10 +2627,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "laila.ali@example.com",
+            "fit": "yes",
             "yob": 2012,
             "experience": 21,
-            "id": 24,
-            "fit": "yes"
+            "id": 24
           },
           "blue": {
             "submissionDate": "30/06/2025 21:45",
@@ -2647,10 +2647,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "claressa.shields@example.com",
+            "fit": "yes",
             "yob": 1985,
             "experience": 0,
-            "id": 31,
-            "fit": "yes"
+            "id": 31
           },
           "weightDiff": "2.00"
         }
@@ -2679,10 +2679,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "marvin.hagler@example.com",
+            "fit": "yes",
             "yob": 2011,
             "experience": 8,
-            "id": 16,
-            "fit": "yes"
+            "id": 16
           },
           "blue": {
             "submissionDate": "10/06/2025 19:26",
@@ -2699,10 +2699,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "julio.chavez@example.com",
+            "fit": "yes",
             "yob": 2011,
             "experience": 7,
-            "id": 19,
-            "fit": "yes"
+            "id": 19
           },
           "weightDiff": "2.00"
         },
@@ -2726,10 +2726,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "oscar.hoya@example.com",
+            "fit": "yes",
             "yob": 2011,
             "experience": 1,
-            "id": 12,
-            "fit": "yes"
+            "id": 12
           },
           "blue": {
             "submissionDate": "09/06/2025 19:18",
@@ -2746,10 +2746,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "mickey.walker@example.com",
+            "fit": "yes",
             "yob": 2010,
             "experience": 0,
-            "id": 29,
-            "fit": "yes"
+            "id": 29
           },
           "weightDiff": "6.00"
         },
@@ -2773,10 +2773,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "sugar.leonard@example.com",
+            "fit": "yes",
             "yob": 2009,
             "experience": 11,
-            "id": 17,
-            "fit": "yes"
+            "id": 17
           },
           "blue": {
             "submissionDate": "11/06/2025 19:17",
@@ -2793,10 +2793,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "roberto.duran@example.com",
+            "fit": "yes",
             "yob": 2008,
             "experience": 29,
-            "id": 18,
-            "fit": "yes"
+            "id": 18
           },
           "weightDiff": "1.00"
         },
@@ -2820,10 +2820,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "lennox.lewis@example.com",
+            "fit": "yes",
             "yob": 2009,
             "experience": 9,
-            "id": 10,
-            "fit": "yes"
+            "id": 10
           },
           "blue": {
             "submissionDate": "28/06/2025 12:42",
@@ -2840,10 +2840,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "alexis.arguello@example.com",
+            "fit": "yes",
             "yob": 2009,
             "experience": 8,
-            "id": 21,
-            "fit": "yes"
+            "id": 21
           },
           "weightDiff": "6.00"
         },
@@ -2867,10 +2867,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "evander.holyfield@example.com",
+            "fit": "yes",
             "yob": 2011,
             "experience": 19,
-            "id": 11,
-            "fit": "yes"
+            "id": 11
           },
           "blue": {
             "submissionDate": "09/06/2025 23:00",
@@ -2887,10 +2887,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "roy.jones@example.com",
+            "fit": "yes",
             "yob": 2011,
             "experience": 12,
-            "id": 13,
-            "fit": "yes"
+            "id": 13
           },
           "weightDiff": "1.70"
         }
@@ -2919,10 +2919,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "manny.pacquiao@example.com",
+            "fit": "yes",
             "yob": 2011,
             "experience": 16,
-            "id": 8,
-            "fit": "yes"
+            "id": 8
           },
           "blue": {
             "submissionDate": "10/06/2025 23:19",
@@ -2939,10 +2939,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "bernard.hopkins@example.com",
+            "fit": "yes",
             "yob": 2010,
             "experience": 26,
-            "id": 14,
-            "fit": "yes"
+            "id": 14
           },
           "weightDiff": "5.00"
         },
@@ -2966,10 +2966,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "joe.frazier@example.com",
+            "fit": "yes",
             "yob": 2011,
             "experience": 12,
-            "id": 5,
-            "fit": "yes"
+            "id": 5
           },
           "blue": {
             "submissionDate": "10/06/2025 18:18",
@@ -2986,10 +2986,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "george.foreman@example.com",
+            "fit": "yes",
             "yob": 2011,
             "experience": 17,
-            "id": 6,
-            "fit": "yes"
+            "id": 6
           },
           "weightDiff": "0.00"
         },
@@ -3013,10 +3013,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "joe.louis@example.com",
+            "fit": "yes",
             "yob": 2011,
             "experience": 0,
-            "id": 2,
-            "fit": "yes"
+            "id": 2
           },
           "blue": {
             "submissionDate": "09/06/2025 21:50",
@@ -3033,10 +3033,10 @@
             "consent1": "Yes",
             "consent2": "Yes",
             "email": "sugar.robinson@example.com",
+            "fit": "yes",
             "yob": 2011,
             "experience": 1,
-            "id": 3,
-            "fit": "yes"
+            "id": 3
           },
           "weightDiff": "2.00"
         }
