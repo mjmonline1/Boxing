@@ -15,3 +15,13 @@
   from = "/api/generate-schedule"
   to = "/.netlify/functions/generate-schedule"
   status = 200
+
+[[redirects]]
+  from = "/api/run/spar-maker"
+  to = "/.netlify/functions/generate-spars"
+  status = 200
+
+[[redirects]]
+  from = "/api/run/ring-assigner"
+  to = "/.netlify/functions/generate-schedule"
+  status = 200
