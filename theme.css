@@ -102,6 +102,22 @@
   --green-dim: rgba(255,224,130,0.12);
 }
 
+/* ── Toolbar button hover / active feedback ── */
+#toolbar button:not(:disabled),
+#toolbar .btn-file {
+  transition: filter 0.12s, transform 0.1s;
+}
+#toolbar button:not(:disabled):hover,
+#toolbar .btn-file:hover {
+  filter: brightness(1.18);
+  cursor: pointer;
+}
+#toolbar button:not(:disabled):active,
+#toolbar .btn-file:active {
+  filter: brightness(0.88);
+  transform: scale(0.97);
+}
+
 /* ── Theme toggle button ── */
 .theme-btn {
   padding: 7px 14px;
