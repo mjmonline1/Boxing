@@ -319,6 +319,11 @@
     } catch (e) { /* server not running — silent, local display still works */ }
   }
 
+  async function saveBoxersToServer() {
+    const allBoxers = BUCKET_ORDER.flatMap(k => lastBuckets[k] || []);
+    try { await DataClient.save('boxers', allBoxers); } catch (_) {}
+  }
+
   function render(buckets, total) {
     const wrap = document.getElementById('buckets');
     const assigned = Object.entries(buckets)
@@ -494,9 +499,12 @@
         if (idx === -1) return;
         const [b] = src.splice(idx, 1);
         if (!lastBuckets[toKey]) lastBuckets[toKey] = [];
+        if (toKey === 'NotFit') b.fit = 'no';
+        else if (fromKey === 'NotFit') b.fit = 'yes';
         lastBuckets[toKey].push(b);
         render(lastBuckets, lastTotal);
         saveToServer(lastBuckets, lastTotal);
+        if (toKey === 'NotFit' || fromKey === 'NotFit') saveBoxersToServer();
       });
     });
   }
