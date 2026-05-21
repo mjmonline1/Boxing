@@ -405,7 +405,14 @@
         for (const key of BUCKET_ORDER) {
           for (const sb of (savedData.finalBuckets[key] || [])) {
             const fresh = byId[String(sb.id)];
-            if (fresh) { lastBuckets[key].push(fresh); seen.add(String(sb.id)); }
+            if (!fresh) continue;
+            const isFit = fresh.fit === 'yes' || fresh.fit === true;
+            // If fit status changed since last save, override saved bucket
+            const effectiveKey = !isFit ? 'NotFit'
+                               : key === 'NotFit' ? assignBucket(fresh)
+                               : key;
+            lastBuckets[effectiveKey].push(fresh);
+            seen.add(String(fresh.id));
           }
         }
         // Auto-assign any boxers added since last save
