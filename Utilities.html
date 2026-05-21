@@ -289,7 +289,9 @@
     setStatus('info', `Importing ${parsedBoxers.length} boxers…`);
     try {
       await DataClient.save('boxers', parsedBoxers);
-      setStatus('success', `✓ Imported ${parsedBoxers.length} boxers into the database`);
+      // Clear derived data so stale buckets/spars/schedule don't persist
+      await Promise.all(['buckets', 'spars', 'schedule'].map(k => DataClient.save(k, null).catch(() => {})));
+      setStatus('success', `✓ Imported ${parsedBoxers.length} boxers. Buckets, spars and schedule have been reset.`);
     } catch (e) {
       setStatus('error', `Import failed: ${e.message}`);
       btn.disabled = false;
