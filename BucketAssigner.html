@@ -383,16 +383,40 @@
   const SERVER = window.location.origin;
 
   async function loadFromServer() {
-    document.getElementById('emptyState') && (document.getElementById('emptyState').textContent = 'Loading fighter data from server…');
+    const el = document.getElementById('emptyState') || document.querySelector('.empty-state');
+    if (el) el.textContent = 'Loading fighter data from server…';
     try {
       const boxers = await DataClient.get('boxers');
-      lastBuckets = process(boxers);
       lastTotal = boxers.length;
+
+      let savedData = null;
+      try { savedData = await DataClient.get('buckets'); } catch (_) {}
+
+      if (savedData && savedData.finalBuckets) {
+        // Restore saved assignments, refreshing boxer objects from current roster
+        const byId = Object.fromEntries(boxers.map(b => [String(b.id), b]));
+        lastBuckets = {};
+        BUCKET_ORDER.forEach(k => { lastBuckets[k] = []; });
+        const seen = new Set();
+        for (const key of BUCKET_ORDER) {
+          for (const sb of (savedData.finalBuckets[key] || [])) {
+            const fresh = byId[String(sb.id)];
+            if (fresh) { lastBuckets[key].push(fresh); seen.add(String(sb.id)); }
+          }
+        }
+        // Auto-assign any boxers added since last save
+        for (const boxer of boxers) {
+          if (!seen.has(String(boxer.id))) lastBuckets[assignBucket(boxer)].push(boxer);
+        }
+      } else {
+        lastBuckets = process(boxers);
+        await saveToServer(lastBuckets, lastTotal);
+      }
+
       render(lastBuckets, lastTotal);
-      await saveToServer(lastBuckets, lastTotal);
     } catch (e) {
-      const el = document.getElementById('emptyState') || document.querySelector('.empty-state');
-      if (el) el.textContent = `Could not load from server: ${e.message} — use Load CSV instead.`;
+      const el2 = document.getElementById('emptyState') || document.querySelector('.empty-state');
+      if (el2) el2.textContent = `Could not load from server: ${e.message} — use Load CSV instead.`;
     }
   }
 
