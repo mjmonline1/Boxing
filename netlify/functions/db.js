@@ -34,7 +34,11 @@ exports.handler = async (event) => {
     if (event.httpMethod === 'PUT') {
       const data = JSON.parse(event.body);
       if (SINGLE_DOC_KEYS.has(key)) {
-        await col.replaceOne({ _id: 'current' }, { _id: 'current', ...data }, { upsert: true });
+        if (data === null) {
+          await col.deleteOne({ _id: 'current' });
+        } else {
+          await col.replaceOne({ _id: 'current' }, { _id: 'current', ...data }, { upsert: true });
+        }
       } else {
         await col.deleteMany({});
         if (Array.isArray(data) && data.length > 0) await col.insertMany(data);
