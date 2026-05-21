@@ -97,6 +97,7 @@ function mapHeader2026(raw) {
   if (norm.startsWith('i accept')) return 'consent2';
   if (norm === 'email address') return 'email';
   if (norm === 'fit') return 'fit';
+  if (norm === 'spars per day') return 'sparsPerDay';
   return norm;
 }
 
@@ -106,12 +107,12 @@ const BOXER_RAW_HEADERS = [
   'LOST (the number only)', 'Additional information or comments (optional)',
   'I understand that all boxers have to weigh in on Monday 7th July.',
   'I accept that boxers under 50kg use 12oz gloves, 50-69kg use 14oz gloves and 70kg plus use 16oz gloves. Headgear, protectors (male and female) and mouthguards MUST be worn during spars.',
-  'Email address', 'fit'
+  'Email address', 'fit', 'Spars per Day'
 ];
 const BOXER_INTERNAL_KEYS = [
   'submissionDate', 'name', 'club', 'gender', 'category', 'dob',
   'weight', 'bouts', 'won', 'lost', 'comments',
-  'consent1', 'consent2', 'email', 'fit'
+  'consent1', 'consent2', 'email', 'fit', 'sparsPerDay'
 ];
 
 function readBoxersCSV() {
@@ -126,6 +127,7 @@ function readBoxersCSV() {
       const v = (vals[i] || '').trim();
       if (h === 'weight') obj[h] = parseFloat(v) || 0;
       else if (['bouts', 'won', 'lost'].includes(h)) obj[h] = parseInt(v) || 0;
+      else if (h === 'sparsPerDay') obj[h] = parseInt(v) || 1;
       else obj[h] = v;
     });
     obj.gender = obj.gender ? obj.gender.toLowerCase() : 'male';
@@ -134,6 +136,7 @@ function readBoxersCSV() {
     obj.experience = obj.bouts || 0;
     obj.id = idx + 1;
     if (!obj.fit) obj.fit = 'yes';
+    if (!obj.sparsPerDay) obj.sparsPerDay = 1;
     return obj;
   });
 }

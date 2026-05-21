@@ -4,14 +4,14 @@
     "totalDistributed": 137,
     "finalBuckets": {
       "NotFit": 2,
-      "MaleSchools_Novice": 1,
+      "MaleSchools_Novice": 0,
       "MaleSchools_Experienced": 1,
       "MaleSchools_OpenClass": 2,
       "MaleJunior_Novice": 9,
       "MaleJunior_Experienced": 8,
       "MaleJunior_OpenClass": 11,
       "MaleYouth_Novice": 21,
-      "MaleYouth_Experienced": 4,
+      "MaleYouth_Experienced": 5,
       "MaleYouth_OpenClass": 12,
       "MaleSenior_Novice": 18,
       "MaleSenior_Experienced": 7,
@@ -42,28 +42,6 @@
         "id": 1
       },
       {
-        "submissionDate": "09/06/2025 18:47",
-        "name": "Floyd Patterson",
-        "club": "The Academy Boxing Club",
-        "gender": "male",
-        "category": "Junior (2009 & younger)",
-        "dob": "03/12/2009",
-        "weight": 66,
-        "bouts": 8,
-        "won": 4,
-        "lost": 4,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "floyd.patterson@example.com",
-        "fit": "yes",
-        "yob": 2009,
-        "experience": 8,
-        "id": 79
-      }
-    ],
-    "MaleSchools_Novice": [
-      {
         "submissionDate": "17/06/2025 18:42",
         "name": "Rocky Marciano",
         "club": "Team Ponce&Mary",
@@ -78,12 +56,13 @@
         "consent1": "Yes",
         "consent2": "Yes",
         "email": "rocky.marciano@example.com",
-        "fit": "yes",
+        "fit": "no",
         "yob": 2013,
         "experience": 3,
         "id": 4
       }
     ],
+    "MaleSchools_Novice": [],
     "MaleSchools_Experienced": [
       {
         "submissionDate": "11/06/2025 19:07",
@@ -1137,6 +1116,26 @@
       }
     ],
     "MaleYouth_Experienced": [
+      {
+        "submissionDate": "09/06/2025 18:47",
+        "name": "Floyd Patterson",
+        "club": "The Academy Boxing Club",
+        "gender": "male",
+        "category": "Junior (2009 & younger)",
+        "dob": "03/12/2009",
+        "weight": 66,
+        "bouts": 8,
+        "won": 4,
+        "lost": 4,
+        "comments": "",
+        "consent1": "Yes",
+        "consent2": "Yes",
+        "email": "floyd.patterson@example.com",
+        "fit": "yes",
+        "yob": 2009,
+        "experience": 8,
+        "id": 79
+      },
       {
         "submissionDate": "09/06/2025 19:02",
         "name": "Lennox Lewis",

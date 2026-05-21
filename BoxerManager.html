@@ -169,6 +169,7 @@
         <th onclick="sortBy('yob')">YOB</th>
         <th onclick="sortBy('category')">Category</th>
         <th onclick="sortBy('fit')">Fit</th>
+        <th onclick="sortBy('sparsPerDay')">Spars/Day</th>
         <th onclick="sortBy('weight')">Weight (kg)</th>
         <th onclick="sortBy('bouts')">Bouts</th>
         <th onclick="sortBy('won')">Won</th>
@@ -252,6 +253,10 @@
           <option value="yes">Yes</option>
           <option value="no">No</option>
         </select>
+      </div>
+      <div class="form-group">
+        <label>Spars per Day</label>
+        <input id="f_spars_per_day" type="number" min="1" max="10" step="1" value="1">
       </div>
     </div>
 
@@ -354,6 +359,7 @@ function mapHeader(raw) {
   if (norm.startsWith('i accept')) return 'consent2';
   if (norm === 'email address') return 'email';
   if (norm === 'fit') return 'fit';
+  if (norm === 'spars per day') return 'sparsPerDay';
   return norm;
 }
 
@@ -369,6 +375,7 @@ function parseCSV(text) {
     o.bouts  = parseInt(o.bouts, 10)  || 0;
     o.won    = parseInt(o.won, 10)    || 0;
     o.lost   = parseInt(o.lost, 10)   || 0;
+    o.sparsPerDay = parseInt(o.sparsPerDay, 10) || 1;
     const dobParts = (o.dob || '').split('/');
     o.yob = parseInt(dobParts[2]) || 0;
     o.experience = o.bouts;
@@ -380,7 +387,7 @@ function parseCSV(text) {
 }
 
 function serializeCSV(data) {
-  const headers = ['submissionDate','name','club','gender','category','dob','weight','bouts','won','lost','comments','consent1','consent2','email','fit'];
+  const headers = ['submissionDate','name','club','gender','category','dob','weight','bouts','won','lost','comments','consent1','consent2','email','fit','sparsPerDay'];
   const esc = v => {
     const s = String(v ?? '');
     return /[,"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
@@ -473,6 +480,7 @@ function renderTable() {
       <td>${b.yob || ''}</td>
       <td class="truncate">${escHtml(b.category || '')}</td>
       <td class="${b.fit === 'yes' ? 'fit-yes' : 'fit-no'}">${b.fit}</td>
+      <td>${b.sparsPerDay ?? 1}</td>
       <td>${b.weight}</td>
       <td>${b.bouts}</td>
       <td>${b.won}</td>
@@ -490,7 +498,7 @@ function renderTable() {
   `).join('');
 
   document.querySelectorAll('thead th').forEach(th => th.classList.remove('sort-asc', 'sort-desc'));
-  const cols = ['id','name','club','gender','yob','category','fit','weight','bouts','won','lost','dob','email','comments','submissionDate'];
+  const cols = ['id','name','club','gender','yob','category','fit','sparsPerDay','weight','bouts','won','lost','dob','email','comments','submissionDate'];
   const idx  = cols.indexOf(sortCol);
   if (idx >= 0) document.querySelectorAll('thead th')[idx].classList.add(sortDir === 1 ? 'sort-asc' : 'sort-desc');
 
@@ -572,6 +580,7 @@ function openModal(id) {
     document.getElementById('f_won').value             = '0';
     document.getElementById('f_lost').value            = '0';
     document.getElementById('f_fit').value             = 'yes';
+    document.getElementById('f_spars_per_day').value   = '1';
     document.getElementById('f_email').value           = '';
     document.getElementById('f_comments').value        = '';
     const _t = new Date(); document.getElementById('f_submission_date').value = `${String(_t.getDate()).padStart(2,'0')}/${String(_t.getMonth()+1).padStart(2,'0')}/${_t.getFullYear()}`;
@@ -589,6 +598,7 @@ function openModal(id) {
     document.getElementById('f_won').value             = b.won   ?? 0;
     document.getElementById('f_lost').value            = b.lost  ?? 0;
     document.getElementById('f_fit').value             = b.fit || 'yes';
+    document.getElementById('f_spars_per_day').value   = b.sparsPerDay ?? 1;
     document.getElementById('f_email').value           = b.email || '';
     document.getElementById('f_comments').value        = b.comments || '';
     document.getElementById('f_submission_date').value = b.submissionDate || '';
@@ -616,6 +626,7 @@ function saveRow() {
   const won      = parseInt(document.getElementById('f_won').value, 10)    || 0;
   const lost     = parseInt(document.getElementById('f_lost').value, 10)   || 0;
   const fit      = document.getElementById('f_fit').value;
+  const sparsPerDay = parseInt(document.getElementById('f_spars_per_day').value, 10) || 1;
   const email    = document.getElementById('f_email').value.trim();
   const comments = document.getElementById('f_comments').value.trim();
   const submissionDate = document.getElementById('f_submission_date').value;
@@ -633,11 +644,11 @@ function saveRow() {
 
   if (editingId === null) {
     const newId = boxers.length ? Math.max(...boxers.map(b => b.id)) + 1 : 1;
-    boxers.push({ id: newId, name, club, gender, category, dob, yob, weight, bouts, won, lost, fit, email, comments, submissionDate, consent1, consent2, experience });
+    boxers.push({ id: newId, name, club, gender, category, dob, yob, weight, bouts, won, lost, fit, sparsPerDay, email, comments, submissionDate, consent1, consent2, experience });
     showToast(`Added ${name} (ID ${newId})`);
   } else {
     const idx = boxers.findIndex(b => b.id === editingId);
-    boxers[idx] = { ...boxers[idx], name, club, gender, category, dob, yob, weight, bouts, won, lost, fit, email, comments, experience };
+    boxers[idx] = { ...boxers[idx], name, club, gender, category, dob, yob, weight, bouts, won, lost, fit, sparsPerDay, email, comments, experience };
     showToast(`Updated ${name}`);
   }
 
@@ -690,7 +701,10 @@ const SERVER = window.location.origin;
 async function loadFromServer() {
   try {
     boxers = await DataClient.get('boxers');
-    boxers.forEach(b => { b.fit = (b.fit === true || b.fit === 'yes') ? 'yes' : 'no'; });
+    boxers.forEach(b => {
+      b.fit = (b.fit === true || b.fit === 'yes') ? 'yes' : 'no';
+      b.sparsPerDay = parseInt(b.sparsPerDay, 10) || 1;
+    });
     document.getElementById('addBtn').disabled = false;
     document.getElementById('saveBtn').disabled = false;
     document.getElementById('statsBar').style.display = 'flex';

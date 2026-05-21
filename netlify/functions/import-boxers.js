@@ -50,6 +50,7 @@ function mapHeader(raw) {
   if (norm.startsWith('i accept')) return 'consent2';
   if (norm === 'email address') return 'email';
   if (norm === 'fit') return 'fit';
+  if (norm === 'spars per day') return 'sparsPerDay';
   return norm;
 }
 
@@ -64,6 +65,7 @@ function parseBoxers() {
       const v = (vals[i] || '').trim();
       if (h === 'weight') obj[h] = parseFloat(v) || 0;
       else if (['bouts', 'won', 'lost'].includes(h)) obj[h] = parseInt(v) || 0;
+      else if (h === 'sparsPerDay') obj[h] = parseInt(v) || 1;
       else obj[h] = v;
     });
     obj.gender = obj.gender ? obj.gender.toLowerCase() : 'male';
@@ -72,6 +74,7 @@ function parseBoxers() {
     obj.experience = obj.bouts || 0;
     obj.id = idx + 1;
     if (!obj.fit) obj.fit = 'yes';
+    if (!obj.sparsPerDay) obj.sparsPerDay = 1;
     return obj;
   });
 }
