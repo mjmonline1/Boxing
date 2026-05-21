@@ -1,33 +1,50 @@
 digraph Boxing {
   rankdir=TD;
-  node [shape=box, style=rounded];
+  bgcolor="transparent";
+  ranksep=0.6; nodesep=0.3;
 
-  RegisteredBoxers [label= "Registered\n Boxers"];
+  node [shape=box, style="filled,rounded", fontname="Helvetica",
+        fontsize=11, penwidth=1.2, color="#0f766e", fontcolor="#0f172a"];
+  edge [fontname="Helvetica-Oblique", fontsize=9,
+        fontcolor="#94a3b8", color="#94a3b8", arrowsize=0.8];
+
+  // Depth 0 — root
+  RegisteredBoxers [label="Registered\nBoxers",
+                    fillcolor="#134e4a", fontcolor="white",
+                    fontsize=14, penwidth=2];
+
+  // Depth 1 — gender / fitness split
+  node [fillcolor="#0f766e", fontcolor="white", fontsize=12, penwidth=1.2];
   Male;
   Female;
-  Notfit [label="Not\n Fit"];
+  Notfit [label="Not\nFit"];
 
-  MaleSchools [label="Male\n Schools"];
-  MaleJunior  [label="Male\n Junior"];
-  MaleYouth   [label="Male\n Youth"];
-  MaleSenior  [label="Male\n Senior"];
+  // Depth 2 — age groups (male only)
+  node [fillcolor="#2dd4bf", fontcolor="#0f172a", fontsize=11];
+  MaleSchools [label="Male\nSchools"];
+  MaleJunior  [label="Male\nJunior"];
+  MaleYouth   [label="Male\nYouth"];
+  MaleSenior  [label="Male\nSenior"];
 
-  MaleSchools_Novice      [label="Male\n Schools Novice "];
-  MaleSchools_Experienced [label="Male\n Schools Experienced"];
-  MaleSchools_OpenClass   [label="Male\n Schools Open Class"];
+  // Depth 3 — experience tiers
+  node [fillcolor="#99f6e4", fontcolor="#0f172a", fontsize=10];
+  MaleSchools_Novice      [label="Male Schools\nNovice"];
+  MaleSchools_Experienced [label="Male Schools\nExperienced"];
+  MaleSchools_OpenClass   [label="Male Schools\nOpen Class"];
 
-  MaleJunior_Novice       [label="Male\n Junior Novice"];
-  MaleJunior_Experienced  [label=" Male\n Junior Experienced"];
-  MaleJunior_OpenClass    [label=" Male\n Junior Open Class"];
+  MaleJunior_Novice       [label="Male Junior\nNovice"];
+  MaleJunior_Experienced  [label="Male Junior\nExperienced"];
+  MaleJunior_OpenClass    [label="Male Junior\nOpen Class"];
 
-  MaleYouth_Novice        [label="Male\n Youth Novice"];
-  MaleYouth_Experienced   [label="Male\n Youth Experienced"];
-  MaleYouth_OpenClass     [label="Male\n Youth Open Class"];
+  MaleYouth_Novice        [label="Male Youth\nNovice"];
+  MaleYouth_Experienced   [label="Male Youth\nExperienced"];
+  MaleYouth_OpenClass     [label="Male Youth\nOpen Class"];
 
-  MaleSenior_Novice       [label="Male\n Senior Novice"];
-  MaleSenior_Experienced  [label="Male\n Senior Experienced"];
-  MaleSenior_OpenClass    [label="Male\n Senior Open Class"];
+  MaleSenior_Novice       [label="Male Senior\nNovice"];
+  MaleSenior_Experienced  [label="Male Senior\nExperienced"];
+  MaleSenior_OpenClass    [label="Male Senior\nOpen Class"];
 
+  // Edges
   RegisteredBoxers -> Male;
   RegisteredBoxers -> Notfit [label="Not Fit"];
   RegisteredBoxers -> Female;
