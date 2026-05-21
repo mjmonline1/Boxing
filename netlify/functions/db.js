@@ -46,6 +46,14 @@ exports.handler = async (event) => {
       return { statusCode: 200, body: JSON.stringify({ ok: true }) };
     }
 
+    if (event.httpMethod === 'PATCH') {
+      const id = parseInt(event.queryStringParameters?.id);
+      if (!id) return { statusCode: 400, body: JSON.stringify({ error: 'id required' }) };
+      const fields = JSON.parse(event.body);
+      await col.updateOne({ id }, { $set: fields });
+      return { statusCode: 200, body: JSON.stringify({ ok: true }) };
+    }
+
     return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
   } catch (e) {
     console.error(e);

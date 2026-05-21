@@ -100,14 +100,26 @@ function mapHeader2026(raw) {
   return norm;
 }
 
-app.get('/api/data/boxers', (req, res) => {
-  if (!fs.existsSync(BOXERS_CSV)) {
-    return res.status(404).json({ error: 'Registered Boxer2026.csv not found in data/' });
-  }
+const BOXER_RAW_HEADERS = [
+  'date', 'Full name', 'Club', 'Gender', 'Category', 'Date of Birth',
+  'Current weight (kg)', 'BOUTS (the number only)', 'WON (the number only)',
+  'LOST (the number only)', 'Additional information or comments (optional)',
+  'I understand that all boxers have to weigh in on Monday 7th July.',
+  'I accept that boxers under 50kg use 12oz gloves, 50-69kg use 14oz gloves and 70kg plus use 16oz gloves. Headgear, protectors (male and female) and mouthguards MUST be worn during spars.',
+  'Email address', 'fit'
+];
+const BOXER_INTERNAL_KEYS = [
+  'submissionDate', 'name', 'club', 'gender', 'category', 'dob',
+  'weight', 'bouts', 'won', 'lost', 'comments',
+  'consent1', 'consent2', 'email', 'fit'
+];
+
+function readBoxersCSV() {
+  if (!fs.existsSync(BOXERS_CSV)) return null;
   const text = fs.readFileSync(BOXERS_CSV, 'utf8');
   const lines = splitCSVRecords(text);
   const headers = splitCSV(lines[0]).map(mapHeader2026);
-  const boxers = lines.slice(1).filter(l => l.trim()).map((line, idx) => {
+  return lines.slice(1).filter(l => l.trim()).map((line, idx) => {
     const vals = splitCSV(line);
     const obj = {};
     headers.forEach((h, i) => {
@@ -124,32 +136,38 @@ app.get('/api/data/boxers', (req, res) => {
     if (!obj.fit) obj.fit = 'yes';
     return obj;
   });
+}
+
+function writeBoxersCSV(boxers) {
+  const esc = v => { const s = String(v ?? ''); return /[,"\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s; };
+  const csv = [
+    BOXER_RAW_HEADERS.map(esc).join(','),
+    ...boxers.map(b => BOXER_INTERNAL_KEYS.map(k => esc(b[k] ?? '')).join(','))
+  ].join('\n') + '\n';
+  fs.writeFileSync(BOXERS_CSV, csv, 'utf8');
+}
+
+app.get('/api/data/boxers', (req, res) => {
+  const boxers = readBoxersCSV();
+  if (!boxers) return res.status(404).json({ error: 'Registered Boxer2026.csv not found in data/' });
   res.json(boxers);
 });
 
 app.put('/api/data/boxers', (req, res) => {
   const boxers = req.body;
   if (!Array.isArray(boxers)) return res.status(400).json({ error: 'Expected an array of boxers' });
-  const rawHeaders = [
-    'date', 'Full name', 'Club', 'Gender', 'Category', 'Date of Birth',
-    'Current weight (kg)', 'BOUTS (the number only)', 'WON (the number only)',
-    'LOST (the number only)', 'Additional information or comments (optional)',
-    'I understand that all boxers have to weigh in on Monday 7th July.',
-    'I accept that boxers under 50kg use 12oz gloves, 50-69kg use 14oz gloves and 70kg plus use 16oz gloves. Headgear, protectors (male and female) and mouthguards MUST be worn during spars.',
-    'Email address', 'fit'
-  ];
-  const internalKeys = [
-    'submissionDate', 'name', 'club', 'gender', 'category', 'dob',
-    'weight', 'bouts', 'won', 'lost', 'comments',
-    'consent1', 'consent2', 'email', 'fit'
-  ];
-  const escCSV = v => { const s = String(v ?? ''); return /[,"\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s; };
-  const csv = [
-    rawHeaders.map(escCSV).join(','),
-    ...boxers.map(b => internalKeys.map(k => escCSV(b[k] ?? '')).join(','))
-  ].join('\n') + '\n';
-  fs.writeFileSync(BOXERS_CSV, csv, 'utf8');
+  writeBoxersCSV(boxers);
   res.json({ ok: true, saved: boxers.length });
+});
+
+app.patch('/api/data/boxers/:id', (req, res) => {
+  const boxers = readBoxersCSV();
+  if (!boxers) return res.status(404).json({ error: 'CSV not found' });
+  const boxer = boxers.find(b => b.id === parseInt(req.params.id));
+  if (!boxer) return res.status(404).json({ error: `Boxer id ${req.params.id} not found` });
+  Object.assign(boxer, req.body);
+  writeBoxersCSV(boxers);
+  res.json({ ok: true });
 });
 
 function splitCSVRecords(text) {
