@@ -198,10 +198,11 @@
   <a class="nav-btn" href="index.html">&#8592; Home</a>
   <h1>Spar Manager</h1>
   <span class="stats" id="stats"></span>
+  <label style="font-size:12px;color:var(--muted,#888);white-space:nowrap;">Date:</label>
+  <select id="dateSelect" style="padding:4px 7px;border-radius:5px;border:1px solid var(--border,#ccc);background:var(--surface2,#f5f5f5);color:var(--text,#333);font-size:12px;cursor:pointer;"></select>
   <button id="resetBtn">Reset</button>
   <button id="exportBtn">Save Spars</button>
   <button class="theme-btn"></button>
-
 </div>
 
 <div id="legend">
@@ -253,11 +254,26 @@ let originalData = null;
 let state        = { matches: [], unmatched: [] };
 let draggedId    = null;   // boxer.id currently being dragged
 
+// ── Date picker ───────────────────────────────────────────────────────────────
+
+const dateSelect = document.getElementById('dateSelect');
+const _today = new Date().toISOString().split('T')[0];
+
+async function initDatePicker() {
+  const dates = await DataClient.getDates('spars').catch(() => []);
+  const all = [...new Set([_today, ...dates])].sort().reverse();
+  dateSelect.innerHTML = all.map(d =>
+    `<option value="${d}"${d === _today ? ' selected' : ''}>${d}</option>`
+  ).join('');
+}
+
+function getSelectedDate() { return dateSelect.value || _today; }
+
 // ── Boot ─────────────────────────────────────────────────────────────────────
 
-(async () => {
+async function loadAndRender() {
   try {
-    originalData = await DataClient.get('spars');
+    originalData = await DataClient.get('spars', { date: getSelectedDate() });
   } catch {
     document.getElementById('pairs').innerHTML =
       `<div style="padding:40px;color:red;font-size:14px;"><b>Could not load spar data.</b></div>`;
@@ -284,6 +300,12 @@ let draggedId    = null;   // boxer.id currently being dragged
   populateCategoryFilter();
   render();
   bindStaticEvents();
+}
+
+(async () => {
+  await initDatePicker();
+  await loadAndRender();
+  dateSelect.addEventListener('change', loadAndRender);
 })();
 
 // ── State ─────────────────────────────────────────────────────────────────────

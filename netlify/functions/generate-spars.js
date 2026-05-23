@@ -97,7 +97,9 @@ exports.handler = async () => {
       unmatched: remaining
     };
 
+    const today = new Date().toISOString().split('T')[0];
     await db.collection('spars').replaceOne({ _id: 'current' }, { _id: 'current', ...result }, { upsert: true });
+    await db.collection('spars').replaceOne({ _id: today },     { _id: today,     ...result }, { upsert: true });
 
     return { statusCode: 200, body: JSON.stringify(result) };
   } catch (e) {

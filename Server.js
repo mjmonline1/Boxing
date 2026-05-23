@@ -203,27 +203,48 @@ function splitCSV(line) {
   return result;
 }
 
-const DATA_FILES = {
-  buckets:  'output/Buckets/tsc-2025-buckets.json',
-  spars:    'output/Spars/Spars.json',
-  schedule: 'output/Spars/schedule_grouped.json',
-};
+// Buckets: static all week
+const bucketsFull = path.join(__dirname, 'output', 'Buckets', 'tsc-2025-buckets.json');
+app.get('/api/data/buckets', (req, res) => {
+  if (!fs.existsSync(bucketsFull)) return res.status(404).json({ error: 'buckets not yet generated — run Step 2 first.' });
+  res.json(JSON.parse(fs.readFileSync(bucketsFull, 'utf8')));
+});
+app.put('/api/data/buckets', (req, res) => {
+  fs.mkdirSync(path.dirname(bucketsFull), { recursive: true });
+  fs.writeFileSync(bucketsFull, JSON.stringify(req.body, null, 2), 'utf8');
+  res.json({ ok: true });
+});
 
-Object.entries(DATA_FILES).forEach(([key, filePath]) => {
-  const full = path.join(__dirname, filePath);
+// Spars + schedule: date-stamped subdirectories (defaults to today)
+function sparsDirForDate(date) {
+  const d = date && /^\d{4}-\d{2}-\d{2}$/.test(date)
+    ? date
+    : new Date().toISOString().split('T')[0];
+  return path.join(__dirname, 'output', 'Spars', d);
+}
 
+for (const [key, filename] of [['spars', 'Spars.json'], ['schedule', 'schedule_grouped.json']]) {
   app.get(`/api/data/${key}`, (req, res) => {
-    if (!fs.existsSync(full)) {
-      return res.status(404).json({ error: `${key} not yet generated — run the preceding pipeline step first.` });
-    }
+    const full = path.join(sparsDirForDate(req.query.date), filename);
+    if (!fs.existsSync(full)) return res.status(404).json({ error: `${key} not yet generated — run the preceding pipeline step first.` });
     res.json(JSON.parse(fs.readFileSync(full, 'utf8')));
   });
-
   app.put(`/api/data/${key}`, (req, res) => {
+    const full = path.join(sparsDirForDate(req.query.date), filename);
     fs.mkdirSync(path.dirname(full), { recursive: true });
     fs.writeFileSync(full, JSON.stringify(req.body, null, 2), 'utf8');
     res.json({ ok: true });
   });
+}
+
+// List available dated spar directories
+app.get('/api/spar-dates', (req, res) => {
+  const sparsBase = path.join(__dirname, 'output', 'Spars');
+  if (!fs.existsSync(sparsBase)) return res.json([]);
+  const dates = fs.readdirSync(sparsBase)
+    .filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d))
+    .sort().reverse();
+  res.json(dates);
 });
 
 // ---- FRONTEND ----

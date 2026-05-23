@@ -22,7 +22,13 @@ exports.handler = async (event) => {
 
     if (event.httpMethod === 'GET') {
       if (SINGLE_DOC_KEYS.has(key)) {
-        const doc = await col.findOne({ _id: 'current' });
+        // ?dates=1 → return list of date-stamped IDs for this collection
+        if (event.queryStringParameters?.dates === '1') {
+          const docs = await col.find({ _id: /^\d{4}-\d{2}-\d{2}$/ }).sort({ _id: -1 }).toArray();
+          return { statusCode: 200, body: JSON.stringify(docs.map(d => d._id)) };
+        }
+        const id = event.queryStringParameters?.date || 'current';
+        const doc = await col.findOne({ _id: id });
         if (!doc) return { statusCode: 200, body: JSON.stringify(null) };
         const { _id, ...data } = doc;
         return { statusCode: 200, body: JSON.stringify(data) };

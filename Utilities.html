@@ -199,6 +199,10 @@
       <button class="btn btn-blue" id="rptSpars">Spars</button>
       <button class="btn btn-blue" id="rptRings">Rings</button>
     </div>
+    <div style="margin-top:0.75rem;display:flex;align-items:center;gap:0.5rem;">
+      <label for="rptDate" style="font-size:13px;color:var(--muted);">Date (Spars &amp; Rings):</label>
+      <select id="rptDate" style="font-size:13px;padding:3px 6px;border-radius:4px;border:1px solid var(--border);background:var(--input-bg);color:var(--fg);"><option value="">— select —</option></select>
+    </div>
     <div id="rptStatusBox"></div>
   </div>
 
@@ -327,6 +331,13 @@
 <script>
 // ── Reports ──────────────────────────────────────────────────────────────────
 
+DataClient.getDates('spars').then(dates => {
+  const sel = document.getElementById('rptDate');
+  if (dates && dates.length) {
+    sel.innerHTML = dates.map(d => `<option value="${d}">${d}</option>`).join('');
+  }
+}).catch(() => {});
+
 function setRptStatus(type, msg) {
   const el = document.getElementById('rptStatusBox');
   el.className = type;
@@ -405,11 +416,13 @@ document.getElementById('rptBuckets').addEventListener('click', async () => {
 
 document.getElementById('rptSpars').addEventListener('click', async () => {
   try {
+    const date = document.getElementById('rptDate').value;
+    if (!date) { setRptStatus('error', 'Select a date first.'); return; }
     setRptStatus('info', 'Loading spars…');
-    const data = await DataClient.get('spars');
+    const data = await DataClient.get('spars', { date });
     const matches = data && (data.matches || (Array.isArray(data) ? data : null));
     if (!matches || !matches.length) { setRptStatus('error', 'No spar data.'); return; }
-    const doc = makePdf('Sparring Pairs Report');
+    const doc = makePdf(`Sparring Pairs Report — ${date}`);
     doc.autoTable({
       startY: 28,
       head: [['#', 'Red Corner', 'Red Club', 'Blue Corner', 'Blue Club', 'Category', 'Weight Diff']],
@@ -445,11 +458,13 @@ document.getElementById('rptSpars').addEventListener('click', async () => {
 
 document.getElementById('rptRings').addEventListener('click', async () => {
   try {
+    const date = document.getElementById('rptDate').value;
+    if (!date) { setRptStatus('error', 'Select a date first.'); return; }
     setRptStatus('info', 'Loading schedule…');
-    const data = await DataClient.get('schedule');
+    const data = await DataClient.get('schedule', { date });
     const slots = data && (data.slots || (Array.isArray(data) ? data : null));
     if (!slots || !slots.length) { setRptStatus('error', 'No schedule data.'); return; }
-    const doc = makePdf('Ring Schedule Report');
+    const doc = makePdf(`Ring Schedule Report — ${date}`);
     const rows = [];
     for (const slot of slots) {
       for (const bout of (slot.bouts || [])) {

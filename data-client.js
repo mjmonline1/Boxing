@@ -10,13 +10,15 @@ const DataClient = (() => {
   // ── LocalClient: wraps existing server.js /api/data/* endpoints ──────────────
 
   const LocalClient = {
-    async get(key) {
-      const res = await fetch(`${window.location.origin}/api/data/${key}`);
+    async get(key, { date } = {}) {
+      const qs = date ? `?date=${date}` : '';
+      const res = await fetch(`${window.location.origin}/api/data/${key}${qs}`);
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || res.statusText);
       return res.json();
     },
-    async save(key, data) {
-      const res = await fetch(`${window.location.origin}/api/data/${key}`, {
+    async save(key, data, { date } = {}) {
+      const qs = date ? `?date=${date}` : '';
+      const res = await fetch(`${window.location.origin}/api/data/${key}${qs}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -30,19 +32,28 @@ const DataClient = (() => {
         body: JSON.stringify(fields)
       });
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || res.statusText);
+    },
+    async getDates(key) {
+      const res = await fetch(`${window.location.origin}/api/spar-dates`);
+      if (!res.ok) return [];
+      return res.json();
     }
   };
 
   // ── RemoteClient: calls Netlify /api/db serverless function ──────────────────
 
   const RemoteClient = {
-    async get(key) {
-      const res = await fetch(`/api/db?key=${key}`);
+    async get(key, { date } = {}) {
+      const params = new URLSearchParams({ key });
+      if (date) params.set('date', date);
+      const res = await fetch(`/api/db?${params}`);
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || res.statusText);
       return res.json();
     },
-    async save(key, data) {
-      const res = await fetch(`/api/db?key=${key}`, {
+    async save(key, data, { date } = {}) {
+      const params = new URLSearchParams({ key });
+      if (date) params.set('date', date);
+      const res = await fetch(`/api/db?${params}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -56,6 +67,11 @@ const DataClient = (() => {
         body: JSON.stringify(fields)
       });
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || res.statusText);
+    },
+    async getDates(key) {
+      const res = await fetch(`/api/db?key=${key}&dates=1`);
+      if (!res.ok) return [];
+      return res.json();
     }
   };
 
