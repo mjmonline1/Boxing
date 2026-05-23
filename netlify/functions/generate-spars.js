@@ -1,7 +1,7 @@
 // Reads buckets from MongoDB, runs 3-phase pairing algorithm, writes spars back.
 const { MongoClient } = require('mongodb');
 
-const W_TOL1 = 2.0, W_TOL2 = 2.5, W_TOL3 = 20.0;
+const W_TOL1 = 2.0, W_TOL2 = 2.5;
 
 let cachedClient;
 async function getDb() {
@@ -9,7 +9,7 @@ async function getDb() {
   return cachedClient.db('boxing');
 }
 
-function pairBoxers(boxers, category, tolerance) {
+function pairBoxers(boxers, category, tolerance, sparCount) {
   const sorted = [...boxers].sort((a, b) => a.weight - b.weight);
   const matches = [], unmatched = [];
   while (sorted.length > 0) {
@@ -19,12 +19,18 @@ function pairBoxers(boxers, category, tolerance) {
       const opp = sorted[i];
       const diff = Math.abs(cur.weight - opp.weight);
       if (diff > tolerance) break;
+      // Skip if sparCount provided and opponent has reached their sparsPerDay limit
+      if (sparCount && (sparCount.get(opp.name) || 0) >= (opp.sparsPerDay || 1)) continue;
       const isDiff = cur.club !== opp.club;
       if (isDiff && !diffClub) { bestIdx = i; diffClub = true; minDiff = diff; }
       else if (isDiff === diffClub && diff < minDiff) { bestIdx = i; minDiff = diff; }
     }
     if (bestIdx !== -1) {
       const opp = sorted.splice(bestIdx, 1)[0];
+      if (sparCount) {
+        sparCount.set(cur.name,  (sparCount.get(cur.name)  || 0) + 1);
+        sparCount.set(opp.name,  (sparCount.get(opp.name)  || 0) + 1);
+      }
       matches.push({ red: cur, blue: opp, weightDiff: Math.abs(cur.weight - opp.weight).toFixed(2), category });
     } else {
       unmatched.push(cur);
@@ -44,57 +50,87 @@ exports.handler = async () => {
     const buckets = bucketsDoc.finalBuckets;
     let allMatches = [], bucketRemainder = {};
 
+    // sparCount tracks 1v1 usage across all phases (keyed by boxer name)
+    const sparCount = new Map();
+
     // Phase 1: ±2 kg within bucket
     for (const [cat, boxers] of Object.entries(buckets)) {
       if (cat === 'NotFit' || !boxers.length) continue;
-      const { matches, unmatched } = pairBoxers(boxers, cat, W_TOL1);
+      const { matches, unmatched } = pairBoxers(boxers, cat, W_TOL1, sparCount);
       allMatches = allMatches.concat(matches);
       bucketRemainder[cat] = unmatched;
     }
 
-    // Phase 2: ±2.5 kg within bucket
+    // Phase 2: ±2.5 kg within bucket — tag remainders with source bucket
     let allUnmatched = [];
     for (const [cat, boxers] of Object.entries(bucketRemainder)) {
       if (!boxers.length) continue;
-      const { matches, unmatched } = pairBoxers(boxers, cat, W_TOL2);
+      const { matches, unmatched } = pairBoxers(boxers, cat, W_TOL2, sparCount);
       allMatches = allMatches.concat(matches);
-      allUnmatched = allUnmatched.concat(unmatched);
+      allUnmatched = allUnmatched.concat(unmatched.map(b => ({ ...b, _bucket: cat })));
     }
 
-    // Phase 3: ±20 kg rescue, same age+experience group
-    const ageGroups = ['Schools', 'Junior', 'Youth', 'Senior'];
-    const expTiers  = [{ name: 'Novice', min: 0, max: 5 }, { name: 'Experienced', min: 6, max: 10 }, { name: 'OpenClass', min: 11, max: Infinity }];
-    const remaining = [];
+    // Phase 3b: unmatched boxer joins existing 1v1 pair in same bucket → round-robin group (±2 kg)
+    let groupCounter = 0;
+    const stillRemaining = [];
 
-    for (const grp of ageGroups) {
-      for (const tier of expTiers) {
-        const pool = allUnmatched.filter(b =>
-          b.gender === 'male' && b.experience >= tier.min && b.experience <= tier.max &&
-          ((grp==='Schools'&&b.yob>=2012&&b.yob<=2014)||(grp==='Junior'&&b.yob>=2010&&b.yob<=2011)||
-           (grp==='Youth'&&b.yob>=2008&&b.yob<=2009)||(grp==='Senior'&&b.yob<=2007))
-        );
-        if (pool.length) {
-          const { matches, unmatched } = pairBoxers(pool, `${grp}_${tier.name}_Rescue`, W_TOL3);
-          allMatches = allMatches.concat(matches);
-          remaining.push(...unmatched);
+    for (const boxer of allUnmatched) {
+      const bucket = boxer._bucket;
+      let bestIdx = -1, bestDiff = Infinity, bestIsDiffClub = false;
+
+      for (let i = 0; i < allMatches.length; i++) {
+        const m = allMatches[i];
+        if (m.groupId) continue;          // already in a group
+        if (m.category !== bucket) continue; // same bucket only
+
+        for (const partner of [m.red, m.blue]) {
+          const diff = Math.abs(boxer.weight - partner.weight);
+          if (diff > W_TOL1) continue;    // ±2 kg tolerance
+          const isDiffClub = boxer.club !== partner.club;
+          if (isDiffClub && !bestIsDiffClub) {
+            bestIdx = i; bestDiff = diff; bestIsDiffClub = true;
+          } else if (isDiffClub === bestIsDiffClub && diff < bestDiff) {
+            bestIdx = i; bestDiff = diff;
+          }
         }
+      }
+
+      if (bestIdx !== -1) {
+        const anchor = allMatches[bestIdx];
+        const gid = `g${++groupCounter}`;
+        anchor.groupId = gid;
+        allMatches.push({
+          red: anchor.red, blue: boxer,
+          weightDiff: Math.abs(anchor.red.weight - boxer.weight).toFixed(2),
+          category: bucket, groupId: gid
+        });
+        allMatches.push({
+          red: anchor.blue, blue: boxer,
+          weightDiff: Math.abs(anchor.blue.weight - boxer.weight).toFixed(2),
+          category: bucket, groupId: gid
+        });
+      } else {
+        stillRemaining.push(boxer);
       }
     }
 
-    const femalePool = allUnmatched.filter(b => b.gender === 'female');
-    if (femalePool.length) {
-      const { matches, unmatched } = pairBoxers(femalePool, 'Female_Rescue', W_TOL3);
-      allMatches = allMatches.concat(matches);
-      remaining.push(...unmatched);
-    }
+    // Strip internal _bucket tag before saving
+    allMatches.forEach(m => { delete m.red._bucket; delete m.blue._bucket; });
+    stillRemaining.forEach(b => delete b._bucket);
 
-    const total = bucketsDoc.summary?.totalDistributed ?? (allMatches.length * 2 + remaining.length);
+    const groupCount = groupCounter;
+    const total = bucketsDoc.summary?.totalDistributed ?? (allMatches.length * 2 + stillRemaining.length);
     const result = {
-      summary: { totalBoxers: total, matchedCount: allMatches.length * 2,
-                 unmatchedCount: remaining.length, matchCount: allMatches.length,
-                 successRate: ((allMatches.length * 2 / total) * 100).toFixed(1) + '%' },
+      summary: {
+        totalBoxers:    total,
+        matchedCount:   allMatches.filter(m => !m.groupId).length * 2 + groupCount * 3,
+        unmatchedCount: stillRemaining.length,
+        matchCount:     allMatches.length,
+        groupCount,
+        successRate:    (((total - stillRemaining.length) / total) * 100).toFixed(1) + '%'
+      },
       matches:   allMatches,
-      unmatched: remaining
+      unmatched: stillRemaining
     };
 
     const today = new Date().toISOString().split('T')[0];
