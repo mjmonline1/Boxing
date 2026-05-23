@@ -3,8 +3,9 @@ const fs = require('fs');
 const path = require('path');
 
 // Configuration
+const TODAY       = new Date().toISOString().split('T')[0];
 const SOURCE_FILE = path.join(__dirname, 'output', 'Buckets', 'tsc-2025-buckets.json');
-const OUTPUT_FILE = path.join(__dirname, 'output', 'Spars', 'Spars.json');
+const OUTPUT_FILE = path.join(__dirname, 'output', 'Spars', TODAY, 'Spars.json');
 const WEIGHT_TOLERANCE        = 2.0;
 const PHASE2_TOLERANCE        = 2.5;
 const RESCUE_WEIGHT_TOLERANCE = 20.0;

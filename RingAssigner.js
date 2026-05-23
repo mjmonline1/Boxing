@@ -3,8 +3,9 @@
 const fs   = require('fs');
 const path = require('path');
 
-const DATA_FILE = path.join(__dirname, 'output', 'Spars', 'Spars.json');
-const OUT_DIR   = path.join(__dirname, 'output', 'Spars');
+const TODAY     = new Date().toISOString().split('T')[0];
+const DATA_FILE = path.join(__dirname, 'output', 'Spars', TODAY, 'Spars.json');
+const OUT_DIR   = path.join(__dirname, 'output', 'Spars', TODAY);
 
 const RINGS_OPEN = ['R1', 'R2', 'R3', 'R4'];
 const RINGS_ALL  = ['R1', 'R2', 'R3', 'R4', 'R5'];

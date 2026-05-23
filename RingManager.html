@@ -217,6 +217,8 @@
   <a class="nav-btn" href="index.html">&#8592; Home</a>
   <h1>Ring Manager</h1>
   <span class="stats" id="stats"></span>
+  <label style="font-size:12px;color:var(--muted,#888);white-space:nowrap;">Date:</label>
+  <select id="dateSelect" style="padding:4px 7px;border-radius:5px;border:1px solid var(--border,#ccc);background:var(--surface2,#f5f5f5);color:var(--text,#333);font-size:12px;cursor:pointer;"></select>
 <button id="resetBtn">Undo Session Changes</button>
   <button id="saveBtn">Save</button>
   <button id="exportBtn">Export Allocation</button>
@@ -243,9 +245,24 @@ const SERVER = window.location.origin;
 
 // ── Load & init ───────────────────────────────────────────────────────────────
 
+// ── Date picker ───────────────────────────────────────────────────────────────
+
+const dateSelect = document.getElementById('dateSelect');
+const _today = new Date().toISOString().split('T')[0];
+
+async function initDatePicker() {
+  const dates = await DataClient.getDates('schedule').catch(() => []);
+  const all = [...new Set([_today, ...dates])].sort().reverse();
+  dateSelect.innerHTML = all.map(d =>
+    `<option value="${d}"${d === _today ? ' selected' : ''}>${d}</option>`
+  ).join('');
+}
+
+function getSelectedDate() { return dateSelect.value || _today; }
+
 async function loadSchedule() {
   try {
-    return DataClient.get('schedule');
+    return DataClient.get('schedule', { date: getSelectedDate() });
   } catch (e) {
     document.getElementById('rings').innerHTML =
       `<div style="padding:40px;color:red;font-size:14px;">
@@ -629,7 +646,7 @@ function showToast(msg) {
 
 // ── Boot ─────────────────────────────────────────────────────────────────────
 
-(async () => {
+async function bootWithSchedule() {
   let schedule = await loadSchedule();
   if (!schedule) {
     showToast('Generating ring schedule…');
@@ -647,20 +664,25 @@ function showToast(msg) {
     }
   }
   const initialState = scheduleToState(schedule);
-  let   state        = JSON.parse(JSON.stringify(initialState)); // deep copy for reset
+  let   state        = JSON.parse(JSON.stringify(initialState));
 
   render(state);
   updateStats(state);
 
-  document.getElementById('resetBtn').addEventListener('click', () => {
+  document.getElementById('resetBtn').onclick = () => {
     state = JSON.parse(JSON.stringify(initialState));
     render(state);
     updateStats(state);
     showToast('Session changes undone');
-  });
+  };
+  document.getElementById('saveBtn').onclick   = () => saveToServer(state);
+  document.getElementById('exportBtn').onclick = () => exportAllocation(state);
+}
 
-  document.getElementById('saveBtn').addEventListener('click', () => saveToServer(state));
-  document.getElementById('exportBtn').addEventListener('click', () => exportAllocation(state));
+(async () => {
+  await initDatePicker();
+  await bootWithSchedule();
+  dateSelect.addEventListener('change', bootWithSchedule);
 })();
 </script>
 <script src="theme.js"></script>

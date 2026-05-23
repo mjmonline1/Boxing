@@ -80,7 +80,9 @@ exports.handler = async (event) => {
     };
 
     const result = { summary, slots };
+    const today = new Date().toISOString().split('T')[0];
     await db.collection('schedule').replaceOne({ _id: 'current' }, { _id: 'current', ...result }, { upsert: true });
+    await db.collection('schedule').replaceOne({ _id: today },     { _id: today,     ...result }, { upsert: true });
 
     return { statusCode: 200, body: JSON.stringify(result) };
   } catch (e) {
