@@ -126,9 +126,9 @@ exports.handler = async () => {
       .sort((a,b) => a.weight - b.weight)
       .map(b => ({ name: b.name, weight: b.weight, experience: b.experience, club: b.club }));
 
-    // Strip internal _bucket tag before saving
+    // Rename _bucket to category on unmatched, strip from matched boxer objects
     allMatches.forEach(m => { delete m.red._bucket; delete m.blue._bucket; });
-    stillRemaining.forEach(b => delete b._bucket);
+    stillRemaining.forEach(b => { b.category = b._bucket; delete b._bucket; });
 
     const groupCount = groupCounter;
     const total = bucketsDoc.summary?.totalDistributed ?? (allMatches.length * 2 + stillRemaining.length);
