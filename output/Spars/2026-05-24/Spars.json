@@ -3,7 +3,7 @@
     "totalBoxers": 137,
     "matchedCount": 110,
     "unmatchedCount": 26,
-    "matchCount": 67,
+    "matchCount": 51,
     "groupCount": 8,
     "successRate": "80.3%"
   },
@@ -52,7 +52,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "2.00",
-      "category": "MaleJunior_Novice"
+      "category": "MaleJunior_Novice",
+      "groupId": null
     },
     {
       "red": {
@@ -98,7 +99,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "2.00",
-      "category": "MaleJunior_Novice"
+      "category": "MaleJunior_Novice",
+      "groupId": null
     },
     {
       "red": {
@@ -144,7 +146,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "1.00",
-      "category": "MaleJunior_Novice"
+      "category": "MaleJunior_Novice",
+      "groupId": null
     },
     {
       "red": {
@@ -190,7 +193,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "2.00",
-      "category": "MaleJunior_Experienced"
+      "category": "MaleJunior_Experienced",
+      "groupId": null
     },
     {
       "red": {
@@ -236,7 +240,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "1.00",
-      "category": "MaleJunior_Experienced"
+      "category": "MaleJunior_Experienced",
+      "groupId": null
     },
     {
       "red": {
@@ -282,7 +287,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "2.00",
-      "category": "MaleJunior_Experienced"
+      "category": "MaleJunior_Experienced",
+      "groupId": null
     },
     {
       "red": {
@@ -328,7 +334,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "0.00",
-      "category": "MaleJunior_OpenClass"
+      "category": "MaleJunior_OpenClass",
+      "groupId": null
     },
     {
       "red": {
@@ -375,7 +382,28 @@
       },
       "weightDiff": "1.70",
       "category": "MaleJunior_OpenClass",
-      "groupId": "g1"
+      "groupId": "g1",
+      "third": {
+        "submissionDate": "10/06/2025 23:19",
+        "name": "Bernard Hopkins",
+        "club": "Baldoyle BC",
+        "gender": "male",
+        "category": "Junior (2009 & younger)",
+        "dob": "22/02/2010",
+        "weight": 50,
+        "bouts": 26,
+        "won": 12,
+        "lost": 14,
+        "comments": "",
+        "consent1": "Yes",
+        "consent2": "Yes",
+        "email": "bernard.hopkins@example.com",
+        "fit": "yes",
+        "yob": 2010,
+        "experience": 26,
+        "id": 14,
+        "sparsPerDay": 1
+      }
     },
     {
       "red": {
@@ -421,7 +449,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "2.00",
-      "category": "MaleJunior_OpenClass"
+      "category": "MaleJunior_OpenClass",
+      "groupId": null
     },
     {
       "red": {
@@ -467,7 +496,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "1.00",
-      "category": "MaleJunior_OpenClass"
+      "category": "MaleJunior_OpenClass",
+      "groupId": null
     },
     {
       "red": {
@@ -513,7 +543,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "0.00",
-      "category": "MaleYouth_Novice"
+      "category": "MaleYouth_Novice",
+      "groupId": null
     },
     {
       "red": {
@@ -559,7 +590,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "0.00",
-      "category": "MaleYouth_Novice"
+      "category": "MaleYouth_Novice",
+      "groupId": null
     },
     {
       "red": {
@@ -605,7 +637,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "1.00",
-      "category": "MaleYouth_Novice"
+      "category": "MaleYouth_Novice",
+      "groupId": null
     },
     {
       "red": {
@@ -651,7 +684,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "0.00",
-      "category": "MaleYouth_Novice"
+      "category": "MaleYouth_Novice",
+      "groupId": null
     },
     {
       "red": {
@@ -697,7 +731,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "0.00",
-      "category": "MaleYouth_Novice"
+      "category": "MaleYouth_Novice",
+      "groupId": null
     },
     {
       "red": {
@@ -743,7 +778,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "0.00",
-      "category": "MaleYouth_Novice"
+      "category": "MaleYouth_Novice",
+      "groupId": null
     },
     {
       "red": {
@@ -789,7 +825,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "0.00",
-      "category": "MaleYouth_Novice"
+      "category": "MaleYouth_Novice",
+      "groupId": null
     },
     {
       "red": {
@@ -835,7 +872,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "1.00",
-      "category": "MaleYouth_Novice"
+      "category": "MaleYouth_Novice",
+      "groupId": null
     },
     {
       "red": {
@@ -881,7 +919,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "0.60",
-      "category": "MaleYouth_Novice"
+      "category": "MaleYouth_Novice",
+      "groupId": null
     },
     {
       "red": {
@@ -927,7 +966,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "1.00",
-      "category": "MaleYouth_Novice"
+      "category": "MaleYouth_Novice",
+      "groupId": null
     },
     {
       "red": {
@@ -973,7 +1013,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "1.00",
-      "category": "MaleYouth_Experienced"
+      "category": "MaleYouth_Experienced",
+      "groupId": null
     },
     {
       "red": {
@@ -1019,7 +1060,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "1.00",
-      "category": "MaleYouth_OpenClass"
+      "category": "MaleYouth_OpenClass",
+      "groupId": null
     },
     {
       "red": {
@@ -1065,7 +1107,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "0.50",
-      "category": "MaleYouth_OpenClass"
+      "category": "MaleYouth_OpenClass",
+      "groupId": null
     },
     {
       "red": {
@@ -1112,7 +1155,28 @@
       },
       "weightDiff": "1.00",
       "category": "MaleYouth_OpenClass",
-      "groupId": "g2"
+      "groupId": "g2",
+      "third": {
+        "submissionDate": "11/06/2025 19:14",
+        "name": "Gilberto Ramirez",
+        "club": "Finchley ABC",
+        "gender": "male",
+        "category": "Youth (2007 & 2008)",
+        "dob": "21/03/2008",
+        "weight": 71,
+        "bouts": 13,
+        "won": 5,
+        "lost": 8,
+        "comments": "",
+        "consent1": "Yes",
+        "consent2": "Yes",
+        "email": "gilberto.ramirez@example.com",
+        "fit": "yes",
+        "yob": 2008,
+        "experience": 13,
+        "id": 102,
+        "sparsPerDay": 1
+      }
     },
     {
       "red": {
@@ -1158,7 +1222,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "0.00",
-      "category": "MaleYouth_OpenClass"
+      "category": "MaleYouth_OpenClass",
+      "groupId": null
     },
     {
       "red": {
@@ -1204,7 +1269,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "2.00",
-      "category": "MaleSenior_Novice"
+      "category": "MaleSenior_Novice",
+      "groupId": null
     },
     {
       "red": {
@@ -1250,7 +1316,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "2.00",
-      "category": "MaleSenior_Novice"
+      "category": "MaleSenior_Novice",
+      "groupId": null
     },
     {
       "red": {
@@ -1297,7 +1364,28 @@
       },
       "weightDiff": "0.70",
       "category": "MaleSenior_Novice",
-      "groupId": "g3"
+      "groupId": "g3",
+      "third": {
+        "submissionDate": "03/07/2025 09:59",
+        "name": "Jose Castillo",
+        "club": "DOBLEJAB BOXING CLUB",
+        "gender": "male",
+        "category": "Senior (2006 & older)",
+        "dob": "05/01/1997",
+        "weight": 70,
+        "bouts": 0,
+        "won": 0,
+        "lost": 0,
+        "comments": "CAN ONLY SPAR ON WEDENEDAY",
+        "consent1": "Yes",
+        "consent2": "Yes",
+        "email": "jose.castillo@example.com",
+        "fit": "yes",
+        "yob": 1997,
+        "experience": 0,
+        "id": 94,
+        "sparsPerDay": 1
+      }
     },
     {
       "red": {
@@ -1344,7 +1432,28 @@
       },
       "weightDiff": "2.00",
       "category": "MaleSenior_Novice",
-      "groupId": "g4"
+      "groupId": "g4",
+      "third": {
+        "submissionDate": "22/06/2025 03:27",
+        "name": "Josh Taylor",
+        "club": "Team Ponce&Mary",
+        "gender": "male",
+        "category": "Senior (2006 & older)",
+        "dob": "08/12/1996",
+        "weight": 77,
+        "bouts": 2,
+        "won": 1,
+        "lost": 1,
+        "comments": "",
+        "consent1": "Yes",
+        "consent2": "Yes",
+        "email": "josh.taylor@example.com",
+        "fit": "yes",
+        "yob": 1996,
+        "experience": 2,
+        "id": 116,
+        "sparsPerDay": 1
+      }
     },
     {
       "red": {
@@ -1391,7 +1500,28 @@
       },
       "weightDiff": "1.00",
       "category": "MaleSenior_Novice",
-      "groupId": "g5"
+      "groupId": "g5",
+      "third": {
+        "submissionDate": "28/06/2025 12:49",
+        "name": "Carlos Zarate",
+        "club": "Slough ABC",
+        "gender": "male",
+        "category": "Senior (2006 & older)",
+        "dob": "19/12/2004",
+        "weight": 82,
+        "bouts": 1,
+        "won": 1,
+        "lost": 0,
+        "comments": "",
+        "consent1": "Yes",
+        "consent2": "Yes",
+        "email": "carlos.zarate@example.com",
+        "fit": "yes",
+        "yob": 2004,
+        "experience": 1,
+        "id": 128,
+        "sparsPerDay": 1
+      }
     },
     {
       "red": {
@@ -1437,7 +1567,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "2.00",
-      "category": "MaleSenior_Novice"
+      "category": "MaleSenior_Novice",
+      "groupId": null
     },
     {
       "red": {
@@ -1484,7 +1615,28 @@
       },
       "weightDiff": "0.50",
       "category": "MaleSenior_Experienced",
-      "groupId": "g6"
+      "groupId": "g6",
+      "third": {
+        "submissionDate": "09/06/2025 23:03",
+        "name": "Michael Watson",
+        "club": "Johnstone ABC",
+        "gender": "male",
+        "category": "Senior (2006 & older)",
+        "dob": "16/12/1997",
+        "weight": 65.3,
+        "bouts": 9,
+        "won": 6,
+        "lost": 3,
+        "comments": "",
+        "consent1": "Yes",
+        "consent2": "Yes",
+        "email": "michael.watson@example.com",
+        "fit": "yes",
+        "yob": 1997,
+        "experience": 9,
+        "id": 73,
+        "sparsPerDay": 1
+      }
     },
     {
       "red": {
@@ -1530,7 +1682,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "1.00",
-      "category": "MaleSenior_Experienced"
+      "category": "MaleSenior_Experienced",
+      "groupId": null
     },
     {
       "red": {
@@ -1576,7 +1729,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "2.00",
-      "category": "MaleSenior_OpenClass"
+      "category": "MaleSenior_OpenClass",
+      "groupId": null
     },
     {
       "red": {
@@ -1622,7 +1776,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "0.00",
-      "category": "MaleSenior_OpenClass"
+      "category": "MaleSenior_OpenClass",
+      "groupId": null
     },
     {
       "red": {
@@ -1669,7 +1824,28 @@
       },
       "weightDiff": "0.00",
       "category": "MaleSenior_OpenClass",
-      "groupId": "g7"
+      "groupId": "g7",
+      "third": {
+        "submissionDate": "09/06/2025 20:36",
+        "name": "Tyson Fury",
+        "club": "The Academy Boxing Club",
+        "gender": "male",
+        "category": "Senior (2006 & older)",
+        "dob": "12/12/2002",
+        "weight": 60,
+        "bouts": 27,
+        "won": 17,
+        "lost": 10,
+        "comments": "",
+        "consent1": "Yes",
+        "consent2": "Yes",
+        "email": "tyson.fury@example.com",
+        "fit": "yes",
+        "yob": 2002,
+        "experience": 27,
+        "id": 54,
+        "sparsPerDay": 1
+      }
     },
     {
       "red": {
@@ -1715,7 +1891,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "0.00",
-      "category": "MaleSenior_OpenClass"
+      "category": "MaleSenior_OpenClass",
+      "groupId": null
     },
     {
       "red": {
@@ -1761,7 +1938,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "0.50",
-      "category": "MaleSenior_OpenClass"
+      "category": "MaleSenior_OpenClass",
+      "groupId": null
     },
     {
       "red": {
@@ -1807,7 +1985,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "0.00",
-      "category": "MaleSenior_OpenClass"
+      "category": "MaleSenior_OpenClass",
+      "groupId": null
     },
     {
       "red": {
@@ -1853,7 +2032,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "1.00",
-      "category": "MaleSenior_OpenClass"
+      "category": "MaleSenior_OpenClass",
+      "groupId": null
     },
     {
       "red": {
@@ -1899,7 +2079,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "0.00",
-      "category": "MaleSenior_OpenClass"
+      "category": "MaleSenior_OpenClass",
+      "groupId": null
     },
     {
       "red": {
@@ -1945,7 +2126,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "2.00",
-      "category": "MaleSenior_OpenClass"
+      "category": "MaleSenior_OpenClass",
+      "groupId": null
     },
     {
       "red": {
@@ -1991,7 +2173,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "2.00",
-      "category": "MaleSenior_OpenClass"
+      "category": "MaleSenior_OpenClass",
+      "groupId": null
     },
     {
       "red": {
@@ -2037,7 +2220,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "2.00",
-      "category": "MaleSenior_OpenClass"
+      "category": "MaleSenior_OpenClass",
+      "groupId": null
     },
     {
       "red": {
@@ -2083,7 +2267,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "0.60",
-      "category": "MaleSenior_OpenClass"
+      "category": "MaleSenior_OpenClass",
+      "groupId": null
     },
     {
       "red": {
@@ -2129,7 +2314,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "0.00",
-      "category": "MaleSenior_OpenClass"
+      "category": "MaleSenior_OpenClass",
+      "groupId": null
     },
     {
       "red": {
@@ -2175,7 +2361,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "2.00",
-      "category": "FitFemales"
+      "category": "FitFemales",
+      "groupId": null
     },
     {
       "red": {
@@ -2221,7 +2408,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "0.00",
-      "category": "FitFemales"
+      "category": "FitFemales",
+      "groupId": null
     },
     {
       "red": {
@@ -2267,7 +2455,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "0.00",
-      "category": "FitFemales"
+      "category": "FitFemales",
+      "groupId": null
     },
     {
       "red": {
@@ -2314,7 +2503,28 @@
       },
       "weightDiff": "2.00",
       "category": "FitFemales",
-      "groupId": "g8"
+      "groupId": "g8",
+      "third": {
+        "submissionDate": "17/06/2025 13:48",
+        "name": "Lucia Rijker",
+        "club": "Team Ponce&Mary",
+        "gender": "female",
+        "category": "Senior (2006 & older)",
+        "dob": "31/01/1993",
+        "weight": 66,
+        "bouts": 3,
+        "won": 1,
+        "lost": 2,
+        "comments": "",
+        "consent1": "Yes",
+        "consent2": "Yes",
+        "email": "lucia.rijker@example.com",
+        "fit": "yes",
+        "yob": 1993,
+        "experience": 3,
+        "id": 78,
+        "sparsPerDay": 1
+      }
     },
     {
       "red": {
@@ -2360,759 +2570,8 @@
         "sparsPerDay": 1
       },
       "weightDiff": "1.00",
-      "category": "FitFemales"
-    },
-    {
-      "red": {
-        "submissionDate": "25/06/2025 10:47",
-        "name": "Evander Holyfield",
-        "club": "Cookstown ABC",
-        "gender": "male",
-        "category": "Junior (2009 & younger)",
-        "dob": "14/09/2011",
-        "weight": 48,
-        "bouts": 19,
-        "won": 14,
-        "lost": 5,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "evander.holyfield@example.com",
-        "fit": "yes",
-        "yob": 2011,
-        "experience": 19,
-        "id": 11,
-        "sparsPerDay": 1
-      },
-      "blue": {
-        "submissionDate": "10/06/2025 23:19",
-        "name": "Bernard Hopkins",
-        "club": "Baldoyle BC",
-        "gender": "male",
-        "category": "Junior (2009 & younger)",
-        "dob": "22/02/2010",
-        "weight": 50,
-        "bouts": 26,
-        "won": 12,
-        "lost": 14,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "bernard.hopkins@example.com",
-        "fit": "yes",
-        "yob": 2010,
-        "experience": 26,
-        "id": 14,
-        "sparsPerDay": 1
-      },
-      "weightDiff": "2.00",
-      "category": "MaleJunior_OpenClass",
-      "groupId": "g1"
-    },
-    {
-      "red": {
-        "submissionDate": "09/06/2025 23:00",
-        "name": "Roy Jones",
-        "club": "Johnstone ABC",
-        "gender": "male",
-        "category": "Junior (2009 & younger)",
-        "dob": "05/07/2011",
-        "weight": 49.7,
-        "bouts": 12,
-        "won": 11,
-        "lost": 1,
-        "comments": "Weight possibly heavier, returning from injury.",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "roy.jones@example.com",
-        "fit": "yes",
-        "yob": 2011,
-        "experience": 12,
-        "id": 13,
-        "sparsPerDay": 1
-      },
-      "blue": {
-        "submissionDate": "10/06/2025 23:19",
-        "name": "Bernard Hopkins",
-        "club": "Baldoyle BC",
-        "gender": "male",
-        "category": "Junior (2009 & younger)",
-        "dob": "22/02/2010",
-        "weight": 50,
-        "bouts": 26,
-        "won": 12,
-        "lost": 14,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "bernard.hopkins@example.com",
-        "fit": "yes",
-        "yob": 2010,
-        "experience": 26,
-        "id": 14,
-        "sparsPerDay": 1
-      },
-      "weightDiff": "0.30",
-      "category": "MaleJunior_OpenClass",
-      "groupId": "g1"
-    },
-    {
-      "red": {
-        "submissionDate": "09/06/2025 22:03",
-        "name": "Jermell Charlo",
-        "club": "The Bronx",
-        "gender": "male",
-        "category": "Youth (2007 & 2008)",
-        "dob": "29/11/2008",
-        "weight": 70,
-        "bouts": 19,
-        "won": 12,
-        "lost": 7,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "jermell.charlo@example.com",
-        "fit": "yes",
-        "yob": 2008,
-        "experience": 19,
-        "id": 98,
-        "sparsPerDay": 1
-      },
-      "blue": {
-        "submissionDate": "11/06/2025 19:14",
-        "name": "Gilberto Ramirez",
-        "club": "Finchley ABC",
-        "gender": "male",
-        "category": "Youth (2007 & 2008)",
-        "dob": "21/03/2008",
-        "weight": 71,
-        "bouts": 13,
-        "won": 5,
-        "lost": 8,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "gilberto.ramirez@example.com",
-        "fit": "yes",
-        "yob": 2008,
-        "experience": 13,
-        "id": 102,
-        "sparsPerDay": 1
-      },
-      "weightDiff": "1.00",
-      "category": "MaleYouth_OpenClass",
-      "groupId": "g2"
-    },
-    {
-      "red": {
-        "submissionDate": "11/06/2025 19:11",
-        "name": "Artur Beterbiev",
-        "club": "Finchley ABC",
-        "gender": "male",
-        "category": "Youth (2007 & 2008)",
-        "dob": "27/05/2008",
-        "weight": 71,
-        "bouts": 19,
-        "won": 10,
-        "lost": 9,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "artur.beterbiev@example.com",
-        "fit": "yes",
-        "yob": 2008,
-        "experience": 19,
-        "id": 101,
-        "sparsPerDay": 1
-      },
-      "blue": {
-        "submissionDate": "11/06/2025 19:14",
-        "name": "Gilberto Ramirez",
-        "club": "Finchley ABC",
-        "gender": "male",
-        "category": "Youth (2007 & 2008)",
-        "dob": "21/03/2008",
-        "weight": 71,
-        "bouts": 13,
-        "won": 5,
-        "lost": 8,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "gilberto.ramirez@example.com",
-        "fit": "yes",
-        "yob": 2008,
-        "experience": 13,
-        "id": 102,
-        "sparsPerDay": 1
-      },
-      "weightDiff": "0.00",
-      "category": "MaleYouth_OpenClass",
-      "groupId": "g2"
-    },
-    {
-      "red": {
-        "submissionDate": "15/06/2025 20:22",
-        "name": "Juan Marquez",
-        "club": "Arbroath Amateur Boxing Club",
-        "gender": "male",
-        "category": "Senior (2006 & older)",
-        "dob": "10/05/2004",
-        "weight": 69,
-        "bouts": 5,
-        "won": 1,
-        "lost": 4,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "juan.marquez@example.com",
-        "fit": "yes",
-        "yob": 2004,
-        "experience": 5,
-        "id": 86,
-        "sparsPerDay": 1
-      },
-      "blue": {
-        "submissionDate": "03/07/2025 09:59",
-        "name": "Jose Castillo",
-        "club": "DOBLEJAB BOXING CLUB",
-        "gender": "male",
-        "category": "Senior (2006 & older)",
-        "dob": "05/01/1997",
-        "weight": 70,
-        "bouts": 0,
-        "won": 0,
-        "lost": 0,
-        "comments": "CAN ONLY SPAR ON WEDENEDAY",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "jose.castillo@example.com",
-        "fit": "yes",
-        "yob": 1997,
-        "experience": 0,
-        "id": 94,
-        "sparsPerDay": 1
-      },
-      "weightDiff": "1.00",
-      "category": "MaleSenior_Novice",
-      "groupId": "g3"
-    },
-    {
-      "red": {
-        "submissionDate": "13/06/2025 18:31",
-        "name": "Kostya Tszyu",
-        "club": "Hands Of Stone Montrose",
-        "gender": "male",
-        "category": "Youth (2007 & 2008)",
-        "dob": "28/10/2007",
-        "weight": 69.7,
-        "bouts": 0,
-        "won": 0,
-        "lost": 0,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "kostya.tszyu@example.com",
-        "fit": "yes",
-        "yob": 2007,
-        "experience": 0,
-        "id": 89,
-        "sparsPerDay": 1
-      },
-      "blue": {
-        "submissionDate": "03/07/2025 09:59",
-        "name": "Jose Castillo",
-        "club": "DOBLEJAB BOXING CLUB",
-        "gender": "male",
-        "category": "Senior (2006 & older)",
-        "dob": "05/01/1997",
-        "weight": 70,
-        "bouts": 0,
-        "won": 0,
-        "lost": 0,
-        "comments": "CAN ONLY SPAR ON WEDENEDAY",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "jose.castillo@example.com",
-        "fit": "yes",
-        "yob": 1997,
-        "experience": 0,
-        "id": 94,
-        "sparsPerDay": 1
-      },
-      "weightDiff": "0.30",
-      "category": "MaleSenior_Novice",
-      "groupId": "g3"
-    },
-    {
-      "red": {
-        "submissionDate": "28/06/2025 11:26",
-        "name": "David Benavidez",
-        "club": "Holy Family/Golden Gloves",
-        "gender": "male",
-        "category": "Senior (2006 & older)",
-        "dob": "24/06/2005",
-        "weight": 73,
-        "bouts": 0,
-        "won": 0,
-        "lost": 0,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "david.benavidez@example.com",
-        "fit": "yes",
-        "yob": 2005,
-        "experience": 0,
-        "id": 109,
-        "sparsPerDay": 1
-      },
-      "blue": {
-        "submissionDate": "22/06/2025 03:27",
-        "name": "Josh Taylor",
-        "club": "Team Ponce&Mary",
-        "gender": "male",
-        "category": "Senior (2006 & older)",
-        "dob": "08/12/1996",
-        "weight": 77,
-        "bouts": 2,
-        "won": 1,
-        "lost": 1,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "josh.taylor@example.com",
-        "fit": "yes",
-        "yob": 1996,
-        "experience": 2,
-        "id": 116,
-        "sparsPerDay": 1
-      },
-      "weightDiff": "4.00",
-      "category": "MaleSenior_Novice",
-      "groupId": "g4"
-    },
-    {
-      "red": {
-        "submissionDate": "03/07/2025 07:23",
-        "name": "Gervonta Davis",
-        "club": "Club boxeo los alamos",
-        "gender": "male",
-        "category": "Senior (2006 & older)",
-        "dob": "21/09/1999",
-        "weight": 75,
-        "bouts": 1,
-        "won": 1,
-        "lost": 0,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "gervonta.davis@example.com",
-        "fit": "yes",
-        "yob": 1999,
-        "experience": 1,
-        "id": 112,
-        "sparsPerDay": 1
-      },
-      "blue": {
-        "submissionDate": "22/06/2025 03:27",
-        "name": "Josh Taylor",
-        "club": "Team Ponce&Mary",
-        "gender": "male",
-        "category": "Senior (2006 & older)",
-        "dob": "08/12/1996",
-        "weight": 77,
-        "bouts": 2,
-        "won": 1,
-        "lost": 1,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "josh.taylor@example.com",
-        "fit": "yes",
-        "yob": 1996,
-        "experience": 2,
-        "id": 116,
-        "sparsPerDay": 1
-      },
-      "weightDiff": "2.00",
-      "category": "MaleSenior_Novice",
-      "groupId": "g4"
-    },
-    {
-      "red": {
-        "submissionDate": "01/07/2025 12:41",
-        "name": "Carlos Ortiz",
-        "club": "Finchley ABC",
-        "gender": "male",
-        "category": "Senior (2006 & older)",
-        "dob": "02/10/2000",
-        "weight": 81,
-        "bouts": 4,
-        "won": 1,
-        "lost": 3,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "carlos.ortiz@example.com",
-        "fit": "yes",
-        "yob": 2000,
-        "experience": 4,
-        "id": 126,
-        "sparsPerDay": 1
-      },
-      "blue": {
-        "submissionDate": "28/06/2025 12:49",
-        "name": "Carlos Zarate",
-        "club": "Slough ABC",
-        "gender": "male",
-        "category": "Senior (2006 & older)",
-        "dob": "19/12/2004",
-        "weight": 82,
-        "bouts": 1,
-        "won": 1,
-        "lost": 0,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "carlos.zarate@example.com",
-        "fit": "yes",
-        "yob": 2004,
-        "experience": 1,
-        "id": 128,
-        "sparsPerDay": 1
-      },
-      "weightDiff": "1.00",
-      "category": "MaleSenior_Novice",
-      "groupId": "g5"
-    },
-    {
-      "red": {
-        "submissionDate": "09/06/2025 22:54",
-        "name": "Flash Elorde",
-        "club": "Johnstone ABC",
-        "gender": "male",
-        "category": "Youth (2007 & 2008)",
-        "dob": "12/01/2007",
-        "weight": 82,
-        "bouts": 3,
-        "won": 0,
-        "lost": 3,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "flash.elorde@example.com",
-        "fit": "yes",
-        "yob": 2007,
-        "experience": 3,
-        "id": 127,
-        "sparsPerDay": 1
-      },
-      "blue": {
-        "submissionDate": "28/06/2025 12:49",
-        "name": "Carlos Zarate",
-        "club": "Slough ABC",
-        "gender": "male",
-        "category": "Senior (2006 & older)",
-        "dob": "19/12/2004",
-        "weight": 82,
-        "bouts": 1,
-        "won": 1,
-        "lost": 0,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "carlos.zarate@example.com",
-        "fit": "yes",
-        "yob": 2004,
-        "experience": 1,
-        "id": 128,
-        "sparsPerDay": 1
-      },
-      "weightDiff": "0.00",
-      "category": "MaleSenior_Novice",
-      "groupId": "g5"
-    },
-    {
-      "red": {
-        "submissionDate": "09/06/2025 22:50",
-        "name": "Billy Saunders",
-        "club": "Johnstone ABC",
-        "gender": "male",
-        "category": "Senior (2006 & older)",
-        "dob": "30/08/2002",
-        "weight": 63,
-        "bouts": 8,
-        "won": 4,
-        "lost": 4,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "billy.saunders@example.com",
-        "fit": "yes",
-        "yob": 2002,
-        "experience": 8,
-        "id": 63,
-        "sparsPerDay": 1
-      },
-      "blue": {
-        "submissionDate": "09/06/2025 23:03",
-        "name": "Michael Watson",
-        "club": "Johnstone ABC",
-        "gender": "male",
-        "category": "Senior (2006 & older)",
-        "dob": "16/12/1997",
-        "weight": 65.3,
-        "bouts": 9,
-        "won": 6,
-        "lost": 3,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "michael.watson@example.com",
-        "fit": "yes",
-        "yob": 1997,
-        "experience": 9,
-        "id": 73,
-        "sparsPerDay": 1
-      },
-      "weightDiff": "2.30",
-      "category": "MaleSenior_Experienced",
-      "groupId": "g6"
-    },
-    {
-      "red": {
-        "submissionDate": "11/06/2025 19:16",
-        "name": "Joe Joyce",
-        "club": "Finchley ABC",
-        "gender": "male",
-        "category": "Youth (2007 & 2008)",
-        "dob": "29/11/2007",
-        "weight": 63.5,
-        "bouts": 10,
-        "won": 5,
-        "lost": 5,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "joe.joyce@example.com",
-        "fit": "yes",
-        "yob": 2007,
-        "experience": 10,
-        "id": 66,
-        "sparsPerDay": 1
-      },
-      "blue": {
-        "submissionDate": "09/06/2025 23:03",
-        "name": "Michael Watson",
-        "club": "Johnstone ABC",
-        "gender": "male",
-        "category": "Senior (2006 & older)",
-        "dob": "16/12/1997",
-        "weight": 65.3,
-        "bouts": 9,
-        "won": 6,
-        "lost": 3,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "michael.watson@example.com",
-        "fit": "yes",
-        "yob": 1997,
-        "experience": 9,
-        "id": 73,
-        "sparsPerDay": 1
-      },
-      "weightDiff": "1.80",
-      "category": "MaleSenior_Experienced",
-      "groupId": "g6"
-    },
-    {
-      "red": {
-        "submissionDate": "30/06/2025 22:33",
-        "name": "David Haye",
-        "club": "Holy Family/Golden Gloves",
-        "gender": "male",
-        "category": "Senior (2006 & older)",
-        "dob": "10/07/2004",
-        "weight": 60,
-        "bouts": 110,
-        "won": 90,
-        "lost": 20,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "david.haye@example.com",
-        "fit": "yes",
-        "yob": 2004,
-        "experience": 110,
-        "id": 47,
-        "sparsPerDay": 1
-      },
-      "blue": {
-        "submissionDate": "09/06/2025 20:36",
-        "name": "Tyson Fury",
-        "club": "The Academy Boxing Club",
-        "gender": "male",
-        "category": "Senior (2006 & older)",
-        "dob": "12/12/2002",
-        "weight": 60,
-        "bouts": 27,
-        "won": 17,
-        "lost": 10,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "tyson.fury@example.com",
-        "fit": "yes",
-        "yob": 2002,
-        "experience": 27,
-        "id": 54,
-        "sparsPerDay": 1
-      },
-      "weightDiff": "0.00",
-      "category": "MaleSenior_OpenClass",
-      "groupId": "g7"
-    },
-    {
-      "red": {
-        "submissionDate": "18/06/2025 14:53",
-        "name": "Carl Froch",
-        "club": "Team NL",
-        "gender": "male",
-        "category": "Senior (2006 & older)",
-        "dob": "31/01/2001",
-        "weight": 60,
-        "bouts": 40,
-        "won": 28,
-        "lost": 12,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "carl.froch@example.com",
-        "fit": "yes",
-        "yob": 2001,
-        "experience": 40,
-        "id": 48,
-        "sparsPerDay": 1
-      },
-      "blue": {
-        "submissionDate": "09/06/2025 20:36",
-        "name": "Tyson Fury",
-        "club": "The Academy Boxing Club",
-        "gender": "male",
-        "category": "Senior (2006 & older)",
-        "dob": "12/12/2002",
-        "weight": 60,
-        "bouts": 27,
-        "won": 17,
-        "lost": 10,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "tyson.fury@example.com",
-        "fit": "yes",
-        "yob": 2002,
-        "experience": 27,
-        "id": 54,
-        "sparsPerDay": 1
-      },
-      "weightDiff": "0.00",
-      "category": "MaleSenior_OpenClass",
-      "groupId": "g7"
-    },
-    {
-      "red": {
-        "submissionDate": "09/06/2025 19:00",
-        "name": "Nicola Adams",
-        "club": "The Academy Boxing Club",
-        "gender": "female",
-        "category": "Junior (2009 & younger)",
-        "dob": "11/08/2009",
-        "weight": 63,
-        "bouts": 5,
-        "won": 4,
-        "lost": 1,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "nicola.adams@example.com",
-        "fit": "yes",
-        "yob": 2009,
-        "experience": 5,
-        "id": 64,
-        "sparsPerDay": 1
-      },
-      "blue": {
-        "submissionDate": "17/06/2025 13:48",
-        "name": "Lucia Rijker",
-        "club": "Team Ponce&Mary",
-        "gender": "female",
-        "category": "Senior (2006 & older)",
-        "dob": "31/01/1993",
-        "weight": 66,
-        "bouts": 3,
-        "won": 1,
-        "lost": 2,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "lucia.rijker@example.com",
-        "fit": "yes",
-        "yob": 1993,
-        "experience": 3,
-        "id": 78,
-        "sparsPerDay": 1
-      },
-      "weightDiff": "3.00",
       "category": "FitFemales",
-      "groupId": "g8"
-    },
-    {
-      "red": {
-        "submissionDate": "18/06/2025 14:57",
-        "name": "Mary Kom",
-        "club": "Team NL",
-        "gender": "female",
-        "category": "Youth (2007 & 2008)",
-        "dob": "17/04/2007",
-        "weight": 65,
-        "bouts": 36,
-        "won": 30,
-        "lost": 6,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "mary.kom@example.com",
-        "fit": "yes",
-        "yob": 2007,
-        "experience": 36,
-        "id": 72,
-        "sparsPerDay": 1
-      },
-      "blue": {
-        "submissionDate": "17/06/2025 13:48",
-        "name": "Lucia Rijker",
-        "club": "Team Ponce&Mary",
-        "gender": "female",
-        "category": "Senior (2006 & older)",
-        "dob": "31/01/1993",
-        "weight": 66,
-        "bouts": 3,
-        "won": 1,
-        "lost": 2,
-        "comments": "",
-        "consent1": "Yes",
-        "consent2": "Yes",
-        "email": "lucia.rijker@example.com",
-        "fit": "yes",
-        "yob": 1993,
-        "experience": 3,
-        "id": 78,
-        "sparsPerDay": 1
-      },
-      "weightDiff": "1.00",
-      "category": "FitFemales",
-      "groupId": "g8"
+      "groupId": null
     }
   ],
   "unmatched": [
@@ -3121,7 +2580,7 @@
       "name": "Rocky Marciano",
       "club": "Team Ponce&Mary",
       "gender": "male",
-      "category": "Junior (2009 & younger)",
+      "category": "MaleSchools_Novice",
       "dob": "12/03/2013",
       "weight": 40,
       "bouts": 3,
@@ -3142,7 +2601,7 @@
       "name": "Floyd Mayweather",
       "club": "The Bronx",
       "gender": "male",
-      "category": "Junior (2009 & younger)",
+      "category": "MaleSchools_OpenClass",
       "dob": "22/06/2012",
       "weight": 43,
       "bouts": 15,
@@ -3163,7 +2622,7 @@
       "name": "Mike Tyson",
       "club": "The Academy Boxing Club",
       "gender": "male",
-      "category": "Junior (2009 & younger)",
+      "category": "MaleJunior_Experienced",
       "dob": "13/12/2011",
       "weight": 45,
       "bouts": 10,
@@ -3184,7 +2643,7 @@
       "name": "Manny Pacquiao",
       "club": "Baldoyle BC",
       "gender": "male",
-      "category": "Junior (2009 & younger)",
+      "category": "MaleJunior_OpenClass",
       "dob": "05/10/2011",
       "weight": 45,
       "bouts": 16,
@@ -3205,7 +2664,7 @@
       "name": "Lennox Lewis",
       "club": "The Academy Boxing Club",
       "gender": "male",
-      "category": "Junior (2009 & younger)",
+      "category": "MaleYouth_Experienced",
       "dob": "18/05/2009",
       "weight": 46,
       "bouts": 9,
@@ -3226,7 +2685,7 @@
       "name": "Oscar De La Hoya",
       "club": "The Academy Boxing Club",
       "gender": "male",
-      "category": "Junior (2009 & younger)",
+      "category": "MaleJunior_Novice",
       "dob": "26/10/2011",
       "weight": 48,
       "bouts": 1,
@@ -3247,7 +2706,7 @@
       "name": "Thomas Hearns",
       "club": "Camac Boxing Club",
       "gender": "male",
-      "category": "Youth (2007 & 2008)",
+      "category": "MaleYouth_Novice",
       "dob": "16/10/2008",
       "weight": 50,
       "bouts": 5,
@@ -3268,7 +2727,7 @@
       "name": "Alexis Arguello",
       "club": "Slough ABC",
       "gender": "male",
-      "category": "Junior (2009 & younger)",
+      "category": "MaleYouth_Experienced",
       "dob": "06/02/2009",
       "weight": 52,
       "bouts": 8,
@@ -3289,7 +2748,7 @@
       "name": "Sandy Saddler",
       "club": "Dale youth",
       "gender": "male",
-      "category": "Youth (2007 & 2008)",
+      "category": "MaleSchools_OpenClass",
       "dob": "24/11/2008",
       "weight": 53,
       "bouts": 2,
@@ -3310,7 +2769,7 @@
       "name": "Mickey Walker",
       "club": "The Academy Boxing Club",
       "gender": "male",
-      "category": "Junior (2009 & younger)",
+      "category": "MaleJunior_Novice",
       "dob": "15/09/2010",
       "weight": 54,
       "bouts": 0,
@@ -3331,7 +2790,7 @@
       "name": "Barney Ross",
       "club": "Cherry Orchard",
       "gender": "male",
-      "category": "Junior (2009 & younger)",
+      "category": "MaleYouth_OpenClass",
       "dob": "13/06/2009",
       "weight": 54,
       "bouts": 20,
@@ -3352,7 +2811,7 @@
       "name": "Canelo Alvarez",
       "club": "Finchley ABC",
       "gender": "male",
-      "category": "Junior (2009 & younger)",
+      "category": "MaleSchools_Experienced",
       "dob": "16/01/2012",
       "weight": 59,
       "bouts": 9,
@@ -3373,7 +2832,7 @@
       "name": "Gennady Golovkin",
       "club": "Baldoyle BC",
       "gender": "male",
-      "category": "Junior (2009 & younger)",
+      "category": "MaleJunior_Experienced",
       "dob": "09/05/2011",
       "weight": 59,
       "bouts": 8,
@@ -3394,7 +2853,7 @@
       "name": "Ricky Hatton",
       "club": "The Academy Boxing Club",
       "gender": "male",
-      "category": "Junior (2009 & younger)",
+      "category": "MaleYouth_OpenClass",
       "dob": "08/03/2009",
       "weight": 60,
       "bouts": 15,
@@ -3415,7 +2874,7 @@
       "name": "Floyd Patterson",
       "club": "The Academy Boxing Club",
       "gender": "male",
-      "category": "Junior (2009 & younger)",
+      "category": "MaleYouth_Experienced",
       "dob": "03/12/2009",
       "weight": 66,
       "bouts": 8,
@@ -3436,7 +2895,7 @@
       "name": "Riddick Bowe",
       "club": "Baldoyle BC",
       "gender": "male",
-      "category": "Junior (2009 & younger)",
+      "category": "MaleYouth_OpenClass",
       "dob": "10/04/2009",
       "weight": 66,
       "bouts": 20,
@@ -3457,7 +2916,7 @@
       "name": "Ken Norton",
       "club": "DOBLE JAB BOXING CLUB",
       "gender": "male",
-      "category": "Senior (2006 & older)",
+      "category": "MaleSenior_Novice",
       "dob": "22/08/2002",
       "weight": 66,
       "bouts": 0,
@@ -3478,7 +2937,7 @@
       "name": "Erik Morales",
       "club": "Baldoyle BC",
       "gender": "male",
-      "category": "Junior (2009 & younger)",
+      "category": "MaleJunior_OpenClass",
       "dob": "04/01/2010",
       "weight": 68,
       "bouts": 20,
@@ -3499,7 +2958,7 @@
       "name": "Pernell Whitaker",
       "club": "DOBLE JAB BOXING CLUB",
       "gender": "male",
-      "category": "Junior (2009 & younger)",
+      "category": "MaleJunior_Novice",
       "dob": "30/10/2011",
       "weight": 80,
       "bouts": 0,
@@ -3520,7 +2979,7 @@
       "name": "Roman Gonzalez",
       "club": "Hands Of Stone Montrose",
       "gender": "male",
-      "category": "Senior (2006 & older)",
+      "category": "MaleSenior_OpenClass",
       "dob": "09/11/2003",
       "weight": 84,
       "bouts": 16,
@@ -3541,7 +3000,7 @@
       "name": "Juan Estrada",
       "club": "BSG 76",
       "gender": "male",
-      "category": "Senior (2006 & older)",
+      "category": "MaleSenior_OpenClass",
       "dob": "17/08/2005",
       "weight": 90,
       "bouts": 18,
@@ -3562,7 +3021,7 @@
       "name": "Ray Beltran",
       "club": "DOBLE JAB BOXING CLUB",
       "gender": "male",
-      "category": "Senior (2006 & older)",
+      "category": "MaleSenior_Novice",
       "dob": "11/10/2004",
       "weight": 98,
       "bouts": 0,
@@ -3583,7 +3042,7 @@
       "name": "Chris Colbert",
       "club": "Holy Family/Golden Gloves",
       "gender": "male",
-      "category": "Senior (2006 & older)",
+      "category": "MaleSenior_OpenClass",
       "dob": "20/10/1994",
       "weight": 100,
       "bouts": 63,
@@ -3604,7 +3063,7 @@
       "name": "Jose Pedraza",
       "club": "Holy Family/Golden Gloves",
       "gender": "male",
-      "category": "Senior (2006 & older)",
+      "category": "MaleSenior_Novice",
       "dob": "09/06/2000",
       "weight": 105,
       "bouts": 0,
@@ -3625,7 +3084,7 @@
       "name": "Masayoshi Nakatani",
       "club": "Arbroath Amateur Boxing Club",
       "gender": "male",
-      "category": "Senior (2006 & older)",
+      "category": "MaleSenior_Experienced",
       "dob": "23/12/2001",
       "weight": 105,
       "bouts": 7,
@@ -3646,7 +3105,7 @@
       "name": "Liam Smith",
       "club": "Finchley ABC",
       "gender": "male",
-      "category": "Senior (2006 & older)",
+      "category": "MaleSenior_Experienced",
       "dob": "03/09/2004",
       "weight": 119,
       "bouts": 10,

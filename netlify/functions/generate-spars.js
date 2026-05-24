@@ -20,7 +20,7 @@ function pairBoxers(boxers, category, tolerance, sparCount) {
       const diff = Math.abs(cur.weight - opp.weight);
       if (diff > tolerance) break;
       // Skip if sparCount provided and opponent has reached their sparsPerDay limit
-      if (sparCount && (sparCount.get(opp.name) || 0) >= (opp.sparsPerDay || 1)) continue;
+      if (sparCount && (sparCount.get(opp) || 0) >= (opp.sparsPerDay || 1)) continue;
       const isDiff = cur.club !== opp.club;
       if (isDiff && !diffClub) { bestIdx = i; diffClub = true; minDiff = diff; }
       else if (isDiff === diffClub && diff < minDiff) { bestIdx = i; minDiff = diff; }
@@ -28,10 +28,10 @@ function pairBoxers(boxers, category, tolerance, sparCount) {
     if (bestIdx !== -1) {
       const opp = sorted.splice(bestIdx, 1)[0];
       if (sparCount) {
-        sparCount.set(cur.name,  (sparCount.get(cur.name)  || 0) + 1);
-        sparCount.set(opp.name,  (sparCount.get(opp.name)  || 0) + 1);
+        sparCount.set(cur,  (sparCount.get(cur)  || 0) + 1);
+        sparCount.set(opp,  (sparCount.get(opp)  || 0) + 1);
       }
-      matches.push({ red: cur, blue: opp, weightDiff: Math.abs(cur.weight - opp.weight).toFixed(2), category });
+      matches.push({ red: cur, blue: opp, weightDiff: Math.abs(cur.weight - opp.weight).toFixed(2), category, groupId: null });
     } else {
       unmatched.push(cur);
     }
@@ -107,16 +107,7 @@ exports.handler = async () => {
         const anchor = allMatches[bestIdx];
         const gid = `g${++groupCounter}`;
         anchor.groupId = gid;
-        allMatches.push({
-          red: anchor.red, blue: boxer,
-          weightDiff: Math.abs(anchor.red.weight - boxer.weight).toFixed(2),
-          category: bucket, groupId: gid
-        });
-        allMatches.push({
-          red: anchor.blue, blue: boxer,
-          weightDiff: Math.abs(anchor.blue.weight - boxer.weight).toFixed(2),
-          category: bucket, groupId: gid
-        });
+        anchor.third   = boxer;
       } else {
         stillRemaining.push(boxer);
       }
@@ -127,7 +118,7 @@ exports.handler = async () => {
       .map(b => ({ name: b.name, weight: b.weight, experience: b.experience, club: b.club }));
 
     // Rename _bucket to category on unmatched, strip from matched boxer objects
-    allMatches.forEach(m => { delete m.red._bucket; delete m.blue._bucket; });
+    allMatches.forEach(m => { delete m.red._bucket; delete m.blue._bucket; if (m.third) delete m.third._bucket; });
     stillRemaining.forEach(b => { b.category = b._bucket; delete b._bucket; });
 
     const groupCount = groupCounter;
@@ -135,7 +126,7 @@ exports.handler = async () => {
     const result = {
       summary: {
         totalBoxers:    total,
-        matchedCount:   allMatches.filter(m => !m.groupId).length * 2 + groupCount * 3,
+        matchedCount:   allMatches.reduce((n, m) => n + (m.third ? 3 : 2), 0),
         unmatchedCount: stillRemaining.length,
         matchCount:     allMatches.length,
         groupCount,

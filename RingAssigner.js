@@ -12,22 +12,22 @@ const RINGS_ALL  = ['R1', 'R2', 'R3', 'R4', 'R5'];
 
 // ── Classifiers ──────────────────────────────────────────────────────────────
 
-// Both boxers are male seniors (YOB ≤ 2006)
+// All boxers in the match are male seniors (YOB ≤ 2006)
 function isBothSeniorMale(match) {
   const sm = b => b.gender === 'male' && b.yob <= 2006;
-  return sm(match.red) && sm(match.blue);
+  return sm(match.red) && sm(match.blue) && (!match.third || sm(match.third));
 }
 
-// Either boxer is female
+// Any boxer in the match is female
 function hasFemale(match) {
-  return match.red.gender === 'female' || match.blue.gender === 'female';
+  return match.red.gender === 'female' || match.blue.gender === 'female'
+      || match.third?.gender === 'female';
 }
 
 // R5-eligible: every boxer must be female OR male junior (YOB ≥ 2009).
-// Cross-age pairs with a senior/youth male are excluded even if the other boxer qualifies.
 function isR5Eligible(match) {
   const ok = b => b.gender === 'female' || (b.gender === 'male' && b.yob >= 2009);
-  return ok(match.red) && ok(match.blue);
+  return ok(match.red) && ok(match.blue) && (!match.third || ok(match.third));
 }
 
 // ── Strategy 1: BALANCED ─────────────────────────────────────────────────────
@@ -82,9 +82,11 @@ function distributeGrouped(matches) {
 
 // ── Bout duration (minutes) ───────────────────────────────────────────────────
 // Senior = 3×3min + 2×1min rest = 11 min. Youth/Junior = 3×2min + 2×1min = 8 min.
+// Round-robin groups of 3 run all three bouts in sequence: 3× single bout time.
 
 function boutDuration(match) {
-  return match.category && match.category.includes('Senior') ? 11 : 8;
+  const single = match.category?.includes('Senior') ? 11 : 8;
+  return match.third ? single * 3 : single;
 }
 
 // ── Slot builder (shared) ────────────────────────────────────────────────────
@@ -100,7 +102,8 @@ function buildSlots(queues) {
       const m = queues[ring][i];
       if (m) bouts.push({ ring, sparId: m.sparId, category: m.category,
                           duration: boutDuration(m),
-                          red: m.red, blue: m.blue, weightDiff: m.weightDiff });
+                          red: m.red, blue: m.blue, third: m.third || null,
+                          weightDiff: m.weightDiff });
     }
     slots.push({ slot: i + 1, bouts });
   }
@@ -147,7 +150,9 @@ function run(day = 1) {
   // Sort by average bout weight to maximise boxer rest between days.
   // Odd days (Mon/Wed/Fri/Sun) → heaviest first so heavy fighters start early.
   // Even days (Tue/Thu/Sat)   → lightest first so they finish late — maximising gap.
-  const avgWeight = m => (m.red.weight + m.blue.weight) / 2;
+  const avgWeight = m => m.third
+    ? (m.red.weight + m.blue.weight + m.third.weight) / 3
+    : (m.red.weight + m.blue.weight) / 2;
   const isOddDay  = day % 2 === 1;
   matches.sort((a, b) => isOddDay
     ? avgWeight(b) - avgWeight(a)   // desc
