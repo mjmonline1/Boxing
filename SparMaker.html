@@ -600,6 +600,7 @@
     if (cell) cycleCell(cell.dataset.row, cell.dataset.col);
   });
 
+
   document.getElementById('sparList').addEventListener('click', e => {
     const row = e.target.closest('tr[data-key]');
     if (row) removeMatch(row.dataset.key);

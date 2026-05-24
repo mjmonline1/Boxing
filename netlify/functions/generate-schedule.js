@@ -11,10 +11,10 @@ const RINGS_OPEN = ['R1','R2','R3','R4'];
 const RINGS_ALL  = ['R1','R2','R3','R4','R5'];
 
 const isSeniorMale  = b => b.gender === 'male' && b.yob <= 2006;
-const isBothSenior  = m => isSeniorMale(m.red) && isSeniorMale(m.blue);
-const hasFemale     = m => m.red.gender === 'female' || m.blue.gender === 'female';
-const isR5Eligible  = m => { const ok = b => b.gender==='female'||(b.gender==='male'&&b.yob>=2009); return ok(m.red)&&ok(m.blue); };
-const boutDuration  = m => m.category?.includes('Senior') ? 11 : 8;
+const isBothSenior  = m => isSeniorMale(m.red) && isSeniorMale(m.blue) && (!m.third || isSeniorMale(m.third));
+const hasFemale     = m => m.red.gender === 'female' || m.blue.gender === 'female' || m.third?.gender === 'female';
+const isR5Eligible  = m => { const ok = b => b.gender==='female'||(b.gender==='male'&&b.yob>=2009); return ok(m.red)&&ok(m.blue)&&(!m.third||ok(m.third)); };
+const boutDuration  = m => { const s = m.category?.includes('Senior') ? 11 : 8; return m.third ? s * 3 : s; };
 
 function distributeGrouped(matches) {
   const queues = Object.fromEntries(RINGS_ALL.map(r => [r, []]));
@@ -45,7 +45,7 @@ function buildSlots(queues) {
     for (const ring of active) {
       const m = queues[ring][i];
       if (m) bouts.push({ ring, sparId: m.sparId, category: m.category,
-                          duration: boutDuration(m), red: m.red, blue: m.blue, weightDiff: m.weightDiff });
+                          duration: boutDuration(m), red: m.red, blue: m.blue, third: m.third || null, weightDiff: m.weightDiff });
     }
     slots.push({ slot: i + 1, bouts });
   }
@@ -63,7 +63,7 @@ exports.handler = async (event) => {
     }
 
     const matches = sparsDoc.matches.map((m, i) => ({ sparId: `S${i + 1}`, ...m }));
-    const avg     = m => (m.red.weight + m.blue.weight) / 2;
+    const avg     = m => m.third ? (m.red.weight + m.blue.weight + m.third.weight) / 3 : (m.red.weight + m.blue.weight) / 2;
     matches.sort((a, b) => day % 2 === 1 ? avg(b) - avg(a) : avg(a) - avg(b));
 
     const queues  = distributeGrouped(matches);

@@ -26,7 +26,7 @@ function pairBoxers(boxers, categoryName, tolerance = WEIGHT_TOLERANCE, sparCoun
 
             if (weightDiff <= tolerance) {
                 // Skip if opponent has reached their sparsPerDay limit
-                if (sparCount && (sparCount.get(opponent.name) || 0) >= (opponent.sparsPerDay || 1)) continue;
+                if (sparCount && (sparCount.get(opponent) || 0) >= (opponent.sparsPerDay || 1)) continue;
 
                 const isDifferentClub = current.club !== opponent.club;
 
@@ -48,14 +48,15 @@ function pairBoxers(boxers, categoryName, tolerance = WEIGHT_TOLERANCE, sparCoun
         if (bestOpponentIndex !== -1) {
             const opponent = sorted.splice(bestOpponentIndex, 1)[0];
             if (sparCount) {
-                sparCount.set(current.name,  (sparCount.get(current.name)  || 0) + 1);
-                sparCount.set(opponent.name, (sparCount.get(opponent.name) || 0) + 1);
+                sparCount.set(current,  (sparCount.get(current)  || 0) + 1);
+                sparCount.set(opponent, (sparCount.get(opponent) || 0) + 1);
             }
             matches.push({
                 red: current,
                 blue: opponent,
                 weightDiff: Math.abs(current.weight - opponent.weight).toFixed(2),
-                category: categoryName
+                category: categoryName,
+                groupId: null
             });
         } else {
             unmatched.push(current);
@@ -152,16 +153,7 @@ function main() {
             const anchor = allMatches[bestIdx];
             const gid = `g${++groupCounter}`;
             anchor.groupId = gid;
-            allMatches.push({
-                red: anchor.red, blue: boxer,
-                weightDiff: Math.abs(anchor.red.weight - boxer.weight).toFixed(2),
-                category: bucket, groupId: gid
-            });
-            allMatches.push({
-                red: anchor.blue, blue: boxer,
-                weightDiff: Math.abs(anchor.blue.weight - boxer.weight).toFixed(2),
-                category: bucket, groupId: gid
-            });
+            anchor.third   = boxer;
             console.log(`  Group ${gid}: ${anchor.red.name} / ${anchor.blue.name} / ${boxer.name}`);
         } else {
             stillRemaining.push(boxer);
@@ -176,12 +168,12 @@ function main() {
     }
 
     // Rename _bucket to category on unmatched, strip from matched boxer objects
-    allMatches.forEach(m => { delete m.red._bucket; delete m.blue._bucket; });
+    allMatches.forEach(m => { delete m.red._bucket; delete m.blue._bucket; if (m.third) delete m.third._bucket; });
     stillRemaining.forEach(b => { b.category = b._bucket; delete b._bucket; });
 
     const groupCount = groupCounter;
     const totalBoxers = data.summary.totalDistributed;
-    const matchedCount = allMatches.filter(m => !m.groupId).length * 2 + groupCount * 3;
+    const matchedCount = allMatches.reduce((n, m) => n + (m.third ? 3 : 2), 0);
     const unmatchedCount = stillRemaining.length;
 
     console.log('\n--- Final Summary ---');
@@ -217,4 +209,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = { main };
+module.exports = { main, pairBoxers };

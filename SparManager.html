@@ -89,6 +89,10 @@
       font-size: 10px; color: #c62828; background: #ffebee;
       padding: 2px 6px; border-radius: 3px;
     }
+    .rr-badge {
+      font-size: 11px; font-weight: bold; color: #6a1b9a;
+      background: #f3e5f5; padding: 2px 8px; border-radius: 3px;
+    }
     .diff-badge {
       font-size: 10px; color: #555; background: #f5f5f5;
       padding: 2px 6px; border-radius: 3px;
@@ -131,8 +135,17 @@
     }
 
     /* corner-specific colours */
-    .red-corner  .boxer-tile { border-top: 2px solid #e53935; }
-    .blue-corner .boxer-tile { border-top: 2px solid #1e88e5; }
+    .red-corner   .boxer-tile { border-top: 2px solid #e53935; }
+    .blue-corner  .boxer-tile { border-top: 2px solid #1e88e5; }
+    .third-corner .boxer-tile { border-top: 2px solid #9c27b0; }
+
+    .match-card.group-drop-target {
+      outline: 2px dashed #9c27b0; background: #fdf4ff;
+    }
+    .boxer-tile.group-add-target {
+      outline: 2px dashed #9c27b0; background: #f9f0ff;
+      box-shadow: 0 0 0 3px #e1bee7;
+    }
 
     /* type accent on left edge for unmatched tiles */
     .boxer-tile.senior { border-left: 3px solid #4a90d9; }
@@ -177,6 +190,7 @@
       margin-bottom: 7px;
     }
     .pool-empty { font-size: 12px; color: #bbb; font-style: italic; padding: 4px 0; }
+    #pair-hint kbd { font-size: 10px; background: #eee; border: 1px solid #ccc; border-radius: 3px; padding: 1px 4px; font-family: inherit; }
     .drop-prompt {
       font-size: 11px; color: #aaa; text-align: center;
       padding: 8px; border: 1px dashed #ddd; border-radius: 6px;
@@ -213,7 +227,7 @@
   <span class="legend-item"><span class="swatch" style="background:#f0ad4e"></span>Youth male</span>
   <span class="legend-item"><span class="swatch" style="background:#e91e8c"></span>Female</span>
   <span style="margin-left:16px;font-size:12px;color:#888;">
-    Drag any boxer onto another to swap them · Drop onto the pool panel to unmatch · Drop an unmatched boxer onto another unmatched boxer to create a new pair
+    Drag any boxer onto another to swap them · Drop onto the pool panel to unmatch · Drop an unmatched boxer onto another unmatched boxer to create a new pair · Ctrl+drop an unmatched boxer onto a pair to create a group of 3
   </span>
 </div>
 
@@ -237,7 +251,7 @@
     </div>
     <div id="unmatched-zone">
       <div id="pair-hint" style="font-size:11px;color:#aaa;background:#f9f9f9;border:1px dashed #ddd;border-radius:6px;padding:7px 9px;margin-bottom:8px;line-height:1.5;display:none;">
-        Drop one boxer onto another below to create a new pair
+        Drop one boxer onto another to create a pair<br>Hold <kbd>Ctrl</kbd> while dropping to create a group
       </div>
       <div id="unmatched-list"></div>
     </div>
@@ -325,32 +339,43 @@ function clone(x) { return JSON.parse(JSON.stringify(x)); }
 function findBoxer(id) {
   for (let i = 0; i < state.matches.length; i++) {
     const m = state.matches[i];
-    if (m.red.id  === id) return { boxer: m.red,  loc: { type: 'match', idx: i, corner: 'red'  } };
-    if (m.blue.id === id) return { boxer: m.blue, loc: { type: 'match', idx: i, corner: 'blue' } };
+    if (m.red.id   === id) return { boxer: m.red,   loc: { type: 'match', idx: i, corner: 'red'   } };
+    if (m.blue.id  === id) return { boxer: m.blue,  loc: { type: 'match', idx: i, corner: 'blue'  } };
+    if (m.third && m.third.id === id) return { boxer: m.third, loc: { type: 'match', idx: i, corner: 'third' } };
   }
   const ui = state.unmatched.findIndex(b => b.id === id);
   if (ui >= 0) return { boxer: state.unmatched[ui], loc: { type: 'unmatched', idx: ui } };
   return null;
 }
 
+function setCorner(match, corner, boxer) {
+  if      (corner === 'red')   match.red   = boxer;
+  else if (corner === 'blue')  match.blue  = boxer;
+  else if (corner === 'third') match.third = boxer;
+}
+
 // ── Classification ────────────────────────────────────────────────────────────
 
 function ageGroup(yob) {
-  if (yob >= 2009) return 'junior';
-  if (yob >= 2007) return 'youth';
+  if (yob >= 2012) return 'schools';
+  if (yob >= 2010) return 'junior';
+  if (yob >= 2008) return 'youth';
   return 'senior';
 }
 function boutType(m)  {
-  if (m.red.gender === 'female' || m.blue.gender === 'female') return 'female';
+  if (m.red.gender === 'female' || m.blue.gender === 'female' || m.third?.gender === 'female') return 'female';
   return ageGroup(m.red.yob);
 }
 function boxerType(b) {
   return b.gender === 'female' ? 'female' : ageGroup(b.yob);
 }
 function deriveCategory(a, b) {
-  const g  = (a.gender === 'female' || b.gender === 'female') ? 'Female' : 'Male';
-  const ag = ageGroup(a.yob);
-  return `${g}${ag[0].toUpperCase()}${ag.slice(1)}_Manual`;
+  if (a.gender === 'female' || b.gender === 'female') return 'FitFemales';
+  const ag  = ageGroup(a.yob);
+  const agLabel = ag[0].toUpperCase() + ag.slice(1);
+  const exp = a.experience || 0;
+  const expLabel = exp <= 5 ? 'Novice' : exp <= 10 ? 'Experienced' : 'OpenClass';
+  return `Male${agLabel}_${expLabel}`;
 }
 
 // ── Mutations ─────────────────────────────────────────────────────────────────
@@ -376,8 +401,8 @@ function swapBoxers(aId, bId) {
       // Different pairs — swap the two boxers in-place; old partners stay
       const mA = state.matches[aInfo.loc.idx];
       const mB = state.matches[bInfo.loc.idx];
-      if (aInfo.loc.corner === 'red') mA.red  = bBoxer; else mA.blue = bBoxer;
-      if (bInfo.loc.corner === 'red') mB.red  = aBoxer; else mB.blue = aBoxer;
+      setCorner(mA, aInfo.loc.corner, bBoxer);
+      setCorner(mB, bInfo.loc.corner, aBoxer);
       mA.weightDiff = Math.abs(mA.red.weight - mA.blue.weight).toFixed(2);
       mB.weightDiff = Math.abs(mB.red.weight - mB.blue.weight).toFixed(2);
       mA.category   = deriveCategory(mA.red, mA.blue);
@@ -386,7 +411,7 @@ function swapBoxers(aId, bId) {
   } else if (aInfo.loc.type === 'match' && bInfo.loc.type === 'unmatched') {
     // A is in a pair, B is unmatched — swap: B takes A's slot, A goes to pool
     const m = state.matches[aInfo.loc.idx];
-    if (aInfo.loc.corner === 'red') m.red = bBoxer; else m.blue = bBoxer;
+    setCorner(m, aInfo.loc.corner, bBoxer);
     state.unmatched = state.unmatched.filter(b => b.id !== bId);
     state.unmatched.push(aBoxer);
     m.weightDiff = Math.abs(m.red.weight - m.blue.weight).toFixed(2);
@@ -394,7 +419,7 @@ function swapBoxers(aId, bId) {
   } else if (aInfo.loc.type === 'unmatched' && bInfo.loc.type === 'match') {
     // A is unmatched, B is in a pair — swap: A takes B's slot, B goes to pool
     const m = state.matches[bInfo.loc.idx];
-    if (bInfo.loc.corner === 'red') m.red = aBoxer; else m.blue = aBoxer;
+    setCorner(m, bInfo.loc.corner, aBoxer);
     state.unmatched = state.unmatched.filter(b => b.id !== aId);
     state.unmatched.push(bBoxer);
     m.weightDiff = Math.abs(m.red.weight - m.blue.weight).toFixed(2);
@@ -413,15 +438,35 @@ function swapBoxers(aId, bId) {
   }
 }
 
-// Move boxer back to unmatched pool, freeing their partner too.
+// Move boxer back to unmatched pool.
+// For groups of 3: removing the third leaves the pair intact; removing red/blue slides the third in.
+// For plain pairs: both boxers go to pool.
 function unmatchBoxer(id) {
   const info = findBoxer(id);
   if (!info) return;
-  if (info.loc.type === 'unmatched') return;  // already free
+  if (info.loc.type === 'unmatched') return;
 
-  const m       = state.matches[info.loc.idx];
+  const m = state.matches[info.loc.idx];
+
+  if (info.loc.corner === 'third') {
+    delete m.third;
+    if (!state.unmatched.some(b => b.id === id)) state.unmatched.push(clone(info.boxer));
+    return;
+  }
+
+  if (m.third) {
+    // Red or blue leaves a group of 3 — third slides into the vacated spot
+    const leaving = clone(info.boxer);
+    setCorner(m, info.loc.corner, clone(m.third));
+    delete m.third;
+    m.weightDiff = Math.abs(m.red.weight - m.blue.weight).toFixed(2);
+    m.category   = deriveCategory(m.red, m.blue);
+    if (!state.unmatched.some(b => b.id === id)) state.unmatched.push(leaving);
+    return;
+  }
+
+  // Standard pair: free both
   const partner = info.loc.corner === 'red' ? clone(m.blue) : clone(m.red);
-
   state.matches.splice(info.loc.idx, 1);
   if (!state.unmatched.some(b => b.id === id))         state.unmatched.push(clone(info.boxer));
   if (!state.unmatched.some(b => b.id === partner.id)) state.unmatched.push(partner);
@@ -432,7 +477,17 @@ function deleteMatch(sparId) {
   if (idx < 0) return;
   const m = state.matches[idx];
   state.unmatched.push(clone(m.red), clone(m.blue));
+  if (m.third) state.unmatched.push(clone(m.third));
   state.matches.splice(idx, 1);
+}
+
+function addThirdBoxer(unmatchedId, sparId) {
+  const info = findBoxer(unmatchedId);
+  if (!info || info.loc.type !== 'unmatched') return;
+  const m = state.matches.find(m => m.sparId === sparId);
+  if (!m || m.third) return;
+  m.third = clone(info.boxer);
+  state.unmatched = state.unmatched.filter(b => b.id !== unmatchedId);
 }
 
 function swapMatch(sparId) {
@@ -495,21 +550,47 @@ function makeBoxerTile(boxer, extraClass, category) {
     div.classList.remove('dragging');
   });
 
-  // This tile as drop target: drop → pair them
+  // This tile as drop target: drop → swap · Ctrl+drop (unmatched onto pair) → group of 3
   div.addEventListener('dragover', e => {
     if (draggedId !== null && draggedId !== boxer.id) {
       e.preventDefault();
       e.stopPropagation();   // don't bubble to unmatched-zone
+      if (e.ctrlKey) {
+        const fromInfo = findBoxer(draggedId);
+        const toInfo   = findBoxer(boxer.id);
+        if (fromInfo?.loc.type === 'unmatched' && toInfo?.loc.type === 'match') {
+          const m = state.matches[toInfo.loc.idx];
+          if (!m.third) { div.classList.add('group-add-target'); return; }
+        }
+      }
       div.classList.add('drop-target');
     }
   });
-  div.addEventListener('dragleave', () => div.classList.remove('drop-target'));
+  div.addEventListener('dragleave', () => {
+    div.classList.remove('drop-target');
+    div.classList.remove('group-add-target');
+  });
   div.addEventListener('drop', e => {
     e.preventDefault();
     e.stopPropagation();
     div.classList.remove('drop-target');
+    div.classList.remove('group-add-target');
     const fromId = parseInt(e.dataTransfer.getData('text/plain'));
     if (fromId === boxer.id) return;
+    if (e.ctrlKey) {
+      const fromInfo = findBoxer(fromId);
+      const toInfo   = findBoxer(boxer.id);
+      if (fromInfo?.loc.type === 'unmatched' && toInfo?.loc.type === 'match') {
+        const m = state.matches[toInfo.loc.idx];
+        if (!m.third) {
+          addThirdBoxer(fromId, m.sparId);
+          populateCategoryFilter();
+          render();
+          showToast(`${fromInfo.boxer.name} added — group of 3`);
+          return;
+        }
+      }
+    }
     swapBoxers(fromId, boxer.id);
     populateCategoryFilter();
     render();
@@ -604,10 +685,16 @@ function renderPairs() {
 
     const meta = document.createElement('div');
     meta.style.display = 'flex'; meta.style.gap = '6px'; meta.style.alignItems = 'center'; meta.style.flexWrap = 'wrap';
-    meta.innerHTML = `<span class="spar-id">${m.sparId}</span>
-      <span class="cat-badge">${m.category}</span>
-      <span class="${bigDiff ? 'warn-badge' : 'diff-badge'}">⚖ ${m.weightDiff} kg</span>
-      ${sameClub ? '<span class="warn-badge">⚠ same club</span>' : ''}`;
+    if (m.third) {
+      meta.innerHTML = `<span class="spar-id">${m.sparId}</span>
+        <span class="rr-badge">⬡ Round Robin &middot; 3&times; bout</span>
+        <span class="cat-badge">${m.category}</span>`;
+    } else {
+      meta.innerHTML = `<span class="spar-id">${m.sparId}</span>
+        <span class="cat-badge">${m.category}</span>
+        <span class="${bigDiff ? 'warn-badge' : 'diff-badge'}">⚖ ${m.weightDiff} kg</span>
+        ${sameClub ? '<span class="warn-badge">⚠ same club</span>' : ''}`;
+    }
 
     const actions = document.createElement('div');
     actions.className = 'card-actions';
@@ -645,12 +732,48 @@ function renderPairs() {
     blueWrap.innerHTML = '<div class="corner-label">🔵 Blue corner</div>';
     blueWrap.appendChild(makeBoxerTile(m.blue, null, m.category));
 
-    matchup.append(redWrap, vsEl, blueWrap);
+    if (m.third) {
+      const vsEl2 = document.createElement('div');
+      vsEl2.className = 'vs-col'; vsEl2.textContent = 'vs';
+      const thirdWrap = document.createElement('div');
+      thirdWrap.className = 'corner-wrap third-corner';
+      thirdWrap.innerHTML = '<div class="corner-label">⚪ Third</div>';
+      thirdWrap.appendChild(makeBoxerTile(m.third, null, m.category));
+      matchup.append(redWrap, vsEl, blueWrap, vsEl2, thirdWrap);
+    } else {
+      matchup.append(redWrap, vsEl, blueWrap);
+    }
     card.appendChild(matchup);
+
+    // Card background as drop zone — Ctrl+drop unmatched boxer here → group of 3
+    card.addEventListener('dragover', e => {
+      if (!e.ctrlKey) return;
+      const info = draggedId !== null ? findBoxer(draggedId) : null;
+      if (info?.loc.type === 'unmatched' && !m.third) {
+        e.preventDefault();
+        card.classList.add('group-drop-target');
+      }
+    });
+    card.addEventListener('dragleave', e => {
+      if (!card.contains(e.relatedTarget)) card.classList.remove('group-drop-target');
+    });
+    card.addEventListener('drop', e => {
+      card.classList.remove('group-drop-target');
+      if (!e.ctrlKey) return;
+      // tile handlers call stopPropagation so this only fires for card-background drops
+      e.preventDefault();
+      const fromId = parseInt(e.dataTransfer.getData('text/plain'));
+      const info = findBoxer(fromId);
+      if (!info || info.loc.type !== 'unmatched' || m.third) return;
+      addThirdBoxer(fromId, m.sparId);
+      populateCategoryFilter();
+      render();
+      showToast(`${info.boxer.name} added — group of 3`);
+    });
 
     const hint = document.createElement('div');
     hint.className = 'drag-hint';
-    hint.textContent = 'drag to re-pair';
+    hint.textContent = m.third ? 'drag to re-pair · drop to pool to remove' : 'drag to re-pair · Ctrl+drop unmatched here for group of 3';
     card.appendChild(hint);
 
     container.appendChild(card);
@@ -661,27 +784,42 @@ function renderUnmatched() {
   const list  = document.getElementById('unmatched-list');
   const title = document.getElementById('unmatched-title');
   const hint  = document.getElementById('pair-hint');
-  title.textContent = `Unmatched Pool (${state.unmatched.length})`;
+  const cat   = document.getElementById('filterCat').value;
+
+  const visible = cat
+    ? state.unmatched.filter(b => b.category === cat)
+    : state.unmatched;
+
+  title.textContent = cat
+    ? `Unmatched Pool (${visible.length} of ${state.unmatched.length})`
+    : `Unmatched Pool (${state.unmatched.length})`;
+
   list.innerHTML = '';
 
-  if (state.unmatched.length === 0) {
+  if (visible.length === 0) {
     hint.style.display = 'none';
-    list.innerHTML = '<div class="pool-empty">All boxers paired ✓</div>';
+    list.innerHTML = state.unmatched.length === 0
+      ? '<div class="pool-empty">All boxers paired ✓</div>'
+      : '<div class="pool-empty">None unmatched in this category</div>';
     return;
   }
 
-  // Show the pairing hint whenever there are 2+ free boxers
-  hint.style.display = state.unmatched.length >= 2 ? 'block' : 'none';
+  hint.style.display = visible.length >= 2 ? 'block' : 'none';
 
-  state.unmatched.forEach(b => {
+  visible.forEach(b => {
     const tile = makeBoxerTile(b, 'unmatched-tile', b.category);
     list.appendChild(tile);
   });
 }
 
 function updateStats() {
-  document.getElementById('stats').textContent =
-    `${state.matches.length} pairs · ${state.unmatched.length} unmatched`;
+  const groupCount = state.matches.filter(m => m.third).length;
+  const pairCount  = state.matches.length - groupCount;
+  const parts = [];
+  if (pairCount  > 0) parts.push(`${pairCount} pair${pairCount !== 1 ? 's' : ''}`);
+  if (groupCount > 0) parts.push(`${groupCount} group${groupCount !== 1 ? 's' : ''} of 3`);
+  parts.push(`${state.unmatched.length} unmatched`);
+  document.getElementById('stats').textContent = parts.join(' · ');
 }
 
 // ── Static event bindings ─────────────────────────────────────────────────────
@@ -728,7 +866,7 @@ async function exportJSON() {
   const output = {
     summary: {
       totalBoxers:    total,
-      matchedCount:   state.matches.length * 2,
+      matchedCount:   state.matches.reduce((n, m) => n + 2 + (m.third ? 1 : 0), 0),
       unmatchedCount: state.unmatched.length,
       matchCount:     state.matches.length,
       successRate:    ((state.matches.length * 2) / total * 100).toFixed(1) + '%'
