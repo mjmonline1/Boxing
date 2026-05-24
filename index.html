@@ -307,9 +307,19 @@
       const data = await res.json();
       if (!res.ok) { showModal(title, data.error || res.statusText); return; }
       const s = data.summary;
-      const text = s
+      let text = s
         ? Object.entries(s).map(([k, v]) => `${k}: ${v}`).join('\n')
         : data.output || JSON.stringify(data, null, 2);
+      if (data.phaseLog) {
+        const fmt = (label, boxers) => boxers.length === 0
+          ? `${label}: all matched`
+          : `${label} — ${boxers.length} unmatched:\n` + boxers.map(b => `  - ${b.name} (${b.weight}kg, ${b.club})`).join('\n');
+        text += '\n\n' + [
+          fmt('Phase 1  ±2 kg',   data.phaseLog.phase1),
+          fmt('Phase 2  ±2.5 kg', data.phaseLog.phase2),
+          fmt('Phase 3b groups',  data.phaseLog.phase3),
+        ].join('\n\n');
+      }
       showModal(title, `✓ Done\n\n${text}`);
     } catch (e) {
       showModal(title, `Error: ${e.message}`);
