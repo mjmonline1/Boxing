@@ -175,9 +175,9 @@ function main() {
         console.log('  No unmatched boxers after Phase 3b — all boxers matched!');
     }
 
-    // Strip internal _bucket tag
+    // Rename _bucket to category on unmatched, strip from matched boxer objects
     allMatches.forEach(m => { delete m.red._bucket; delete m.blue._bucket; });
-    stillRemaining.forEach(b => delete b._bucket);
+    stillRemaining.forEach(b => { b.category = b._bucket; delete b._bucket; });
 
     const groupCount = groupCounter;
     const totalBoxers = data.summary.totalDistributed;

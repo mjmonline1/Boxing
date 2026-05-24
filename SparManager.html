@@ -140,9 +140,10 @@
     .boxer-tile.youth  { border-left: 3px solid #f0ad4e; }
     .boxer-tile.female { border-left: 3px solid #e91e8c; }
 
-    .boxer-name  { font-weight: bold; color: #222; }
-    .boxer-club  { color: #777; font-size: 11px; margin-top: 2px; }
-    .boxer-stats { color: #999; font-size: 10px; margin-top: 3px; }
+    .boxer-name   { font-weight: bold; color: #222; }
+    .boxer-club   { color: #777; font-size: 11px; margin-top: 2px; }
+    .boxer-stats  { color: #999; font-size: 10px; margin-top: 3px; }
+    .boxer-bucket { color: #aaa; font-size: 10px; margin-top: 3px; font-style: italic; }
 
     .drag-hint {
       font-size: 10px; color: #ccc; margin-top: 6px; text-align: right;
@@ -469,7 +470,7 @@ function populateCategoryFilter() {
 
 // ── Boxer tile (drag source + drop target) ────────────────────────────────────
 
-function makeBoxerTile(boxer, extraClass) {
+function makeBoxerTile(boxer, extraClass, category) {
   const type = boxerType(boxer);
   const div  = document.createElement('div');
   div.className  = `boxer-tile ${type}${extraClass ? ' ' + extraClass : ''}`;
@@ -480,6 +481,7 @@ function makeBoxerTile(boxer, extraClass) {
     <div class="boxer-name">${boxer.name}</div>
     <div class="boxer-club">${boxer.club}</div>
     <div class="boxer-stats">${boxer.weight} kg &middot; YOB ${boxer.yob} &middot; ${boxer.experience} bouts</div>
+    ${category ? `<div class="boxer-bucket">${category}</div>` : ''}
   `;
 
   div.addEventListener('dragstart', e => {
@@ -633,7 +635,7 @@ function renderPairs() {
     const redWrap = document.createElement('div');
     redWrap.className = 'corner-wrap red-corner';
     redWrap.innerHTML = '<div class="corner-label">🔴 Red corner</div>';
-    redWrap.appendChild(makeBoxerTile(m.red));
+    redWrap.appendChild(makeBoxerTile(m.red, null, m.category));
 
     const vsEl = document.createElement('div');
     vsEl.className = 'vs-col'; vsEl.textContent = 'vs';
@@ -641,7 +643,7 @@ function renderPairs() {
     const blueWrap = document.createElement('div');
     blueWrap.className = 'corner-wrap blue-corner';
     blueWrap.innerHTML = '<div class="corner-label">🔵 Blue corner</div>';
-    blueWrap.appendChild(makeBoxerTile(m.blue));
+    blueWrap.appendChild(makeBoxerTile(m.blue, null, m.category));
 
     matchup.append(redWrap, vsEl, blueWrap);
     card.appendChild(matchup);
@@ -672,7 +674,7 @@ function renderUnmatched() {
   hint.style.display = state.unmatched.length >= 2 ? 'block' : 'none';
 
   state.unmatched.forEach(b => {
-    const tile = makeBoxerTile(b, 'unmatched-tile');
+    const tile = makeBoxerTile(b, 'unmatched-tile', b.category);
     list.appendChild(tile);
   });
 }
