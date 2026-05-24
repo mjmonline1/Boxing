@@ -61,6 +61,10 @@ exports.handler = async () => {
       bucketRemainder[cat] = unmatched;
     }
 
+    const phase1Unmatched = Object.values(bucketRemainder).flat()
+      .sort((a,b) => a.weight - b.weight)
+      .map(b => ({ name: b.name, weight: b.weight, experience: b.experience, club: b.club }));
+
     // Phase 2: ±2.5 kg within bucket — tag remainders with source bucket
     let allUnmatched = [];
     for (const [cat, boxers] of Object.entries(bucketRemainder)) {
@@ -69,6 +73,10 @@ exports.handler = async () => {
       allMatches = allMatches.concat(matches);
       allUnmatched = allUnmatched.concat(unmatched.map(b => ({ ...b, _bucket: cat })));
     }
+
+    const phase2Unmatched = [...allUnmatched]
+      .sort((a,b) => a.weight - b.weight)
+      .map(b => ({ name: b.name, weight: b.weight, experience: b.experience, club: b.club }));
 
     // Phase 3b: unmatched boxer joins existing 1v1 pair in same bucket → round-robin group (±2 kg)
     let groupCounter = 0;
@@ -114,6 +122,10 @@ exports.handler = async () => {
       }
     }
 
+    const phase3Unmatched = [...stillRemaining]
+      .sort((a,b) => a.weight - b.weight)
+      .map(b => ({ name: b.name, weight: b.weight, experience: b.experience, club: b.club }));
+
     // Strip internal _bucket tag before saving
     allMatches.forEach(m => { delete m.red._bucket; delete m.blue._bucket; });
     stillRemaining.forEach(b => delete b._bucket);
@@ -130,7 +142,8 @@ exports.handler = async () => {
         successRate:    (((total - stillRemaining.length) / total) * 100).toFixed(1) + '%'
       },
       matches:   allMatches,
-      unmatched: stillRemaining
+      unmatched: stillRemaining,
+      phaseLog:  { phase1: phase1Unmatched, phase2: phase2Unmatched, phase3: phase3Unmatched }
     };
 
     const today = new Date().toISOString().split('T')[0];

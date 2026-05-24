@@ -527,7 +527,50 @@ function findBoxerName(id) {
 function render() {
   renderPairs();
   renderUnmatched();
+  renderPhaseLog();
   updateStats();
+}
+
+function renderPhaseLog() {
+  const existing = document.getElementById('phase-log');
+  if (existing) existing.remove();
+  const log = originalData?.phaseLog;
+  if (!log) return;
+
+  const phases = [
+    { label: 'Phase 1 — Within-bucket ±2 kg',     boxers: log.phase1 },
+    { label: 'Phase 2 — Within-bucket ±2.5 kg',   boxers: log.phase2 },
+    { label: 'Phase 3b — Group Round-Robin ±2 kg', boxers: log.phase3 },
+  ];
+
+  const wrap = document.createElement('div');
+  wrap.id = 'phase-log';
+  wrap.style.cssText = 'margin-top:18px;border-top:1px solid #e0e0e0;padding-top:10px;';
+
+  const toggle = document.createElement('div');
+  toggle.style.cssText = 'font-size:11px;font-weight:bold;color:#aaa;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;margin-bottom:8px;';
+  toggle.textContent = '▾ Generation Log';
+
+  const body = document.createElement('div');
+  phases.forEach(p => {
+    const row = document.createElement('div');
+    row.style.cssText = 'font-size:11px;color:#999;margin-bottom:5px;';
+    if (p.boxers.length === 0) {
+      row.innerHTML = `<b style="color:#bbb">${p.label}</b> — <span style="color:#8bc34a">all matched</span>`;
+    } else {
+      const names = p.boxers.map(b => `${b.name} (${b.weight}kg, ${b.club})`).join(', ');
+      row.innerHTML = `<b style="color:#bbb">${p.label}</b> — <span style="color:#e57373">${p.boxers.length} unmatched:</span> ${names}`;
+    }
+    body.appendChild(row);
+  });
+
+  toggle.addEventListener('click', () => {
+    body.style.display = body.style.display === 'none' ? '' : 'none';
+    toggle.textContent = body.style.display === 'none' ? '▸ Generation Log' : '▾ Generation Log';
+  });
+
+  wrap.append(toggle, body);
+  document.getElementById('pairs-col').appendChild(wrap);
 }
 
 function renderPairs() {

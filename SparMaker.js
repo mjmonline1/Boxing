@@ -94,6 +94,14 @@ function main() {
             console.log(`  ${category}: ${matches.length} matches, ${unmatched.length} unmatched.`);
         }
     }
+    const phase1Unmatched = Object.values(bucketUnmatched).flat();
+    if (phase1Unmatched.length > 0) {
+        console.log(`  Unmatched (${phase1Unmatched.length}):`);
+        phase1Unmatched.sort((a, b) => a.weight - b.weight)
+            .forEach(b => console.log(`    - ${b.name} (${b.weight}kg, ${b.experience} bouts, ${b.club})`));
+    } else {
+        console.log('  No unmatched boxers after Phase 1.');
+    }
 
     // Phase 2 — within-bucket, ±2.5 kg — tag remainders with source bucket
     console.log('\n--- Phase 2 — Within-bucket (±2.5 kg) ---');
@@ -105,6 +113,13 @@ function main() {
         if (matches.length > 0) {
             console.log(`  ${category}: ${matches.length} matches, ${unmatched.length} unmatched.`);
         }
+    }
+    if (allUnmatched.length > 0) {
+        console.log(`  Unmatched (${allUnmatched.length}):`);
+        [...allUnmatched].sort((a, b) => a.weight - b.weight)
+            .forEach(b => console.log(`    - ${b.name} (${b.weight}kg, ${b.experience} bouts, ${b.club})`));
+    } else {
+        console.log('  No unmatched boxers after Phase 2.');
     }
 
     // Phase 3b — group round-robin: unmatched boxer joins existing 1v1 pair in same bucket (±2 kg)
@@ -151,6 +166,13 @@ function main() {
         } else {
             stillRemaining.push(boxer);
         }
+    }
+    if (stillRemaining.length > 0) {
+        console.log(`  Unmatched (${stillRemaining.length}):`);
+        [...stillRemaining].sort((a, b) => a.weight - b.weight)
+            .forEach(b => console.log(`    - ${b.name} (${b.weight}kg, ${b.experience} bouts, ${b.club})`));
+    } else {
+        console.log('  No unmatched boxers after Phase 3b — all boxers matched!');
     }
 
     // Strip internal _bucket tag
