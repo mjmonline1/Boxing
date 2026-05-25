@@ -192,6 +192,20 @@
   <h1>Boxing <span>Tournament</span> Manager</h1>
 </header>
 
+<div style="width:100%;max-width:760px;display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;">
+  <label for="dayInput" style="white-space:nowrap;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);">Tournament Day</label>
+  <select id="dayInput" style="padding:4px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;cursor:pointer;">
+    <option value="1">Monday</option>
+    <option value="2">Tuesday</option>
+    <option value="3">Wednesday</option>
+    <option value="4">Thursday</option>
+    <option value="5">Friday</option>
+    <option value="6">Saturday</option>
+    <option value="7">Sunday</option>
+  </select>
+  <span id="dayParity" style="font-size:10px;color:var(--muted);"></span>
+</div>
+
 <div class="grid">
 
   <!-- Step 1 -->
@@ -232,19 +246,6 @@
     <div class="card-icon">🔔</div>
     <div class="card-title">Assign Rings</div>
     <div class="card-desc">Auto-allocate bouts to rings &amp; time slots</div>
-    <div style="margin-top:8px;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);" onclick="event.preventDefault();event.stopPropagation();">
-      <label for="dayInput" style="white-space:nowrap;">Day:</label>
-      <select id="dayInput" style="padding:3px 6px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;cursor:pointer;">
-        <option value="1">Monday</option>
-        <option value="2">Tuesday</option>
-        <option value="3">Wednesday</option>
-        <option value="4">Thursday</option>
-        <option value="5">Friday</option>
-        <option value="6">Saturday</option>
-        <option value="7">Sunday</option>
-      </select>
-      <span id="dayParity" style="font-size:10px;color:var(--muted);"></span>
-    </div>
   </a>
 
   <!-- Step 6 -->
