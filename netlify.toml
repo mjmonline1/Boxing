@@ -25,3 +25,8 @@
   from = "/api/run/ring-assigner"
   to = "/.netlify/functions/generate-schedule"
   status = 200
+
+[[redirects]]
+  from = "/api/get-version"
+  to = "/.netlify/functions/get-version"
+  status = 200
