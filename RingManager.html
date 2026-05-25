@@ -289,11 +289,37 @@ function scheduleToState(schedule) {
 
 function boutType(bout) {
   const hasFemale = b => b.gender === 'female';
-  if (hasFemale(bout.red) || hasFemale(bout.blue)) return 'female';
+  if (hasFemale(bout.red) || hasFemale(bout.blue) || (bout.third && hasFemale(bout.third))) return 'female';
   const yob = bout.red.yob;
   if (yob >= 2009) return 'junior';
   if (yob >= 2007) return 'youth';
   return 'senior';
+}
+
+function boutHTML(bout) {
+  if (bout.third) {
+    const d1 = Math.abs(bout.red.weight  - bout.blue.weight).toFixed(2);
+    const d2 = Math.abs(bout.red.weight  - bout.third.weight).toFixed(2);
+    const d3 = Math.abs(bout.blue.weight - bout.third.weight).toFixed(2);
+    return `
+      <div class="bb-names">
+        ${bout.red.name} vs ${bout.blue.name}<br>
+        ${bout.red.name} vs ${bout.third.name}<br>
+        ${bout.blue.name} vs ${bout.third.name}
+      </div>
+      <div class="bb-cat">${bout.category} <span style="color:#e67e22;font-size:9px;font-weight:bold;">GROUP</span></div>
+      <div class="bb-weight">⚖ ${d1} / ${d2} / ${d3} kg diff</div>
+      <div class="bb-time">⏱ ${bout.startTime} – ${bout.endTime}</div>
+      <div class="bb-format">${boutFormat(bout.category)}</div>
+    `;
+  }
+  return `
+    <div class="bb-names">${bout.red.name}<br>vs ${bout.blue.name}</div>
+    <div class="bb-cat">${bout.category}</div>
+    <div class="bb-weight">⚖ ${bout.weightDiff}kg diff</div>
+    <div class="bb-time">⏱ ${bout.startTime} – ${bout.endTime}</div>
+    <div class="bb-format">${boutFormat(bout.category)}</div>
+  `;
 }
 
 // R5: every boxer must be female OR male junior (YOB >= 2009)
@@ -523,13 +549,7 @@ function render(state) {
       block.draggable = true;
       block.style.top    = topPx(bout.startMinutes) + 'px';
       block.style.height = (bout.duration * PX_PER_MIN) + 'px';
-      block.innerHTML = `
-        <div class="bb-names">${bout.red.name}<br>vs ${bout.blue.name}</div>
-        <div class="bb-cat">${bout.category}</div>
-        <div class="bb-weight">⚖ ${bout.weightDiff}kg diff</div>
-        <div class="bb-time">⏱ ${bout.startTime} – ${bout.endTime}</div>
-        <div class="bb-format">${boutFormat(bout.category)}</div>
-      `;
+      block.innerHTML = boutHTML(bout);
 
       block.addEventListener('dragstart', e => {
         dragged = { bout, fromRing: ringId };

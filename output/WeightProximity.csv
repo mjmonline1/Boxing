@@ -1,0 +1,129 @@
+category,boxer_a,club_a,weight_a,boxer_b,club_b,weight_b,weight_diff,same_club
+FitFemales,Katie Taylor,Finchley ABC,57,Amanda Serrano,Team NL,57,0.00,no
+FitFemales,Ann Wolfe,Club Boxeo Los Álamos,60,Cecilia Braekhus,Team NL,60,0.00,no
+FitFemales,Mary Kom,Team NL,65,Lucia Rijker,Team Ponce&Mary,66,1.00,no
+FitFemales,Regina Halmich,Johnstone ABC,69,Holly Holm,DOBLE JAB BOXING CLUB,70,1.00,no
+FitFemales,Laila Ali,Sydenham ABC,53,Claressa Shields,Team Ponce&Mary,55,2.00,no
+FitFemales,Claressa Shields,Team Ponce&Mary,55,Katie Taylor,Finchley ABC,57,2.00,no
+FitFemales,Claressa Shields,Team Ponce&Mary,55,Amanda Serrano,Team NL,57,2.00,no
+FitFemales,Nicola Adams,The Academy Boxing Club,63,Mary Kom,Team NL,65,2.00,no
+MaleJunior_Experienced,Julio Chavez,Baldoyle BC,52,Carlos Monzon,Camac Boxing Club,52,0.00,no
+MaleJunior_Experienced,Julio Chavez,Baldoyle BC,52,Archie Moore,Johnstone ABC,53,1.00,no
+MaleJunior_Experienced,Carlos Monzon,Camac Boxing Club,52,Archie Moore,Johnstone ABC,53,1.00,no
+MaleJunior_Experienced,Marvin Hagler,Flookburgh ABC,50,Julio Chavez,Baldoyle BC,52,2.00,no
+MaleJunior_Experienced,Marvin Hagler,Flookburgh ABC,50,Carlos Monzon,Camac Boxing Club,52,2.00,no
+MaleJunior_Experienced,Terence Crawford,Dale youth,63,Johnny Nelson,Arklow BC,65,2.00,no
+MaleJunior_Novice,Nigel Benn,Flookburgh ABC,65,Chris Eubank,Flookburgh ABC,65,0.00,yes
+MaleJunior_Novice,Nigel Benn,Flookburgh ABC,65,Larry Holmes,Dale youth,66,1.00,no
+MaleJunior_Novice,Chris Eubank,Flookburgh ABC,65,Larry Holmes,Dale youth,66,1.00,no
+MaleJunior_Novice,Joe Louis,The Academy Boxing Club,38,Sugar Ray Robinson,Club Boxeo Los Álamos,40,2.00,no
+MaleJunior_Novice,Callum Smith,The Academy Boxing Club,63,Nigel Benn,Flookburgh ABC,65,2.00,no
+MaleJunior_Novice,Callum Smith,The Academy Boxing Club,63,Chris Eubank,Flookburgh ABC,65,2.00,no
+MaleJunior_OpenClass,Joe Frazier,The Academy Boxing Club,42,George Foreman,The Academy Boxing Club,42,0.00,yes
+MaleJunior_OpenClass,Roy Jones,Johnstone ABC,49.7,Bernard Hopkins,Baldoyle BC,50,0.30,no
+MaleJunior_OpenClass,Gene Tunney,Baldoyle BC,56,Bob Fitzsimmons,NoMercy/champscamp,57,1.00,no
+MaleJunior_OpenClass,Bob Fitzsimmons,NoMercy/champscamp,57,James Corbett,Baldoyle BC,58,1.00,no
+MaleJunior_OpenClass,Evander Holyfield,Cookstown ABC,48,Roy Jones,Johnstone ABC,49.7,1.70,no
+MaleJunior_OpenClass,Evander Holyfield,Cookstown ABC,48,Bernard Hopkins,Baldoyle BC,50,2.00,no
+MaleJunior_OpenClass,Jersey Joe Walcott,Baldoyle BC,54,Gene Tunney,Baldoyle BC,56,2.00,yes
+MaleJunior_OpenClass,Gene Tunney,Baldoyle BC,56,James Corbett,Baldoyle BC,58,2.00,yes
+MaleSenior_Experienced,Billy Saunders,Johnstone ABC,63,Joe Joyce,Finchley ABC,63.5,0.50,no
+MaleSenior_Experienced,Nathan Cleverly,Finchley ABC,72,Adonis Stevenson,Arbroath Amateur Boxing Club,73,1.00,no
+MaleSenior_Experienced,Joe Joyce,Finchley ABC,63.5,Michael Watson,Johnstone ABC,65.3,1.80,no
+MaleSenior_Novice,Wladimir Klitschko,Dale youth,60,Vitali Klitschko,DOBLE JAB BOXING CLUB,60,0.00,no
+MaleSenior_Novice,Flash Elorde,Johnstone ABC,82,Carlos Zarate,Slough ABC,82,0.00,no
+MaleSenior_Novice,Kostya Tszyu,Hands Of Stone Montrose,69.7,Jose Castillo,DOBLEJAB BOXING CLUB,70,0.30,no
+MaleSenior_Novice,Juan Marquez,Arbroath Amateur Boxing Club,69,Kostya Tszyu,Hands Of Stone Montrose,69.7,0.70,no
+MaleSenior_Novice,Juan Marquez,Arbroath Amateur Boxing Club,69,Jose Castillo,DOBLEJAB BOXING CLUB,70,1.00,no
+MaleSenior_Novice,Carlos Ortiz,Finchley ABC,81,Flash Elorde,Johnstone ABC,82,1.00,no
+MaleSenior_Novice,Carlos Ortiz,Finchley ABC,81,Carlos Zarate,Slough ABC,82,1.00,no
+MaleSenior_Novice,Jack Johnson,Dale youth,58,Wladimir Klitschko,Dale youth,60,2.00,yes
+MaleSenior_Novice,Jack Johnson,Dale youth,58,Vitali Klitschko,DOBLE JAB BOXING CLUB,60,2.00,no
+MaleSenior_Novice,Wladimir Klitschko,Dale youth,60,Andy Ruiz,Hands Of Stone Montrose,62,2.00,no
+MaleSenior_Novice,Vitali Klitschko,DOBLE JAB BOXING CLUB,60,Andy Ruiz,Hands Of Stone Montrose,62,2.00,no
+MaleSenior_Novice,David Benavidez,Holy Family/Golden Gloves,73,Gervonta Davis,Club boxeo los alamos,75,2.00,no
+MaleSenior_Novice,Gervonta Davis,Club boxeo los alamos,75,Josh Taylor,Team Ponce&Mary,77,2.00,no
+MaleSenior_Novice,Isaac Cruz,Slough ABC,90,William Zepeda,Finchley ABC,92,2.00,no
+MaleSenior_OpenClass,Harry Greb,Asc Nürnberg,57,Joe Gans,Dale youth,57,0.00,no
+MaleSenior_OpenClass,Harry Greb,Asc Nürnberg,57,Stanley Ketchel,Hispaboxing,57,0.00,no
+MaleSenior_OpenClass,Joe Gans,Dale youth,57,Stanley Ketchel,Hispaboxing,57,0.00,no
+MaleSenior_OpenClass,David Haye,Holy Family/Golden Gloves,60,Carl Froch,Team NL,60,0.00,no
+MaleSenior_OpenClass,David Haye,Holy Family/Golden Gloves,60,Joe Calzaghe,Team NL,60,0.00,no
+MaleSenior_OpenClass,David Haye,Holy Family/Golden Gloves,60,Amir Khan,The Academy Boxing Club,60,0.00,no
+MaleSenior_OpenClass,David Haye,Holy Family/Golden Gloves,60,Tyson Fury,The Academy Boxing Club,60,0.00,no
+MaleSenior_OpenClass,Carl Froch,Team NL,60,Joe Calzaghe,Team NL,60,0.00,yes
+MaleSenior_OpenClass,Carl Froch,Team NL,60,Amir Khan,The Academy Boxing Club,60,0.00,no
+MaleSenior_OpenClass,Carl Froch,Team NL,60,Tyson Fury,The Academy Boxing Club,60,0.00,no
+MaleSenior_OpenClass,Joe Calzaghe,Team NL,60,Amir Khan,The Academy Boxing Club,60,0.00,no
+MaleSenior_OpenClass,Joe Calzaghe,Team NL,60,Tyson Fury,The Academy Boxing Club,60,0.00,no
+MaleSenior_OpenClass,Amir Khan,The Academy Boxing Club,60,Tyson Fury,The Academy Boxing Club,60,0.00,yes
+MaleSenior_OpenClass,Sonny Liston,Fitsquare boxing team,66,Max Baer,TSC Berlin,66,0.00,no
+MaleSenior_OpenClass,Danny Garcia,ICELAND,70,Keith Thurman,Team NL,70,0.00,no
+MaleSenior_OpenClass,Danny Garcia,ICELAND,70,Shawn Porter,Team NL,70,0.00,no
+MaleSenior_OpenClass,Keith Thurman,Team NL,70,Shawn Porter,Team NL,70,0.00,yes
+MaleSenior_OpenClass,Hector Camacho,Club Boxeo Los Álamos,80,Aaron Pryor,Elite Bolton,80,0.00,no
+MaleSenior_OpenClass,Hector Camacho,Club Boxeo Los Álamos,80,Edwin Rosario,Team NL,80,0.00,no
+MaleSenior_OpenClass,Aaron Pryor,Elite Bolton,80,Edwin Rosario,Team NL,80,0.00,no
+MaleSenior_OpenClass,Jorge Linares,NoMercy/champscamp,79,Mikey Garcia,Johnstone ABC,79.4,0.40,no
+MaleSenior_OpenClass,Demetrius Andrade,Johnstone ABC,63,Daniel Dubois,Holy Family/Golden Gloves,63.5,0.50,no
+MaleSenior_OpenClass,Mikey Garcia,Johnstone ABC,79.4,Hector Camacho,Club Boxeo Los Álamos,80,0.60,no
+MaleSenior_OpenClass,Mikey Garcia,Johnstone ABC,79.4,Aaron Pryor,Elite Bolton,80,0.60,no
+MaleSenior_OpenClass,Mikey Garcia,Johnstone ABC,79.4,Edwin Rosario,Team NL,80,0.60,no
+MaleSenior_OpenClass,Sonny Liston,Fitsquare boxing team,66,Jack Sharkey,Slough ABC,67,1.00,no
+MaleSenior_OpenClass,Max Baer,TSC Berlin,66,Jack Sharkey,Slough ABC,67,1.00,no
+MaleSenior_OpenClass,Jack Sharkey,Slough ABC,67,Marco Barrera,JR Boxing Academy,68,1.00,no
+MaleSenior_OpenClass,Tony Bellew,Finchley ABC,72,Badou Jack,Club Boxeo Los Álamos,73,1.00,no
+MaleSenior_OpenClass,Jorge Linares,NoMercy/champscamp,79,Hector Camacho,Club Boxeo Los Álamos,80,1.00,no
+MaleSenior_OpenClass,Jorge Linares,NoMercy/champscamp,79,Aaron Pryor,Elite Bolton,80,1.00,no
+MaleSenior_OpenClass,Jorge Linares,NoMercy/champscamp,79,Edwin Rosario,Team NL,80,1.00,no
+MaleSenior_OpenClass,Jack Dempsey,Team NL,55,Harry Greb,Asc Nürnberg,57,2.00,no
+MaleSenior_OpenClass,Jack Dempsey,Team NL,55,Joe Gans,Dale youth,57,2.00,no
+MaleSenior_OpenClass,Jack Dempsey,Team NL,55,Stanley Ketchel,Hispaboxing,57,2.00,no
+MaleSenior_OpenClass,Sonny Liston,Fitsquare boxing team,66,Marco Barrera,JR Boxing Academy,68,2.00,no
+MaleSenior_OpenClass,Max Baer,TSC Berlin,66,Marco Barrera,JR Boxing Academy,68,2.00,no
+MaleSenior_OpenClass,Marco Barrera,JR Boxing Academy,68,Danny Garcia,ICELAND,70,2.00,no
+MaleSenior_OpenClass,Marco Barrera,JR Boxing Academy,68,Keith Thurman,Team NL,70,2.00,no
+MaleSenior_OpenClass,Marco Barrera,JR Boxing Academy,68,Shawn Porter,Team NL,70,2.00,no
+MaleSenior_OpenClass,Danny Garcia,ICELAND,70,Tony Bellew,Finchley ABC,72,2.00,no
+MaleSenior_OpenClass,Keith Thurman,Team NL,70,Tony Bellew,Finchley ABC,72,2.00,no
+MaleSenior_OpenClass,Shawn Porter,Team NL,70,Tony Bellew,Finchley ABC,72,2.00,no
+MaleSenior_OpenClass,Badou Jack,Club Boxeo Los Álamos,73,Jose Ramirez,Wolverhampton,75,2.00,no
+MaleSenior_OpenClass,Jose Ramirez,Wolverhampton,75,Jack Catterall,Wolverhampton,77,2.00,yes
+MaleSenior_OpenClass,Jack Catterall,Wolverhampton,77,Jorge Linares,NoMercy/champscamp,79,2.00,no
+MaleYouth_Experienced,Jeff Fenech,NoMercy/champscamp,69,Arturo Gatti,Arbroath Amateur Boxing Club,70,1.00,no
+MaleYouth_Novice,Ezzard Charles,Arbroath Amateur Boxing Club,54,Tony Canzoneri,Baldoyle BC,54,0.00,no
+MaleYouth_Novice,Andre Ward,Club Boxeo Los Álamos,60,Anthony Joshua,The Academy Boxing Club,60,0.00,no
+MaleYouth_Novice,Vasyl Lomachenko,Club Boxeo Los Álamos,63,Errol Spence,Hands Of Stone Montrose,63,0.00,no
+MaleYouth_Novice,Max Schmeling,Club Boxeo Los Álamos,67,James Braddock,Team Ponce&Mary,67,0.00,no
+MaleYouth_Novice,Micky Ward,Arbroath Amateur Boxing Club,70,Diego Corrales,Dale youth,70,0.00,no
+MaleYouth_Novice,Jermall Charlo,Arbroath Amateur Boxing Club,71,Dmitry Bivol,Club Boxeo Los Álamos,71,0.00,no
+MaleYouth_Novice,Caleb Plant,Hands Of Stone Montrose,74.4,Shakur Stevenson,DOBLE JAB BOXING CLUB,75,0.60,no
+MaleYouth_Novice,Andre Ward,Club Boxeo Los Álamos,60,Deontay Wilder,Cricklewood Boxing Club,61,1.00,no
+MaleYouth_Novice,Anthony Joshua,The Academy Boxing Club,60,Deontay Wilder,Cricklewood Boxing Club,61,1.00,no
+MaleYouth_Novice,Deontay Wilder,Cricklewood Boxing Club,61,Oleksandr Usyk,Slough ABC,62,1.00,no
+MaleYouth_Novice,Oleksandr Usyk,Slough ABC,62,Vasyl Lomachenko,Club Boxeo Los Álamos,63,1.00,no
+MaleYouth_Novice,Oleksandr Usyk,Slough ABC,62,Errol Spence,Hands Of Stone Montrose,63,1.00,no
+MaleYouth_Novice,Micky Ward,Arbroath Amateur Boxing Club,70,Jermall Charlo,Arbroath Amateur Boxing Club,71,1.00,yes
+MaleYouth_Novice,Micky Ward,Arbroath Amateur Boxing Club,70,Dmitry Bivol,Club Boxeo Los Álamos,71,1.00,no
+MaleYouth_Novice,Diego Corrales,Dale youth,70,Jermall Charlo,Arbroath Amateur Boxing Club,71,1.00,no
+MaleYouth_Novice,Diego Corrales,Dale youth,70,Dmitry Bivol,Club Boxeo Los Álamos,71,1.00,no
+MaleYouth_Novice,Jermall Charlo,Arbroath Amateur Boxing Club,71,Sergey Kovalev,Arbroath Amateur Boxing Club,72,1.00,yes
+MaleYouth_Novice,Dmitry Bivol,Club Boxeo Los Álamos,71,Sergey Kovalev,Arbroath Amateur Boxing Club,72,1.00,no
+MaleYouth_Novice,Sergey Kovalev,Arbroath Amateur Boxing Club,72,Edgar Berlanga,Hands Of Stone Montrose,73,1.00,no
+MaleYouth_Novice,Regis Prograis,The Academy Boxing Club,78,Ivan Baranchyk,DOBLE JAB BOXING CLUB,79,1.00,no
+MaleYouth_Novice,Edgar Berlanga,Hands Of Stone Montrose,73,Caleb Plant,Hands Of Stone Montrose,74.4,1.40,yes
+MaleYouth_Novice,Andre Ward,Club Boxeo Los Álamos,60,Oleksandr Usyk,Slough ABC,62,2.00,no
+MaleYouth_Novice,Anthony Joshua,The Academy Boxing Club,60,Oleksandr Usyk,Slough ABC,62,2.00,no
+MaleYouth_Novice,Deontay Wilder,Cricklewood Boxing Club,61,Vasyl Lomachenko,Club Boxeo Los Álamos,63,2.00,no
+MaleYouth_Novice,Deontay Wilder,Cricklewood Boxing Club,61,Errol Spence,Hands Of Stone Montrose,63,2.00,no
+MaleYouth_Novice,Micky Ward,Arbroath Amateur Boxing Club,70,Sergey Kovalev,Arbroath Amateur Boxing Club,72,2.00,yes
+MaleYouth_Novice,Diego Corrales,Dale youth,70,Sergey Kovalev,Arbroath Amateur Boxing Club,72,2.00,no
+MaleYouth_Novice,Jermall Charlo,Arbroath Amateur Boxing Club,71,Edgar Berlanga,Hands Of Stone Montrose,73,2.00,no
+MaleYouth_Novice,Dmitry Bivol,Club Boxeo Los Álamos,71,Edgar Berlanga,Hands Of Stone Montrose,73,2.00,no
+MaleYouth_Novice,Edgar Berlanga,Hands Of Stone Montrose,73,Shakur Stevenson,DOBLE JAB BOXING CLUB,75,2.00,no
+MaleYouth_OpenClass,Artur Beterbiev,Finchley ABC,71,Gilberto Ramirez,Finchley ABC,71,0.00,yes
+MaleYouth_OpenClass,Ryan Garcia,Baldoyle BC,75,Devin Haney,Team NL,75,0.00,no
+MaleYouth_OpenClass,Naoya Inoue,Baldoyle BC,63,Lawrence Okolie,Islington,63.5,0.50,no
+MaleYouth_OpenClass,Sugar Ray Leonard,The Academy Boxing Club,50,Roberto Duran,Finchley ABC,51,1.00,no
+MaleYouth_OpenClass,Jermell Charlo,The Bronx,70,Artur Beterbiev,Finchley ABC,71,1.00,no
+MaleYouth_OpenClass,Jermell Charlo,The Bronx,70,Gilberto Ramirez,Finchley ABC,71,1.00,no
