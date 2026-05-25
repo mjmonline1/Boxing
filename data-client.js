@@ -37,6 +37,11 @@ const DataClient = (() => {
       const res = await fetch(`${window.location.origin}/api/spar-dates`);
       if (!res.ok) return [];
       return res.json();
+    },
+    async getVersion() {
+      const res = await fetch(`${window.location.origin}/api/version`);
+      if (!res.ok) return null;
+      return (await res.json()).version;
     }
   };
 
@@ -72,6 +77,11 @@ const DataClient = (() => {
       const res = await fetch(`/api/db?key=${key}&dates=1`);
       if (!res.ok) return [];
       return res.json();
+    },
+    async getVersion() {
+      const res = await fetch('/api/get-version');
+      if (!res.ok) return null;
+      return (await res.json()).version;
     }
   };
 
