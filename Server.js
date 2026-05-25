@@ -19,6 +19,11 @@ app.use(express.static(__dirname));
 const FILE = path.join(__dirname, "Sparrings.json");
 
 // ---- API ----
+app.get('/api/version', (req, res) => {
+  const { version } = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf8'));
+  res.json({ version });
+});
+
 app.get("/api/sparrings", (req, res) => {
   const data = JSON.parse(fs.readFileSync(FILE));
   res.json(data);
