@@ -421,9 +421,9 @@ function renderPhaseLog() {
   if (!log) return;
 
   const phases = [
-    { label: 'Phase 1 — Within-bucket ±2 kg',     boxers: log.phase1 },
-    { label: 'Phase 2 — Within-bucket ±2.5 kg',   boxers: log.phase2 },
-    { label: 'Phase 3b — Group Round-Robin ±2 kg', boxers: log.phase3 },
+    { label: 'Phase 1 — Within-bucket ±2 kg',     bouts: log.phase1Bouts,  unmatched: log.phase1 },
+    { label: 'Phase 2 — Within-bucket ±2.5 kg',   bouts: log.phase2Bouts,  unmatched: log.phase2 },
+    { label: 'Phase 3b — Group Round-Robin ±2 kg', bouts: log.phase3Groups, unmatched: log.phase3 },
   ];
 
   const wrap = document.createElement('div');
@@ -438,12 +438,15 @@ function renderPhaseLog() {
   phases.forEach(p => {
     const row = document.createElement('div');
     row.className = 'phase-row';
-    if (p.boxers.length === 0) {
-      row.innerHTML = `<b class="phase-label">${p.label}</b> — <span class="phase-ok">all matched</span>`;
-    } else {
-      const names = p.boxers.map(b => `${b.name} (${b.weight}kg, ${b.club})`).join(', ');
-      row.innerHTML = `<b class="phase-label">${p.label}</b> — <span class="phase-fail">${p.boxers.length} unmatched:</span> ${names}`;
-    }
+    const boutList = (p.bouts || []).map(b =>
+      b.third ? `${b.red} / ${b.blue} / ${b.third}` : `${b.red} vs ${b.blue}`
+    ).join(', ');
+    const unmatchedList = (p.unmatched || []).map(b => `${b.name} (${b.weight}kg, ${b.club})`).join(', ');
+    const boutHtml = boutList ? `<span class="phase-bouts">${boutList}</span>` : '';
+    const unmatchedHtml = unmatchedList
+      ? `<span class="phase-fail">${p.unmatched.length} unmatched:</span> ${unmatchedList}`
+      : `<span class="phase-ok">all matched</span>`;
+    row.innerHTML = `<b class="phase-label">${p.label}</b>${boutHtml ? ' — ' + boutHtml : ''} — ${unmatchedHtml}`;
     body.appendChild(row);
   });
 

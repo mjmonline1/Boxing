@@ -316,13 +316,23 @@
         ? Object.entries(s).map(([k, v]) => `${k}: ${v}`).join('\n')
         : data.output || JSON.stringify(data, null, 2);
       if (data.phaseLog) {
-        const fmt = (label, boxers) => boxers.length === 0
-          ? `${label}: all matched`
-          : `${label} — ${boxers.length} unmatched:\n` + boxers.map(b => `  - ${b.name} (${b.weight}kg, ${b.club})`).join('\n');
+        const fmtBouts = (bouts) => bouts?.length
+          ? bouts.map(b => `  + ${b.red} vs ${b.blue}`).join('\n') : '';
+        const fmtGroups = (groups) => groups?.length
+          ? groups.map(g => `  + ${g.red} / ${g.blue} / ${g.third}`).join('\n') : '';
+        const fmtUnmatched = (boxers) => boxers?.length
+          ? `  ${boxers.length} unmatched: ` + boxers.map(b => `${b.name} (${b.weight}kg)`).join(', ') : '  all matched';
+        const fmt = (label, bouts, unmatched, groups) => {
+          const parts = [label + ':'];
+          const b = groups ? fmtGroups(groups) : fmtBouts(bouts);
+          if (b) parts.push(b);
+          parts.push(fmtUnmatched(unmatched));
+          return parts.join('\n');
+        };
         text += '\n\n' + [
-          fmt('Phase 1  ±2 kg',   data.phaseLog.phase1),
-          fmt('Phase 2  ±2.5 kg', data.phaseLog.phase2),
-          fmt('Phase 3b groups',  data.phaseLog.phase3),
+          fmt('Phase 1  ±2 kg',   data.phaseLog.phase1Bouts,  data.phaseLog.phase1),
+          fmt('Phase 2  ±2.5 kg', data.phaseLog.phase2Bouts,  data.phaseLog.phase2),
+          fmt('Phase 3b groups',  null, data.phaseLog.phase3, data.phaseLog.phase3Groups),
         ].join('\n\n');
       }
       showModal(title, `✓ Done\n\n${text}`);
