@@ -1,0 +1,179 @@
+/* Copyright (c) 2026 ITLR Assets. All rights reserved. */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #22272e;
+  --surface: #2d333b;
+  --surface2: #373e47;
+  --border: #444c56;
+  --blue: #58a6ff;
+  --blue-dim: rgba(88,166,255,0.16);
+  --green: #3fb950;
+  --green-dim: rgba(63,185,80,0.16);
+  --red: #f85149;
+  --red-dim: rgba(248,81,73,0.16);
+  --text: #cdd9e5;
+  --muted: #768390;
+  --faint: #4a5568;
+  --nav-btn-border: #444c56;
+  --nav-btn-color: #768390;
+  --nav-btn-hover-border: #768390;
+  --nav-btn-hover-color: #cdd9e5;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Barlow', sans-serif;
+  min-height: 100vh;
+  padding: 0;
+}
+
+#toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+#toolbar h1 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text);
+  flex: 1;
+}
+
+#toolbar a.nav-btn {
+  padding: 6px 14px;
+  border: 1px solid var(--nav-btn-border);
+  border-radius: 6px;
+  color: var(--nav-btn-color);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: bold;
+  white-space: nowrap;
+  transition: border-color 0.15s, color 0.15s;
+}
+#toolbar a.nav-btn:hover { border-color: var(--nav-btn-hover-border); color: var(--nav-btn-hover-color); }
+
+.content {
+  max-width: 720px;
+  margin: 3rem auto;
+  padding: 0 1.5rem;
+}
+
+.util-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.util-card h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+}
+
+.util-card p {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 1.1rem;
+  line-height: 1.5;
+}
+
+.btn-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  font-family: 'Barlow', sans-serif;
+  transition: opacity 0.15s;
+}
+.btn:disabled { opacity: 0.4; cursor: default; }
+.btn-blue  { background: #2196f3; color: white; }
+.btn-green { background: #4caf50; color: white; }
+
+.btn-file-label {
+  padding: 8px 18px;
+  border: 1px solid var(--nav-btn-border);
+  border-radius: 6px;
+  color: var(--nav-btn-color);
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, color 0.15s;
+}
+.btn-file-label:hover { border-color: var(--nav-btn-hover-border); color: var(--nav-btn-hover-color); }
+
+#statusBox {
+  display: none;
+  margin-top: 1rem;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+#statusBox.info    { background: var(--blue-dim);  color: var(--blue);  border: 1px solid rgba(88,166,255,0.3); }
+#statusBox.success { background: var(--green-dim); color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
+#statusBox.error   { background: var(--red-dim);   color: var(--red);   border: 1px solid rgba(248,81,73,0.3); }
+
+#fileNameLabel {
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+}
+
+#rptStatusBox {
+  display: none;
+  margin-top: 1rem;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+#rptStatusBox.info    { background: var(--blue-dim);  color: var(--blue);  border: 1px solid rgba(88,166,255,0.3); }
+#rptStatusBox.success { background: var(--green-dim); color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
+#rptStatusBox.error   { background: var(--red-dim);   color: var(--red);   border: 1px solid rgba(248,81,73,0.3); }
+
+/* ── Report date row ── */
+.rpt-date-row {
+  margin-top: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.rpt-date-label {
+  font-size: 13px;
+  color: var(--muted);
+}
+.rpt-date-select {
+  font-size: 13px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--fg);
+}

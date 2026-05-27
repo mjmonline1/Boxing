@@ -1,0 +1,231 @@
+/* Copyright (c) 2026 ITLR Assets. All rights reserved. */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f0f2f5;
+}
+
+/* ── Toolbar ── */
+#toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+  background: var(--toolbar-bg);
+  color: var(--toolbar-text);
+}
+#toolbar h1 { margin: 0; font-size: 18px; flex: 1; }
+#toolbar .stats { font-size: 13px; color: var(--toolbar-subtext); }
+#toolbar button {
+  padding: 7px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+}
+#saveBtn    { background: #2196f3; color: white; }
+#exportBtn  { background: #4caf50; color: white; }
+#resetBtn   { background: #666;    color: white; }
+#toolbar a.nav-btn {
+  padding: 7px 14px; border: 1px solid var(--nav-btn-border); border-radius: 6px;
+  color: var(--nav-btn-color); text-decoration: none; font-size: 13px;
+  font-weight: bold; white-space: nowrap;
+  transition: border-color 0.15s, color 0.15s;
+}
+#toolbar a.nav-btn:hover { border-color: var(--nav-btn-hover-border); color: var(--nav-btn-hover-color); }
+
+/* ── Date picker ── */
+.date-label { font-size: 12px; color: var(--muted, #888); white-space: nowrap; }
+.date-select {
+  padding: 4px 7px;
+  border-radius: 5px;
+  border: 1px solid var(--border, #ccc);
+  background: var(--surface2, #f5f5f5);
+  color: var(--text, #333);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* ── Legend ── */
+#legend {
+  display: flex;
+  gap: 16px;
+  padding: 6px 16px;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+  font-size: 12px;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-swatch { width: 12px; height: 12px; border-radius: 2px; }
+.legend-key { font-weight: bold; font-size: 12px; }
+.legend-note { color: #999; font-size: 10px; }
+.swatch-senior { background: #4a90d9; }
+.swatch-youth  { background: #f0ad4e; }
+.swatch-junior { background: #5cb85c; }
+.swatch-female { background: #e91e8c; }
+
+/* ── Grid wrap ── */
+#grid-wrap {
+  display: flex;
+  overflow: auto;
+  height: calc(100vh - 90px);
+}
+
+/* ── Ruler ── */
+#ruler {
+  flex: 0 0 54px;
+  position: relative;
+  background: #fff;
+  border-right: 2px solid #ccc;
+}
+.tick-label {
+  position: absolute;
+  left: 4px;
+  font-size: 10px;
+  color: #555;
+  transform: translateY(-50%);
+  white-space: nowrap;
+}
+.tick-label.major { font-size: 11px; font-weight: bold; color: #222; }
+.tick-line { position: absolute; right: 0; height: 1px; }
+.tick-line.major { background: #666; width: 20px; }
+.tick-line.mid   { background: #999; width: 13px; }
+.tick-line.minor { background: #bbb; width: 7px; }
+
+/* ── Rings container ── */
+#rings {
+  flex: 1;
+  display: flex;
+  position: relative;
+  min-width: 0;
+}
+
+/* ── Ring column ── */
+.ring-col {
+  flex: 1;
+  min-width: 160px;
+  border-right: 1px solid #ddd;
+  position: relative;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.ring-col:last-child { border-right: none; }
+.ring-col.drag-over  { background: #f0fff0; box-shadow: inset 0 0 0 2px #4caf50; }
+.ring-col.drag-block { background: #fff0f0; box-shadow: inset 0 0 0 2px #f44336; }
+
+.ring-col-header {
+  position: sticky;
+  top: 0;
+  background: #1a1a2e;
+  color: white;
+  text-align: center;
+  padding: 6px 4px;
+  z-index: 10;
+  border-right: 1px solid #2d3550;
+}
+.ring-col-header h2 { margin: 0; font-size: 14px; }
+.ring-col-header .hdr-info   { font-size: 10px; color: #aaa; margin-top: 2px; }
+.ring-col-header .hdr-finish { font-size: 10px; margin-top: 1px; }
+.ring-col-header .hdr-finish.ok   { color: #4caf50; }
+.ring-col-header .hdr-finish.over { color: #f44336; font-weight: bold; }
+.ring-subtitle { font-size: 10px; opacity: 0.5; }
+
+/* ── Bout block ── */
+.bout-block {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  border-left: 5px solid #ccc;
+  background: #fafafa;
+  overflow: hidden;
+  padding: 7px 8px;
+  z-index: 2;
+  font-size: 12px;
+  line-height: 1.4;
+  cursor: grab;
+  user-select: none;
+  transition: box-shadow 0.1s, opacity 0.1s;
+}
+.bout-block:active   { cursor: grabbing; }
+.bout-block.dragging { opacity: 0.4; }
+.bout-block.senior   { border-left-color: #4a90d9; }
+.bout-block.youth    { border-left-color: #f0ad4e; }
+.bout-block.junior   { border-left-color: #5cb85c; }
+.bout-block.female   { border-left-color: #e91e8c; }
+
+.bb-names   { font-weight: bold; color: #222; font-size: 12px; line-height: 1.4; }
+.bb-cat     { color: #777; font-size: 10px; margin-top: 2px; }
+.bb-weight  { color: #555; font-size: 10px; margin-top: 2px; }
+.bb-time    { color: #4a90d9; font-size: 10px; margin-top: 2px; font-weight: bold; }
+.bb-format  { color: #888; font-size: 10px; margin-top: 3px; border-top: 1px solid #eee; padding-top: 3px; }
+
+.drop-line {
+  position: absolute;
+  left: 0; right: 0;
+  height: 0;
+  border-top: 3px solid #4caf50;
+  z-index: 9;
+  pointer-events: none;
+}
+.drop-time-label {
+  position: absolute;
+  right: 6px;
+  background: #4caf50;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 1px 6px;
+  border-radius: 3px;
+  z-index: 9;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+/* ── Tea time line ── */
+#tea-line {
+  position: absolute;
+  left: 0; right: 0;
+  border-top: 2px dashed #f44336;
+  z-index: 8;
+  pointer-events: none;
+}
+#tea-label {
+  position: absolute;
+  right: 6px;
+  color: #f44336;
+  font-size: 10px;
+  font-weight: bold;
+  z-index: 8;
+  pointer-events: none;
+}
+
+/* ── Hour grid lines ── */
+.hour-line {
+  position: absolute;
+  left: 0; right: 0;
+  border-top: 1px solid #ececec;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Toast ── */
+#toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: #333; color: white; padding: 10px 20px; border-radius: 6px;
+  font-size: 13px; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+}
+#toast.show { opacity: 1; }
+
+/* ── JS-generated element classes ── */
+.error-msg   { padding: 40px; color: red; font-size: 14px; }
+.empty-msg   { padding: 40px; color: #888; font-size: 14px; }
+.link-primary { color: #4a90d9; }
+.group-badge  { color: #e67e22; font-size: 9px; font-weight: bold; }
+.bout-duration { color: #e67e22; font-weight: bold; }
+.status-ok      { color: #4caf50; font-weight: bold; }
+.status-overrun { color: #f44336; font-weight: bold; }
