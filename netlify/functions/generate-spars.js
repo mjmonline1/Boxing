@@ -54,29 +54,34 @@ exports.handler = async () => {
     const sparCount = new Map();
 
     // Phase 1: ±2 kg within bucket
+    let phase1Matches = [];
     for (const [cat, boxers] of Object.entries(buckets)) {
       if (cat === 'NotFit' || !boxers.length) continue;
       const { matches, unmatched } = pairBoxers(boxers, cat, W_TOL1, sparCount);
       allMatches = allMatches.concat(matches);
+      phase1Matches = phase1Matches.concat(matches);
       bucketRemainder[cat] = unmatched;
     }
 
     const phase1Unmatched = Object.values(bucketRemainder).flat()
       .sort((a,b) => a.weight - b.weight)
       .map(b => ({ name: b.name, weight: b.weight, experience: b.experience, club: b.club }));
+    const phase1Bouts = phase1Matches.map(m => ({ red: m.red.name, blue: m.blue.name, weightDiff: m.weightDiff, category: m.category }));
 
     // Phase 2: ±2.5 kg within bucket — tag remainders with source bucket
-    let allUnmatched = [];
+    let allUnmatched = [], phase2Matches = [];
     for (const [cat, boxers] of Object.entries(bucketRemainder)) {
       if (!boxers.length) continue;
       const { matches, unmatched } = pairBoxers(boxers, cat, W_TOL2, sparCount);
       allMatches = allMatches.concat(matches);
+      phase2Matches = phase2Matches.concat(matches);
       allUnmatched = allUnmatched.concat(unmatched.map(b => ({ ...b, _bucket: cat })));
     }
 
     const phase2Unmatched = [...allUnmatched]
       .sort((a,b) => a.weight - b.weight)
       .map(b => ({ name: b.name, weight: b.weight, experience: b.experience, club: b.club }));
+    const phase2Bouts = phase2Matches.map(m => ({ red: m.red.name, blue: m.blue.name, weightDiff: m.weightDiff, category: m.category }));
 
     // Phase 3b: unmatched boxer joins existing 1v1 pair in same bucket → round-robin group (±2 kg)
     let groupCounter = 0;
@@ -116,6 +121,9 @@ exports.handler = async () => {
     const phase3Unmatched = [...stillRemaining]
       .sort((a,b) => a.weight - b.weight)
       .map(b => ({ name: b.name, weight: b.weight, experience: b.experience, club: b.club }));
+    const phase3Groups = allMatches
+      .filter(m => m.groupId)
+      .map(m => ({ groupId: m.groupId, red: m.red.name, blue: m.blue.name, third: m.third.name, category: m.category }));
 
     // Rename _bucket to category on unmatched, strip from matched boxer objects
     allMatches.forEach(m => { delete m.red._bucket; delete m.blue._bucket; if (m.third) delete m.third._bucket; });
@@ -134,7 +142,11 @@ exports.handler = async () => {
       },
       matches:   allMatches,
       unmatched: stillRemaining,
-      phaseLog:  { phase1: phase1Unmatched, phase2: phase2Unmatched, phase3: phase3Unmatched }
+      phaseLog:  {
+        phase1: { bouts: phase1Bouts, unmatched: phase1Unmatched },
+        phase2: { bouts: phase2Bouts, unmatched: phase2Unmatched },
+        phase3: { groups: phase3Groups, unmatched: phase3Unmatched }
+      }
     };
 
     const today = new Date().toISOString().split('T')[0];
