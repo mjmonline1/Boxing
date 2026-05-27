@@ -143,9 +143,9 @@ exports.handler = async () => {
       matches:   allMatches,
       unmatched: stillRemaining,
       phaseLog:  {
-        phase1: { bouts: phase1Bouts, unmatched: phase1Unmatched },
-        phase2: { bouts: phase2Bouts, unmatched: phase2Unmatched },
-        phase3: { groups: phase3Groups, unmatched: phase3Unmatched }
+        phase1: phase1Unmatched, phase1Bouts,
+        phase2: phase2Unmatched, phase2Bouts,
+        phase3: phase3Unmatched, phase3Groups
       }
     };
 
