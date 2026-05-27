@@ -439,7 +439,9 @@ function renderPhaseLog() {
     const row = document.createElement('div');
     row.className = 'phase-row';
     const boutList = (p.bouts || []).map(b =>
-      b.third ? `${b.red} / ${b.blue} / ${b.third}` : `${b.red} vs ${b.blue}`
+      b.third
+        ? `${b.red} (${b.redWeight}kg) / ${b.blue} (${b.blueWeight}kg) / ${b.third} (${b.thirdWeight}kg) [${b.category}]`
+        : `${b.red} (${b.redWeight}kg) vs ${b.blue} (${b.blueWeight}kg) [${b.category}]`
     ).join(', ');
     const unmatchedList = (p.unmatched || []).map(b => `${b.name} (${b.weight}kg, ${b.club})`).join(', ');
     const boutHtml = boutList ? `<span class="phase-bouts">${boutList}</span>` : '';
