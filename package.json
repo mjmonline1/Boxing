@@ -1,6 +1,6 @@
 {
   "name": "boxing-tournament-manager",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "TSC Boxing Tournament Management Tool",
   "main": "Server.js",
   "scripts": {

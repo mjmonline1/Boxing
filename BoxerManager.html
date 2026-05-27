@@ -4,136 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Boxer Manager 2026</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; }
-
-    body { font-family: Arial, sans-serif; margin: 0; background: #f0f2f5; }
-
-    /* ── Toolbar ── */
-    #toolbar {
-      display: flex; align-items: center; gap: 16px;
-      padding: 10px 16px; background: var(--toolbar-bg); color: var(--toolbar-text);
-      position: sticky; top: 0; z-index: 10;
-    }
-    #toolbar h1 { margin: 0; font-size: 18px; flex: 1; }
-    #toolbar button {
-      padding: 7px 16px; border: none; border-radius: 6px;
-      cursor: pointer; font-size: 13px; font-weight: bold;
-    }
-    #toolbar a.nav-btn {
-      padding: 7px 14px; border: 1px solid var(--nav-btn-border); border-radius: 6px;
-      color: var(--nav-btn-color); text-decoration: none; font-size: 13px;
-      font-weight: bold; white-space: nowrap;
-      transition: border-color 0.15s, color 0.15s;
-    }
-    #toolbar a.nav-btn:hover { border-color: var(--nav-btn-hover-border); color: var(--nav-btn-hover-color); }
-    #toolbar button:disabled { opacity: .45; cursor: default; }
-    #openBtn  { background: #4a90d9; color: white; }
-    #saveBtn  { background: #4caf50; color: white; }
-    #addBtn   { background: #ff9800; color: white; }
-    #searchInput {
-      padding: 6px 10px; border: none; border-radius: 6px;
-      font-size: 13px; width: 200px;
-    }
-
-    /* ── Stats bar ── */
-    #statsBar {
-      display: none; gap: 20px;
-      padding: 6px 16px; background: white;
-      border-bottom: 1px solid #ddd; font-size: 12px; color: #555;
-    }
-
-    /* ── Table ── */
-    #tableWrap { padding: 12px; overflow-x: auto; }
-
-    #emptyState {
-      text-align: center; padding: 60px 20px;
-      color: #999; font-size: 15px;
-    }
-
-    table {
-      width: 100%; border-collapse: collapse; background: white;
-      border-radius: 8px; overflow: hidden;
-      box-shadow: 0 1px 4px rgba(0,0,0,.1); font-size: 13px;
-    }
-    thead th {
-      background: #1a1a2e; color: white;
-      padding: 10px 12px; text-align: left;
-      cursor: pointer; white-space: nowrap; user-select: none;
-    }
-    thead th:last-child { cursor: default; }
-    thead th:hover:not(:last-child) { background: #2a2a4e; }
-    thead th.sort-asc::after  { content: ' ↑'; }
-    thead th.sort-desc::after { content: ' ↓'; }
-
-    tbody tr:nth-child(even) { background: #f9f9f9; }
-    tbody tr:hover           { background: #e8f4ff; }
-    td { padding: 8px 12px; border-bottom: 1px solid #eee; }
-    td.actions { white-space: nowrap; }
-    td.truncate { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-    .btn-edit      { padding: 4px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; background: #4a90d9; color: white; margin-right: 4px; }
-    .btn-delete    { padding: 4px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; background: #e53935; color: white; }
-    .btn-fit-yes   { padding: 4px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; background: #4caf50; color: white; margin-right: 4px; }
-    .btn-fit-no    { padding: 4px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; background: #ff9800; color: white; margin-right: 4px; }
-
-    .fit-yes { color: #4caf50; font-weight: bold; }
-    .fit-no  { color: #e53935; font-weight: bold; }
-    .gender-female { color: #e91e8c; }
-
-    /* ── Modal ── */
-    #modalOverlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,.5); z-index: 100;
-      align-items: center; justify-content: center;
-    }
-    #modalOverlay.open { display: flex; }
-
-    #modal {
-      background: white; border-radius: 10px;
-      width: 560px; max-width: 95vw; max-height: 92vh; overflow-y: auto;
-      padding: 24px; box-shadow: 0 8px 32px rgba(0,0,0,.3);
-    }
-    #modal h2 { margin: 0 0 20px; font-size: 17px; color: #1a1a2e; }
-
-    .form-row        { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-    .form-row.full   { grid-template-columns: 1fr; }
-    .form-row.three  { grid-template-columns: 1fr 1fr 1fr; }
-    .form-group      { display: flex; flex-direction: column; gap: 4px; }
-    .form-group label { font-size: 12px; font-weight: bold; color: #555; text-transform: uppercase; letter-spacing: .4px; }
-    .form-group input, .form-group select, .form-group textarea {
-      padding: 7px 10px; border: 1px solid #ccc;
-      border-radius: 6px; font-size: 13px; font-family: inherit;
-    }
-    .form-group textarea { resize: vertical; min-height: 60px; }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-      outline: none; border-color: #4a90d9;
-      box-shadow: 0 0 0 2px rgba(74,144,217,.2);
-    }
-    .form-group input:disabled, .form-group select:disabled, .form-group textarea:disabled {
-      background: #f5f5f5; color: #888; cursor: default;
-    }
-    .form-group input.error { border-color: #e53935; }
-
-    .form-section { border-top: 1px solid #eee; margin-top: 16px; padding-top: 12px; }
-    .form-section-title { font-size: 11px; font-weight: bold; color: #aaa; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
-
-    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
-    .modal-actions button {
-      padding: 8px 22px; border: none; border-radius: 6px;
-      cursor: pointer; font-size: 13px; font-weight: bold;
-    }
-    #cancelBtn  { background: #eee; color: #333; }
-    #saveRowBtn { background: #4caf50; color: white; }
-
-    /* ── Toast ── */
-    #toast {
-      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-      background: #333; color: white; padding: 10px 20px; border-radius: 6px;
-      font-size: 13px; opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 200;
-    }
-    #toast.show { opacity: 1; }
-  </style>
+  <link rel="stylesheet" href="BoxerManager.css">
   <link rel="stylesheet" href="theme.css">
 </head>
 <body>
@@ -154,12 +25,12 @@
   <span id="statMale"></span>
   <span id="statFemale"></span>
   <span id="statUnfit"></span>
-  <span id="statShowing" style="margin-left:auto;color:#999"></span>
+  <span id="statShowing" class="stat-showing"></span>
 </div>
 
 <div id="tableWrap">
   <div id="emptyState">Loading boxer data from server…</div>
-  <table id="boxerTable" style="display:none">
+  <table id="boxerTable" class="hidden">
     <thead>
       <tr>
         <th onclick="sortBy('id')">ID</th>
@@ -238,11 +109,11 @@
       </div>
       <div class="form-group">
         <label>Won</label>
-        <input id="f_won" type="number" min="0" step="1" placeholder="0" style="max-width:6.5em">
+        <input id="f_won" type="number" min="0" step="1" placeholder="0" class="input-narrow">
       </div>
       <div class="form-group">
         <label>Lost</label>
-        <input id="f_lost" type="number" min="0" step="1" placeholder="0" style="max-width:6.5em">
+        <input id="f_lost" type="number" min="0" step="1" placeholder="0" class="input-narrow">
       </div>
     </div>
 
@@ -464,11 +335,11 @@ function renderTable() {
   const empty = document.getElementById('emptyState');
 
   if (!boxers.length) {
-    table.style.display = 'none';
+    table.classList.add('hidden');
     empty.style.display = '';
     return;
   }
-  table.style.display = '';
+  table.classList.remove('hidden');
   empty.style.display = 'none';
 
   tbody.innerHTML = filtered.map(b => `

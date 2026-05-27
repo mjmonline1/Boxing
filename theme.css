@@ -272,3 +272,6 @@ td {
   color: var(--text-muted);
   border-top-color: var(--surface-border);
 }
+
+/* ── Utility ── */
+.hidden { display: none; }

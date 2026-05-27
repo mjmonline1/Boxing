@@ -4,207 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Spar Manager</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; margin: 0; background: #f0f2f5; }
-
-    /* ── Toolbar ── */
-    #toolbar {
-      display: flex; align-items: center; gap: 16px;
-      padding: 10px 16px; background: var(--toolbar-bg); color: var(--toolbar-text);
-      position: sticky; top: 0; z-index: 20;
-    }
-    #toolbar h1 { margin: 0; font-size: 18px; flex: 1; }
-    .stats { font-size: 13px; color: var(--toolbar-subtext); }
-    #toolbar button {
-      padding: 7px 16px; border: none; border-radius: 6px;
-      cursor: pointer; font-size: 13px; font-weight: bold;
-    }
-    #exportBtn { background: #4caf50; color: white; }
-    #resetBtn  { background: #666;    color: white; }
-    #toolbar a.nav-btn {
-      padding: 7px 14px; border: 1px solid var(--nav-btn-border); border-radius: 6px;
-      color: var(--nav-btn-color); text-decoration: none; font-size: 13px;
-      font-weight: bold; white-space: nowrap;
-      transition: border-color 0.15s, color 0.15s;
-    }
-    #toolbar a.nav-btn:hover { border-color: var(--nav-btn-hover-border); color: var(--nav-btn-hover-color); }
-
-    /* ── Legend + filter bar ── */
-    #legend {
-      display: flex; gap: 16px; padding: 6px 16px;
-      background: #fff; border-bottom: 1px solid #ddd; font-size: 12px;
-      flex-wrap: wrap; align-items: center;
-    }
-    .legend-item { display: flex; align-items: center; gap: 5px; }
-    .swatch { width: 11px; height: 11px; border-radius: 2px; flex-shrink: 0; }
-
-    #filterbar {
-      display: flex; gap: 10px; padding: 8px 16px;
-      background: #f7f7f7; border-bottom: 1px solid #ddd;
-      align-items: center; flex-wrap: wrap;
-    }
-    #filterbar label { font-size: 12px; font-weight: bold; color: #555; }
-    #filterbar select, #filterbar input {
-      padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;
-    }
-    #searchInput { width: 180px; }
-
-    /* ── Layout ── */
-    #content {
-      display: flex; gap: 0; height: calc(100vh - 96px);
-    }
-
-    /* ── Pairs column ── */
-    #pairs-col {
-      flex: 1; overflow-y: auto; padding: 12px;
-    }
-    .col-title {
-      font-size: 12px; font-weight: bold; color: #888;
-      text-transform: uppercase; letter-spacing: .5px;
-      margin-bottom: 10px;
-    }
-
-    /* ── Match card ── */
-    .match-card {
-      background: white; border: 1px solid #ddd;
-      border-left: 5px solid #ccc; border-radius: 8px;
-      padding: 10px 12px; margin-bottom: 10px;
-    }
-    .match-card.senior { border-left-color: #4a90d9; }
-    .match-card.junior { border-left-color: #5cb85c; }
-    .match-card.youth  { border-left-color: #f0ad4e; }
-    .match-card.female { border-left-color: #e91e8c; }
-
-    .card-header {
-      display: flex; align-items: center; gap: 8px;
-      margin-bottom: 8px; flex-wrap: wrap;
-    }
-    .spar-id  { font-size: 10px; color: #bbb; }
-    .cat-badge {
-      font-size: 10px; color: #666; background: #f0f0f0;
-      padding: 2px 6px; border-radius: 3px;
-    }
-    .warn-badge {
-      font-size: 10px; color: #c62828; background: #ffebee;
-      padding: 2px 6px; border-radius: 3px;
-    }
-    .rr-badge {
-      font-size: 11px; font-weight: bold; color: #6a1b9a;
-      background: #f3e5f5; padding: 2px 8px; border-radius: 3px;
-    }
-    .diff-badge {
-      font-size: 10px; color: #555; background: #f5f5f5;
-      padding: 2px 6px; border-radius: 3px;
-    }
-    .card-actions { margin-left: auto; display: flex; gap: 6px; }
-    .card-actions button {
-      padding: 3px 9px; border: none; border-radius: 4px;
-      cursor: pointer; font-size: 11px; font-weight: bold;
-    }
-    .btn-swap   { background: #e8f0fe; color: #1565c0; }
-    .btn-swap:hover   { background: #cfe0ff; }
-    .btn-delete { background: #ffebee; color: #c62828; }
-    .btn-delete:hover { background: #ffcdd2; }
-
-    /* ── Matchup row ── */
-    .matchup { display: flex; align-items: stretch; gap: 8px; }
-    .corner-wrap { flex: 1; }
-    .corner-label {
-      font-size: 9px; font-weight: bold; text-transform: uppercase;
-      color: #999; margin-bottom: 4px; letter-spacing: .5px;
-    }
-    .vs-col {
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: bold; color: #ccc;
-      min-width: 28px;
-    }
-
-    /* ── Boxer tile (shared by pairs and unmatched pool) ── */
-    .boxer-tile {
-      border: 1px solid #ddd; border-radius: 6px; padding: 8px 10px;
-      font-size: 12px; cursor: grab; user-select: none;
-      transition: box-shadow .1s, opacity .15s, background .1s;
-      background: #fafafa;
-    }
-    .boxer-tile:active { cursor: grabbing; }
-    .boxer-tile.dragging { opacity: .35; }
-    .boxer-tile.drop-target {
-      outline: 2px dashed #4caf50; background: #f0fff0;
-      box-shadow: 0 0 0 3px #c8f7c5;
-    }
-
-    /* corner-specific colours */
-    .red-corner   .boxer-tile { border-top: 2px solid #e53935; }
-    .blue-corner  .boxer-tile { border-top: 2px solid #1e88e5; }
-    .third-corner .boxer-tile { border-top: 2px solid #9c27b0; }
-
-    .match-card.group-drop-target {
-      outline: 2px dashed #9c27b0; background: #fdf4ff;
-    }
-    .boxer-tile.group-add-target {
-      outline: 2px dashed #9c27b0; background: #f9f0ff;
-      box-shadow: 0 0 0 3px #e1bee7;
-    }
-
-    /* type accent on left edge for unmatched tiles */
-    .boxer-tile.senior { border-left: 3px solid #4a90d9; }
-    .boxer-tile.junior { border-left: 3px solid #5cb85c; }
-    .boxer-tile.youth  { border-left: 3px solid #f0ad4e; }
-    .boxer-tile.female { border-left: 3px solid #e91e8c; }
-
-    .boxer-name   { font-weight: bold; color: #222; }
-    .boxer-club   { color: #777; font-size: 11px; margin-top: 2px; }
-    .boxer-stats  { color: #999; font-size: 10px; margin-top: 3px; }
-    .boxer-bucket { color: #aaa; font-size: 10px; margin-top: 3px; font-style: italic; }
-
-    .drag-hint {
-      font-size: 10px; color: #ccc; margin-top: 6px; text-align: right;
-      font-style: italic;
-    }
-
-    /* ── Unmatched panel ── */
-    #unmatched-col {
-      width: 230px; flex-shrink: 0; border-left: 2px solid #e0e0e0;
-      display: flex; flex-direction: column;
-      background: white;
-    }
-    #unmatched-header {
-      padding: 12px 12px 8px; border-bottom: 1px solid #eee;
-      font-size: 13px; font-weight: bold; color: #333;
-      background: #fafafa; flex-shrink: 0;
-    }
-    #unmatched-header .sub {
-      font-size: 11px; color: #aaa; font-weight: normal; margin-top: 2px;
-    }
-
-    #unmatched-zone {
-      flex: 1; overflow-y: auto; padding: 10px;
-      transition: background .15s;
-    }
-    #unmatched-zone.drop-active {
-      background: #fff3e0;
-      outline: 2px dashed #ff9800;
-    }
-    .unmatched-tile {
-      margin-bottom: 7px;
-    }
-    .pool-empty { font-size: 12px; color: #bbb; font-style: italic; padding: 4px 0; }
-    #pair-hint kbd { font-size: 10px; background: #eee; border: 1px solid #ccc; border-radius: 3px; padding: 1px 4px; font-family: inherit; }
-    .drop-prompt {
-      font-size: 11px; color: #aaa; text-align: center;
-      padding: 8px; border: 1px dashed #ddd; border-radius: 6px;
-      margin-bottom: 8px;
-    }
-
-    /* ── Toast ── */
-    #toast {
-      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-      background: #333; color: white; padding: 10px 20px; border-radius: 6px;
-      font-size: 13px; opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 99;
-    }
-    #toast.show { opacity: 1; }
-  </style>
+  <link rel="stylesheet" href="SparManager.css">
   <link rel="stylesheet" href="theme.css">
 </head>
 <body>
@@ -213,20 +13,20 @@
   <a class="nav-btn" href="index.html">&#8592; Home</a>
   <h1>Spar Manager</h1>
   <span class="stats" id="stats"></span>
-  <label style="font-size:12px;color:var(--muted,#888);white-space:nowrap;">Date:</label>
-  <select id="dateSelect" style="padding:4px 7px;border-radius:5px;border:1px solid var(--border,#ccc);background:var(--surface2,#f5f5f5);color:var(--text,#333);font-size:12px;cursor:pointer;"></select>
+  <label class="date-label">Date:</label>
+  <select id="dateSelect" class="date-select"></select>
   <button id="resetBtn">Reset</button>
   <button id="exportBtn">Save Spars</button>
   <button class="theme-btn"></button>
 </div>
 
 <div id="legend">
-  <b style="font-size:12px;">Key:</b>
-  <span class="legend-item"><span class="swatch" style="background:#4a90d9"></span>Senior male</span>
-  <span class="legend-item"><span class="swatch" style="background:#5cb85c"></span>Junior male</span>
-  <span class="legend-item"><span class="swatch" style="background:#f0ad4e"></span>Youth male</span>
-  <span class="legend-item"><span class="swatch" style="background:#e91e8c"></span>Female</span>
-  <span style="margin-left:16px;font-size:12px;color:#888;">
+  <b class="legend-key">Key:</b>
+  <span class="legend-item"><span class="swatch swatch-senior"></span>Senior male</span>
+  <span class="legend-item"><span class="swatch swatch-junior"></span>Junior male</span>
+  <span class="legend-item"><span class="swatch swatch-youth"></span>Youth male</span>
+  <span class="legend-item"><span class="swatch swatch-female"></span>Female</span>
+  <span class="legend-hint">
     Drag any boxer onto another to swap them · Drop onto the pool panel to unmatch · Drop an unmatched boxer onto another unmatched boxer to create a new pair · Ctrl+drop an unmatched boxer onto a pair to create a group of 3
   </span>
 </div>
@@ -234,7 +34,7 @@
 <div id="filterbar">
   <label>Category:</label>
   <select id="filterCat"><option value="">All categories</option></select>
-  <label style="margin-left:8px;">Search:</label>
+  <label class="filter-label-spaced">Search:</label>
   <input id="searchInput" type="text" placeholder="name or club…" />
 </div>
 
@@ -250,7 +50,7 @@
       <div class="sub">Drop a paired boxer here to free them</div>
     </div>
     <div id="unmatched-zone">
-      <div id="pair-hint" style="font-size:11px;color:#aaa;background:#f9f9f9;border:1px dashed #ddd;border-radius:6px;padding:7px 9px;margin-bottom:8px;line-height:1.5;display:none;">
+      <div id="pair-hint">
         Drop one boxer onto another to create a pair<br>Hold <kbd>Ctrl</kbd> while dropping to create a group
       </div>
       <div id="unmatched-list"></div>
@@ -291,7 +91,7 @@ async function loadAndRender() {
     originalData = await DataClient.get('spars', { date: getSelectedDate() });
   } catch {
     document.getElementById('pairs').innerHTML =
-      `<div style="padding:40px;color:red;font-size:14px;"><b>Could not load spar data.</b></div>`;
+      `<div class="error-msg"><b>Could not load spar data.</b></div>`;
     return;
   }
 
@@ -303,9 +103,9 @@ async function loadAndRender() {
       originalData = await res.json();
     } catch (e) {
       document.getElementById('pairs').innerHTML =
-        `<div style="padding:40px;color:#888;font-size:14px;">
+        `<div class="empty-msg">
            <b>Could not generate pairs: ${e.message}</b><br><br>
-           Go to <a href="BucketAssigner.html" style="color:#4a90d9;">Bucket Assigner</a> first.
+           Go to <a href="BucketAssigner.html" class="link-primary">Bucket Assigner</a> first.
          </div>`;
       return;
     }
@@ -637,12 +437,12 @@ function renderPhaseLog() {
   const body = document.createElement('div');
   phases.forEach(p => {
     const row = document.createElement('div');
-    row.style.cssText = 'font-size:11px;color:#999;margin-bottom:5px;';
+    row.className = 'phase-row';
     if (p.boxers.length === 0) {
-      row.innerHTML = `<b style="color:#bbb">${p.label}</b> — <span style="color:#8bc34a">all matched</span>`;
+      row.innerHTML = `<b class="phase-label">${p.label}</b> — <span class="phase-ok">all matched</span>`;
     } else {
       const names = p.boxers.map(b => `${b.name} (${b.weight}kg, ${b.club})`).join(', ');
-      row.innerHTML = `<b style="color:#bbb">${p.label}</b> — <span style="color:#e57373">${p.boxers.length} unmatched:</span> ${names}`;
+      row.innerHTML = `<b class="phase-label">${p.label}</b> — <span class="phase-fail">${p.boxers.length} unmatched:</span> ${names}`;
     }
     body.appendChild(row);
   });
@@ -666,7 +466,7 @@ function renderPairs() {
 
   if (matches.length === 0) {
     container.innerHTML =
-      '<div style="padding:24px;color:#bbb;font-style:italic;text-align:center;">No pairs match the filter</div>';
+      '<div class="empty-filter-msg">No pairs match the filter</div>';
     return;
   }
 
