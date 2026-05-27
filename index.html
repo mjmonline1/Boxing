@@ -317,9 +317,9 @@
         : data.output || JSON.stringify(data, null, 2);
       if (data.phaseLog) {
         const fmtBouts = (bouts) => bouts?.length
-          ? bouts.map(b => `  + ${b.red} vs ${b.blue}`).join('\n') : '';
+          ? bouts.map(b => `  + ${b.red} (${b.redWeight}kg) vs ${b.blue} (${b.blueWeight}kg) [${b.category}]`).join('\n') : '';
         const fmtGroups = (groups) => groups?.length
-          ? groups.map(g => `  + ${g.red} / ${g.blue} / ${g.third}`).join('\n') : '';
+          ? groups.map(g => `  + ${g.red} (${g.redWeight}kg) / ${g.blue} (${g.blueWeight}kg) / ${g.third} (${g.thirdWeight}kg) [${g.category}]`).join('\n') : '';
         const fmtUnmatched = (boxers) => boxers?.length
           ? `  ${boxers.length} unmatched: ` + boxers.map(b => `${b.name} (${b.weight}kg)`).join(', ') : '  all matched';
         const fmt = (label, bouts, unmatched, groups) => {

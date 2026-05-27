@@ -66,7 +66,7 @@ exports.handler = async () => {
     const phase1Unmatched = Object.values(bucketRemainder).flat()
       .sort((a,b) => a.weight - b.weight)
       .map(b => ({ name: b.name, weight: b.weight, experience: b.experience, club: b.club }));
-    const phase1Bouts = phase1Matches.map(m => ({ red: m.red.name, blue: m.blue.name, weightDiff: m.weightDiff, category: m.category }));
+    const phase1Bouts = phase1Matches.map(m => ({ red: m.red.name, redWeight: m.red.weight, blue: m.blue.name, blueWeight: m.blue.weight, weightDiff: m.weightDiff, category: m.category }));
 
     // Phase 2: ±2.5 kg within bucket — tag remainders with source bucket
     let allUnmatched = [], phase2Matches = [];
@@ -81,7 +81,7 @@ exports.handler = async () => {
     const phase2Unmatched = [...allUnmatched]
       .sort((a,b) => a.weight - b.weight)
       .map(b => ({ name: b.name, weight: b.weight, experience: b.experience, club: b.club }));
-    const phase2Bouts = phase2Matches.map(m => ({ red: m.red.name, blue: m.blue.name, weightDiff: m.weightDiff, category: m.category }));
+    const phase2Bouts = phase2Matches.map(m => ({ red: m.red.name, redWeight: m.red.weight, blue: m.blue.name, blueWeight: m.blue.weight, weightDiff: m.weightDiff, category: m.category }));
 
     // Phase 3b: unmatched boxer joins existing 1v1 pair in same bucket → round-robin group (±2 kg)
     let groupCounter = 0;
@@ -123,7 +123,7 @@ exports.handler = async () => {
       .map(b => ({ name: b.name, weight: b.weight, experience: b.experience, club: b.club }));
     const phase3Groups = allMatches
       .filter(m => m.groupId)
-      .map(m => ({ groupId: m.groupId, red: m.red.name, blue: m.blue.name, third: m.third.name, category: m.category }));
+      .map(m => ({ groupId: m.groupId, red: m.red.name, redWeight: m.red.weight, blue: m.blue.name, blueWeight: m.blue.weight, third: m.third.name, thirdWeight: m.third.weight, category: m.category }));
 
     // Rename _bucket to category on unmatched, strip from matched boxer objects
     allMatches.forEach(m => { delete m.red._bucket; delete m.blue._bucket; if (m.third) delete m.third._bucket; });
