@@ -3,7 +3,8 @@
 const fs   = require('fs');
 const path = require('path');
 
-const TODAY     = new Date().toISOString().split('T')[0];
+const _d        = new Date();
+const TODAY     = `${_d.getFullYear()}-${String(_d.getMonth()+1).padStart(2,'0')}-${String(_d.getDate()).padStart(2,'0')}`;
 const DATA_FILE = path.join(__dirname, 'output', 'Spars', TODAY, 'Spars.json');
 const OUT_DIR   = path.join(__dirname, 'output', 'Spars', TODAY);
 
@@ -12,9 +13,9 @@ const RINGS_ALL  = ['R1', 'R2', 'R3', 'R4', 'R5'];
 
 // ── Classifiers ──────────────────────────────────────────────────────────────
 
-// All boxers in the match are male seniors (YOB ≤ 2006)
+// All boxers in the match are male seniors (YOB ≤ 2007)
 function isBothSeniorMale(match) {
-  const sm = b => b.gender === 'male' && b.yob <= 2006;
+  const sm = b => b.gender === 'male' && b.yob <= 2007;
   return sm(match.red) && sm(match.blue) && (!match.third || sm(match.third));
 }
 
@@ -84,8 +85,13 @@ function distributeGrouped(matches) {
 // Senior = 3×3min + 2×1min rest = 11 min. Youth/Junior = 3×2min + 2×1min = 8 min.
 // Round-robin groups of 3 run all three bouts in sequence: 3× single bout time.
 
+function isSeniorBout(match) {
+  const senior = b => b.yob <= 2007;
+  return senior(match.red) && senior(match.blue) && (!match.third || senior(match.third));
+}
+
 function boutDuration(match) {
-  const single = match.category?.includes('Senior') ? 11 : 8;
+  const single = isSeniorBout(match) ? 11 : 8;
   return match.third ? single * 3 : single;
 }
 
@@ -144,7 +150,13 @@ function printSummary(s) {
 
 function run(day = 1) {
   fs.mkdirSync(OUT_DIR, { recursive: true });
-  const data    = JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
+  let data;
+  try {
+    data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
+  } catch (err) {
+    console.error(`Error reading ${DATA_FILE}: ${err.message}`);
+    process.exit(1);
+  }
   const matches = data.matches.map((m, i) => ({ sparId: `S${i + 1}`, ...m }));
 
   // Sort by average bout weight to maximise boxer rest between days.

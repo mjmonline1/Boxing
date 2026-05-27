@@ -3,7 +3,8 @@ const fs = require('fs');
 const path = require('path');
 
 // Configuration
-const TODAY       = new Date().toISOString().split('T')[0];
+const _d          = new Date();
+const TODAY       = `${_d.getFullYear()}-${String(_d.getMonth()+1).padStart(2,'0')}-${String(_d.getDate()).padStart(2,'0')}`;
 const SOURCE_FILE = path.join(__dirname, 'output', 'Buckets', 'tsc-2025-buckets.json');
 const OUTPUT_FILE = path.join(__dirname, 'output', 'Spars', TODAY, 'Spars.json');
 const WEIGHT_TOLERANCE        = 2.0;
@@ -69,7 +70,7 @@ function pairBoxers(boxers, categoryName, tolerance = WEIGHT_TOLERANCE, sparCoun
 function main() {
     if (!fs.existsSync(SOURCE_FILE)) {
         console.error(`Error: ${SOURCE_FILE} not found. Run tsc-tournament-2025.js first.`);
-        return;
+        process.exit(1);
     }
 
     const data = JSON.parse(fs.readFileSync(SOURCE_FILE, 'utf8'));
@@ -93,6 +94,7 @@ function main() {
 
         if (matches.length > 0) {
             console.log(`  ${category}: ${matches.length} matches, ${unmatched.length} unmatched.`);
+            matches.forEach(m => console.log(`    ${m.red.name} (${m.red.weight}kg) vs ${m.blue.name} (${m.blue.weight}kg)`));
         }
     }
     const phase1Unmatched = Object.values(bucketUnmatched).flat();
@@ -113,6 +115,7 @@ function main() {
         allUnmatched = allUnmatched.concat(unmatched.map(b => ({ ...b, _bucket: category })));
         if (matches.length > 0) {
             console.log(`  ${category}: ${matches.length} matches, ${unmatched.length} unmatched.`);
+            matches.forEach(m => console.log(`    ${m.red.name} (${m.red.weight}kg) vs ${m.blue.name} (${m.blue.weight}kg)`));
         }
     }
     if (allUnmatched.length > 0) {

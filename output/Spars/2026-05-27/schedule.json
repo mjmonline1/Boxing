@@ -2,10 +2,10 @@
   "summary": {
     "strategy": "BALANCED",
     "totalMatches": 51,
-    "seniorMale": 14,
+    "seniorMale": 21,
     "female": 5,
     "juniorMale": 14,
-    "youthCrossAge": 18,
+    "youthCrossAge": 11,
     "totalSlots": 11,
     "matchesPerRing": {
       "R1": 11,
@@ -518,7 +518,7 @@
           "ring": "R5",
           "sparId": "S51",
           "category": "FitFemales",
-          "duration": 8,
+          "duration": 11,
           "red": {
             "submissionDate": "09/06/2025 22:57",
             "name": "Regina Halmich",
