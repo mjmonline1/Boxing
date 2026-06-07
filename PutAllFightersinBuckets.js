@@ -104,6 +104,31 @@ const tscBucketStructure = [
   }
 ];
 
+/**
+ * Explain why a boxer matched no final bucket. The structure is Gender → Age
+ * (YOB) → Experience; the only intended catch-alls are Notfit (unfit) and
+ * Female (any fit female). Everyone else must land in a Male age/experience
+ * bucket. A boxer reaching this function has fallen through a GAP — name the gap.
+ */
+function explainUnassigned(boxer) {
+  const fit = boxer.fit === true || boxer.fit === 'yes';
+  if (!fit) return 'BUG: not-fit boxer should have landed in Notfit';
+
+  const isMale   = boxer.gender === 'male'   || boxer.gender === 'M';
+  const isFemale = boxer.gender === 'female' || boxer.gender === 'F';
+  if (isFemale) return 'BUG: fit female should have landed in Female';
+  if (!isMale)  return `unrecognised gender "${boxer.gender}" (expected male/female)`;
+
+  // Male age groups span YOB 2007 (and older) up to 2014. The only gap is the
+  // young end: nothing covers boxers born 2015 or later (younger than Schools).
+  if (boxer.yob >= 2015) {
+    return `YOB ${boxer.yob} is younger than the Schools floor (2012) — ` +
+           `no male age bucket covers under-Schools boxers`;
+  }
+  return `YOB ${boxer.yob} matched no male age bucket (Schools 2012-2014, ` +
+         `Junior 2010-2011, Youth 2008-2009, Senior <=2007)`;
+}
+
 function runTSCBuckets(csvPath) {
   console.log('=== TSC 2026 Boxing Tournament - Bucket Assignment ===\n');
   console.log(`Loading data from: ${csvPath}`);
@@ -207,6 +232,21 @@ function runTSCBuckets(csvPath) {
   console.log(`✓ All boxers accounted for: ${totalAssigned === boxers.length ? 'YES' : 'NO'}`);
   console.log(`✓ Total final buckets:      ${Object.keys(buckets).length}`);
 
+  // Guard: no boxer may silently vanish. Find anyone in no bucket and explain
+  // exactly which gap swallowed them, so a coverage hole is never invisible.
+  const assigned   = new Set(Object.values(buckets).flat());
+  const unassigned = boxers.filter(b => !assigned.has(b));
+
+  if (unassigned.length > 0) {
+    console.error(`\n!!! GAP: ${unassigned.length} boxer(s) matched NO bucket and were dropped:`);
+    unassigned.forEach(b => {
+      console.error(`  - ${b.name} (${b.club}, ${b.gender}, YOB ${b.yob}) — ${explainUnassigned(b)}`);
+    });
+    console.error('Fix the data or add a bucket so every boxer is covered.\n');
+  } else {
+    console.log('✓ No gaps: every boxer is in a bucket.');
+  }
+
   return filter;
 }
 
@@ -220,4 +260,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { runTSCBuckets, parseCSV, tscBucketStructure };
+module.exports = { runTSCBuckets, parseCSV, tscBucketStructure, explainUnassigned };

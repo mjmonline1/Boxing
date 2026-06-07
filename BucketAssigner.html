@@ -219,16 +219,16 @@
   let dragged     = null; // { boxer, fromKey }
 
   const BUCKET_ORDER = [
-    'NotFit',
+    'Notfit',
     'MaleSchools_Novice', 'MaleSchools_Experienced', 'MaleSchools_OpenClass',
     'MaleJunior_Novice',  'MaleJunior_Experienced',  'MaleJunior_OpenClass',
     'MaleYouth_Novice',   'MaleYouth_Experienced',   'MaleYouth_OpenClass',
     'MaleSenior_Novice',  'MaleSenior_Experienced',  'MaleSenior_OpenClass',
-    'FitFemales',
+    'Female',
   ];
 
   const BUCKET_LABELS = {
-    NotFit:                  'Not Fit',
+    Notfit:                  'Not Fit',
     MaleSchools_Novice:      'Male Schools · Novice (0-5)',
     MaleSchools_Experienced: 'Male Schools · Experienced (6-10)',
     MaleSchools_OpenClass:   'Male Schools · Open Class (11+)',
@@ -241,27 +241,58 @@
     MaleSenior_Novice:       'Male Senior · Novice (0-5)',
     MaleSenior_Experienced:  'Male Senior · Experienced (6-10)',
     MaleSenior_OpenClass:    'Male Senior · Open Class (11+)',
-    FitFemales:              'Female',
+    Female:                  'Female',
   };
 
+  // Mirror of PutAllFightersinBuckets.js: Gender -> Age (YOB) -> Experience.
+  // Returns null when no bucket applies (the gap) — see explainUnassigned.
   function assignBucket(boxer) {
     const fit = boxer.fit === true || String(boxer.fit).toLowerCase() === 'yes';
-    if (!fit) return 'NotFit';
+    if (!fit) return 'Notfit';
 
     const g   = String(boxer.gender).toLowerCase();
     const yob = boxer.yob;
     const exp = boxer.experience;
 
-    if (g === 'female' || g === 'f') return 'FitFemales';
+    const isMale   = g === 'male'   || g === 'm';
+    const isFemale = g === 'female' || g === 'f';
+    if (isFemale) return 'Female';
+    if (!isMale)  return null;                    // unrecognised gender — gap
 
-    let agePrefix;
+    let agePrefix = null;
     if      (yob >= 2012 && yob <= 2014) agePrefix = 'MaleSchools';
     else if (yob >= 2010 && yob <= 2011) agePrefix = 'MaleJunior';
     else if (yob >= 2008 && yob <= 2009) agePrefix = 'MaleYouth';
-    else                                 agePrefix = 'MaleSenior';
+    else if (yob <= 2007)                agePrefix = 'MaleSenior';
+    if (!agePrefix) return null;                  // younger than Schools floor — gap
 
     const expLabel = exp <= 5 ? 'Novice' : exp <= 10 ? 'Experienced' : 'OpenClass';
     return `${agePrefix}_${expLabel}`;
+  }
+
+  // Mirror of PutAllFightersinBuckets.js: explain why a boxer matched no bucket.
+  function explainUnassigned(boxer) {
+    const fit = boxer.fit === true || String(boxer.fit).toLowerCase() === 'yes';
+    if (!fit) return 'BUG: not-fit boxer should have landed in Notfit';
+
+    const g = String(boxer.gender).toLowerCase();
+    if (g === 'female' || g === 'f') return 'BUG: fit female should have landed in Female';
+    if (g !== 'male' && g !== 'm') return `unrecognised gender "${boxer.gender}" (expected male/female)`;
+
+    if (boxer.yob >= 2015) {
+      return `YOB ${boxer.yob} is younger than the Schools floor (2012) — ` +
+             `no male age bucket covers under-Schools boxers`;
+    }
+    return `YOB ${boxer.yob} matched no male age bucket (Schools 2012-2014, ` +
+           `Junior 2010-2011, Youth 2008-2009, Senior <=2007)`;
+  }
+
+  // Loudly surface any boxer that fell through a gap (mirrors the script guard).
+  function reportGaps(unassigned) {
+    if (!unassigned.length) return;
+    console.warn(`!!! GAP: ${unassigned.length} boxer(s) matched NO bucket and were dropped:`);
+    unassigned.forEach(b =>
+      console.warn(`  - ${b.name} (${b.club}, ${b.gender}, YOB ${b.yob}) — ${explainUnassigned(b)}`));
   }
 
   function splitCSVLine(line) {
@@ -299,11 +330,14 @@
   function process(boxers) {
     const buckets = {};
     BUCKET_ORDER.forEach(k => { buckets[k] = []; });
+    const unassigned = [];
     boxers.forEach(b => {
       const key = assignBucket(b);
+      if (!key) { unassigned.push(b); return; }   // gap — don't invent a bucket
       if (!buckets[key]) buckets[key] = [];
       buckets[key].push(b);
     });
+    reportGaps(unassigned);
     return buckets;
   }
 
@@ -323,9 +357,9 @@
   function render(buckets, total) {
     const wrap = document.getElementById('buckets');
     const assigned = Object.entries(buckets)
-      .filter(([k]) => k !== 'NotFit')
+      .filter(([k]) => k !== 'Notfit')
       .reduce((s,[,v]) => s + v.length, 0);
-    const notFit = (buckets.NotFit || []).length;
+    const notFit = (buckets.Notfit || []).length;
     const filledBuckets = Object.values(buckets).filter(v => v.length > 0).length;
 
     document.getElementById('statTotal').textContent = total;
@@ -336,7 +370,7 @@
 
     wrap.innerHTML = BUCKET_ORDER.map(key => {
       const list = buckets[key] || [];
-      const isNotFit = key === 'NotFit';
+      const isNotFit = key === 'Notfit';
       const countClass = list.length === 0 ? 'zero' : isNotFit ? 'notfit' : '';
       const rows = list.length === 0
         ? '<p style="padding:10px 14px; font-size:12px; color:var(--faint); font-style:italic;">Empty</p>'
@@ -408,16 +442,20 @@
             if (!fresh) continue;
             const isFit = fresh.fit === 'yes' || fresh.fit === true;
             // If fit status changed since last save, override saved bucket
-            const effectiveKey = !isFit ? 'NotFit'
-                               : key === 'NotFit' ? assignBucket(fresh)
+            const effectiveKey = !isFit ? 'Notfit'
+                               : key === 'Notfit' ? assignBucket(fresh)
                                : key;
-            lastBuckets[effectiveKey].push(fresh);
+            if (effectiveKey && lastBuckets[effectiveKey]) lastBuckets[effectiveKey].push(fresh);
+            else console.warn(`Gap: ${fresh.name} — ${explainUnassigned(fresh)}`);
             seen.add(String(fresh.id));
           }
         }
         // Auto-assign any boxers added since last save
         for (const boxer of boxers) {
-          if (!seen.has(String(boxer.id))) lastBuckets[assignBucket(boxer)].push(boxer);
+          if (seen.has(String(boxer.id))) continue;
+          const key = assignBucket(boxer);
+          if (key && lastBuckets[key]) lastBuckets[key].push(boxer);
+          else console.warn(`Gap: ${boxer.name} — ${explainUnassigned(boxer)}`);
         }
       } else {
         lastBuckets = process(boxers);
@@ -502,12 +540,12 @@
         if (idx === -1) return;
         const [b] = src.splice(idx, 1);
         if (!lastBuckets[toKey]) lastBuckets[toKey] = [];
-        if (toKey === 'NotFit') b.fit = 'no';
-        else if (fromKey === 'NotFit') b.fit = 'yes';
+        if (toKey === 'Notfit') b.fit = 'no';
+        else if (fromKey === 'Notfit') b.fit = 'yes';
         lastBuckets[toKey].push(b);
         render(lastBuckets, lastTotal);
         saveToServer(lastBuckets, lastTotal);
-        if (toKey === 'NotFit' || fromKey === 'NotFit') DataClient.patch('boxers', b.id, { fit: b.fit }).catch(() => {});
+        if (toKey === 'Notfit' || fromKey === 'Notfit') DataClient.patch('boxers', b.id, { fit: b.fit }).catch(() => {});
       });
     });
   }
