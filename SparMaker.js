@@ -86,7 +86,7 @@ function main() {
     console.log('--- Phase 1 — Within-bucket (±2 kg) ---');
     const bucketUnmatched = {};
     for (const [category, boxers] of Object.entries(buckets)) {
-        if (category === 'NotFit' || boxers.length === 0) continue;
+        if (category === 'Notfit' || boxers.length === 0) continue;
 
         const { matches, unmatched } = pairBoxers(boxers, category, WEIGHT_TOLERANCE, sparCount);
         allMatches = allMatches.concat(matches);

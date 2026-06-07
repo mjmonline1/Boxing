@@ -56,7 +56,7 @@ exports.handler = async () => {
     // Phase 1: ±2 kg within bucket
     let phase1Matches = [];
     for (const [cat, boxers] of Object.entries(buckets)) {
-      if (cat === 'NotFit' || !boxers.length) continue;
+      if (cat === 'Notfit' || !boxers.length) continue;
       const { matches, unmatched } = pairBoxers(boxers, cat, W_TOL1, sparCount);
       allMatches = allMatches.concat(matches);
       phase1Matches = phase1Matches.concat(matches);
