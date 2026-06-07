@@ -10,7 +10,7 @@ async function getDb() {
 const RINGS_OPEN = ['R1','R2','R3','R4'];
 const RINGS_ALL  = ['R1','R2','R3','R4','R5'];
 
-const isSeniorMale  = b => b.gender === 'male' && b.yob <= 2006;
+const isSeniorMale  = b => b.gender === 'male' && b.yob <= 2007;
 const isBothSenior  = m => isSeniorMale(m.red) && isSeniorMale(m.blue) && (!m.third || isSeniorMale(m.third));
 const hasFemale     = m => m.red.gender === 'female' || m.blue.gender === 'female' || m.third?.gender === 'female';
 const isR5Eligible  = m => { const ok = b => b.gender==='female'||(b.gender==='male'&&b.yob>=2009); return ok(m.red)&&ok(m.blue)&&(!m.third||ok(m.third)); };
@@ -90,3 +90,6 @@ exports.handler = async (event) => {
     return { statusCode: 500, body: JSON.stringify({ error: e.message }) };
   }
 };
+
+// Test-only: release the cached connection so the event loop can drain.
+exports._closeDb = async () => { if (cachedClient) { await cachedClient.close(); cachedClient = undefined; } };

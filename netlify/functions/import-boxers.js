@@ -116,3 +116,5 @@ exports.handler = async (event) => {
 // Exposed for tests: the CSV->boxer-doc transform that feeds MongoDB.
 exports.parseBoxers = parseBoxers;
 exports.BOXERS_CSV  = BOXERS_CSV;
+// Test-only: release the cached connection so the event loop can drain.
+exports._closeDb = async () => { if (cachedClient) { await cachedClient.close(); cachedClient = undefined; } };
