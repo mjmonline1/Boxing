@@ -112,3 +112,7 @@ exports.handler = async (event) => {
     return { statusCode: 500, body: JSON.stringify({ error: e.message }) };
   }
 };
+
+// Exposed for tests: the CSV->boxer-doc transform that feeds MongoDB.
+exports.parseBoxers = parseBoxers;
+exports.BOXERS_CSV  = BOXERS_CSV;

@@ -45,7 +45,7 @@
 
   .eyebrow {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px;
+    font-size: 22px;
     font-weight: 600;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -55,7 +55,7 @@
 
   h1 {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: clamp(2.2rem, 6vw, 3.5rem);
+    font-size: clamp(4.4rem, 12vw, 7rem);
     font-weight: 900;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -115,7 +115,7 @@
 
   .step {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 10px;
+    font-size: 20px;
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -123,14 +123,14 @@
   }
 
   .card-icon {
-    font-size: 1.5rem;
+    font-size: 3rem;
     line-height: 1;
     margin-bottom: 0.1rem;
   }
 
   .card-title {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 1.05rem;
+    font-size: 2.1rem;
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -138,7 +138,7 @@
   }
 
   .card-desc {
-    font-size: 12px;
+    font-size: 24px;
     color: var(--muted);
     line-height: 1.4;
   }
@@ -148,7 +148,7 @@
     top: 10px;
     right: 10px;
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 9px;
+    font-size: 18px;
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -170,7 +170,7 @@
   .divider-line { flex: 1; height: 1px; background: var(--border); }
   .divider-label {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 10px;
+    font-size: 20px;
     font-weight: 600;
     letter-spacing: 0.16em;
     text-transform: uppercase;
@@ -185,47 +185,12 @@
 <button class="theme-btn" style="position:fixed;top:12px;right:16px;z-index:50;"></button>
 
 <header>
-  <svg viewBox="0 0 1150 220" role="img" aria-label="Pipeline: Registered Boxers to Bucketizer to SparMaker to RingManager"
-       style="width:100%;max-width:930px;height:auto;margin-bottom:1.5rem;color:var(--text);font-family:'Barlow Condensed',sans-serif;">
-    <defs>
-      <marker id="pipeArrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="userSpaceOnUse">
-        <path d="M0,0 L7,3 L0,6 Z" fill="currentColor"/>
-      </marker>
-    </defs>
-    <g stroke="currentColor" stroke-width="2.5">
-      <line x1="238" y1="110" x2="300" y2="110" marker-end="url(#pipeArrow)"/>
-      <line x1="538" y1="110" x2="600" y2="110" marker-end="url(#pipeArrow)"/>
-      <line x1="838" y1="110" x2="900" y2="110" marker-end="url(#pipeArrow)"/>
-    </g>
-    <g fill="#1e1e1e" font-size="32" font-weight="600" text-anchor="middle" dominant-baseline="middle">
-      <g stroke="#1e1e1e" stroke-width="2">
-        <rect x="10"  y="35" width="220" height="150" rx="14" fill="#ffd8a8"/>
-        <text stroke="none" x="120" y="112">Registered Boxers</text>
-      </g>
-      <a href="SVG/boxing.png" target="_blank" rel="noopener" style="cursor:pointer;">
-        <title>Open Boxing.png</title>
-        <g stroke="#1e1e1e" stroke-width="2">
-          <rect x="310" y="35" width="220" height="150" rx="14" fill="#a5d8ff"/>
-          <text stroke="none" x="420" y="112">Bucketizer</text>
-        </g>
-      </a>
-      <g stroke="#1e1e1e" stroke-width="2">
-        <rect x="610" y="35" width="220" height="150" rx="14" fill="#a5d8ff"/>
-        <text stroke="none" x="720" y="112">SparMaker</text>
-      </g>
-      <g stroke="#1e1e1e" stroke-width="2">
-        <rect x="910" y="35" width="220" height="150" rx="14" fill="#b2f2bb"/>
-        <text stroke="none" x="1020" y="112">RingManager</text>
-      </g>
-    </g>
-  </svg>
   <p class="eyebrow">TSC 2026</p>
-  <h1>Boxing <span>Tournament</span> Manager</h1>
-</header>
+  </header>
 
 <div style="width:100%;max-width:760px;display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;">
-  <label for="dayInput" style="white-space:nowrap;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);">Tournament Day</label>
-  <select id="dayInput" style="padding:4px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;cursor:pointer;">
+  <label for="dayInput" style="white-space:nowrap;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);">Tournament Day</label>
+  <select id="dayInput" style="padding:4px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:24px;cursor:pointer;">
     <option value="1">Monday</option>
     <option value="2">Tuesday</option>
     <option value="3">Wednesday</option>
@@ -234,7 +199,7 @@
     <option value="6">Saturday</option>
     <option value="7">Sunday</option>
   </select>
-  <span id="dayParity" style="font-size:10px;color:var(--muted);"></span>
+  <span id="dayParity" style="font-size:20px;color:var(--muted);"></span>
 </div>
 
 <div class="grid">
@@ -297,16 +262,56 @@
 
 </div>
 
-<p id="app-version" style="margin-top:2rem;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;">v1.1.0</p>
+<svg viewBox="0 0 1900 240" role="img" aria-label="Pipeline: Registered Boxers to Bucketizer to SparMaker to RingManager"
+     style="width:100%;max-width:1500px;height:auto;margin-top:2.5rem;color:var(--text);font-family:'Barlow Condensed',sans-serif;">
+  <defs>
+    <marker id="pipeArrow" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L7,3 L0,6 Z" fill="currentColor"/>
+    </marker>
+  </defs>
+  <g stroke="currentColor" stroke-width="3">
+    <line x1="270" y1="120" x2="550" y2="120" marker-end="url(#pipeArrow)"/>
+    <line x1="810" y1="120" x2="1090" y2="120" marker-end="url(#pipeArrow)"/>
+    <line x1="1350" y1="120" x2="1630" y2="120" marker-end="url(#pipeArrow)"/>
+  </g>
+  <g fill="currentColor" font-size="34" font-weight="600" text-anchor="middle">
+    <text x="410" y="96">classify</text>
+    <text x="950" y="96">pair</text>
+    <text x="1490" y="96">schedule</text>
+  </g>
+  <g fill="#1e1e1e" font-size="36" font-weight="600" text-anchor="middle" dominant-baseline="middle">
+    <g stroke="#1e1e1e" stroke-width="2">
+      <rect x="20"  y="40" width="240" height="160" rx="16" fill="#ffd8a8"/>
+      <text stroke="none" x="140" y="122"><tspan x="140" dy="-0.55em">Registered</tspan><tspan x="140" dy="1.1em">Boxers</tspan></text>
+    </g>
+    <a href="SVG/boxing.png" target="_blank" rel="noopener" style="cursor:pointer;">
+      <title>Open Boxing.png</title>
+      <g stroke="#1e1e1e" stroke-width="2">
+        <rect x="560" y="40" width="240" height="160" rx="16" fill="#a5d8ff"/>
+        <text stroke="none" x="680" y="122">Bucketizer</text>
+      </g>
+    </a>
+    <g stroke="#1e1e1e" stroke-width="2">
+      <rect x="1100" y="40" width="240" height="160" rx="16" fill="#a5d8ff"/>
+      <text stroke="none" x="1220" y="122">SparMaker</text>
+    </g>
+    <g stroke="#1e1e1e" stroke-width="2">
+      <rect x="1640" y="40" width="240" height="160" rx="16" fill="#b2f2bb"/>
+      <text stroke="none" x="1760" y="122">RingManager</text>
+    </g>
+  </g>
+</svg>
+
+<p id="app-version" style="margin-top:2rem;font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:600;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;">v1.1.0</p>
 
 <!-- Output modal -->
 <div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:100; align-items:center; justify-content:center; padding:2rem;">
   <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; width:100%; max-width:700px; max-height:80vh; display:flex; flex-direction:column; overflow:hidden;">
     <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:var(--surface2); border-bottom:1px solid var(--border); flex-shrink:0;">
-      <strong id="modalTitle" style="font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase;"></strong>
-      <button onclick="closeModal()" style="background:none; border:none; color:var(--muted); font-size:20px; cursor:pointer; line-height:1; padding:2px 6px;">&times;</button>
+      <strong id="modalTitle" style="font-family:'Barlow Condensed',sans-serif; font-size:30px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase;"></strong>
+      <button onclick="closeModal()" style="background:none; border:none; color:var(--muted); font-size:40px; cursor:pointer; line-height:1; padding:2px 6px;">&times;</button>
     </div>
-    <pre id="modalOutput" style="margin:0; padding:1.25rem 1.5rem; font-family:'Courier New',monospace; font-size:12px; line-height:1.6; color:var(--text); overflow-y:auto; flex:1; white-space:pre-wrap; word-break:break-word;"></pre>
+    <pre id="modalOutput" style="margin:0; padding:1.25rem 1.5rem; font-family:'Courier New',monospace; font-size:24px; line-height:1.6; color:var(--text); overflow-y:auto; flex:1; white-space:pre-wrap; word-break:break-word;"></pre>
   </div>
 </div>
 
