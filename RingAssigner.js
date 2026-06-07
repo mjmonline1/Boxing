@@ -209,4 +209,11 @@ if (require.main === module) {
   run(day);
 }
 
-module.exports = { run };
+module.exports = {
+  run,
+  // Exposed for tests — pure ring-allocation logic.
+  RINGS_OPEN, RINGS_ALL,
+  isBothSeniorMale, hasFemale, isR5Eligible,
+  distributeBalanced, distributeGrouped,
+  isSeniorBout, boutDuration, buildSlots, makeSummary,
+};
