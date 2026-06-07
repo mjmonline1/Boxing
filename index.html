@@ -185,9 +185,40 @@
 <button class="theme-btn" style="position:fixed;top:12px;right:16px;z-index:50;"></button>
 
 <header>
-  <a href="SVG/boxing.png" target="_blank" rel="noopener">
-    <img src="SVG/boxing.png" alt="Boxing Tournament" style="max-width:320px;width:100%;margin-bottom:1.5rem;opacity:0.9;cursor:pointer;">
-  </a>
+  <svg viewBox="0 0 1150 220" role="img" aria-label="Pipeline: Registered Boxers to Bucketizer to SparMaker to RingManager"
+       style="width:100%;max-width:930px;height:auto;margin-bottom:1.5rem;color:var(--text);font-family:'Barlow Condensed',sans-serif;">
+    <defs>
+      <marker id="pipeArrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="userSpaceOnUse">
+        <path d="M0,0 L7,3 L0,6 Z" fill="currentColor"/>
+      </marker>
+    </defs>
+    <g stroke="currentColor" stroke-width="2.5">
+      <line x1="238" y1="110" x2="300" y2="110" marker-end="url(#pipeArrow)"/>
+      <line x1="538" y1="110" x2="600" y2="110" marker-end="url(#pipeArrow)"/>
+      <line x1="838" y1="110" x2="900" y2="110" marker-end="url(#pipeArrow)"/>
+    </g>
+    <g fill="#1e1e1e" font-size="32" font-weight="600" text-anchor="middle" dominant-baseline="middle">
+      <g stroke="#1e1e1e" stroke-width="2">
+        <rect x="10"  y="35" width="220" height="150" rx="14" fill="#ffd8a8"/>
+        <text stroke="none" x="120" y="112">Registered Boxers</text>
+      </g>
+      <a href="SVG/boxing.png" target="_blank" rel="noopener" style="cursor:pointer;">
+        <title>Open Boxing.png</title>
+        <g stroke="#1e1e1e" stroke-width="2">
+          <rect x="310" y="35" width="220" height="150" rx="14" fill="#a5d8ff"/>
+          <text stroke="none" x="420" y="112">Bucketizer</text>
+        </g>
+      </a>
+      <g stroke="#1e1e1e" stroke-width="2">
+        <rect x="610" y="35" width="220" height="150" rx="14" fill="#a5d8ff"/>
+        <text stroke="none" x="720" y="112">SparMaker</text>
+      </g>
+      <g stroke="#1e1e1e" stroke-width="2">
+        <rect x="910" y="35" width="220" height="150" rx="14" fill="#b2f2bb"/>
+        <text stroke="none" x="1020" y="112">RingManager</text>
+      </g>
+    </g>
+  </svg>
   <p class="eyebrow">TSC 2026</p>
   <h1>Boxing <span>Tournament</span> Manager</h1>
 </header>
