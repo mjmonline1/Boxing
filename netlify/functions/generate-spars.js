@@ -159,3 +159,6 @@ exports.handler = async () => {
     return { statusCode: 500, body: JSON.stringify({ error: e.message }) };
   }
 };
+
+// Test-only: release the cached connection so the event loop can drain.
+exports._closeDb = async () => { if (cachedClient) { await cachedClient.close(); cachedClient = undefined; } };
