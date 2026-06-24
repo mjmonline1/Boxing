@@ -12,11 +12,13 @@ function Allocated(sparId, ringId) {
 /**
  * Load JSON file
  */
+/* c8 ignore start */
 function loadData(filePath) {
     const fullPath = path.resolve(filePath);
     const raw = fs.readFileSync(fullPath, "utf-8");
     return JSON.parse(raw);
 }
+/* c8 ignore stop */
 
 /**
  * MAIN ALLOCATOR (ROUND ROBIN ONLY)
@@ -81,6 +83,7 @@ function getNextAvailableRing(rings, ringLoad, ringCapacity, startIndex) {
 /**
  * RUN EXAMPLE
  */
+/* c8 ignore start */
 if (require.main === module) {
     const fileName = path.join(__dirname, "Sparrings.json");
 
@@ -98,6 +101,7 @@ if (require.main === module) {
 
     allocate(data, rings, ringCapacity);
 }
+/* c8 ignore stop */
 
 module.exports = {
     allocate

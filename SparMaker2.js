@@ -124,7 +124,7 @@ function main() {
 
     // Pass 2 — Rescue pass for genuine single-boxer edge cases (no compatible neighbour within ±2 kg)
     console.log('\n--- Rescue Pass (Cross-Bucket, ±20 kg) ---');
-    const ageGroups = ['Junior', 'Youth', 'Senior', 'Female'];
+    const ageGroups = ['Schools', 'Junior', 'Youth', 'Senior', 'Female'];
     const rescuedMatches     = [];
     const remainingUnmatched = [];
 
@@ -132,9 +132,10 @@ function main() {
         const groupUnmatched = allUnmatched.filter(b => {
             if (group === 'Female') return b.gender === 'female';
             return b.gender === 'male' && (
-                (group === 'Junior' && b.yob >= 2009) ||
-                (group === 'Youth'  && b.yob >= 2007 && b.yob <= 2008) ||
-                (group === 'Senior' && b.yob <= 2006)
+                (group === 'Schools' && b.yob >= 2012 && b.yob <= 2014) ||
+                (group === 'Junior'  && b.yob >= 2010 && b.yob <= 2011) ||
+                (group === 'Youth'   && b.yob >= 2008 && b.yob <= 2009) ||
+                (group === 'Senior'  && b.yob <= 2007)
             );
         });
 
