@@ -13,7 +13,7 @@ const {
     RINGS_OPEN, RINGS_ALL,
     isBothSeniorMale, hasFemale, isR5Eligible,
     distributeBalanced, distributeGrouped,
-    isSeniorBout, boutDuration, buildSlots,
+    isSeniorBout, boutDuration, buildSlots, makeSummary,
 } = require('../RingAssigner');
 
 // --- fixtures --------------------------------------------------------------
@@ -142,4 +142,58 @@ test('buildSlots: slot count equals the busiest ring queue', () => {
     const slots = buildSlots(q);
     const busiest = Math.max(...RINGS_ALL.map(r => q[r].length));
     assert.equal(slots.length, busiest);
+});
+
+// --- three-boxer branch coverage -------------------------------------------
+
+test('isBothSeniorMale: third corner must also be senior male', () => {
+    assert.equal(isBothSeniorMale(match({ red: seniorM(), blue: seniorM(), third: seniorM() })), true);
+    assert.equal(isBothSeniorMale(match({ red: seniorM(), blue: seniorM(), third: juniorM() })), false);
+});
+
+test('isR5Eligible: third corner must also be R5-eligible', () => {
+    assert.equal(isR5Eligible(match({ red: juniorM(), blue: juniorM(), third: juniorM() })), true);
+    assert.equal(isR5Eligible(match({ red: juniorM(), blue: juniorM(), third: youthM() })), false);
+});
+
+test('grouped: youth/other bouts spread across open rings (not R5)', () => {
+    const matches = Array.from({ length: 4 }, () => match({ red: youthM(), blue: youthM() }));
+    const q = distributeGrouped(matches);
+    const total = RINGS_ALL.reduce((n, r) => n + q[r].length, 0);
+    assert.equal(total, 4);
+    assert.equal(q.R5.length, 0, 'youth must not land in R5');
+});
+
+test('grouped: overflowed group uses fallback ring with fewest bouts', () => {
+    // 5 seniors, CAP=1 → R1+R2 fill after 2 matches, then 3 overflow to fallback.
+    // fallback.reduce picks the min-loaded ring; when acc > next, branch `b` is returned.
+    const matches = Array.from({ length: 5 }, () => match({ red: seniorM(), blue: seniorM() }));
+    const q = distributeGrouped(matches);
+    const total = RINGS_ALL.reduce((n, r) => n + q[r].length, 0);
+    assert.equal(total, 5);
+    assert.equal(q.R5.length, 0, 'seniors must not land in R5');
+});
+
+// --- makeSummary -------------------------------------------------------------
+
+test('makeSummary: counts match categories and slots correctly', () => {
+    const matches = [
+        match({ red: seniorM(), blue: seniorM() }),  // seniorMale
+        match({ red: female(),  blue: female() }),   // female
+        match({ red: juniorM(), blue: juniorM() }),  // juniorMale (R5-eligible, not female)
+        match({ red: youthM(),  blue: youthM() }),   // youthCrossAge (not senior, not female, not R5-eligible)
+    ];
+    const queues = distributeBalanced(matches);
+    const slots  = buildSlots(queues);
+    const s = makeSummary('TEST', matches, queues, slots);
+
+    assert.equal(s.strategy,      'TEST');
+    assert.equal(s.totalMatches,  4);
+    assert.equal(s.seniorMale,    1);
+    assert.equal(s.female,        1);
+    assert.equal(s.juniorMale,    1);
+    assert.equal(s.youthCrossAge, 1);
+    assert.equal(s.totalSlots,    slots.length);
+    assert.deepEqual(Object.keys(s.matchesPerRing).sort(), [...RINGS_ALL].sort());
+    RINGS_ALL.forEach(r => assert.equal(s.matchesPerRing[r], queues[r].length));
 });

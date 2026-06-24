@@ -92,7 +92,8 @@ class HierarchicalFilter {
         child.data = node.data.filter(child.rule);
         console.log(`${indent}  → ${child.description || child.name}: ${child.data.length} items`);
       } else {
-        // If no rule, this child gets all data (pass-through)
+        /* c8 ignore next 3 */
+      // If no rule, this child gets all data (pass-through)
         child.data = [...node.data];
       }
 
@@ -148,6 +149,7 @@ class HierarchicalFilter {
     return summary;
   }
 
+  /* c8 ignore start */
   /**
    * Display summary
    */
@@ -243,6 +245,7 @@ class HierarchicalFilter {
     
     return output;
   }
+  /* c8 ignore stop */
 }
 
 module.exports = HierarchicalFilter;

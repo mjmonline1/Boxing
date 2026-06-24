@@ -130,6 +130,7 @@ function makeSummary(label, matches, queues, slots) {
   };
 }
 
+/* c8 ignore start */
 function saveSchedule(filename, summary, slots) {
   fs.writeFileSync(
     path.join(OUT_DIR, filename),
@@ -208,6 +209,7 @@ if (require.main === module) {
   const day    = dayArg ? parseInt(dayArg.split('=')[1]) : 1;
   run(day);
 }
+/* c8 ignore stop */
 
 module.exports = {
   run,

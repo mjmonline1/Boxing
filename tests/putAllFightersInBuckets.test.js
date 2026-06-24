@@ -217,6 +217,90 @@ test('gap is detectable: an unassigned boxer is in no bucket and is explained', 
     assert.doesNotMatch(why, /BUG/);
 });
 
+test('explainUnassigned: fit male with yob < 2015 falls through to age-bucket message', () => {
+    // Exercises lines 128-129: fit male, not yob>=2015, but somehow unassigned.
+    const why = explainUnassigned(boxer({ fit: true, gender: 'male', yob: 2010 }));
+    assert.match(why, /matched no male age bucket/);
+});
+
+test('explainUnassigned: not-fit boxer returns BUG message', () => {
+    const why = explainUnassigned(boxer({ fit: false }));
+    assert.match(why, /BUG.*not-fit/);
+});
+
+test('explainUnassigned: fit female returns BUG message', () => {
+    const why = explainUnassigned(boxer({ fit: true, gender: 'female' }));
+    assert.match(why, /BUG.*female/);
+});
+
+test('explainUnassigned: fit boxer with unrecognised gender returns gender message', () => {
+    const why = explainUnassigned(boxer({ fit: true, gender: 'robot' }));
+    assert.match(why, /unrecognised gender/);
+});
+
+test('HierarchicalFilter getSummary returns correct totals', () => {
+    const origLog = console.log;
+    console.log = () => {};
+    try {
+        const boxers = [boxer({ gender: 'male', yob: 2000, experience: 0 }), boxer({ fit: 'no' })];
+        const filter = new HierarchicalFilter(boxers)
+            .buildTree(tscBucketStructure)
+            .applyFilters();
+        const s = filter.getSummary();
+        assert.equal(s.totalOriginal, 2);
+        assert.equal(s.totalDistributed, 2);
+        assert.ok(typeof s.finalBuckets === 'object');
+        assert.ok(Object.keys(s.finalBuckets).length > 0);
+    } finally {
+        console.log = origLog;
+    }
+});
+
+test('HierarchicalFilter getBucket returns empty array for unknown bucket', () => {
+    const origLog = console.log;
+    console.log = () => {};
+    try {
+        const filter = new HierarchicalFilter([])
+            .buildTree(tscBucketStructure)
+            .applyFilters();
+        assert.deepEqual(filter.getBucket('NoSuchBucket'), []);
+    } finally {
+        console.log = origLog;
+    }
+});
+
+test('HierarchicalFilter buildTree with empty structure returns empty buckets', () => {
+    const origLog = console.log;
+    console.log = () => {};
+    try {
+        const filter = new HierarchicalFilter([boxer()])
+            .buildTree([])
+            .applyFilters();
+        assert.deepEqual(filter.getFinalBuckets(), {});
+    } finally {
+        console.log = origLog;
+    }
+});
+
+test('HierarchicalFilter node without description falls back to node name in log', () => {
+    const origLog = console.log;
+    console.log = () => {};
+    try {
+        // No description field → covers `config.description || ''` right side
+        // and `child.description || child.name` right side in _filterRecursive
+        const tree = [
+            { name: 'All', rule: () => true },  // truthy rule → if branch
+            { name: 'Pass' },                   // no rule → else branch (pass-through)
+        ];
+        const filter = new HierarchicalFilter([boxer()])
+            .buildTree(tree)
+            .applyFilters();
+        assert.equal(filter.getBucket('All').length, 1);
+    } finally {
+        console.log = origLog;
+    }
+});
+
 // --- parseCSV round-trip + classification ----------------------------------
 
 test('parseCSV parses the clean schema and the rows bucket correctly', () => {
