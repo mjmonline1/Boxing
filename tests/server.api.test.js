@@ -25,7 +25,7 @@ async function waitForServer(timeoutMs = 6000) {
             const res = await fetch(`${BASE}/api/version`);
             if (res.ok) return true;
         } catch { /* not listening yet */ }
-        await new Promise(r => setTimeout(r, 150));
+        await new Promise(r => setTimeout(r, 50));
     }
     return false;
 }
