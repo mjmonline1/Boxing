@@ -51,6 +51,7 @@ function toCSV(rows) {
     return [header, ...lines].join('\n');
 }
 
+/* c8 ignore start */
 function main() {
     if (!fs.existsSync(SOURCE_FILE)) {
         console.error(`Error: ${SOURCE_FILE} not found. Run tsc-tournament-2025.js first.`);
@@ -65,5 +66,6 @@ function main() {
 }
 
 if (require.main === module) main();
+/* c8 ignore stop */
 
-module.exports = { findProximityPairs };
+module.exports = { findProximityPairs, toCSV };

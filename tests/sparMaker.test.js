@@ -158,3 +158,13 @@ test('non-group match has groupId null', () => {
     const { matches } = pairBoxers(boxers, 'TestCat', WEIGHT_TOLERANCE);
     assert.equal(matches[0].groupId, null);
 });
+
+// 16. sparsPerDay absent on opponent — default limit of 1 used (covers || 1 branch)
+test('default sparsPerDay of 1 applied when opponent has no sparsPerDay property', () => {
+    const B = { name: 'B', weight: 71, club: 'ClubY' }; // no sparsPerDay
+    const sparCount = new Map([[B, 1]]);                  // B at 1 spar
+    const boxers = [{ name: 'A', weight: 70, club: 'ClubX' }, B];
+    // 1 >= (undefined || 1) → true → skip B → no match
+    const { matches } = pairBoxers(boxers, 'Cat', WEIGHT_TOLERANCE, sparCount);
+    assert.equal(matches.length, 0);
+});

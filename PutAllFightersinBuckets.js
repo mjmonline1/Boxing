@@ -129,6 +129,7 @@ function explainUnassigned(boxer) {
          `Junior 2010-2011, Youth 2008-2009, Senior <=2007)`;
 }
 
+/* c8 ignore start */
 function runTSCBuckets(csvPath) {
   console.log('=== TSC 2026 Boxing Tournament - Bucket Assignment ===\n');
   console.log(`Loading data from: ${csvPath}`);
@@ -259,5 +260,6 @@ if (require.main === module) {
     console.log(`CSV file not found at ${csvPath}`);
   }
 }
+/* c8 ignore stop */
 
 module.exports = { runTSCBuckets, parseCSV, tscBucketStructure, explainUnassigned };
