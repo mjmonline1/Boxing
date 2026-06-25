@@ -4,7 +4,7 @@
 
 Auto-generates boxing sparring pairs from pre-classified bucket data. Produces 1v1 matches and 3-person round-robin groups, maximising match coverage while respecting weight tolerances and club-diversity rules.
 
-Run after `tsc-tournament-2025.js` has produced the bucket file.
+Run after `tsc-tournament-2026.js` has produced the bucket file.
 
 ```bash
 node SparMaker.js
@@ -144,7 +144,7 @@ Exported function. Also used internally by all three phases.
 
 ### Senior YOB cutoff
 
-`SparMaker.js` does not perform YOB classification — bucket categories come from `tsc-tournament-2025.js`. Verify that script uses the correct 2026 cutoffs: Schools 2012–2014, Juniors 2010–2011, Youths 2008–2009, Seniors ≤ 2007.
+`SparMaker.js` does not perform YOB classification — bucket categories come from `tsc-tournament-2026.js`. Verify that script uses the correct 2026 cutoffs: Schools 2012–2014, Juniors 2010–2011, Youths 2008–2009, Seniors ≤ 2007.
 
 ### Greedy sort biases heaviest boxers toward unmatched
 

@@ -2,6 +2,7 @@
 'use strict';
 const fs   = require('fs');
 const path = require('path');
+const { SENIOR_YOB_MAX, R5_ELIGIBLE_YOB_MIN } = require('./constants');
 
 const _d        = new Date();
 const TODAY     = `${_d.getFullYear()}-${String(_d.getMonth()+1).padStart(2,'0')}-${String(_d.getDate()).padStart(2,'0')}`;
@@ -13,9 +14,9 @@ const RINGS_ALL  = ['R1', 'R2', 'R3', 'R4', 'R5'];
 
 // ── Classifiers ──────────────────────────────────────────────────────────────
 
-// All boxers in the match are male seniors (YOB ≤ 2007)
+// All boxers in the match are male seniors (YOB ≤ SENIOR_YOB_MAX)
 function isBothSeniorMale(match) {
-  const sm = b => b.gender === 'male' && b.yob <= 2007;
+  const sm = b => b.gender === 'male' && b.yob <= SENIOR_YOB_MAX;
   return sm(match.red) && sm(match.blue) && (!match.third || sm(match.third));
 }
 
@@ -25,9 +26,9 @@ function hasFemale(match) {
       || match.third?.gender === 'female';
 }
 
-// R5-eligible: every boxer must be female OR male junior (YOB ≥ 2009).
+// R5-eligible: every boxer must be female OR male Schools/Junior (YOB ≥ R5_ELIGIBLE_YOB_MIN).
 function isR5Eligible(match) {
-  const ok = b => b.gender === 'female' || (b.gender === 'male' && b.yob >= 2009);
+  const ok = b => b.gender === 'female' || (b.gender === 'male' && b.yob >= R5_ELIGIBLE_YOB_MIN);
   return ok(match.red) && ok(match.blue) && (!match.third || ok(match.third));
 }
 
@@ -86,7 +87,7 @@ function distributeGrouped(matches) {
 // Round-robin groups of 3 run all three bouts in sequence: 3× single bout time.
 
 function isSeniorBout(match) {
-  const senior = b => b.yob <= 2007;
+  const senior = b => b.yob <= SENIOR_YOB_MAX;
   return senior(match.red) && senior(match.blue) && (!match.third || senior(match.third));
 }
 

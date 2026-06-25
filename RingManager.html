@@ -36,6 +36,7 @@
 <div id="toast"></div>
 
 <script src="data-client.js"></script>
+<script src="constants.js"></script>
 <script>
 const SERVER = window.location.origin;
 
@@ -87,9 +88,8 @@ function boutType(bout) {
   const hasFemale = b => b.gender === 'female';
   if (hasFemale(bout.red) || hasFemale(bout.blue) || (bout.third && hasFemale(bout.third))) return 'female';
   const yob = bout.red.yob;
-  if (yob >= 2009) return 'junior';
-  if (yob >= 2007) return 'youth';
-  return 'senior';
+  const ag = AGE_GROUPS.find(a => a.yobMin !== null ? yob >= a.yobMin && yob <= a.yobMax : yob <= a.yobMax);
+  return ag ? ag.label.toLowerCase() : 'senior';
 }
 
 function boutHTML(bout) {
@@ -118,9 +118,9 @@ function boutHTML(bout) {
   `;
 }
 
-// R5: every boxer must be female OR male junior (YOB >= 2009)
+// R5: every boxer must be female OR male Schools/Junior (YOB >= R5_ELIGIBLE_YOB_MIN)
 function canPlaceInR5(bout) {
-  const ok = b => b.gender === 'female' || (b.gender === 'male' && b.yob >= 2009);
+  const ok = b => b.gender === 'female' || (b.gender === 'male' && b.yob >= R5_ELIGIBLE_YOB_MIN);
   return ok(bout.red) && ok(bout.blue);
 }
 
@@ -250,7 +250,7 @@ function render(state) {
     const hdr = document.createElement('div');
     hdr.className = 'ring-col-header';
     hdr.innerHTML = `
-      <h2>${ringId}${ringId === 'R5' ? ' <small class="ring-subtitle">(Y/J/F)</small>' : ''}</h2>
+      <h2>${ringId}${ringId === 'R5' ? ' <small class="ring-subtitle">(S/J/F)</small>' : ''}</h2>
       <div class="hdr-info">${bouts.length} bout${bouts.length !== 1 ? 's' : ''}</div>
       <div class="hdr-finish ${overrun ? 'over' : 'ok'}">${overrun ? '⚠' : '✓'} ${lastBout ? lastBout.endTime : '—'}</div>
     `;
