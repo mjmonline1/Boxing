@@ -5,7 +5,7 @@ const path = require('path');
 // Configuration
 const _d          = new Date();
 const TODAY       = `${_d.getFullYear()}-${String(_d.getMonth()+1).padStart(2,'0')}-${String(_d.getDate()).padStart(2,'0')}`;
-const SOURCE_FILE = path.join(__dirname, 'output', 'Buckets', 'tsc-2025-buckets.json');
+const SOURCE_FILE = path.join(__dirname, 'output', 'Buckets', 'tsc-2026-buckets.json');
 const OUTPUT_FILE = path.join(__dirname, 'output', 'Spars', TODAY, 'Spars.json');
 const WEIGHT_TOLERANCE        = 2.0;
 const PHASE2_TOLERANCE        = 2.5;

@@ -5,7 +5,7 @@
 ```
 RegisteredBoxers2025.csv
         ↓
-PutAllFightersinBuckets.js  →  output/Buckets/tsc-2025-buckets.json
+PutAllFightersinBuckets.js  →  output/Buckets/tsc-2026-buckets.json
         ↓
 SparMaker.js                →  output/Spars/Spars.json
         ↓
@@ -16,7 +16,7 @@ RingAssigner.js             →  output/Spars/schedule_grouped.json
 
 ## Input
 
-`output/Buckets/tsc-2025-buckets.json` — produced by `PutAllFightersinBuckets.js`.
+`output/Buckets/tsc-2026-buckets.json` — produced by `PutAllFightersinBuckets.js`.
 
 Each boxer has already been placed into a bucket based on gender, age group, and experience level:
 
@@ -54,6 +54,10 @@ Runs `pairBoxers` on each bucket with `WEIGHT_TOLERANCE = 2.0 kg`. Any boxer wit
 Reruns `pairBoxers` on each bucket's Phase 1 leftovers with `PHASE2_TOLERANCE = 2.5 kg`. Still confined to the same bucket — no cross-bucket mixing yet. Any boxer still unmatched moves to Phase 3.
 
 ### Phase 3 — Rescue pass (tolerance: 20 kg)
+<!-- 📌 REVIEW NEEDED: This section does NOT match the current SparMaker.js implementation.
+     Code does Phase 3b (unmatched boxer joins existing pair as `third` field on the match).
+     Doc describes cross-bucket age×experience rescue pools — these do NOT exist in SparMaker.js.
+     Needs owner decision before updating. -->
 
 After all buckets are processed, leftover unmatched boxers are grouped by **age group AND experience tier** (12 male combinations) and run through the same `pairBoxers` algorithm with `RESCUE_WEIGHT_TOLERANCE = 20.0 kg`:
 

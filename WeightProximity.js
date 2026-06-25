@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const WEIGHT_TOLERANCE = 2.0;
-const SOURCE_FILE = path.join(__dirname, 'output', 'Buckets', 'tsc-2025-buckets.json');
+const SOURCE_FILE = path.join(__dirname, 'output', 'Buckets', 'tsc-2026-buckets.json');
 const OUTPUT_FILE = path.join(__dirname, 'output', 'WeightProximity.csv');
 
 function findProximityPairs(buckets) {

@@ -1,0 +1,276 @@
+digraph IndexCallPaths {
+  rankdir=LR;
+  graph [fontname="Arial" fontsize=11 splines=ortho compound=true];
+  node  [fontname="Arial" fontsize=10 shape=box style="filled,rounded" margin="0.12,0.06"];
+  edge  [fontname="Arial" fontsize=8];
+
+  // ── Root ──────────────────────────────────────────────────────────────────
+
+  INDEX [label="index.html" fillcolor="#2d333b" color="#58a6ff" fontcolor="#cdd9e5" fontsize=13 fontname="Arial Bold"];
+
+  // ── Shared modules ────────────────────────────────────────────────────────
+
+  THEME     [label="theme.js" fillcolor="#373e47" color="#768390" fontcolor="#cdd9e5" shape=component];
+
+  subgraph cluster_dc {
+    label="data-client.js"; style=filled; color="#2a2a3a"; fontcolor="#cdd9e5"; fontname="Arial";
+    node [shape=component];
+
+    DC        [label="DataClient\n(runtime switch)" fillcolor="#373e47" color="#a29bfe" fontcolor="#cdd9e5"];
+    DC_LOCAL  [label="LocalClient\nlocalhost / 127.0.0.1" fillcolor="#373e47" color="#768390" fontcolor="#cdd9e5"];
+    DC_REMOTE [label="RemoteClient\nNetlify / ?db=atlas" fillcolor="#373e47" color="#a29bfe" fontcolor="#cdd9e5"];
+  }
+
+  // ── Server endpoints (via DataClient) ─────────────────────────────────────
+
+  subgraph cluster_server {
+    label="Server.js"; style=filled; color="#2a2a1a"; fontcolor="#e6a817"; fontname="Arial";
+    node [fillcolor="#fff3cd" color="#e6a817" fontcolor="#333"];
+
+    SRV_boxers   [label="GET/PUT\n/api/data/boxers"];
+    SRV_buckets  [label="GET/PUT\n/api/data/buckets"];
+    SRV_spars    [label="GET/PUT\n/api/data/spars"];
+    SRV_schedule [label="GET/PUT\n/api/data/schedule"];
+
+    SRV_run_spar    [label="POST /api/run/spar-maker\n→ runWithCapture()\n→ SparMaker.js:main()"];
+    SRV_run_ring    [label="POST /api/run/ring-assigner\n→ runWithCapture()\n→ RingAssigner.js:run()"];
+    SRV_gen_spars   [label="POST /api/generate-spars\n→ netlify/functions/\n   generate-spars.js"];
+    SRV_gen_sched   [label="POST /api/generate-schedule\n→ netlify/functions/\n   generate-schedule.js"];
+  }
+
+  // ── Node.js scripts (required by Netlify functions) ──────────────────────
+
+  SPARMKR  [label="SparMaker.js\npairBoxers()" fillcolor="#fff3cd" color="#e6a817" fontcolor="#333"];
+  RINGASGN [label="RingAssigner.js\ndistributeGrouped()\nbuildSlots() · makeSummary()" fillcolor="#fff3cd" color="#e6a817" fontcolor="#333"];
+
+  // ── Netlify functions ─────────────────────────────────────────────────────
+
+  subgraph cluster_netlify {
+    label="netlify/functions/"; style=filled; color="#1a1a2a"; fontcolor="#a29bfe"; fontname="Arial";
+    node [fillcolor="#e8d5f5" color="#7c3aed" fontcolor="#2a1a3a"];
+
+    NF_DB    [label="db.js\nGET/PUT/PATCH\n?key={boxers|buckets|spars|schedule}"];
+    NF_SPARS [label="generate-spars.js\nrequire(SparMaker)\n3-phase pairing → MongoDB"];
+    NF_SCHED [label="generate-schedule.js\nrequire(RingAssigner)\nring allocation → MongoDB"];
+    NF_VER   [label="get-version.js"];
+  }
+
+  // ── MongoDB ───────────────────────────────────────────────────────────────
+
+  MONGO [label="MongoDB\nboxing db\nboxers | buckets | spars | schedule" fillcolor="#d4edda" color="#2e7d32" fontcolor="#1a3a1a" shape=cylinder];
+
+  // ── Step 3 / Step 5 direct calls from index.html ─────────────────────────
+
+  subgraph cluster_step3 {
+    label="Step 3 card (index.html)"; style=dashed; color="#58a6ff";
+    STEP3_run   [label="runScript()\n/api/run/spar-maker" fillcolor="#d4edda" color="#2e7d32"];
+    STEP3_modal [label="showModal()\ncloseModal()" fillcolor="#d4edda" color="#2e7d32"];
+  }
+
+  subgraph cluster_step5 {
+    label="Step 5 card (index.html)"; style=dashed; color="#58a6ff";
+    STEP5_run   [label="runScript()\n/api/run/ring-assigner\n?day=N" fillcolor="#d4edda" color="#2e7d32"];
+    STEP5_modal [label="showModal()\ncloseModal()" fillcolor="#d4edda" color="#2e7d32"];
+  }
+
+  // ── BoxerManager.html ─────────────────────────────────────────────────────
+
+  subgraph cluster_bm {
+    label="BoxerManager.html"; style=filled; color="#1a2a1a"; fontcolor="#3fb950"; fontname="Arial";
+    node [fillcolor="#d4edda" color="#2e7d32" fontcolor="#1a3a1a"];
+
+    BM_boot    [label="loadFromServer()"];
+    BM_save    [label="saveToServer()"];
+    BM_file    [label="openFile()\nsaveFile()"];
+    BM_parse   [label="parseCSV()\nserializeCSV()\nsplitCSVLine()\nmapHeader()"];
+    BM_load    [label="loadData()"];
+    BM_render  [label="renderTable()\nupdateStats()\nupdateClubsList()\nupdateCategoriesList()"];
+    BM_sort    [label="sortBy()\napplySort()\nfilterTable()"];
+    BM_modal   [label="openModal()\ncloseModal()\nsaveRow()"];
+    BM_crud    [label="toggleFit()\ndeleteBoxer()\nflash()"];
+    BM_cat     [label="deriveCategory(yob)"];
+    BM_toast   [label="showToast()"];
+    BM_esc     [label="escHtml()"];
+  }
+
+  // ── BucketAssigner.html ───────────────────────────────────────────────────
+
+  subgraph cluster_ba {
+    label="BucketAssigner.html"; style=filled; color="#1a1a2a"; fontcolor="#58a6ff"; fontname="Arial";
+    node [fillcolor="#cce5ff" color="#4a90d9" fontcolor="#1a1a3a"];
+
+    BA_boot    [label="loadFromServer()"];
+    BA_save    [label="saveToServer()"];
+    BA_assign  [label="assignBucket(boxer)\n[mirrors PutAllFightersinBuckets.js]"];
+    BA_explain [label="explainUnassigned()\nreportGaps()"];
+    BA_process [label="process(boxers)"];
+    BA_render  [label="render(buckets, total)"];
+    BA_dnd     [label="setupDragHandlers()\nclearDropIndicators()"];
+    BA_search  [label="applySearch(term)"];
+    BA_csv     [label="parseCSV()\nsplitCSVLine()\ntoCSV()\ndownload()"];
+    BA_esc     [label="esc()"];
+  }
+
+  // ── SparManager.html ──────────────────────────────────────────────────────
+
+  subgraph cluster_sm {
+    label="SparManager.html"; style=filled; color="#2a1a1a"; fontcolor="#f85149"; fontname="Arial";
+    node [fillcolor="#f8d7da" color="#c0392b" fontcolor="#3a1a1a"];
+
+    SM_boot    [label="initDatePicker()\nloadAndRender()"];
+    SM_state   [label="resetState()\nclone()"];
+    SM_find    [label="findBoxer(id)\nfindBoxerName(id)\nsetCorner()"];
+    SM_classify[label="ageGroup(yob)\nboutType(m)\nboxerType(b)\nderiveCategory(a,b)"];
+    SM_mutate  [label="swapBoxers()\nunmatchBoxer()\ndeleteMatch()\naddThirdBoxer()\nswapMatch()"];
+    SM_filter  [label="filteredMatches()\npopulateCategoryFilter()"];
+    SM_tile    [label="makeBoxerTile()"];
+    SM_render  [label="render()\nrenderPairs()\nrenderUnmatched()\nrenderPhaseLog()\nupdateStats()"];
+    SM_events  [label="bindStaticEvents()"];
+    SM_export  [label="exportJSON()"];
+    SM_toast   [label="showToast()"];
+    SM_autogen [label="auto-generate\nif no spars for date"];
+  }
+
+  // ── RingManager.html ──────────────────────────────────────────────────────
+
+  subgraph cluster_rm {
+    label="RingManager.html"; style=filled; color="#1a2a2a"; fontcolor="#3fb950"; fontname="Arial";
+    node [fillcolor="#d1f2eb" color="#1e8449" fontcolor="#1a3a2a"];
+
+    RM_boot    [label="initDatePicker()\nbootWithSchedule()"];
+    RM_load    [label="loadSchedule()"];
+    RM_state   [label="scheduleToState(schedule)"];
+    RM_classify[label="boutType(bout)\ncanPlaceInR5(bout)"];
+    RM_time    [label="computeTimes(state)\nfmtTime()\ntopPx()\nyToMins()"];
+    RM_render  [label="render(state)\nbuildRuler()\nboutHTML()\nboutFormat()"];
+    RM_dnd     [label="clearDropIndicators()\ndrag handlers"];
+    RM_stats   [label="updateStats(state)"];
+    RM_save    [label="saveToServer(state)"];
+    RM_export  [label="exportAllocation(state)"];
+    RM_toast   [label="showToast()"];
+    RM_autogen [label="auto-generate\nif no schedule for date"];
+  }
+
+  // ── Utilities.html ────────────────────────────────────────────────────────
+
+  subgraph cluster_ut {
+    label="Utilities.html"; style=filled; color="#2a1a2a"; fontcolor="#a29bfe"; fontname="Arial";
+    node [fillcolor="#e8d5f5" color="#7c3aed" fontcolor="#2a1a3a"];
+
+    UT_csv     [label="splitCSVRecords()\nsplitCSV()\nmapHeader()\nparseBoxers()"];
+    UT_import  [label="importBtn click\n→ DataClient.save('boxers')\n→ clear buckets/spars/schedule"];
+    UT_status  [label="setStatus()\nsetRptStatus()"];
+    UT_pdf     [label="makePdf(title)\n[jsPDF + autoTable]"];
+    UT_rpt_f   [label="rptFighters\n→ get('boxers')\n→ fighters.pdf"];
+    UT_rpt_b   [label="rptBuckets\n→ get('buckets')\n→ buckets.pdf"];
+    UT_rpt_s   [label="rptSpars\n→ get('spars',date)\n→ spars.pdf"];
+    UT_rpt_r   [label="rptRings\n→ get('schedule',date)\n→ rings.pdf"];
+  }
+
+  // ── EDGES: index.html → pages ─────────────────────────────────────────────
+
+  INDEX -> BM_boot    [label="Step 1\nhref"];
+  INDEX -> BA_boot    [label="Step 2\nhref"];
+  INDEX -> STEP3_run  [label="Step 3\nclick"];
+  INDEX -> SM_boot    [label="Step 4\nhref"];
+  INDEX -> STEP5_run  [label="Step 5\nclick"];
+  INDEX -> RM_boot    [label="Step 6\nhref"];
+  INDEX -> UT_csv     [label="Tools\nhref"];
+  INDEX -> THEME      [label="theme.js"];
+  INDEX -> DC         [label="data-client.js\nDataClient.getVersion()"];
+
+  // ── DataClient routing ────────────────────────────────────────────────────
+
+  DC -> DC_LOCAL  [label="localhost" style=dashed];
+  DC -> DC_REMOTE [label="Netlify\n?db=atlas" style=dashed];
+  DC_LOCAL  -> SRV_boxers   [style=dashed];
+  DC_LOCAL  -> SRV_buckets  [style=dashed];
+  DC_LOCAL  -> SRV_spars    [style=dashed];
+  DC_LOCAL  -> SRV_schedule [style=dashed];
+  DC_REMOTE -> NF_DB;
+  NF_DB     -> MONGO;
+  NF_SPARS  -> SPARMKR  [label="require()"];
+  NF_SPARS  -> MONGO    [label="write spars"];
+  NF_SCHED  -> RINGASGN [label="require()"];
+  NF_SCHED  -> MONGO    [label="write schedule"];
+  NF_VER    -> MONGO    [style=invis];  // keep cluster tidy
+
+  // ── Step 3/5 → server ─────────────────────────────────────────────────────
+
+  STEP3_run -> SRV_run_spar;
+  STEP3_run -> STEP3_modal;
+  STEP5_run -> SRV_run_ring;
+  STEP5_run -> STEP5_modal;
+
+  // ── BoxerManager call paths ───────────────────────────────────────────────
+
+  BM_boot  -> DC          [label="get('boxers')"];
+  BM_boot  -> BM_render;
+  BM_save  -> DC          [label="save('boxers')"];
+  BM_file  -> BM_parse;
+  BM_parse -> BM_load;
+  BM_load  -> BM_render;
+  BM_sort  -> BM_render;
+  BM_modal -> BM_save;
+  BM_crud  -> BM_save;
+  BM_cat   -> BM_modal    [style=dashed label="fills category"];
+
+  // ── BucketAssigner call paths ─────────────────────────────────────────────
+
+  BA_boot    -> DC         [label="get('boxers')\nget('buckets')"];
+  BA_boot    -> BA_assign;
+  BA_boot    -> BA_process;
+  BA_boot    -> BA_render;
+  BA_process -> BA_assign;
+  BA_process -> BA_explain;
+  BA_render  -> BA_dnd;
+  BA_render  -> BA_search;
+  BA_save    -> DC         [label="save('buckets')"];
+  BA_save    -> DC         [label="patch('boxers',id,{fit})" style=dashed];
+  BA_dnd     -> BA_save    [label="on drop"];
+  BA_csv     -> BA_process [label="CSV fallback"];
+
+  // ── SparManager call paths ────────────────────────────────────────────────
+
+  SM_boot    -> DC          [label="getDates('spars')\nget('spars',date)"];
+  SM_boot    -> SM_autogen;
+  SM_autogen -> NF_SPARS     [label="POST if no data\n(Netlify only)"];
+  SM_boot    -> SM_state;
+  SM_boot    -> SM_render;
+  SM_boot    -> SM_events;
+  SM_mutate  -> SM_find;
+  SM_mutate  -> SM_classify;
+  SM_render  -> SM_filter;
+  SM_render  -> SM_tile;
+  SM_tile    -> SM_mutate   [label="DnD drop"];
+  SM_events  -> SM_export;
+  SM_export  -> DC          [label="save('spars')"];
+
+  // ── RingManager call paths ────────────────────────────────────────────────
+
+  RM_boot    -> DC          [label="getDates('schedule')\nget('schedule',date)"];
+  RM_boot    -> RM_load;
+  RM_boot    -> RM_autogen;
+  RM_autogen -> NF_SCHED     [label="POST if no data\n(Netlify only)"];
+  RM_load    -> RM_state;
+  RM_state   -> RM_render;
+  RM_render  -> RM_time;
+  RM_render  -> RM_classify;
+  RM_render  -> RM_dnd;
+  RM_render  -> RM_stats;
+  RM_dnd     -> RM_render   [label="on drop"];
+  RM_save    -> DC          [label="save('schedule')"];
+
+  // ── Utilities call paths ──────────────────────────────────────────────────
+
+  UT_csv    -> UT_import;
+  UT_import -> DC           [label="save('boxers')\nsave(buckets/spars/schedule, null)"];
+  UT_rpt_f  -> DC           [label="get('boxers')"];
+  UT_rpt_b  -> DC           [label="get('buckets')"];
+  UT_rpt_s  -> DC           [label="get('spars',date)"];
+  UT_rpt_r  -> DC           [label="get('schedule',date)"];
+  UT_rpt_f  -> UT_pdf;
+  UT_rpt_b  -> UT_pdf;
+  UT_rpt_s  -> UT_pdf;
+  UT_rpt_r  -> UT_pdf;
+}
