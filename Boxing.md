@@ -39,9 +39,32 @@ After the fixes: realistic scenarios + benchmark pass consecutively.
      end-to-end, never grouped, never lost.
    - Verified behavior-preserving on real data: `Spars.json` still byte-identical to baseline.
 
+### Third hunt (v1.3.19)
+
+4. **parseCSV crash on blank/short rows (product bug).** A blank line mid-file, or a row
+   truncated before the `fit` column, threw `undefined.toLowerCase()` and took down the
+   whole bucket load. `Server.readBoxersCSV` already guarded this; the clean-schema parser
+   did not.
+   - **Fix:** `parseCSV` skips blank lines (`filter(line => line.trim() !== '')`) and
+     defaults missing trailing cells to `''` (`values[index] ?? ''`).
+   - **Regression:** `putAllFightersInBuckets.test.js` — blank line skipped, short row
+     parses to empty/Notfit defaults, no throw.
+   - **Benchmark:** `realistic.streak.test.js` streak 7 — messy CSV runs end-to-end; the
+     truncated (no-weight) boxer surfaces unmatched, never lost.
+
 Streak scenarios (`tests/realistic.streak.test.js`): full divisional roster; female cohort
 → R5 only; youth/cross-age never R5; odd bucket → group of 3 with 3× duration; phase-2
-rescue at 2.4 kg; blank-weight boxer sidelined. **111 tests, 0 fail, 100% coverage.**
+rescue at 2.4 kg; blank-weight boxer sidelined; messy CSV survives. **113 tests, 0 fail,
+100% coverage.**
+
+## OPEN — product decision (not a code bug)
+
+**Round-robin group internal spread.** A 3-person group can contain an internal bout that
+exceeds weight tolerance. Reproduced: red 70 / blue 72.0 (a ±2.0 phase-1 pair) + third 73.9
+joins on its 1.9 kg gap to blue → but **red-vs-third = 3.9 kg**. SPEC says the join is
+"±2.0 kg to the pair"; the code requires proximity to the *nearer* member only, so the third
+fights its far partner at a larger gap. Tightening to "±tol to BOTH members" is safer but
+forms fewer groups (more unmatched). **Needs a call** before any change — left as-is.
 
 ## Architecture (as-found)
 

@@ -15,13 +15,15 @@ function parseCSV(filepath) {
   const lines   = content.trim().split('\n');
   const headers = lines[0].split(',').map(h => h.trim());
 
-  return lines.slice(1).map(line => {
+  return lines.slice(1).filter(line => line.trim() !== '').map(line => {
     const regex  = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
     const values = line.split(regex).map(v => v.trim().replace(/^"|"$/g, ''));
     const obj    = {};
 
     headers.forEach((header, index) => {
-      const value = values[index];
+      // Missing trailing cells (a row shorter than the header) default to '' so a
+      // truncated row never crashes parsing — it just yields empty/Notfit fields.
+      const value = values[index] ?? '';
       if (header === 'id' || header === 'yob') {
         obj[header] = parseInt(value);
       } else if (header === 'experience') {
