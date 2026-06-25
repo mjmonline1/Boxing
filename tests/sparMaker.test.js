@@ -169,6 +169,24 @@ test('default sparsPerDay of 1 applied when opponent has no sparsPerDay property
     assert.equal(matches.length, 0);
 });
 
+// Regression (scenario failure: blank-weight sabotage).
+// A boxer with a non-finite weight (blank CSV cell → NaN) used to sit mid-list and
+// trip the ascending-scan `break`, starving valid neighbours of opponents. It must be
+// set aside as unmatched and NOT block others from pairing.
+test('blank-weight boxer is unmatched and does not block valid neighbours from pairing', () => {
+    const boxers = [
+        boxer('A', 60, 'ClubX'),
+        { name: 'Bad', weight: NaN, club: 'ClubY', sparsPerDay: 1 }, // blank weight
+        boxer('B', 61, 'ClubZ'),
+    ];
+    const { matches, unmatched } = pairBoxers(boxers, 'Cat', WEIGHT_TOLERANCE);
+    assert.equal(matches.length, 1, 'A and B must still pair (1 kg apart)');
+    const names = [matches[0].red.name, matches[0].blue.name].sort();
+    assert.deepEqual(names, ['A', 'B']);
+    assert.equal(unmatched.length, 1);
+    assert.equal(unmatched[0].name, 'Bad', 'the blank-weight boxer is the only one unmatched');
+});
+
 // ── pairAll: full 3-phase pipeline ──────────────────────────────────────────
 
 function eb(name, weight, club) { return { name, weight, club, experience: 0, sparsPerDay: 9 }; }
