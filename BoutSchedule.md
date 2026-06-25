@@ -1,2 +1,0 @@
-We want to rest boxers as much as possible so basically if someone starts the start of the day on the first morning they should be at the end of the day on day2 etc up to day five.
-The way around this is just to sort the bouts at the start of  Ringallocator.js,  by weight desc where day is odd (ie Mon,WEd,Fri,Sun are odd and Tue,Thursday, Saturday are even) then sort ascending  on even days 
