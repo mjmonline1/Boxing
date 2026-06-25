@@ -58,15 +58,9 @@ copy-pasted pairing algorithm) are fixed. The codebase now has one bucket pipeli
 one pairing algorithm shared by file + cloud modes, centralized `constants.js`, and
 102 tests at 100% coverage.
 
-Everything still open (below) needs a **product/data decision**, not a mechanical
-refactor — stopping per "approval required / verification unavailable":
-- **Defect 7 (raw vs clean CSV schema)** — `/api/run/buckets` would crash passing the raw
-  survey CSV into the clean-schema `parseCSV`. BUT that endpoint is not wired to any UI
-  (index.html only calls `/api/run/spar-maker` + `/api/run/ring-assigner`; buckets are
-  computed client-side in BucketAssigner.html). Latent, in an unused endpoint. Needs a
-  decision: delete the endpoint, or make `runTSCBuckets` accept the raw schema.
+Remaining open items need a **product/data decision**, not a mechanical refactor:
 - **WeightProximity.js** — orphan module (only its own test imports it) but has a design
-  doc; keep or remove is the user's call.
+  doc; intentional standalone CLI (`node WeightProximity.js`). KEEP per user.
 - **create-petri-net.js** — reads `output/tsc-2025-tournament-results.json`, which nothing
   produces. Likely-dead viz tool; confirm before removing.
 
@@ -80,3 +74,13 @@ in `SparMaker.js`, returning `{ matches, unmatched, groupCount, phases }`.
 - Added 2 `pairAll` tests (full pipeline + custom tol). 102 tests, 100% coverage.
 - Verified behavior-preserving: regenerated `Spars.json` is byte-identical to pre-refactor
   baseline (file mode); mongo in-memory round-trip green (DB mode). v1.3.15.
+
+### Step 3 — remove dead `/api/run/buckets` route  [DONE]
+Confirmed unreachable: no HTML/JS calls it (index.html wires only spar-maker + ring-assigner);
+`BucketAssigner.html` assigns buckets client-side and persists via `PUT /api/data/buckets`.
+The route would also crash (raw CSV -> clean-schema `parseCSV`).
+- Removed the route + its now-orphaned `runTSCBuckets` import from `Server.js`.
+- Fixed the stale `SVG/index-data-flow.dot` Step-2 flow to the real `PUT /api/data/buckets`.
+- No netlify counterpart exists, so nothing to sync.
+- Live boot test: server starts, `/api/data/buckets` -> 200, `/api/run/buckets` -> 404.
+  102 tests pass. v1.3.16.

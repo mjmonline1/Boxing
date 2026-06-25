@@ -5,7 +5,6 @@ const cors = require("cors");
 const fs = require("fs");
 const path = require("path");
 
-const { runTSCBuckets } = require("./PutAllFightersinBuckets");
 const { main: runSparMaker } = require("./SparMaker");
 const { run: runRingAssigner } = require("./RingAssigner");
 
@@ -69,9 +68,8 @@ function runWithCapture(fn) {
   }
 }
 
-app.post("/api/run/buckets", (req, res) => {
-  res.json(runWithCapture(() => runTSCBuckets('data/Registered Boxer2026.csv')));
-});
+// Note: buckets are assigned client-side in BucketAssigner.html and saved via
+// PUT /api/data/buckets — there is no server-side "run buckets" step.
 
 app.post("/api/run/spar-maker", (req, res) => {
   res.json(runWithCapture(runSparMaker));

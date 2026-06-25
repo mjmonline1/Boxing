@@ -25,7 +25,7 @@ digraph IndexDataFlow {
     label="Server.js  (localhost:5500)"; style=filled; color="#fff3cd"; fontname="Arial"; fontsize=11;
 
     SRV_boxers   [label="GET  /api/data/boxers\nPUT  /api/data/boxers\n(parses CSV ↔ mapHeader2026)" fillcolor="#fff3cd" color="#e6a817"];
-    SRV_buckets  [label="POST /api/run/buckets\n→ PutAllFightersinBuckets.js" fillcolor="#fff3cd" color="#e6a817"];
+    SRV_buckets  [label="GET/PUT /api/data/buckets\n(client-side assignment in BucketAssigner.html)" fillcolor="#fff3cd" color="#e6a817"];
     SRV_spars    [label="POST /api/run/spar-maker\n→ SparMaker.js\nGET/PUT /api/data/spars" fillcolor="#fff3cd" color="#e6a817"];
     SRV_rings    [label="POST /api/run/ring-assigner  {day:N}\n→ RingAssigner.js\nGET/PUT /api/data/schedule" fillcolor="#fff3cd" color="#e6a817"];
   }
@@ -53,11 +53,10 @@ digraph IndexDataFlow {
   S1          -> SRV_boxers  [label="PUT /api/data/boxers (save edits)" style=dashed];
   SRV_boxers  -> F_csv       [label="writes back" style=dashed];
 
-  // Step 2 — Bucket Assigner
-  S2          -> SRV_buckets [label="POST /api/run/buckets"];
-  SRV_buckets -> F_csv       [label="reads"];
-  SRV_buckets -> F_buckets   [label="writes"];
-  SRV_buckets -> Modal       [label="stdout"];
+  // Step 2 — Bucket Assigner (assignment runs in-browser; server only persists)
+  S2          -> SRV_boxers  [label="GET /api/data/boxers"];
+  S2          -> SRV_buckets [label="PUT /api/data/buckets (save)" style=dashed];
+  SRV_buckets -> F_buckets   [label="writes" style=dashed];
 
   // Step 3 — Create Spars
   S3          -> SRV_spars   [label="POST /api/run/spar-maker"];
