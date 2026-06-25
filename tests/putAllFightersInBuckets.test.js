@@ -339,3 +339,33 @@ test('parseCSV parses the clean schema and the rows bucket correctly', () => {
         fs.rmSync(tmp, { force: true });
     }
 });
+
+// Regression (scenario failure: blank-experience vanish).
+// A fit male with a BLANK experience cell used to parse as NaN, fail every
+// experience-tier rule, and drop out of all buckets. It must default to 0 bouts
+// (Novice) and stay accounted for.
+test('parseCSV: blank experience defaults to 0 (Novice) and the boxer is not lost', () => {
+    const csv =
+        'id,name,club,gender,yob,fit,weight,experience\n' +
+        '1,Blank Bob,ClubA,male,2000,yes,70,\n' +        // experience cell empty
+        '2,Real Rita,ClubB,female,1999,yes,60,4\n';
+
+    const tmp = path.join(os.tmpdir(), `boxers-blankexp-${Date.now()}.csv`);
+    fs.writeFileSync(tmp, csv);
+
+    try {
+        const boxers = parseCSV(tmp);
+        assert.equal(boxers[0].experience, 0, 'blank experience must coerce to 0');
+        assert.equal(typeof boxers[0].experience, 'number');
+
+        const { buckets, bucketOf } = classify(boxers);
+        assert.equal(bucketOf.get(boxers[0]), 'MaleSenior_Novice',
+            'blank-experience senior must land in Novice, not vanish');
+
+        // system-wide: nobody dropped
+        const total = Object.values(buckets).reduce((n, b) => n + b.length, 0);
+        assert.equal(total, boxers.length, 'every parsed boxer must be bucketed');
+    } finally {
+        fs.rmSync(tmp, { force: true });
+    }
+});

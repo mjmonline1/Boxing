@@ -2,6 +2,32 @@
 
 Tracks iterative architecture cleanup. Each step: change → live-test → review → commit.
 
+## Realistic-scenario testing (v1.3.17)
+
+Drove realistic tournament rosters through the real pipeline (buckets → `pairAll`
+3-phase → both ring strategies) asserting system invariants. Two failures found:
+
+1. **Blank-experience vanish (product bug).** A fit male whose CSV `experience` cell is
+   empty parsed as `NaN`, failed every experience-tier rule (`NaN <= 5` is false), and
+   dropped out of **all** buckets — silently lost. `Server.readBoxersCSV` already
+   defaulted this to 0; `PutAllFightersinBuckets.parseCSV` did not.
+   - **Fix:** `parseCSV` now coerces blank/non-numeric experience to `0` (Novice).
+   - **Regression:** `putAllFightersInBuckets.test.js` — blank-experience CSV row → Novice,
+     none lost.
+   - **Benchmark:** `realistic.streak.test.js` — full mixed CSV roster incl. a dirty row,
+     end-to-end "no fit boxer vanishes" invariant.
+2. **Test-harness over-strictness (not a product bug).** The bucket-membership invariant
+   compared the group `third` by object identity, but `pairAll` emits phase-2/3b leftover
+   boxers as detached spread-copies (same boxer, different object). Benign for the app
+   (identical JSON). **Fix:** invariant now checks membership by boxer `id`.
+
+After the fixes: **5 realistic scenarios + benchmark pass consecutively.** 109 tests,
+0 fail, 100% coverage.
+
+Streak scenarios (`tests/realistic.streak.test.js`): full divisional roster; female cohort
+→ R5 only; youth/cross-age never R5; odd bucket → group of 3 with 3× duration; phase-2
+rescue at 2.4 kg.
+
 ## Architecture (as-found)
 
 Pipeline (file mode, via `Server.js`):

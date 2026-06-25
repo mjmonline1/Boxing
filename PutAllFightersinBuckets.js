@@ -22,8 +22,14 @@ function parseCSV(filepath) {
 
     headers.forEach((header, index) => {
       const value = values[index];
-      if (header === 'id' || header === 'yob' || header === 'experience') {
+      if (header === 'id' || header === 'yob') {
         obj[header] = parseInt(value);
+      } else if (header === 'experience') {
+        // Blank/non-numeric experience defaults to 0 bouts (Novice). Without this a
+        // valid competitor whose bout count is missing fails every experience-tier
+        // rule (NaN <= 5 etc. are all false) and silently vanishes from all buckets.
+        const n = parseInt(value);
+        obj[header] = Number.isNaN(n) ? 0 : n;
       } else if (header === 'weight') {
         obj[header] = parseFloat(value);
       } else if (header === 'fit') {
