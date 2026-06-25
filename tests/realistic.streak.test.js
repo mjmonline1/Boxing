@@ -317,6 +317,24 @@ test('streak 8: mixed-case genders classify and females still route to R5', () =
     }
 });
 
+// Scenario 9 (benchmark): senior-aged females get 3x2 (8 min) bouts, senior males 3x3
+// (11 min), in the actual schedule slots.
+test('streak 9: bout durations are gender-aware end-to-end', () => {
+    _id = 0;
+    const roster = [];
+    for (let i = 0; i < 4; i++) roster.push(b({ gender: 'female', yob: 2000, weight: 55 + i, experience: 1, club: i % 2 ? 'ClubX' : 'ClubY' }));
+    for (let i = 0; i < 4; i++) roster.push(b({ yob: 2000, weight: 75 + i, experience: 5, club: i % 2 ? 'ClubX' : 'ClubY' })); // senior males
+
+    const result = runFull(roster);
+    assertInvariants(result, 'streak9');
+
+    for (const slot of result.balanced)
+        for (const bt of slot.bouts) {
+            if (hasFemale(bt)) assert.equal(bt.duration, 8, 'senior-aged female bout must be 8 min');
+            else if (isBothSeniorMale(bt)) assert.equal(bt.duration, 11, 'senior-male bout must be 11 min');
+        }
+});
+
 // Scenario 5: phase-2 rescue inside a realistic bucket (2.4 kg gap).
 test('streak 5: 2.4 kg pair rescued in phase 2, plus a clean phase-1 pair', () => {
     _id = 0;

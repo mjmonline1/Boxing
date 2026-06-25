@@ -83,16 +83,13 @@ function distributeGrouped(matches) {
 }
 
 // ── Bout duration (minutes) ───────────────────────────────────────────────────
-// Senior = 3×3min + 2×1min rest = 11 min. Youth/Junior = 3×2min + 2×1min = 8 min.
-// Round-robin groups of 3 run all three bouts in sequence: 3× single bout time.
-
-function isSeniorBout(match) {
-  const senior = b => b.yob <= SENIOR_YOB_MAX;
-  return senior(match.red) && senior(match.blue) && (!match.third || senior(match.third));
-}
+// Senior MALE = 3×3min + 2×1min rest = 11 min. All others — youth/junior males AND
+// all females (incl. senior-aged) — = 3×2min + 2×1min = 8 min. Round-robin groups of
+// 3 run all three bouts in sequence: 3× single bout time.
+// Uses isBothSeniorMale (gender-aware) — a senior-aged female bout is NOT 3×3.
 
 function boutDuration(match) {
-  const single = isSeniorBout(match) ? 11 : 8;
+  const single = isBothSeniorMale(match) ? 11 : 8;
   return match.third ? single * 3 : single;
 }
 
@@ -218,5 +215,5 @@ module.exports = {
   RINGS_OPEN, RINGS_ALL,
   isBothSeniorMale, hasFemale, isR5Eligible,
   distributeBalanced, distributeGrouped,
-  isSeniorBout, boutDuration, buildSlots, makeSummary,
+  boutDuration, buildSlots, makeSummary,
 };
