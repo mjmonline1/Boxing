@@ -23,6 +23,10 @@ resume.bat
 
 # Keep data and output files (needed for deployment)
 
+# Generated artifacts
+coverage/
+graphify-out/
+
 # Node
 node_modules/
 npm-debug.log*
