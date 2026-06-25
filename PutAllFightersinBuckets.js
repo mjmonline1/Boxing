@@ -226,6 +226,9 @@ function runTSCBuckets(csvPath) {
 }
 
 if (require.main === module) {
+  // parseCSV here expects the CLEAN schema (id,name,club,gender,yob,fit,weight,experience).
+  // The raw survey export (data/Registered Boxer2026.csv) uses a different schema and is
+  // mapped by Server.js readBoxersCSV — see Boxing.md "raw vs clean CSV schema".
   const csvPath = 'data/RegisteredBoxers2025.csv';
 
   if (fs.existsSync(csvPath)) {
