@@ -70,7 +70,7 @@ function pairBoxers(boxers, categoryName, tolerance = WEIGHT_TOLERANCE, sparCoun
 /* c8 ignore start */
 function main() {
     if (!fs.existsSync(SOURCE_FILE)) {
-        console.error(`Error: ${SOURCE_FILE} not found. Run tsc-tournament-2025.js first.`);
+        console.error(`Error: ${SOURCE_FILE} not found. Run tsc-tournament-2026.js first.`);
         process.exit(1);
     }
 

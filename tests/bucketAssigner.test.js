@@ -33,12 +33,14 @@ function extractFunction(src, name) {
     return src.slice(start, end);
 }
 
+const { AGE_GROUPS, EXPERIENCE_TIERS } = require('../constants');
 const HTML = fs.readFileSync(path.join(__dirname, '../BucketAssigner.html'), 'utf8');
 const { assignBucket, explainUnassigned } = new Function(
+    'AGE_GROUPS', 'EXPERIENCE_TIERS',
     extractFunction(HTML, 'assignBucket') + '\n' +
     extractFunction(HTML, 'explainUnassigned') + '\n' +
     'return { assignBucket, explainUnassigned };'
-)();
+)(AGE_GROUPS, EXPERIENCE_TIERS);
 
 // --- shared spec + helpers (independent re-derivation of the 2026 rules) ----
 

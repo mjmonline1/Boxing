@@ -54,10 +54,11 @@ test('isBothSeniorMale requires all corners male and yob<=2007', () => {
     assert.equal(isBothSeniorMale(match({ red: seniorM(), blue: female() })), false);
 });
 
-test('isR5Eligible: every corner female or junior male (yob>=2009)', () => {
+test('isR5Eligible: female or male Schools/Junior (yob>=2010), not Youth/Senior', () => {
     assert.equal(isR5Eligible(match({ red: juniorM(), blue: juniorM() })), true);
     assert.equal(isR5Eligible(match({ red: female(),  blue: juniorM() })), true);
-    assert.equal(isR5Eligible(match({ red: juniorM(), blue: youthM() })), false); // youth 2008
+    assert.equal(isR5Eligible(match({ red: juniorM(), blue: youthM() })), false); // youth yob=2008
+    assert.equal(isR5Eligible(match({ red: juniorM(), blue: bx({ gender: 'male', yob: 2009 }) })), false); // youth yob=2009
     assert.equal(isR5Eligible(match({ red: juniorM(), blue: seniorM() })), false);
 });
 

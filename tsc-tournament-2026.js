@@ -7,6 +7,7 @@
 
 const HierarchicalFilter = require('./hierarchical-filter');
 const fs = require('fs');
+const { AGE_GROUPS, EXPERIENCE_TIERS } = require('./constants');
 
 function parseCSV(filepath) {
   const content = fs.readFileSync(filepath, 'utf-8');
@@ -36,23 +37,11 @@ function parseCSV(filepath) {
 }
 
 function makeExperienceBuckets(agePrefix) {
-  return [
-    {
-      name: `${agePrefix}_Novice`,
-      rule: (boxer) => boxer.experience <= 5,
-      description: `${agePrefix} - Novice (0-5 bouts)`
-    },
-    {
-      name: `${agePrefix}_Experienced`,
-      rule: (boxer) => boxer.experience >= 6 && boxer.experience <= 10,
-      description: `${agePrefix} - Experienced (6-10 bouts)`
-    },
-    {
-      name: `${agePrefix}_OpenClass`,
-      rule: (boxer) => boxer.experience >= 11,
-      description: `${agePrefix} - Open Class (11+ bouts)`
-    }
-  ];
+  return EXPERIENCE_TIERS.map(t => ({
+    name: `${agePrefix}_${t.key}`,
+    rule: (boxer) => boxer.experience >= t.min && boxer.experience <= t.max,
+    description: `${agePrefix} - ${t.key} (${t.display} bouts)`,
+  }));
 }
 
 const tscTournamentStructure = [
@@ -67,32 +56,14 @@ const tscTournamentStructure = [
     rule: (boxer) => (boxer.fit === true || boxer.fit === 'yes') &&
                      (boxer.gender === 'male' || boxer.gender === 'M'),
     description: 'Fit male boxers',
-    children: [
-      {
-        name: 'MaleSchools',
-        rule: (boxer) => boxer.yob >= 2012 && boxer.yob <= 2014,
-        description: 'Male Schools (YOB 2012-2014)',
-        children: makeExperienceBuckets('MaleSchools')
-      },
-      {
-        name: 'MaleJunior',
-        rule: (boxer) => boxer.yob >= 2010 && boxer.yob <= 2011,
-        description: 'Male Junior (YOB 2010-2011)',
-        children: makeExperienceBuckets('MaleJunior')
-      },
-      {
-        name: 'MaleYouth',
-        rule: (boxer) => boxer.yob >= 2008 && boxer.yob <= 2009,
-        description: 'Male Youth (YOB 2008-2009)',
-        children: makeExperienceBuckets('MaleYouth')
-      },
-      {
-        name: 'MaleSenior',
-        rule: (boxer) => boxer.yob <= 2007,
-        description: 'Male Senior (YOB 2007 & older)',
-        children: makeExperienceBuckets('MaleSenior')
-      }
-    ]
+    children: AGE_GROUPS.map(ag => ({
+      name: ag.key,
+      rule: ag.yobMin !== null
+        ? (boxer) => boxer.yob >= ag.yobMin && boxer.yob <= ag.yobMax
+        : (boxer) => boxer.yob <= ag.yobMax,
+      description: `Male ${ag.label} (YOB ${ag.yobMin !== null ? `${ag.yobMin}-${ag.yobMax}` : `≤${ag.yobMax}`})`,
+      children: makeExperienceBuckets(ag.key),
+    }))
   },
 
   {
@@ -115,10 +86,13 @@ function runTSCTournament(csvPath) {
 
   console.log('Boxer Statistics:');
   console.log(`  Males: ${maleBoxers.length}`);
-  console.log(`    - Schools (2012-2014): ${maleBoxers.filter(b => b.yob >= 2012 && b.yob <= 2014).length}`);
-  console.log(`    - Junior  (2010-2011): ${maleBoxers.filter(b => b.yob >= 2010 && b.yob <= 2011).length}`);
-  console.log(`    - Youth   (2008-2009): ${maleBoxers.filter(b => b.yob >= 2008 && b.yob <= 2009).length}`);
-  console.log(`    - Senior  (≤2007):     ${maleBoxers.filter(b => b.yob <= 2007).length}`);
+  AGE_GROUPS.forEach(ag => {
+    const count = ag.yobMin !== null
+      ? maleBoxers.filter(b => b.yob >= ag.yobMin && b.yob <= ag.yobMax).length
+      : maleBoxers.filter(b => b.yob <= ag.yobMax).length;
+    const range = ag.yobMin !== null ? `${ag.yobMin}-${ag.yobMax}` : `≤${ag.yobMax}`;
+    console.log(`    - ${ag.label.padEnd(8)} (${range}): ${count}`);
+  });
   console.log(`  Females: ${femaleBoxers.length}\n`);
 
   const filter = new HierarchicalFilter(boxers);
@@ -131,20 +105,17 @@ function runTSCTournament(csvPath) {
   console.log('\n=== Bucket Assignments ===');
   const buckets = filter.getFinalBuckets();
 
-  ['Schools', 'Junior', 'Youth', 'Senior'].forEach(ageGroup => {
-    const agePrefix  = `Male${ageGroup}`;
+  AGE_GROUPS.forEach(ag => {
+    const agePrefix  = ag.key;
     const ageEntries = Object.entries(buckets).filter(([name]) => name.startsWith(agePrefix + '_'));
 
     if (ageEntries.length === 0) return;
 
     const totalInAge = ageEntries.reduce((sum, [, b]) => sum + b.length, 0);
-    console.log(`\n=== MALE ${ageGroup.toUpperCase()} (${totalInAge} boxers) ===`);
+    console.log(`\n=== MALE ${ag.label.toUpperCase()} (${totalInAge} boxers) ===`);
 
-    [
-      { key: 'Novice',      label: 'Novice (0-5 bouts)' },
-      { key: 'Experienced', label: 'Experienced (6-10 bouts)' },
-      { key: 'OpenClass',   label: 'Open Class (11+ bouts)' }
-    ].forEach(({ key, label }) => {
+    EXPERIENCE_TIERS.map(t => ({ key: t.key, label: `${t.key} (${t.display} bouts)` }))
+    .forEach(({ key, label }) => {
       const entry = ageEntries.find(([name]) => name === `${agePrefix}_${key}`);
       if (!entry) return;
       const [, expBoxers] = entry;

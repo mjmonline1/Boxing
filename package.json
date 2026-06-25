@@ -1,6 +1,6 @@
 {
   "name": "boxing-tournament-manager",
-  "version": "1.3.9",
+  "version": "1.3.11",
   "description": "TSC Boxing Tournament Management Tool",
   "main": "Server.js",
   "scripts": {
@@ -13,18 +13,9 @@
     "include": ["*.js"],
     "exclude": [
       "tests/**",
-      "ANONYMISE-BOXERS.js",
-      "SparMain.js",
       "importBoxersToMongo.js",
-      "tsc-tournament-2025.js",
-      "boxing-csv-loader.js",
-      "boxing-tournament-filter.js",
-      "app.js",
+      "tsc-tournament-2026.js",
       "Server.js",
-      "SparMain2.js",
-      "SparMain3.js",
-      "SparMaker2.js",
-      "atlas-config.example.js",
       "create-petri-net.js",
       "data-client.js",
       "theme.js"
