@@ -12,7 +12,7 @@ digraph IndexDataFlow {
     label="Files on disk"; style=filled; color="#e8f4ff"; fontname="Arial"; fontsize=11;
 
     F_csv       [label="data/Registered Boxer2026.csv\n(source roster)" fillcolor="#cce5ff" color="#4a90d9" shape=note];
-    F_buckets   [label="output/Buckets/tsc-2025-buckets.json\noutput/Buckets/<bucket>.csv  (per bracket)" fillcolor="#cce5ff" color="#4a90d9" shape=note];
+    F_buckets   [label="output/Buckets/tsc-2026-buckets.json\noutput/Buckets/<bucket>.csv  (per bracket)" fillcolor="#cce5ff" color="#4a90d9" shape=note];
     F_spars     [label="output/Spars/Spars.json\n(matched pairs)" fillcolor="#cce5ff" color="#4a90d9" shape=note];
     F_schedule  [label="output/Spars/schedule_grouped.json\noutput/Spars/schedule.json\noutput/Spars/allocations.json" fillcolor="#cce5ff" color="#4a90d9" shape=note];
   }

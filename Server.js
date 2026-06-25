@@ -209,7 +209,7 @@ function splitCSV(line) {
 }
 
 // Buckets: static all week
-const bucketsFull = path.join(__dirname, 'output', 'Buckets', 'tsc-2025-buckets.json');
+const bucketsFull = path.join(__dirname, 'output', 'Buckets', 'tsc-2026-buckets.json');
 app.get('/api/data/buckets', (req, res) => {
   if (!fs.existsSync(bucketsFull)) return res.status(404).json({ error: 'buckets not yet generated — run Step 2 first.' });
   res.json(JSON.parse(fs.readFileSync(bucketsFull, 'utf8')));

@@ -1,5 +1,6 @@
 // Reads buckets from MongoDB, runs 3-phase pairing algorithm, writes spars back.
 const { MongoClient } = require('mongodb');
+const { pairBoxers }  = require('../../SparMaker');
 
 const W_TOL1 = 2.0, W_TOL2 = 2.5;
 
@@ -7,36 +8,6 @@ let cachedClient;
 async function getDb() {
   if (!cachedClient) { cachedClient = new MongoClient(process.env.MONGODB_URI); await cachedClient.connect(); }
   return cachedClient.db('boxing');
-}
-
-function pairBoxers(boxers, category, tolerance, sparCount) {
-  const sorted = [...boxers].sort((a, b) => a.weight - b.weight);
-  const matches = [], unmatched = [];
-  while (sorted.length > 0) {
-    const cur = sorted.shift();
-    let bestIdx = -1, diffClub = false, minDiff = Infinity;
-    for (let i = 0; i < sorted.length; i++) {
-      const opp = sorted[i];
-      const diff = Math.abs(cur.weight - opp.weight);
-      if (diff > tolerance) break;
-      // Skip if sparCount provided and opponent has reached their sparsPerDay limit
-      if (sparCount && (sparCount.get(opp) || 0) >= (opp.sparsPerDay || 1)) continue;
-      const isDiff = cur.club !== opp.club;
-      if (isDiff && !diffClub) { bestIdx = i; diffClub = true; minDiff = diff; }
-      else if (isDiff === diffClub && diff < minDiff) { bestIdx = i; minDiff = diff; }
-    }
-    if (bestIdx !== -1) {
-      const opp = sorted.splice(bestIdx, 1)[0];
-      if (sparCount) {
-        sparCount.set(cur,  (sparCount.get(cur)  || 0) + 1);
-        sparCount.set(opp,  (sparCount.get(opp)  || 0) + 1);
-      }
-      matches.push({ red: cur, blue: opp, weightDiff: Math.abs(cur.weight - opp.weight).toFixed(2), category, groupId: null });
-    } else {
-      unmatched.push(cur);
-    }
-  }
-  return { matches, unmatched };
 }
 
 exports.handler = async () => {

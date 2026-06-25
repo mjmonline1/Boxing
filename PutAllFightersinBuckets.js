@@ -219,11 +219,11 @@ function runTSCBuckets(csvPath) {
     console.log(`✓ ${csvFilename} (${bxrs.length} boxers)`);
   });
 
-  filter.exportToFile('output/Buckets/tsc-2025-buckets.json');
+  filter.exportToFile('output/Buckets/tsc-2026-buckets.json');
   filter.exportTreeVisualization('output/Buckets/tsc-2025-tree.txt');
 
   console.log('\n=== Summary Files ===');
-  console.log('✓ output/Buckets/tsc-2025-buckets.json');
+  console.log('✓ output/Buckets/tsc-2026-buckets.json');
   console.log('✓ output/Buckets/tsc-2025-tree.txt');
 
   console.log('\n=== Verification ===');
