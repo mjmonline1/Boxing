@@ -25,7 +25,7 @@ Shared rules live in `constants.js` (AGE_GROUPS, EXPERIENCE_TIERS, YOB cutoffs).
    `tsc-tournament-2026.js` instead of the real buckets step. [STEP 1]
 3. **Duplicated 3-phase pairing orchestration** — `SparMaker.main()` and
    `netlify/functions/generate-spars.js` reimplement Phase 1/2/3b identically; only
-   `pairBoxers` is shared. [STEP 2]
+   `pairBoxers` is shared. [STEP 2 — DONE]
 4. **Generated dirs not ignored** — `coverage/`, `graphify-out/`. [STEP 1]
 5. `WeightProximity.js` — orphan module (only its own test imports it). Has tests + design
    doc. Left in place (uncertain / documented alternative). DEFERRED.
@@ -50,3 +50,14 @@ Baseline: 100/100 tests.
 - Updated CLAUDE.md Key Files (also fixed stale SparMaker source path + dropped `app.js`).
 - Left PutAllFightersinBuckets CLI default at the clean-schema path (graceful not-found
   guard); annotated the raw/clean split. v1.3.14.
+
+### Step 2 — single source of truth for the 3-phase pairing algorithm  [DONE]
+Extracted the Phase 1/2/3b orchestration into a pure `pairAll(buckets, {tol1,tol2})`
+in `SparMaker.js`, returning `{ matches, unmatched, groupCount, phases }`.
+- `SparMaker.main()` now calls `pairAll` for the algorithm and only does I/O + logging.
+- `netlify/functions/generate-spars.js` calls the same `pairAll`, building its `phaseLog`
+  from the returned per-phase breakdowns. Kills the copy-pasted phase loops (the
+  documented "netlify sync" hazard) — one matching algorithm now.
+- Added 2 `pairAll` tests (full pipeline + custom tol). 102 tests, 100% coverage.
+- Verified behavior-preserving: regenerated `Spars.json` is byte-identical to pre-refactor
+  baseline (file mode); mongo in-memory round-trip green (DB mode). v1.3.15.

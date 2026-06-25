@@ -1,6 +1,6 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { pairBoxers } = require('../SparMaker');
+const { pairBoxers, pairAll } = require('../SparMaker');
 
 const WEIGHT_TOLERANCE = 2.0;
 const PHASE2_TOLERANCE = 2.5;
@@ -167,4 +167,58 @@ test('default sparsPerDay of 1 applied when opponent has no sparsPerDay property
     // 1 >= (undefined || 1) → true → skip B → no match
     const { matches } = pairBoxers(boxers, 'Cat', WEIGHT_TOLERANCE, sparCount);
     assert.equal(matches.length, 0);
+});
+
+// ── pairAll: full 3-phase pipeline ──────────────────────────────────────────
+
+function eb(name, weight, club) { return { name, weight, club, experience: 0, sparsPerDay: 9 }; }
+
+// 17. End-to-end across all three phases + skips, in one bucket map.
+test('pairAll runs phases 1-3b, skips Notfit/empty, folds leftover into a group', () => {
+    const buckets = {
+        Notfit: [eb('NF', 70, 'X')],                              // skipped
+        Empty:  [],                                               // skipped
+        Grp:    [eb('A', 70, 'X'), eb('B', 71, 'Y'), eb('C', 70.5, 'Z')], // pair + group third
+        P2:     [eb('D', 60, 'X'), eb('E', 62.3, 'Y')],           // 2.3kg → only phase 2 matches
+        Solo:   [eb('F', 100, 'X')],                              // never matches
+    };
+
+    const r = pairAll(buckets);
+
+    // Two 1v1 matches: A/C (then folds in B as third) and D/E.
+    assert.equal(r.matches.length, 2);
+    assert.equal(r.groupCount, 1);
+    const group = r.matches.find(m => m.third);
+    assert.ok(group, 'one match became a 3-person group');
+    assert.equal(group.groupId, 'g1');
+    assert.equal(group.third.name, 'B');
+
+    // F never matches → unmatched, tagged with its source bucket, _bucket stripped.
+    assert.equal(r.unmatched.length, 1);
+    assert.equal(r.unmatched[0].name, 'F');
+    assert.equal(r.unmatched[0].category, 'Solo');
+    assert.ok(!('_bucket' in r.unmatched[0]), '_bucket must be stripped');
+
+    // No _bucket leaks onto matched boxers.
+    for (const m of r.matches) {
+        for (const b of [m.red, m.blue, m.third].filter(Boolean)) {
+            assert.ok(!('_bucket' in b), `_bucket leaked onto ${b.name}`);
+        }
+    }
+
+    // Per-phase breakdown.
+    assert.equal(r.phases.phase1.matches.length, 1);   // A/C
+    assert.equal(r.phases.phase1.unmatched.length, 4); // B, D, E, F
+    assert.equal(r.phases.phase2.matches.length, 1);   // D/E
+    assert.equal(r.phases.phase2.unmatched.length, 2); // B, F
+    assert.equal(r.phases.phase3.groups.length, 1);
+    assert.equal(r.phases.phase3.unmatched.length, 1); // F
+});
+
+// 18. tol1 option is honoured — widening phase 1 matches what default leaves for phase 2.
+test('pairAll respects custom tol1', () => {
+    const buckets = { Cat: [eb('D', 60, 'X'), eb('E', 62.3, 'Y')] };
+    const widened = pairAll(buckets, { tol1: 2.5 });
+    assert.equal(widened.phases.phase1.matches.length, 1, 'phase 1 matches with tol1=2.5');
+    assert.equal(widened.phases.phase2.matches.length, 0);
 });
