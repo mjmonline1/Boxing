@@ -369,3 +369,35 @@ test('parseCSV: blank experience defaults to 0 (Novice) and the boxer is not los
         fs.rmSync(tmp, { force: true });
     }
 });
+
+// Regression (scenario failure: parseCSV crash on blank/short rows).
+// A blank line mid-file, or a row truncated before the `fit` column, used to throw
+// `undefined.toLowerCase()` and take down the whole bucket load. Blank lines must be
+// skipped and short rows must parse with empty/Notfit defaults.
+test('parseCSV: blank lines are skipped and short rows do not crash', () => {
+    const csv =
+        'id,name,club,gender,yob,fit,weight,experience\n' +
+        '1,Short Row,ClubA,male,2000,yes\n' +     // truncated before weight/experience
+        '\n' +                                     // stray blank line
+        '3,Full Row,ClubB,female,1999,yes,60,4\n';
+
+    const tmp = path.join(os.tmpdir(), `boxers-short-${Date.now()}.csv`);
+    fs.writeFileSync(tmp, csv);
+
+    try {
+        const boxers = parseCSV(tmp);
+        assert.equal(boxers.length, 2, 'blank line skipped, two real rows parsed');
+
+        const short = boxers[0];
+        assert.equal(short.name, 'Short Row');
+        assert.equal(short.fit, true, 'present fit cell still read');
+        assert.ok(Number.isNaN(short.weight), 'missing weight is NaN (handled downstream)');
+        assert.equal(short.experience, 0, 'missing experience defaults to 0');
+
+        // and it still classifies without throwing
+        const { bucketOf } = classify(boxers);
+        assert.equal(bucketOf.get(boxers[1]), 'Female');
+    } finally {
+        fs.rmSync(tmp, { force: true });
+    }
+});

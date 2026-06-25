@@ -256,6 +256,35 @@ test('streak 6: blank-weight boxer is sidelined, neighbours still pair', () => {
     assert.ok(bad, 'the blank-weight boxer surfaces as unmatched, not lost');
 });
 
+// Scenario 7 (benchmark): a CSV with a blank line and a truncated row must load and
+// run end-to-end without crashing, losing nobody who is classifiable.
+test('streak 7: messy CSV (blank line + short row) survives the whole pipeline', () => {
+    const csv =
+        'id,name,club,gender,yob,fit,weight,experience\n' +
+        '1,Senior A,ClubX,male,2000,yes,70.0,2\n' +
+        '2,Senior B,ClubY,male,2000,yes,70.5,3\n' +
+        '\n' +                                    // blank line in the middle
+        '4,Truncated,ClubZ,male,2001,yes\n' +     // missing weight/experience
+        '5,Female A,ClubX,female,1999,yes,60,1\n' +
+        '6,Female B,ClubY,female,2000,yes,60.5,2\n';
+    const tmp = path.join(os.tmpdir(), `messy-${Date.now()}.csv`);
+    fs.writeFileSync(tmp, csv);
+
+    try {
+        const boxers = parseCSV(tmp);
+        assert.equal(boxers.length, 5, 'blank line skipped; five real rows');
+
+        const result = runFull(boxers);
+        assertInvariants(result, 'streak7');
+
+        // Senior A/B pair; the truncated (no-weight) boxer surfaces unmatched, not lost
+        const trunc = result.unmatched.find(x => x.name === 'Truncated');
+        assert.ok(trunc, 'truncated/no-weight boxer is unmatched, never silently dropped');
+    } finally {
+        fs.rmSync(tmp, { force: true });
+    }
+});
+
 // Scenario 5: phase-2 rescue inside a realistic bucket (2.4 kg gap).
 test('streak 5: 2.4 kg pair rescued in phase 2, plus a clean phase-1 pair', () => {
     _id = 0;
