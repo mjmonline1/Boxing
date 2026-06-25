@@ -13,7 +13,7 @@ const {
     RINGS_OPEN, RINGS_ALL,
     isBothSeniorMale, hasFemale, isR5Eligible,
     distributeBalanced, distributeGrouped,
-    isSeniorBout, boutDuration, buildSlots, makeSummary,
+    boutDuration, buildSlots, makeSummary,
 } = require('../RingAssigner');
 
 // --- fixtures --------------------------------------------------------------
@@ -102,13 +102,22 @@ test('grouped: seniors -> R1/R2, females -> R5', () => {
 
 // --- bout duration ---------------------------------------------------------
 
-test('boutDuration: senior=11, youth/junior=8, round-robin group x3', () => {
-    assert.equal(isSeniorBout(match({ red: seniorM(), blue: seniorM() })), true);
+test('boutDuration: senior male=11, youth/junior=8, round-robin group x3', () => {
     assert.equal(boutDuration(match({ red: seniorM(), blue: seniorM() })), 11);
     assert.equal(boutDuration(match({ red: juniorM(), blue: juniorM() })), 8);
     assert.equal(boutDuration(match({ red: youthM(),  blue: youthM() })), 8);
-    // a group of three seniors: 11 * 3
+    // a group of three senior males: 11 * 3
     assert.equal(boutDuration(match({ red: seniorM(), blue: seniorM(), third: seniorM() })), 33);
+});
+
+// Regression (scenario failure: senior-female bout duration).
+// Spec: "Senior MALE = 3x3 min; all others = 3x2 min." A senior-aged female bout used
+// to read 11 min because the duration check ignored gender — must be 8.
+test('boutDuration: senior-aged female bout is 8 min (3x2), not 11', () => {
+    assert.equal(boutDuration(match({ red: female(), blue: female() })), 8,
+        'two senior-aged females = 3x2 = 8 min');
+    // a female round-robin group: 8 * 3
+    assert.equal(boutDuration(match({ red: female(), blue: female(), third: female() })), 24);
 });
 
 // --- buildSlots invariants -------------------------------------------------

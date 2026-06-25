@@ -72,6 +72,19 @@ classify. **115 tests, 0 fail, 100% coverage.**
 > that `Server.readBoxersCSV` already has** (experience default, weight, blank/short rows,
 > gender case). The two parsers should arguably converge — candidate future refactor.
 
+### Fifth hunt (v1.3.21) — SPEC violation, not a parser bug
+
+6. **Senior-female bout duration (product bug).** SPEC: "Senior **male** = 3×3 min; all
+   others = 3×2 min." But `boutDuration` used `isSeniorBout`, which checked only `yob`,
+   not gender — so a senior-aged **female** bout read 11 min instead of 8.
+   - **Fix:** `boutDuration` now uses the existing gender-aware `isBothSeniorMale`; the
+     redundant, buggy `isSeniorBout` was deleted (it duplicated `isBothSeniorMale`'s intent).
+   - **Regression:** `ringAssigner.test.js` — senior-female bout = 8 min, female group = 24.
+   - **Benchmark:** `realistic.streak.test.js` streak 9 — durations gender-aware in the
+     actual schedule slots (female 8, senior male 11).
+
+**117 tests, 0 fail, 100% coverage.** Spars.json still byte-identical to baseline.
+
 ## OPEN — product decision (not a code bug)
 
 **Round-robin group internal spread.** A 3-person group can contain an internal bout that
