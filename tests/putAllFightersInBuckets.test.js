@@ -401,3 +401,31 @@ test('parseCSV: blank lines are skipped and short rows do not crash', () => {
         fs.rmSync(tmp, { force: true });
     }
 });
+
+// Regression (scenario failure: gender case-sensitivity).
+// Human-typed "Male"/"Female"/"MALE" (and the M/F shorthand) used to match no bucket
+// rule and drop the boxer. parseCSV must canonicalise gender to lowercase male/female.
+test('parseCSV: gender is canonicalised so any casing + M/F shorthand classifies', () => {
+    const csv =
+        'id,name,club,gender,yob,fit,weight,experience\n' +
+        '1,Cap Male,ClubA,Male,2000,yes,70,2\n' +
+        '2,Upper Male,ClubB,MALE,2001,yes,71,2\n' +
+        '3,Cap Female,ClubC,Female,1999,yes,60,3\n' +
+        '4,Letter M,ClubD,M,2000,yes,72,2\n' +
+        '5,Letter F,ClubE,F,1999,yes,61,1\n';
+
+    const tmp = path.join(os.tmpdir(), `boxers-gender-${Date.now()}.csv`);
+    fs.writeFileSync(tmp, csv);
+
+    try {
+        const boxers = parseCSV(tmp);
+        assert.deepEqual(boxers.map(b => b.gender),
+            ['male', 'male', 'female', 'male', 'female'], 'gender canonicalised');
+
+        const { buckets } = classify(boxers);
+        const total = Object.values(buckets).reduce((n, b) => n + b.length, 0);
+        assert.equal(total, boxers.length, 'no boxer dropped for gender casing');
+    } finally {
+        fs.rmSync(tmp, { force: true });
+    }
+});

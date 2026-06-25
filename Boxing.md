@@ -52,10 +52,25 @@ After the fixes: realistic scenarios + benchmark pass consecutively.
    - **Benchmark:** `realistic.streak.test.js` streak 7 — messy CSV runs end-to-end; the
      truncated (no-weight) boxer surfaces unmatched, never lost.
 
+### Fourth hunt (v1.3.20)
+
+5. **Gender case-sensitivity (product bug).** Human-typed `"Male"`/`"Female"`/`"MALE"` (and
+   the `M`/`F` shorthand in some casings) matched no bucket rule and the boxer was dropped.
+   `Server.readBoxersCSV` lowercases gender; the clean-schema parser didn't.
+   - **Fix:** `parseCSV` canonicalises gender to lowercase `male`/`female` and expands the
+     `m`/`f` shorthand, without breaking the `M`/`F` the rules still accept for direct callers.
+   - **Regression:** `putAllFightersInBuckets.test.js` — five casings all classify, none dropped.
+   - **Benchmark:** `realistic.streak.test.js` streak 8 — mixed-case CSV runs end-to-end;
+     females still route to R5.
+
 Streak scenarios (`tests/realistic.streak.test.js`): full divisional roster; female cohort
 → R5 only; youth/cross-age never R5; odd bucket → group of 3 with 3× duration; phase-2
-rescue at 2.4 kg; blank-weight boxer sidelined; messy CSV survives. **113 tests, 0 fail,
-100% coverage.**
+rescue at 2.4 kg; blank-weight boxer sidelined; messy CSV survives; mixed-case genders
+classify. **115 tests, 0 fail, 100% coverage.**
+
+> Pattern: every bug found in this hunt is the **clean-schema `parseCSV` lacking a guard
+> that `Server.readBoxersCSV` already has** (experience default, weight, blank/short rows,
+> gender case). The two parsers should arguably converge — candidate future refactor.
 
 ## OPEN — product decision (not a code bug)
 

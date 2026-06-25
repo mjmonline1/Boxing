@@ -34,6 +34,12 @@ function parseCSV(filepath) {
         obj[header] = Number.isNaN(n) ? 0 : n;
       } else if (header === 'weight') {
         obj[header] = parseFloat(value);
+      } else if (header === 'gender') {
+        // Canonicalise to lowercase 'male'/'female' so any casing a human types
+        // ("Male", "FEMALE") and the single-letter shorthand (M/F) all classify.
+        // Without this the bucket rules (=== 'male'/'female') silently drop them.
+        const g = value.toLowerCase();
+        obj[header] = g === 'm' ? 'male' : g === 'f' ? 'female' : g;
       } else if (header === 'fit') {
         obj[header] = value.toLowerCase() === 'yes' || value.toLowerCase() === 'true';
       } else {

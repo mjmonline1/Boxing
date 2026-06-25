@@ -285,6 +285,38 @@ test('streak 7: messy CSV (blank line + short row) survives the whole pipeline',
     }
 });
 
+// Scenario 8 (benchmark): mixed-case genders from a CSV classify correctly and the
+// female bouts still route to R5 end-to-end.
+test('streak 8: mixed-case genders classify and females still route to R5', () => {
+    const csv =
+        'id,name,club,gender,yob,fit,weight,experience\n' +
+        '1,M One,ClubX,Male,2000,yes,70.0,2\n' +
+        '2,M Two,ClubY,MALE,2000,yes,70.5,2\n' +
+        '3,F One,ClubX,Female,1999,yes,60.0,1\n' +
+        '4,F Two,ClubY,F,2000,yes,60.5,2\n';
+    const tmp = path.join(os.tmpdir(), `gendered-${Date.now()}.csv`);
+    fs.writeFileSync(tmp, csv);
+
+    try {
+        const boxers = parseCSV(tmp);
+        const result = runFull(boxers);
+        assertInvariants(result, 'streak8');
+
+        // nobody dropped for casing
+        const matchedBoxers = result.matches.reduce((n, m) => n + (m.third ? 3 : 2), 0);
+        assert.equal(matchedBoxers + result.unmatched.length, 4, 'all 4 boxers accounted for');
+
+        const femaleMatches = result.matches.filter(hasFemale);
+        assert.ok(femaleMatches.length >= 1, 'the two females form a bout');
+        for (const slots of [result.balanced, result.grouped])
+            for (const slot of slots)
+                for (const bt of slot.bouts)
+                    if (hasFemale(bt)) assert.equal(bt.ring, 'R5', 'female bout must be R5');
+    } finally {
+        fs.rmSync(tmp, { force: true });
+    }
+});
+
 // Scenario 5: phase-2 rescue inside a realistic bucket (2.4 kg gap).
 test('streak 5: 2.4 kg pair rescued in phase 2, plus a clean phase-1 pair', () => {
     _id = 0;
