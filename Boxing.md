@@ -85,6 +85,18 @@ classify. **115 tests, 0 fail, 100% coverage.**
 
 **117 tests, 0 fail, 100% coverage.** Spars.json still byte-identical to baseline.
 
+### Sixth hunt (v1.3.22) — output data loss
+
+7. **Round-robin third dropped from `allocations.json` (product bug).** The flat allocation
+   export built each row from `{red, blue}` only, so a 3-person group was written as a
+   2-person bout — the third boxer's ring/slot assignment was invisible. (`allocations.json`
+   is a write-only artifact — no route/UI reads it — so low severity, but real data loss.)
+   - **Fix:** extracted a pure `flattenAllocations(slots)` that includes `third` when present;
+     `run()` uses it.
+   - **Regression:** `ringAssigner.test.js` — group row carries `third`, 1v1 row has no `third`.
+
+**118 tests, 0 fail, 100% coverage.**
+
 ## OPEN — product decision (not a code bug)
 
 **Round-robin group internal spread.** A 3-person group can contain an internal bout that

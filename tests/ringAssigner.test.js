@@ -13,7 +13,7 @@ const {
     RINGS_OPEN, RINGS_ALL,
     isBothSeniorMale, hasFemale, isR5Eligible,
     distributeBalanced, distributeGrouped,
-    boutDuration, buildSlots, makeSummary,
+    boutDuration, buildSlots, makeSummary, flattenAllocations,
 } = require('../RingAssigner');
 
 // --- fixtures --------------------------------------------------------------
@@ -118,6 +118,28 @@ test('boutDuration: senior-aged female bout is 8 min (3x2), not 11', () => {
         'two senior-aged females = 3x2 = 8 min');
     // a female round-robin group: 8 * 3
     assert.equal(boutDuration(match({ red: female(), blue: female(), third: female() })), 24);
+});
+
+// --- flat allocations ------------------------------------------------------
+
+// Regression (scenario failure: third boxer dropped from allocations.json).
+// The flat allocation row for a 3-person round-robin group used to emit only red+blue,
+// making the third boxer invisible. It must include the third.
+test('flattenAllocations: a round-robin group keeps its third boxer', () => {
+    const third = seniorM({ name: 'Cy', club: 'ClubC' });
+    const slots = buildSlots(distributeBalanced([
+        match({ red: seniorM({ name: 'Ax', club: 'ClubA' }),
+                blue: seniorM({ name: 'Bo', club: 'ClubB' }), third }),
+    ]));
+    const rows = flattenAllocations(slots);
+    assert.equal(rows.length, 1);
+    assert.equal(rows[0].third, 'Cy (ClubC)', 'third boxer present in the flat row');
+
+    // a plain 1v1 row has no `third` key
+    const plain = flattenAllocations(buildSlots(distributeBalanced([
+        match({ red: seniorM(), blue: seniorM() }),
+    ])));
+    assert.ok(!('third' in plain[0]), '1v1 allocation has no third key');
 });
 
 // --- buildSlots invariants -------------------------------------------------

@@ -128,6 +128,20 @@ function makeSummary(label, matches, queues, slots) {
   };
 }
 
+// Flat allocation rows for allocations.json. Includes the round-robin `third` so a
+// 3-person group isn't misrepresented as a 2-person bout (the boxer would be invisible).
+function flattenAllocations(slots) {
+  return slots.flatMap(s =>
+    s.bouts.map(b => ({
+      slot: s.slot, ring: b.ring, sparId: b.sparId, category: b.category,
+      red:  `${b.red.name} (${b.red.club})`,
+      blue: `${b.blue.name} (${b.blue.club})`,
+      ...(b.third ? { third: `${b.third.name} (${b.third.club})` } : {}),
+      weightDiff: b.weightDiff
+    }))
+  );
+}
+
 /* c8 ignore start */
 function saveSchedule(filename, summary, slots) {
   fs.writeFileSync(
@@ -182,14 +196,7 @@ function run(day = 1) {
   saveSchedule('schedule.json',         balancedSum, balancedSlots);
   saveSchedule('schedule_grouped.json', groupedSum,  groupedSlots);
 
-  const allocations = balancedSlots.flatMap(s =>
-    s.bouts.map(b => ({
-      slot: s.slot, ring: b.ring, sparId: b.sparId, category: b.category,
-      red:  `${b.red.name} (${b.red.club})`,
-      blue: `${b.blue.name} (${b.blue.club})`,
-      weightDiff: b.weightDiff
-    }))
-  );
+  const allocations = flattenAllocations(balancedSlots);
   fs.writeFileSync(path.join(OUT_DIR, 'allocations.json'), JSON.stringify(allocations, null, 2));
 
   console.log('\n=== Spar Ring Allocation ===');
@@ -215,5 +222,5 @@ module.exports = {
   RINGS_OPEN, RINGS_ALL,
   isBothSeniorMale, hasFemale, isR5Eligible,
   distributeBalanced, distributeGrouped,
-  boutDuration, buildSlots, makeSummary,
+  boutDuration, buildSlots, makeSummary, flattenAllocations,
 };
