@@ -67,71 +67,49 @@ function pairBoxers(boxers, categoryName, tolerance = WEIGHT_TOLERANCE, sparCoun
     return { matches, unmatched };
 }
 
-/* c8 ignore start */
-function main() {
-    if (!fs.existsSync(SOURCE_FILE)) {
-        console.error(`Error: ${SOURCE_FILE} not found. Run PutAllFightersinBuckets.js first.`);
-        process.exit(1);
-    }
-
-    const data = JSON.parse(fs.readFileSync(SOURCE_FILE, 'utf8'));
-    const buckets = data.finalBuckets;
-
+/**
+ * Run the full 3-phase pairing pipeline on a bucket map. Pure: no I/O, no logging.
+ * Shared by SparMaker.main() (file mode) and netlify/functions/generate-spars.js (DB mode)
+ * so the matching algorithm lives in exactly one place.
+ *
+ * Phase 1  — pair within bucket at ±tol1.
+ * Phase 2  — pair the Phase-1 remainder within bucket at ±tol2.
+ * Phase 3b — fold each still-unmatched boxer into an existing same-bucket 1v1 pair
+ *            (±tol1) to form a 3-person round-robin group.
+ *
+ * Returns the final matches/unmatched plus per-phase breakdowns for reporting.
+ */
+function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE } = {}) {
     let allMatches = [];
-    let allUnmatched = [];
+    const sparCount = new Map(); // tracks 1v1 usage across all phases
 
-    // sparCount tracks 1v1 usage across all phases
-    const sparCount = new Map();
-
-    // Phase 1 — within-bucket, ±2 kg
-    console.log('--- Phase 1 — Within-bucket (±2 kg) ---');
+    // Phase 1 — within-bucket, ±tol1
     const bucketUnmatched = {};
+    const phase1Matches = [];
     for (const [category, boxers] of Object.entries(buckets)) {
         if (category === 'Notfit' || boxers.length === 0) continue;
-
-        const { matches, unmatched } = pairBoxers(boxers, category, WEIGHT_TOLERANCE, sparCount);
+        const { matches, unmatched } = pairBoxers(boxers, category, tol1, sparCount);
         allMatches = allMatches.concat(matches);
+        phase1Matches.push(...matches);
         bucketUnmatched[category] = unmatched;
-
-        if (matches.length > 0) {
-            console.log(`  ${category}: ${matches.length} matches, ${unmatched.length} unmatched.`);
-            matches.forEach(m => console.log(`    ${m.red.name} (${m.red.weight}kg) vs ${m.blue.name} (${m.blue.weight}kg)`));
-        }
     }
     const phase1Unmatched = Object.values(bucketUnmatched).flat();
-    if (phase1Unmatched.length > 0) {
-        console.log(`  Unmatched (${phase1Unmatched.length}):`);
-        phase1Unmatched.sort((a, b) => a.weight - b.weight)
-            .forEach(b => console.log(`    - ${b.name} (${b.weight}kg, ${b.experience} bouts, ${b.club})`));
-    } else {
-        console.log('  No unmatched boxers after Phase 1.');
-    }
 
-    // Phase 2 — within-bucket, ±2.5 kg — tag remainders with source bucket
-    console.log('\n--- Phase 2 — Within-bucket (±2.5 kg) ---');
+    // Phase 2 — within-bucket, ±tol2 — tag remainders with source bucket
+    let allUnmatched = [];
+    const phase2Matches = [];
     for (const [category, boxers] of Object.entries(bucketUnmatched)) {
         if (boxers.length === 0) continue;
-        const { matches, unmatched } = pairBoxers(boxers, category, PHASE2_TOLERANCE, sparCount);
+        const { matches, unmatched } = pairBoxers(boxers, category, tol2, sparCount);
         allMatches = allMatches.concat(matches);
+        phase2Matches.push(...matches);
         allUnmatched = allUnmatched.concat(unmatched.map(b => ({ ...b, _bucket: category })));
-        if (matches.length > 0) {
-            console.log(`  ${category}: ${matches.length} matches, ${unmatched.length} unmatched.`);
-            matches.forEach(m => console.log(`    ${m.red.name} (${m.red.weight}kg) vs ${m.blue.name} (${m.blue.weight}kg)`));
-        }
     }
-    if (allUnmatched.length > 0) {
-        console.log(`  Unmatched (${allUnmatched.length}):`);
-        [...allUnmatched].sort((a, b) => a.weight - b.weight)
-            .forEach(b => console.log(`    - ${b.name} (${b.weight}kg, ${b.experience} bouts, ${b.club})`));
-    } else {
-        console.log('  No unmatched boxers after Phase 2.');
-    }
+    const phase2Unmatched = [...allUnmatched];
 
-    // Phase 3b — group round-robin: unmatched boxer joins existing 1v1 pair in same bucket (±2 kg)
-    console.log('\n--- Phase 3b — Group Round-Robin (±2 kg, within bucket) ---');
+    // Phase 3b — round-robin: unmatched boxer joins existing 1v1 pair in same bucket (±tol1)
     let groupCounter = 0;
     const stillRemaining = [];
-
     for (const boxer of allUnmatched) {
         const bucket = boxer._bucket;
         let bestIdx = -1, bestDiff = Infinity, bestIsDiffClub = false;
@@ -143,7 +121,7 @@ function main() {
 
             for (const partner of [m.red, m.blue]) {
                 const diff = Math.abs(boxer.weight - partner.weight);
-                if (diff > WEIGHT_TOLERANCE) continue;
+                if (diff > tol1) continue;
                 const isDiffClub = boxer.club !== partner.club;
                 if (isDiffClub && !bestIsDiffClub) {
                     bestIdx = i; bestDiff = diff; bestIsDiffClub = true;
@@ -155,27 +133,57 @@ function main() {
 
         if (bestIdx !== -1) {
             const anchor = allMatches[bestIdx];
-            const gid = `g${++groupCounter}`;
-            anchor.groupId = gid;
+            anchor.groupId = `g${++groupCounter}`;
             anchor.third   = boxer;
-            console.log(`  Group ${gid}: ${anchor.red.name} / ${anchor.blue.name} / ${boxer.name}`);
         } else {
             stillRemaining.push(boxer);
         }
-    }
-    if (stillRemaining.length > 0) {
-        console.log(`  Unmatched (${stillRemaining.length}):`);
-        [...stillRemaining].sort((a, b) => a.weight - b.weight)
-            .forEach(b => console.log(`    - ${b.name} (${b.weight}kg, ${b.experience} bouts, ${b.club})`));
-    } else {
-        console.log('  No unmatched boxers after Phase 3b — all boxers matched!');
     }
 
     // Rename _bucket to category on unmatched, strip from matched boxer objects
     allMatches.forEach(m => { delete m.red._bucket; delete m.blue._bucket; if (m.third) delete m.third._bucket; });
     stillRemaining.forEach(b => { b.category = b._bucket; delete b._bucket; });
 
-    const groupCount = groupCounter;
+    return {
+        matches:    allMatches,
+        unmatched:  stillRemaining,
+        groupCount: groupCounter,
+        phases: {
+            phase1: { matches: phase1Matches, unmatched: phase1Unmatched },
+            phase2: { matches: phase2Matches, unmatched: phase2Unmatched },
+            phase3: { groups: allMatches.filter(m => m.groupId), unmatched: stillRemaining },
+        },
+    };
+}
+
+/* c8 ignore start */
+function logUnmatched(label, boxers) {
+    if (boxers.length === 0) { console.log(`  No unmatched boxers after ${label}.`); return; }
+    console.log(`  Unmatched (${boxers.length}):`);
+    [...boxers].sort((a, b) => a.weight - b.weight)
+        .forEach(b => console.log(`    - ${b.name} (${b.weight}kg, ${b.experience} bouts, ${b.club})`));
+}
+
+function main() {
+    if (!fs.existsSync(SOURCE_FILE)) {
+        console.error(`Error: ${SOURCE_FILE} not found. Run PutAllFightersinBuckets.js first.`);
+        process.exit(1);
+    }
+
+    const data = JSON.parse(fs.readFileSync(SOURCE_FILE, 'utf8'));
+
+    const { matches: allMatches, unmatched: stillRemaining, groupCount, phases } =
+        pairAll(data.finalBuckets);
+
+    console.log('--- Phase 1 — Within-bucket (±2 kg) ---');
+    logUnmatched('Phase 1', phases.phase1.unmatched);
+    console.log('\n--- Phase 2 — Within-bucket (±2.5 kg) ---');
+    logUnmatched('Phase 2', phases.phase2.unmatched);
+    console.log('\n--- Phase 3b — Group Round-Robin (±2 kg, within bucket) ---');
+    phases.phase3.groups.forEach(m =>
+        console.log(`  Group ${m.groupId}: ${m.red.name} / ${m.blue.name} / ${m.third.name}`));
+    logUnmatched('Phase 3b', stillRemaining);
+
     const totalBoxers = data.summary.totalDistributed;
     const matchedCount = allMatches.reduce((n, m) => n + (m.third ? 3 : 2), 0);
     const unmatchedCount = stillRemaining.length;
@@ -214,4 +222,4 @@ function main() {
 if (require.main === module) main();
 /* c8 ignore stop */
 
-module.exports = { main, pairBoxers };
+module.exports = { main, pairBoxers, pairAll };

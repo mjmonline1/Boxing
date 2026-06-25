@@ -1,8 +1,8 @@
 // Reads buckets from MongoDB, runs 3-phase pairing algorithm, writes spars back.
+// The pairing algorithm itself lives in ../../SparMaker (pairAll) — shared with the
+// file-mode pipeline so there is exactly one source of truth for matching logic.
 const { MongoClient } = require('mongodb');
-const { pairBoxers }  = require('../../SparMaker');
-
-const W_TOL1 = 2.0, W_TOL2 = 2.5;
+const { pairAll }     = require('../../SparMaker');
 
 let cachedClient;
 async function getDb() {
@@ -18,89 +18,21 @@ exports.handler = async () => {
       return { statusCode: 400, body: JSON.stringify({ error: 'No bucket data. Run BucketAssigner first.' }) };
     }
 
-    const buckets = bucketsDoc.finalBuckets;
-    let allMatches = [], bucketRemainder = {};
+    const { matches: allMatches, unmatched: stillRemaining, groupCount, phases } =
+      pairAll(bucketsDoc.finalBuckets);
 
-    // sparCount tracks 1v1 usage across all phases (keyed by boxer name)
-    const sparCount = new Map();
-
-    // Phase 1: ±2 kg within bucket
-    let phase1Matches = [];
-    for (const [cat, boxers] of Object.entries(buckets)) {
-      if (cat === 'Notfit' || !boxers.length) continue;
-      const { matches, unmatched } = pairBoxers(boxers, cat, W_TOL1, sparCount);
-      allMatches = allMatches.concat(matches);
-      phase1Matches = phase1Matches.concat(matches);
-      bucketRemainder[cat] = unmatched;
-    }
-
-    const phase1Unmatched = Object.values(bucketRemainder).flat()
-      .sort((a,b) => a.weight - b.weight)
+    const unmatchedView = list => [...list]
+      .sort((a, b) => a.weight - b.weight)
       .map(b => ({ name: b.name, weight: b.weight, experience: b.experience, club: b.club }));
-    const phase1Bouts = phase1Matches.map(m => ({ red: m.red.name, redWeight: m.red.weight, blue: m.blue.name, blueWeight: m.blue.weight, weightDiff: m.weightDiff, category: m.category }));
+    const boutView = m => ({ red: m.red.name, redWeight: m.red.weight, blue: m.blue.name, blueWeight: m.blue.weight, weightDiff: m.weightDiff, category: m.category });
 
-    // Phase 2: ±2.5 kg within bucket — tag remainders with source bucket
-    let allUnmatched = [], phase2Matches = [];
-    for (const [cat, boxers] of Object.entries(bucketRemainder)) {
-      if (!boxers.length) continue;
-      const { matches, unmatched } = pairBoxers(boxers, cat, W_TOL2, sparCount);
-      allMatches = allMatches.concat(matches);
-      phase2Matches = phase2Matches.concat(matches);
-      allUnmatched = allUnmatched.concat(unmatched.map(b => ({ ...b, _bucket: cat })));
-    }
+    const phase1Unmatched = unmatchedView(phases.phase1.unmatched);
+    const phase1Bouts     = phases.phase1.matches.map(boutView);
+    const phase2Unmatched = unmatchedView(phases.phase2.unmatched);
+    const phase2Bouts     = phases.phase2.matches.map(boutView);
+    const phase3Unmatched = unmatchedView(phases.phase3.unmatched);
+    const phase3Groups    = phases.phase3.groups.map(m => ({ groupId: m.groupId, red: m.red.name, redWeight: m.red.weight, blue: m.blue.name, blueWeight: m.blue.weight, third: m.third.name, thirdWeight: m.third.weight, category: m.category }));
 
-    const phase2Unmatched = [...allUnmatched]
-      .sort((a,b) => a.weight - b.weight)
-      .map(b => ({ name: b.name, weight: b.weight, experience: b.experience, club: b.club }));
-    const phase2Bouts = phase2Matches.map(m => ({ red: m.red.name, redWeight: m.red.weight, blue: m.blue.name, blueWeight: m.blue.weight, weightDiff: m.weightDiff, category: m.category }));
-
-    // Phase 3b: unmatched boxer joins existing 1v1 pair in same bucket → round-robin group (±2 kg)
-    let groupCounter = 0;
-    const stillRemaining = [];
-
-    for (const boxer of allUnmatched) {
-      const bucket = boxer._bucket;
-      let bestIdx = -1, bestDiff = Infinity, bestIsDiffClub = false;
-
-      for (let i = 0; i < allMatches.length; i++) {
-        const m = allMatches[i];
-        if (m.groupId) continue;          // already in a group
-        if (m.category !== bucket) continue; // same bucket only
-
-        for (const partner of [m.red, m.blue]) {
-          const diff = Math.abs(boxer.weight - partner.weight);
-          if (diff > W_TOL1) continue;    // ±2 kg tolerance
-          const isDiffClub = boxer.club !== partner.club;
-          if (isDiffClub && !bestIsDiffClub) {
-            bestIdx = i; bestDiff = diff; bestIsDiffClub = true;
-          } else if (isDiffClub === bestIsDiffClub && diff < bestDiff) {
-            bestIdx = i; bestDiff = diff;
-          }
-        }
-      }
-
-      if (bestIdx !== -1) {
-        const anchor = allMatches[bestIdx];
-        const gid = `g${++groupCounter}`;
-        anchor.groupId = gid;
-        anchor.third   = boxer;
-      } else {
-        stillRemaining.push(boxer);
-      }
-    }
-
-    const phase3Unmatched = [...stillRemaining]
-      .sort((a,b) => a.weight - b.weight)
-      .map(b => ({ name: b.name, weight: b.weight, experience: b.experience, club: b.club }));
-    const phase3Groups = allMatches
-      .filter(m => m.groupId)
-      .map(m => ({ groupId: m.groupId, red: m.red.name, redWeight: m.red.weight, blue: m.blue.name, blueWeight: m.blue.weight, third: m.third.name, thirdWeight: m.third.weight, category: m.category }));
-
-    // Rename _bucket to category on unmatched, strip from matched boxer objects
-    allMatches.forEach(m => { delete m.red._bucket; delete m.blue._bucket; if (m.third) delete m.third._bucket; });
-    stillRemaining.forEach(b => { b.category = b._bucket; delete b._bucket; });
-
-    const groupCount = groupCounter;
     const total = bucketsDoc.summary?.totalDistributed ?? (allMatches.length * 2 + stillRemaining.length);
     const result = {
       summary: {
