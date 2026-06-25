@@ -238,6 +238,24 @@ test('streak 4: odd senior bucket forms a group of 3 with 3x bout duration', () 
     assert.equal(boutDuration(g), 33, 'senior group duration is 3x single');
 });
 
+// Scenario 6 (benchmark): a blank-weight boxer in a real bucket must not sabotage
+// its neighbours' pairing, and must surface as unmatched (never silently lost).
+test('streak 6: blank-weight boxer is sidelined, neighbours still pair', () => {
+    _id = 0;
+    const roster = [
+        b({ yob: 2000, weight: 60.0, experience: 1, club: 'ClubX' }),
+        b({ yob: 2000, weight: NaN,  experience: 1, club: 'ClubY' }), // missing weight
+        b({ yob: 2000, weight: 61.0, experience: 1, club: 'ClubZ' }),
+        b({ yob: 2000, weight: 61.5, experience: 1, club: 'ClubX' }),
+    ];
+    const result = runFull(roster);
+    assertInvariants(result, 'streak6');
+
+    assert.ok(result.matches.length >= 1, 'valid boxers still pair around the bad row');
+    const bad = result.unmatched.find(x => !Number.isFinite(x.weight));
+    assert.ok(bad, 'the blank-weight boxer surfaces as unmatched, not lost');
+});
+
 // Scenario 5: phase-2 rescue inside a realistic bucket (2.4 kg gap).
 test('streak 5: 2.4 kg pair rescued in phase 2, plus a clean phase-1 pair', () => {
     _id = 0;

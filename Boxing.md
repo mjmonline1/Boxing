@@ -21,12 +21,27 @@ Drove realistic tournament rosters through the real pipeline (buckets → `pairA
    boxers as detached spread-copies (same boxer, different object). Benign for the app
    (identical JSON). **Fix:** invariant now checks membership by boxer `id`.
 
-After the fixes: **5 realistic scenarios + benchmark pass consecutively.** 109 tests,
-0 fail, 100% coverage.
+After the fixes: realistic scenarios + benchmark pass consecutively.
+
+### Second hunt (v1.3.18)
+
+3. **Blank-weight sabotage (product bug).** A boxer with a non-finite weight (blank CSV
+   weight cell → `NaN`) sorted mid-bucket and tripped the ascending-scan `break` in
+   `pairBoxers` (`NaN <= tolerance` is false), starving valid neighbours of opponents —
+   e.g. boxers at 60 kg and 61 kg produced **0 matches** instead of 1. The phase-3b group
+   loop had the same flaw (`NaN > tol` is false, so the boxer could be folded into a group
+   on a bogus comparison).
+   - **Fix:** `pairBoxers` sidelines non-finite-weight boxers up front (reported unmatched,
+     kept out of the scan); `pairAll` phase-3b skips them too. Weight is deliberately NOT
+     defaulted to 0 — a phantom 0 kg boxer would mis-pair.
+   - **Regression:** `sparMaker.test.js` — blank-weight boxer unmatched, neighbours still pair.
+   - **Benchmark:** `realistic.streak.test.js` streak 6 — blank-weight boxer sidelined
+     end-to-end, never grouped, never lost.
+   - Verified behavior-preserving on real data: `Spars.json` still byte-identical to baseline.
 
 Streak scenarios (`tests/realistic.streak.test.js`): full divisional roster; female cohort
 → R5 only; youth/cross-age never R5; odd bucket → group of 3 with 3× duration; phase-2
-rescue at 2.4 kg.
+rescue at 2.4 kg; blank-weight boxer sidelined. **111 tests, 0 fail, 100% coverage.**
 
 ## Architecture (as-found)
 

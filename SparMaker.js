@@ -11,9 +11,14 @@ const WEIGHT_TOLERANCE        = 2.0;
 const PHASE2_TOLERANCE        = 2.5;
 
 function pairBoxers(boxers, categoryName, tolerance = WEIGHT_TOLERANCE, sparCount) {
-    const sorted = [...boxers].sort((a, b) => a.weight - b.weight);
+    // A boxer with a non-finite weight (e.g. a blank CSV weight cell → NaN) can't be
+    // matched by weight, and worse, a NaN sitting mid-list would break the ascending
+    // scan early (NaN <= tolerance is false) and starve valid neighbours of opponents.
+    // Set such boxers aside as unmatched up front so they neither pair nor poison the scan.
+    const unmatched = boxers.filter(b => !Number.isFinite(b.weight));
+    const sorted = boxers.filter(b => Number.isFinite(b.weight))
+                         .sort((a, b) => a.weight - b.weight);
     const matches = [];
-    const unmatched = [];
 
     while (sorted.length > 0) {
         const current = sorted.shift();
@@ -111,6 +116,11 @@ function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE } =
     let groupCounter = 0;
     const stillRemaining = [];
     for (const boxer of allUnmatched) {
+        // A non-finite weight can't be group-matched either: `NaN > tol1` is false, so
+        // the tolerance guard below would NOT skip it and the boxer could be folded into
+        // a group on a bogus comparison. Leave it unmatched.
+        if (!Number.isFinite(boxer.weight)) { stillRemaining.push(boxer); continue; }
+
         const bucket = boxer._bucket;
         let bestIdx = -1, bestDiff = Infinity, bestIsDiffClub = false;
 
