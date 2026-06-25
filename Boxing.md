@@ -51,6 +51,25 @@ Baseline: 100/100 tests.
 - Left PutAllFightersinBuckets CLI default at the clean-schema path (graceful not-found
   guard); annotated the raw/clean split. v1.3.14.
 
+## Status
+
+Stopped after Step 2. The two genuine structural defects (dead duplicate pipeline;
+copy-pasted pairing algorithm) are fixed. The codebase now has one bucket pipeline,
+one pairing algorithm shared by file + cloud modes, centralized `constants.js`, and
+102 tests at 100% coverage.
+
+Everything still open (below) needs a **product/data decision**, not a mechanical
+refactor — stopping per "approval required / verification unavailable":
+- **Defect 7 (raw vs clean CSV schema)** — `/api/run/buckets` would crash passing the raw
+  survey CSV into the clean-schema `parseCSV`. BUT that endpoint is not wired to any UI
+  (index.html only calls `/api/run/spar-maker` + `/api/run/ring-assigner`; buckets are
+  computed client-side in BucketAssigner.html). Latent, in an unused endpoint. Needs a
+  decision: delete the endpoint, or make `runTSCBuckets` accept the raw schema.
+- **WeightProximity.js** — orphan module (only its own test imports it) but has a design
+  doc; keep or remove is the user's call.
+- **create-petri-net.js** — reads `output/tsc-2025-tournament-results.json`, which nothing
+  produces. Likely-dead viz tool; confirm before removing.
+
 ### Step 2 — single source of truth for the 3-phase pairing algorithm  [DONE]
 Extracted the Phase 1/2/3b orchestration into a pure `pairAll(buckets, {tol1,tol2})`
 in `SparMaker.js`, returning `{ matches, unmatched, groupCount, phases }`.
