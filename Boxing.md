@@ -97,6 +97,28 @@ classify. **115 tests, 0 fail, 100% coverage.**
 
 **118 tests, 0 fail, 100% coverage.**
 
+## Parser convergence (v1.3.23)
+
+There were **four** boxer-CSV parsers (bugs 1–4 above all came from them drifting apart),
+incl. a buggy 4th copy in `importBoxersToMongo.js` whose `mapHeader` was missing the
+`sparsPerDay` mapping. Converged into one shared module `boxer-csv.js`:
+- `splitRecords` / `splitLine` — quoted-comma/newline-aware tokenizer.
+- `normalizeGender` — lowercase + M/F expansion.
+- `mapRawHeader` + `parseRawBoxers` — the raw survey-export → boxer transform.
+
+Rewired:
+- `Server.js` `readBoxersCSV` → `parseRawBoxers` (deleted local `mapHeader2026`,
+  `splitCSV`, `splitCSVRecords` — ~60 lines).
+- `netlify/functions/import-boxers.js` `parseBoxers` → `parseRawBoxers` (deleted its
+  identical copies — ~70 lines). **Kills the netlify-sync hazard for the roster parser.**
+- `PutAllFightersinBuckets.js` `parseCSV` → shared tokenizer + `normalizeGender` (clean
+  schema still has its own field coercions, but gender/tokenizing is now defined once).
+- `importBoxersToMongo.js` (standalone migration script, 4th copy) → `parseRawBoxers`;
+  this also fixes its missing `sparsPerDay` mapping.
+
+New `tests/boxerCsv.test.js` covers the module to 100%. Verified: 130 tests, 0 fail,
+100% coverage; `Spars.json` byte-identical; server serves 137 boxers; e2e + mongo green.
+
 ## OPEN — product decision (not a code bug)
 
 **Round-robin group internal spread.** A 3-person group can contain an internal bout that
