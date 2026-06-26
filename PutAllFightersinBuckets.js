@@ -9,15 +9,15 @@ const HierarchicalFilter = require('./hierarchical-filter');
 const fs   = require('fs');
 const path = require('path');
 const { AGE_GROUPS, EXPERIENCE_TIERS } = require('./constants');
+const { splitRecords, splitLine, normalizeGender } = require('./boxer-csv');
 
 function parseCSV(filepath) {
-  const content = fs.readFileSync(filepath, 'utf-8');
-  const lines   = content.trim().split('\n');
-  const headers = lines[0].split(',').map(h => h.trim());
+  // Shared tokenizer (boxer-csv): quoted-comma/newline aware, skips blank records.
+  const records = splitRecords(fs.readFileSync(filepath, 'utf-8'));
+  const headers = splitLine(records[0]).map(h => h.trim());
 
-  return lines.slice(1).filter(line => line.trim() !== '').map(line => {
-    const regex  = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
-    const values = line.split(regex).map(v => v.trim().replace(/^"|"$/g, ''));
+  return records.slice(1).map(line => {
+    const values = splitLine(line).map(v => v.trim());
     const obj    = {};
 
     headers.forEach((header, index) => {
@@ -35,11 +35,7 @@ function parseCSV(filepath) {
       } else if (header === 'weight') {
         obj[header] = parseFloat(value);
       } else if (header === 'gender') {
-        // Canonicalise to lowercase 'male'/'female' so any casing a human types
-        // ("Male", "FEMALE") and the single-letter shorthand (M/F) all classify.
-        // Without this the bucket rules (=== 'male'/'female') silently drop them.
-        const g = value.toLowerCase();
-        obj[header] = g === 'm' ? 'male' : g === 'f' ? 'female' : g;
+        obj[header] = normalizeGender(value);
       } else if (header === 'fit') {
         obj[header] = value.toLowerCase() === 'yes' || value.toLowerCase() === 'true';
       } else {
