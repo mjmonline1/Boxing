@@ -119,7 +119,32 @@ Rewired:
 New `tests/boxerCsv.test.js` covers the module to 100%. Verified: 130 tests, 0 fail,
 100% coverage; `Spars.json` byte-identical; server serves 137 boxers; e2e + mongo green.
 
-## OPEN — product decision (not a code bug)
+### Seventh hunt (v1.3.24) — ring/schedule layer
+
+Probed the ring-allocation + scheduling + client-ring logic. No clear functional bug:
+- Client `canPlaceInR5` is **identical** to `RingAssigner.isR5Eligible` (both via
+  `R5_ELIGIBLE_YOB_MIN`) — consistent.
+- Even-day scheduling sorts lightest-first (odd = heaviest-first) — verified correct;
+  added lock test `streak 10`.
+- Local vs cloud schedule agree: both serve the **grouped** strategy to RingManager
+  (`Server.js` → schedule_grouped.json; netlify `generate-schedule.js` → distributeGrouped).
+
+Fixed: a **misleading RingAssigner console comment** that claimed `schedule.json` (balanced)
+is "loaded by RingManager" — RingManager actually loads the grouped schedule.
+
+**131 tests, 0 fail, 100% coverage.**
+
+## OPEN — product decisions (not code bugs)
+
+**(a) Females can be dragged out of R5 in RingManager.** The auto-allocator *forces* every
+female bout into R5 (`hasFemale → ['R5']`), but the UI only blocks ineligible bouts from
+*entering* R5 — it doesn't stop a female bout being moved *out* to R1–R4. If females-only-R5
+is a hard rule, the UI should prevent that move; if it's just the auto-default, this is fine.
+
+**(b) `schedule.json` (balanced) is written but read by nobody** — RingManager loads the
+grouped schedule; `allocations.json` already carries the balanced view. Harmless reference
+export; could be dropped if balanced is truly unused.
+
 
 **Round-robin group internal spread.** A 3-person group can contain an internal bout that
 exceeds weight tolerance. Reproduced: red 70 / blue 72.0 (a ±2.0 phase-1 pair) + third 73.9

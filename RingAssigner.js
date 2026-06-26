@@ -204,9 +204,9 @@ function run(day = 1) {
   printSummary(balancedSum);
   printSummary(groupedSum);
   console.log(`\nOutput → ${OUT_DIR}`);
-  console.log('  schedule.json         (balanced — loaded by RingManager)');
-  console.log('  schedule_grouped.json (grouped by category)');
-  console.log('  allocations.json      (flat list)');
+  console.log('  schedule.json         (balanced strategy — reference export)');
+  console.log('  schedule_grouped.json (grouped strategy — loaded by RingManager)');
+  console.log('  allocations.json      (flat list, from balanced)');
 }
 
 if (require.main === module) {
