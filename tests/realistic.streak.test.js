@@ -335,6 +335,35 @@ test('streak 9: bout durations are gender-aware end-to-end', () => {
         }
 });
 
+// Scenario 10: even-day scheduling sorts lightest-first (vs heaviest-first on odd days)
+// and still satisfies every invariant.
+test('streak 10: even-day schedule is lightest-first and invariant-clean', () => {
+    _id = 0;
+    // three pairable bouts spread across the weight range (light/mid/heavy)
+    const roster = [
+        b({ yob: 2000, weight: 60.0, experience: 4, club: 'ClubX' }),
+        b({ yob: 2000, weight: 60.5, experience: 4, club: 'ClubY' }),
+        b({ yob: 2000, weight: 70.0, experience: 4, club: 'ClubX' }),
+        b({ yob: 2000, weight: 70.5, experience: 4, club: 'ClubY' }),
+        b({ yob: 2000, weight: 80.0, experience: 4, club: 'ClubX' }),
+        b({ yob: 2000, weight: 80.5, experience: 4, club: 'ClubY' }),
+    ];
+
+    const odd  = runFull(roster, 1);
+    const even = runFull(roster, 2);
+    assertInvariants(odd,  'streak10-odd');
+    assertInvariants(even, 'streak10-even');
+
+    const avg = m => m.third ? (m.red.weight + m.blue.weight + m.third.weight) / 3
+                             : (m.red.weight + m.blue.weight) / 2;
+    // Slot 1 of odd day is the heaviest bout; slot 1 of even day is the lightest.
+    const firstBout = res => res.balanced[0].bouts.slice().sort((a, b) => a.ring < b.ring ? -1 : 1)[0];
+    const oddFirst  = avg(firstBout(odd));
+    const evenFirst = avg(firstBout(even));
+    assert.ok(oddFirst > evenFirst,
+        `odd day starts heavier (${oddFirst}) than even day (${evenFirst})`);
+});
+
 // Scenario 5: phase-2 rescue inside a realistic bucket (2.4 kg gap).
 test('streak 5: 2.4 kg pair rescued in phase 2, plus a clean phase-1 pair', () => {
     _id = 0;
