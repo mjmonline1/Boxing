@@ -97,19 +97,32 @@ function boutDuration(match) {
 
 function buildSlots(queues) {
   const activeRings = RINGS_ALL.filter(r => queues[r].length > 0);
-  const maxSlots    = Math.max(...activeRings.map(r => queues[r].length));
+  const head        = Object.fromEntries(activeRings.map(r => [r, 0])); // next unplaced index per ring
   const slots       = [];
+  let remaining     = activeRings.reduce((n, r) => n + queues[r].length, 0);
 
-  for (let i = 0; i < maxSlots; i++) {
+  const boxerIds = m => [m.red, m.blue, m.third].filter(Boolean).map(b => b.id ?? b.name);
+
+  // One bout per ring per slot. A boxer with sparsPerDay > 1 has multiple bouts, so a bout is
+  // deferred to a later slot if either fighter is already busy in this slot — that ring simply
+  // idles this slot and retries its head next slot. With all bouts having distinct fighters
+  // (sparsPerDay=1) nothing ever collides, so every ring advances each slot — identical to the
+  // old index-by-slot layout.
+  while (remaining > 0) {
     const bouts = [];
+    const busy  = new Set();
     for (const ring of activeRings) {
-      const m = queues[ring][i];
-      if (m) bouts.push({ ring, sparId: m.sparId, category: m.category,
-                          duration: boutDuration(m),
-                          red: m.red, blue: m.blue, third: m.third || null,
-                          weightDiff: m.weightDiff });
+      const m = queues[ring][head[ring]];
+      if (!m) continue;                                   // ring exhausted
+      if (boxerIds(m).some(id => busy.has(id))) continue; // fighter already in this slot — defer
+      boxerIds(m).forEach(id => busy.add(id));
+      bouts.push({ ring, sparId: m.sparId, category: m.category,
+                   duration: boutDuration(m),
+                   red: m.red, blue: m.blue, third: m.third || null,
+                   weightDiff: m.weightDiff });
+      head[ring]++; remaining--;
     }
-    slots.push({ slot: i + 1, bouts });
+    slots.push({ slot: slots.length + 1, bouts });
   }
 
   return slots;

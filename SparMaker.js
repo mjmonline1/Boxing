@@ -14,29 +14,45 @@ const PHASE2_TOLERANCE        = 2.5;
 // compare with a tiny epsilon to keep exact-boundary pairs from being silently dropped.
 const WEIGHT_EPS              = 1e-9;
 
-function pairBoxers(boxers, categoryName, tolerance = WEIGHT_TOLERANCE, sparCount) {
+function pairBoxers(boxers, categoryName, tolerance = WEIGHT_TOLERANCE, sparCount, partneredWith) {
     // A boxer with a non-finite weight (e.g. a blank CSV weight cell → NaN) can't be
     // matched by weight, and worse, a NaN sitting mid-list would break the ascending
     // scan early (NaN <= tolerance is false) and starve valid neighbours of opponents.
-    // Set such boxers aside as unmatched up front so they neither pair nor poison the scan.
-    const unmatched = boxers.filter(b => !Number.isFinite(b.weight));
-    const sorted = boxers.filter(b => Number.isFinite(b.weight))
-                         .sort((a, b) => a.weight - b.weight);
+    // Set such boxers aside up front so they neither pair nor poison the scan.
+    const leftover = boxers.filter(b => !Number.isFinite(b.weight));
+    const pool = boxers.filter(b => Number.isFinite(b.weight))
+                       .sort((a, b) => a.weight - b.weight);
     const matches = [];
 
-    while (sorted.length > 0) {
-        const current = sorted.shift();
+    // Capacity tracking. `sparCount`/`partneredWith` are shared across phases when passed in
+    // so a boxer's spars-per-day budget (and "already sparred" set) carry across the pipeline;
+    // a standalone call gets locals so sparsPerDay still works within the one call.
+    const count    = sparCount     || new Map(); // boxer → spars assigned so far
+    const partners = partneredWith || new Map(); // boxer → Set of boxers already sparred (no rematch)
+    const cap  = b => b.sparsPerDay || 1;
+    const used = b => count.get(b) || 0;
+    const hasMet = (a, b) => partners.get(a)?.has(b);
+    const meet = (a, b) => {
+        (partners.get(a) || partners.set(a, new Set()).get(a)).add(b);
+        (partners.get(b) || partners.set(b, new Set()).get(b)).add(a);
+    };
+
+    // A boxer stays at pool[0] (as `current`) and keeps getting opponents until it reaches its
+    // daily cap or runs out of eligible partners — then it leaves. Opponents leave when they hit
+    // their own cap. With everyone at sparsPerDay=1 this is exactly the old shift/splice greedy.
+    while (pool.length > 0) {
+        const current = pool[0];
         let bestOpponentIndex = -1;
         let differentClub = false;
         let minWeightDiff = Infinity;
 
-        for (let i = 0; i < sorted.length; i++) {
-            const opponent = sorted[i];
+        for (let i = 1; i < pool.length; i++) {
+            const opponent = pool[i];
             const weightDiff = Math.abs(current.weight - opponent.weight);
 
             if (weightDiff <= tolerance + WEIGHT_EPS) {
-                // Skip if opponent has reached their sparsPerDay limit
-                if (sparCount && (sparCount.get(opponent) || 0) >= (opponent.sparsPerDay || 1)) continue;
+                if (used(opponent) >= cap(opponent)) continue;  // opponent at their daily cap
+                if (hasMet(current, opponent)) continue;         // already sparred — no rematch
 
                 const isDifferentClub = current.club !== opponent.club;
 
@@ -56,11 +72,10 @@ function pairBoxers(boxers, categoryName, tolerance = WEIGHT_TOLERANCE, sparCoun
         }
 
         if (bestOpponentIndex !== -1) {
-            const opponent = sorted.splice(bestOpponentIndex, 1)[0];
-            if (sparCount) {
-                sparCount.set(current,  (sparCount.get(current)  || 0) + 1);
-                sparCount.set(opponent, (sparCount.get(opponent) || 0) + 1);
-            }
+            const opponent = pool[bestOpponentIndex];
+            count.set(current,  used(current)  + 1);
+            count.set(opponent, used(opponent) + 1);
+            meet(current, opponent);
             matches.push({
                 red: current,
                 blue: opponent,
@@ -68,12 +83,18 @@ function pairBoxers(boxers, categoryName, tolerance = WEIGHT_TOLERANCE, sparCoun
                 category: categoryName,
                 groupId: null
             });
+            // Remove whoever reached their cap; keep under-cap boxers in the pool for more spars.
+            // Splice the opponent (index ≥ 1) before shifting current (index 0) so indices stay valid.
+            if (used(opponent) >= cap(opponent)) pool.splice(bestOpponentIndex, 1);
+            if (used(current)  >= cap(current))  pool.shift();
         } else {
-            unmatched.push(current);
+            // current can find no (further) opponent — it leaves. It's a leftover for the next
+            // phase (never-matched, or matched but still under cap).
+            leftover.push(pool.shift());
         }
     }
 
-    return { matches, unmatched };
+    return { matches, unmatched: leftover };
 }
 
 /**
@@ -90,29 +111,34 @@ function pairBoxers(boxers, categoryName, tolerance = WEIGHT_TOLERANCE, sparCoun
  */
 function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE } = {}) {
     let allMatches = [];
-    const sparCount = new Map(); // tracks 1v1 usage across all phases
+    const sparCount = new Map(); // boxer → spars assigned (carries the daily-cap budget across phases)
+    const partnered = new Map(); // boxer → Set already sparred (no rematch across phases)
 
     // Phase 1 — within-bucket, ±tol1
     const bucketUnmatched = {};
     const phase1Matches = [];
     for (const [category, boxers] of Object.entries(buckets)) {
         if (category === 'Notfit' || boxers.length === 0) continue;
-        const { matches, unmatched } = pairBoxers(boxers, category, tol1, sparCount);
+        const { matches, unmatched } = pairBoxers(boxers, category, tol1, sparCount, partnered);
         allMatches = allMatches.concat(matches);
         phase1Matches.push(...matches);
         bucketUnmatched[category] = unmatched;
     }
     const phase1Unmatched = Object.values(bucketUnmatched).flat();
 
-    // Phase 2 — within-bucket, ±tol2 — tag remainders with source bucket
+    // Phase 2 — within-bucket, ±tol2 — tag remainders with source bucket.
+    // Only carry NEVER-matched boxers (count 0) into the group phase / unmatched list: a boxer
+    // already matched but still under its daily cap has had its spar — it isn't "unmatched".
     let allUnmatched = [];
     const phase2Matches = [];
     for (const [category, boxers] of Object.entries(bucketUnmatched)) {
         if (boxers.length === 0) continue;
-        const { matches, unmatched } = pairBoxers(boxers, category, tol2, sparCount);
+        const { matches, unmatched } = pairBoxers(boxers, category, tol2, sparCount, partnered);
         allMatches = allMatches.concat(matches);
         phase2Matches.push(...matches);
-        allUnmatched = allUnmatched.concat(unmatched.map(b => ({ ...b, _bucket: category })));
+        allUnmatched = allUnmatched.concat(
+            unmatched.filter(b => (sparCount.get(b) || 0) === 0)
+                     .map(b => ({ ...b, _bucket: category })));
     }
     const phase2Unmatched = [...allUnmatched];
 
