@@ -229,3 +229,25 @@ test('makeSummary: counts match categories and slots correctly', () => {
     assert.deepEqual(Object.keys(s.matchesPerRing).sort(), [...RINGS_ALL].sort());
     RINGS_ALL.forEach(r => assert.equal(s.matchesPerRing[r], queues[r].length));
 });
+
+// --- sparsPerDay > 1 : a multi-bout boxer is never in two bouts in one time slot ----
+test('buildSlots: a boxer in two bouts is deferred to separate slots, not double-booked', () => {
+    // X (sparsPerDay=2) fights in two different bouts that land in two different rings.
+    // Without deferral both would sit in slot 1 — X boxing two rings at once.
+    const X = bx({ name: 'X', id: 999 });
+    const b1 = { sparId: 'S1', category: 'Cat', weightDiff: '1.00', red: X, blue: bx(), third: null };
+    const b2 = { sparId: 'S2', category: 'Cat', weightDiff: '1.00', red: X, blue: bx(), third: null };
+    const queues = { R1: [b1], R2: [b2], R3: [], R4: [], R5: [] };
+
+    const slots = buildSlots(queues);
+
+    // X must not appear twice in any single slot
+    for (const slot of slots) {
+        const ids = slot.bouts.flatMap(bt => [bt.red, bt.blue, bt.third].filter(Boolean).map(p => p.id ?? p.name));
+        assert.equal(new Set(ids).size, ids.length, `slot ${slot.slot} double-books a boxer`);
+    }
+    // both bouts still scheduled, but across two slots
+    assert.equal(slots.length, 2, 'X\'s two bouts pushed into separate slots');
+    const all = slots.flatMap(s => s.bouts.map(b => b.sparId));
+    assert.deepEqual(new Set(all), new Set(['S1', 'S2']), 'both bouts scheduled exactly once');
+});

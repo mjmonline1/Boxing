@@ -61,10 +61,13 @@ function assertInvariants({ buckets, matches, unmatched, balanced, grouped }, la
         .filter(([k]) => k !== 'Notfit')
         .reduce((n, [, v]) => n + v.length, 0);
 
-    // 1. nobody vanishes between bucketing and sparring
-    const matchedBoxers = matches.reduce((n, m) => n + (m.third ? 3 : 2), 0);
-    assert.equal(matchedBoxers + unmatched.length, nonNotfit,
-        `${label}: matched+unmatched (${matchedBoxers}+${unmatched.length}) must equal bucketed fit boxers (${nonNotfit})`);
+    // 1. nobody vanishes between bucketing and sparring. Count DISTINCT matched boxers (a
+    // sparsPerDay>1 boxer appears in several bouts) so multi-spar doesn't inflate the tally.
+    const matchedIds = new Set();
+    for (const m of matches)
+        for (const p of [m.red, m.blue, m.third].filter(Boolean)) matchedIds.add(p.id ?? p.name);
+    assert.equal(matchedIds.size + unmatched.length, nonNotfit,
+        `${label}: distinct matched+unmatched (${matchedIds.size}+${unmatched.length}) must equal bucketed fit boxers (${nonNotfit})`);
 
     // 2. every 1v1 within phase-2 tolerance and from its own bucket.
     // Membership is by boxer id, not object identity: pairAll emits phase-2/3b

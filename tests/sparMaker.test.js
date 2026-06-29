@@ -189,7 +189,7 @@ test('blank-weight boxer is unmatched and does not block valid neighbours from p
 
 // ── pairAll: full 3-phase pipeline ──────────────────────────────────────────
 
-function eb(name, weight, club) { return { name, weight, club, experience: 0, sparsPerDay: 9 }; }
+function eb(name, weight, club) { return { name, weight, club, experience: 0, sparsPerDay: 1 }; }
 
 // 17. End-to-end across all three phases + skips, in one bucket map.
 test('pairAll runs phases 1-3b, skips Notfit/empty, folds leftover into a group', () => {
@@ -278,4 +278,60 @@ test('pairAll phase-3b folds a third sitting exactly on the tol1 boundary', () =
     const group = r.matches.find(m => m.third);
     assert.ok(group, 'a 3-person group forms');
     assert.equal(r.unmatched.length, 0, 'the exact-boundary third is not dropped');
+});
+
+// ── sparsPerDay > 1 : a boxer stays matchable until they hit their daily cap ──────
+
+function sp(id, name, club, weight, sparsPerDay) {
+    return { id, name, club, gender: 'male', yob: 2000, weight, experience: 1, sparsPerDay };
+}
+
+// 22. A boxer with sparsPerDay=2 sits in TWO bouts, against two DIFFERENT opponents, while
+// his single-spar opponents each appear once. (Covers pool-retention + per-opponent cap.)
+test('pairAll: sparsPerDay=2 boxer spars two different opponents', () => {
+    const buckets = { Cat: [
+        sp(1, 'A', 'X', 70.0, 2),
+        sp(2, 'B', 'Y', 70.4, 1),
+        sp(3, 'C', 'Z', 70.8, 1),
+        sp(4, 'D', 'W', 71.2, 1),
+    ]};
+    const r = pairAll(buckets);
+
+    const appears = name => r.matches.reduce((n, m) =>
+        n + [m.red, m.blue, m.third].filter(Boolean).filter(p => p.name === name).length, 0);
+    assert.equal(appears('A'), 2, 'A (sparsPerDay=2) is in exactly two bouts');
+    assert.equal(appears('B'), 1, 'B (sparsPerDay=1) is in one bout');
+
+    // A's two opponents are distinct — no rematch
+    const aOpps = r.matches
+        .filter(m => [m.red, m.blue, m.third].filter(Boolean).some(p => p.name === 'A'))
+        .flatMap(m => [m.red, m.blue, m.third].filter(Boolean).map(p => p.name))
+        .filter(n => n !== 'A');
+    assert.equal(new Set(aOpps).size, aOpps.length, 'A never spars the same opponent twice');
+    assert.equal(r.unmatched.length, 0, 'nobody left over');
+});
+
+// 23. Two cap-2 boxers alone do NOT pair twice — the no-rematch guard stops a second bout
+// between the same pair even though both still have spare capacity. (Covers hasMet/no-rematch.)
+test('pairAll: capacity left but no new opponent → no rematch, single bout', () => {
+    const buckets = { Cat: [ sp(1, 'A', 'X', 70.0, 2), sp(2, 'B', 'Y', 70.5, 2) ] };
+    const r = pairAll(buckets);
+    assert.equal(r.matches.length, 1, 'one bout only — they cannot rematch each other');
+    assert.equal(r.unmatched.length, 0, 'a boxer who already sparred is not "unmatched"');
+});
+
+// 24. An at-cap opponent is skipped mid-scan: B (cap 1) is exhausted by A, so when C looks
+// for a partner B is no longer eligible and C falls to its next option. (Covers opponent-cap.)
+test('pairAll: an opponent already at their cap is skipped', () => {
+    const buckets = { Cat: [
+        sp(1, 'A', 'X', 70.0, 2),
+        sp(2, 'B', 'Y', 70.3, 1),
+        sp(3, 'C', 'Z', 70.6, 2),
+    ]};
+    const r = pairAll(buckets);
+    // everyone pairs; B appears exactly once (its single cap), A and C soak the extra spars
+    const appears = name => r.matches.reduce((n, m) =>
+        n + [m.red, m.blue, m.third].filter(Boolean).filter(p => p.name === name).length, 0);
+    assert.equal(appears('B'), 1, 'B is used exactly once (cap 1)');
+    assert.ok(appears('A') >= 1 && appears('C') >= 1, 'A and C both spar');
 });

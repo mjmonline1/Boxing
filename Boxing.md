@@ -151,16 +151,32 @@ inclusive tolerance actually inclusive at the boundary. Real-data `Spars.json` r
 byte-identical (no real adjacent pair sat on a broken 2.5 edge — latent, not yet triggered in
 production). Regression: `sparMaker.test.js`; benchmark: `realistic.streak.test.js` streak 11.
 
-### Latent feature gap (NOT a streak failure — all real boxers are sparsPerDay=1)
+### Ninth change (v1.3.27) — `sparsPerDay > 1` now implemented  [DONE]
 
-`sparsPerDay > 1` is documented (SparMaker.md, generateSpars.md: "a boxer with sparsPerDay>1
-can appear in multiple 1v1 matches") and the `sparCount` Map plumbing exists for it — but it
-is **inert**: a matched boxer is `shift`/`splice`-removed from the pool and never reconsidered,
-so everyone gets ≤1 bout. The cap can only ever *limit*, never grant a second bout. All 137
-registered 2026 boxers are `sparsPerDay=1`, so zero production impact today. Real fix spans two
-modules (pairing re-entry **and** scheduler slot constraints — a boxer with 2 bouts must not be
-double-booked in one time slot, which `buildSlots` does not currently enforce because today it
-can't happen). Left for a product decision — see OPEN (c).
+Was a documented-but-inert feature (the old matcher `shift`/`splice`-removed matched boxers,
+so everyone got ≤1 bout regardless of `sparsPerDay`). Now wired across both modules:
+
+- **`SparMaker.pairBoxers`** — boxer pool is no longer destructively shifted. `current` stays
+  at `pool[0]` and keeps drawing opponents until it hits its `sparsPerDay` cap or runs out of
+  eligible partners; opponents leave only when *they* hit their cap. Two shared Maps thread the
+  budget across phases: `sparCount` (spars assigned) and `partneredWith` (boxer → Set already
+  sparred, so **no rematch** between the same two). With everyone at `sparsPerDay=1` this is
+  byte-for-byte the old shift/splice greedy (verified: real 51-match output identical).
+- **`pairAll`** — passes both Maps through phases 1→2; only NEVER-matched boxers (`count===0`)
+  flow to the group phase / unmatched list (a boxer who already sparred but is under cap isn't
+  "unmatched"). Phase-3b round-robin groups remain **exempt** from the cap by design (a group of
+  3 = everyone fights everyone = a bonus spar; this was always true for `sparsPerDay=1` too).
+- **`RingAssigner.buildSlots`** — was index-by-slot, which would double-book a 2-bout boxer in
+  one time slot. Now greedy per-slot: a ring's head bout is deferred to a later slot if either
+  fighter is already busy in the current slot. ≥1 bout always places per slot ⇒ no deadlock.
+  With all distinct fighters (`sparsPerDay=1`) every ring advances each slot — same layout as before.
+
+Verified: 40k fuzzed rosters with ~25% `sparsPerDay=2` hold every invariant (no-vanish by
+distinct id, tolerance, no slot double-booking, ring eligibility). Live demo on real data: a
+63–66 kg Junior-Novice cluster bumped to 2 each gives every boxer exactly 2 bouts vs 2 distinct
+opponents. Tests: `sparMaker.test.js` #22–24, `ringAssigner.test.js` slot-deferral. 139 tests,
+100% coverage. **Note:** `buildSlots` deferral is the only thing stopping a real double-book —
+if multi-spar ships, keep that invariant covered.
 
 ## OPEN — product decisions (not code bugs)
 
@@ -173,11 +189,10 @@ is a hard rule, the UI should prevent that move; if it's just the auto-default, 
 grouped schedule; `allocations.json` already carries the balanced view. Harmless reference
 export; could be dropped if balanced is truly unused.
 
-**(c) `sparsPerDay > 1` is documented but inert.** The matcher never gives any boxer more
-than one bout (matched boxers leave the pool); the `sparCount` plumbing is vestigial. All
-real boxers are `sparsPerDay=1` so nothing breaks today. Implementing multi-spar needs both
-pairing re-entry and a scheduler change (no boxer in two bouts in the same time slot). Decide:
-implement the feature, or delete the dead plumbing + docs claim. Left as-is pending a call.
+**(c) `sparsPerDay > 1` — IMPLEMENTED v1.3.27** (see "Ninth change" above). Was inert; now
+a boxer stays matchable until they hit their daily cap, no rematches, and the scheduler keeps a
+multi-bout boxer out of two rings in one slot. All real boxers are still `sparsPerDay=1` so live
+output is unchanged. Group round-robins remain cap-exempt by design.
 
 
 **Round-robin group internal spread.** A 3-person group can contain an internal bout that
