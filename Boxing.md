@@ -190,7 +190,8 @@ already sparred *in a group* and is done; fixed to count total opponents met.
 Hardened the permanent suite: `assertInvariants` (realistic.streak.test.js) now enforces all
 three on every scenario; added `streak 12` (multi-spar cohort). 140 tests, 100% coverage.
 
-Known limitation (NOT fixed — pre-existing, greedy by design): the phased greedy matcher is
+Known limitation (NOT fixed — pre-existing, greedy by design; full write-up in
+`docs/matching-optimality-design.md`, marked DO NOT IMPLEMENT): the phased greedy matcher is
 *locally* maximal but not *globally* optimal. A boxer whose only in-tolerance partner sits in
 the (2.0, 2.5] band can be stranded if that partner is consumed by a ≤2.0 phase-1 pair first
 (repro: seed 255, a Female cluster — pairing 9-10 + 0-2 was achievable, greedy made a 9-0-2
