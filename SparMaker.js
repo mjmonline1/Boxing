@@ -9,6 +9,10 @@ const SOURCE_FILE = path.join(__dirname, 'output', 'Buckets', 'tsc-2026-buckets.
 const OUTPUT_FILE = path.join(__dirname, 'output', 'Spars', TODAY, 'Spars.json');
 const WEIGHT_TOLERANCE        = 2.0;
 const PHASE2_TOLERANCE        = 2.5;
+// Weights are one-decimal kg; two of them differing by exactly the tolerance can land just
+// over it in IEEE-754 (e.g. 65.9-63.4 === 2.500000000000007). The tolerance is inclusive, so
+// compare with a tiny epsilon to keep exact-boundary pairs from being silently dropped.
+const WEIGHT_EPS              = 1e-9;
 
 function pairBoxers(boxers, categoryName, tolerance = WEIGHT_TOLERANCE, sparCount) {
     // A boxer with a non-finite weight (e.g. a blank CSV weight cell → NaN) can't be
@@ -30,7 +34,7 @@ function pairBoxers(boxers, categoryName, tolerance = WEIGHT_TOLERANCE, sparCoun
             const opponent = sorted[i];
             const weightDiff = Math.abs(current.weight - opponent.weight);
 
-            if (weightDiff <= tolerance) {
+            if (weightDiff <= tolerance + WEIGHT_EPS) {
                 // Skip if opponent has reached their sparsPerDay limit
                 if (sparCount && (sparCount.get(opponent) || 0) >= (opponent.sparsPerDay || 1)) continue;
 
@@ -131,7 +135,7 @@ function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE } =
 
             for (const partner of [m.red, m.blue]) {
                 const diff = Math.abs(boxer.weight - partner.weight);
-                if (diff > tol1) continue;
+                if (diff > tol1 + WEIGHT_EPS) continue;
                 const isDiffClub = boxer.club !== partner.club;
                 if (isDiffClub && !bestIsDiffClub) {
                     bestIdx = i; bestDiff = diff; bestIsDiffClub = true;

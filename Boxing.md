@@ -134,6 +134,34 @@ is "loaded by RingManager" — RingManager actually loads the grouped schedule.
 
 **131 tests, 0 fail, 100% coverage.**
 
+### Eighth hunt (v1.3.26) — float boundary drops exact-tolerance pairs  [FIXED]
+
+**Bug #7.** Property-fuzzed 20k random rosters with a *missed-pair* invariant (two
+finite-weight unmatched boxers in the same bucket within tolerance ⇒ a match was left on
+the table). Found pairs **exactly 2.5 kg apart** never pairing, e.g. `63.4 vs 65.9`:
+`Math.abs(63.4-65.9) === 2.500000000000007` in IEEE-754, so `weightDiff <= 2.5` is **false**
+and the pair is dropped. 2.5 is the *outermost* (phase-2) tolerance — no later phase rescues
+it. The phase-1 (2.0) boundary has the same float error but is masked by phase-2's looser
+tolerance, so only the 2.5 edge leaks. Data-dependent: `70.0 vs 72.5` (clean float 2.5) pairs;
+`63.4 vs 65.9` does not.
+
+Fix: epsilon-inclusive tolerance compare. `pairBoxers` weight-match + scan-break and `pairAll`
+phase-3b group join now use `<= tolerance + WEIGHT_EPS` (`WEIGHT_EPS = 1e-9`). Makes the
+inclusive tolerance actually inclusive at the boundary. Real-data `Spars.json` re-verified
+byte-identical (no real adjacent pair sat on a broken 2.5 edge — latent, not yet triggered in
+production). Regression: `sparMaker.test.js`; benchmark: `realistic.streak.test.js` streak 11.
+
+### Latent feature gap (NOT a streak failure — all real boxers are sparsPerDay=1)
+
+`sparsPerDay > 1` is documented (SparMaker.md, generateSpars.md: "a boxer with sparsPerDay>1
+can appear in multiple 1v1 matches") and the `sparCount` Map plumbing exists for it — but it
+is **inert**: a matched boxer is `shift`/`splice`-removed from the pool and never reconsidered,
+so everyone gets ≤1 bout. The cap can only ever *limit*, never grant a second bout. All 137
+registered 2026 boxers are `sparsPerDay=1`, so zero production impact today. Real fix spans two
+modules (pairing re-entry **and** scheduler slot constraints — a boxer with 2 bouts must not be
+double-booked in one time slot, which `buildSlots` does not currently enforce because today it
+can't happen). Left for a product decision — see OPEN (c).
+
 ## OPEN — product decisions (not code bugs)
 
 **(a) Females can be dragged out of R5 in RingManager.** The auto-allocator *forces* every
@@ -144,6 +172,12 @@ is a hard rule, the UI should prevent that move; if it's just the auto-default, 
 **(b) `schedule.json` (balanced) is written but read by nobody** — RingManager loads the
 grouped schedule; `allocations.json` already carries the balanced view. Harmless reference
 export; could be dropped if balanced is truly unused.
+
+**(c) `sparsPerDay > 1` is documented but inert.** The matcher never gives any boxer more
+than one bout (matched boxers leave the pool); the `sparCount` plumbing is vestigial. All
+real boxers are `sparsPerDay=1` so nothing breaks today. Implementing multi-spar needs both
+pairing re-entry and a scheduler change (no boxer in two bouts in the same time slot). Decide:
+implement the feature, or delete the dead plumbing + docs claim. Left as-is pending a call.
 
 
 **Round-robin group internal spread.** A 3-person group can contain an internal bout that

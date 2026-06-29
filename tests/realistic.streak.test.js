@@ -384,3 +384,22 @@ test('streak 5: 2.4 kg pair rescued in phase 2, plus a clean phase-1 pair', () =
     assert.ok(rescued, 'one pair spans the phase-2 tolerance band');
     assert.ok(Math.abs(rescued.red.weight - rescued.blue.weight) <= 2.5);
 });
+
+// Scenario 11 (benchmark): a realistic roster containing a pair EXACTLY at the phase-2
+// tolerance whose float difference lands just over 2.5 (63.4 vs 65.9 → 2.500000000000007).
+// Before the epsilon fix these two were silently dropped to unmatched; the end-to-end
+// pipeline must now pair them and lose nobody.
+test('streak 11: an exact-2.5kg pair (float boundary) pairs end-to-end, nobody dropped', () => {
+    _id = 0;
+    const roster = [
+        b({ yob: 2000, weight: 63.4, experience: 1, club: 'ClubX' }),
+        b({ yob: 2000, weight: 65.9, experience: 1, club: 'ClubY' }), // exactly 2.5 kg apart
+    ];
+    assert.ok(Math.abs(63.4 - 65.9) > 2.5, 'precondition: naive compare would drop this pair');
+
+    const result = runFull(roster);
+    assertInvariants(result, 'streak11');
+
+    assert.equal(result.matches.length, 1, 'the exact-tolerance pair is matched');
+    assert.equal(result.unmatched.length, 0, 'neither boxer is dropped');
+});
