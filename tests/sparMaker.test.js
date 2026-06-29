@@ -240,3 +240,42 @@ test('pairAll respects custom tol1', () => {
     assert.equal(widened.phases.phase1.matches.length, 1, 'phase 1 matches with tol1=2.5');
     assert.equal(widened.phases.phase2.matches.length, 0);
 });
+
+// 19. Float-boundary regression (bug #7): two boxers EXACTLY at a tolerance whose IEEE-754
+// difference lands just over it (63.4 vs 65.9 → 2.500000000000007) must still pair. The
+// phase-2 (2.5) tolerance is the outermost — a drop here is never rescued by a later phase.
+test('pairBoxers pairs an exact-tolerance pair despite float error (phase-2 edge)', () => {
+    // sanity: this pair really does trip the naive compare
+    assert.ok(Math.abs(63.4 - 65.9) > 2.5, 'precondition: float diff exceeds 2.5');
+    const boxers = [boxer('A', 63.4, 'ClubX'), boxer('B', 65.9, 'ClubY')];
+    const { matches, unmatched } = pairBoxers(boxers, 'Cat', PHASE2_TOLERANCE);
+    assert.equal(matches.length, 1, 'exact-2.5 pair must match');
+    assert.equal(unmatched.length, 0);
+});
+
+// 20. Same bug end-to-end through pairAll: the exact-2.5 pair surfaces as a match, not as
+// two unmatched boxers in the same bucket.
+test('pairAll does not drop an exact-tolerance pair on the phase-2 boundary', () => {
+    const buckets = { Cat: [
+        { id: 1, name: 'A', club: 'X', gender: 'male', yob: 2000, weight: 63.4, experience: 1, sparsPerDay: 1 },
+        { id: 2, name: 'B', club: 'Y', gender: 'male', yob: 2000, weight: 65.9, experience: 1, sparsPerDay: 1 },
+    ]};
+    const r = pairAll(buckets);
+    assert.equal(r.matches.length, 1, 'the 2.5 kg pair must be matched');
+    assert.equal(r.unmatched.length, 0, 'nobody left unmatched');
+});
+
+// 21. Phase-1 group-join (phase 3b) honours the same epsilon: a third exactly tol1 from a
+// pair member joins the group rather than being spuriously dropped by float error.
+test('pairAll phase-3b folds a third sitting exactly on the tol1 boundary', () => {
+    assert.ok(Math.abs(63.4 - 65.4) > 2.0, 'precondition: 63.4↔65.4 float diff exceeds 2.0');
+    const buckets = { Cat: [
+        { id: 1, name: 'A', club: 'X', gender: 'male', yob: 2000, weight: 65.4, experience: 1, sparsPerDay: 1 },
+        { id: 2, name: 'B', club: 'Y', gender: 'male', yob: 2000, weight: 65.0, experience: 1, sparsPerDay: 1 },
+        { id: 3, name: 'C', club: 'Z', gender: 'male', yob: 2000, weight: 63.4, experience: 1, sparsPerDay: 1 }, // exactly 2.0 from A
+    ]};
+    const r = pairAll(buckets);
+    const group = r.matches.find(m => m.third);
+    assert.ok(group, 'a 3-person group forms');
+    assert.equal(r.unmatched.length, 0, 'the exact-boundary third is not dropped');
+});
