@@ -178,6 +178,26 @@ opponents. Tests: `sparMaker.test.js` #22–24, `ringAssigner.test.js` slot-defe
 100% coverage. **Note:** `buildSlots` deferral is the only thing stopping a real double-book —
 if multi-spar ships, keep that invariant covered.
 
+### Tenth hunt (v1.3.27) — multi-spar invariant hardening  [no system bug]
+
+Property-fuzzed 40k clustered rosters (caps 1–3, tight weight bands) with new invariants:
+no-rematch (no two boxers fight twice across 1v1 + group internals), 1v1-cap (standalone bouts
+≤ sparsPerDay; groups exempt), local maximality (no two same-bucket boxers both under cap, in
+tolerance, never matched). **All clean.** An early harness false-positive ("missed spar" in the
+Female bucket) was a *test* bug — it counted standalone 1v1s only, ignoring that a cap-1 boxer
+already sparred *in a group* and is done; fixed to count total opponents met.
+
+Hardened the permanent suite: `assertInvariants` (realistic.streak.test.js) now enforces all
+three on every scenario; added `streak 12` (multi-spar cohort). 140 tests, 100% coverage.
+
+Known limitation (NOT fixed — pre-existing, greedy by design): the phased greedy matcher is
+*locally* maximal but not *globally* optimal. A boxer whose only in-tolerance partner sits in
+the (2.0, 2.5] band can be stranded if that partner is consumed by a ≤2.0 phase-1 pair first
+(repro: seed 255, a Female cluster — pairing 9-10 + 0-2 was achievable, greedy made a 9-0-2
+group and stranded 10). Real 137-boxer roster has **0** such strandings. A true fix is maximum-
+weight matching (blossom) replacing the 3-phase greedy — a large change that would break the
+byte-identical baseline. Logged for a product call; left as-is.
+
 ## OPEN — product decisions (not code bugs)
 
 **(a) Females can be dragged out of R5 in RingManager.** The auto-allocator *forces* every

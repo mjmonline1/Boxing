@@ -83,6 +83,49 @@ function assertInvariants({ buckets, matches, unmatched, balanced, grouped }, la
                 `${label}: ${p.name} (id ${p.id}) not from bucket ${m.category}`);
     }
 
+    // 2b. multi-spar (sparsPerDay) invariants — all hold trivially when every boxer is 1/day.
+    //   • no two boxers fight each other more than once (across 1v1 pairs AND group internals);
+    //   • a boxer's standalone 1v1 bouts never exceed their daily cap (groups are cap-exempt);
+    //   • local maximality: no two same-bucket boxers are BOTH still under cap, within tolerance,
+    //     and yet never matched — that would be a spar the matcher left on the table.
+    const capOf = new Map();
+    for (const [cat, list] of Object.entries(buckets))
+        if (cat !== 'Notfit') for (const p of list) capOf.set(p.id, p.sparsPerDay || 1);
+
+    const fights = new Map();          // unordered id pair -> count
+    const oneVone = new Map();         // id -> standalone 1v1 bout count
+    const degree = new Map();          // id -> distinct opponents met (1v1 or group)
+    const bump = (map, k) => map.set(k, (map.get(k) || 0) + 1);
+    for (const m of matches) {
+        const ps = [m.red, m.blue, m.third].filter(Boolean);
+        if (!m.third) for (const p of ps) bump(oneVone, p.id);
+        for (let i = 0; i < ps.length; i++)
+            for (let j = i + 1; j < ps.length; j++) {
+                const key = [ps[i].id, ps[j].id].sort((a, b) => a - b).join('-');
+                bump(fights, key);
+                assert.ok(fights.get(key) === 1,
+                    `${label}: ${ps[i].name} & ${ps[j].name} fight more than once (rematch)`);
+                bump(degree, ps[i].id); bump(degree, ps[j].id);
+            }
+    }
+    for (const [id, c] of oneVone)
+        assert.ok(c <= (capOf.get(id) || 1),
+            `${label}: boxer ${id} has ${c} 1v1 bouts over cap ${capOf.get(id)}`);
+
+    for (const [cat, list] of Object.entries(buckets)) {
+        if (cat === 'Notfit') continue;
+        const fin = list.filter(p => Number.isFinite(p.weight));
+        for (let i = 0; i < fin.length; i++)
+            for (let j = i + 1; j < fin.length; j++) {
+                const a = fin[i], b2 = fin[j];
+                if ((degree.get(a.id) || 0) >= (a.sparsPerDay || 1)) continue;
+                if ((degree.get(b2.id) || 0) >= (b2.sparsPerDay || 1)) continue;
+                if (fights.has([a.id, b2.id].sort((x, y) => x - y).join('-'))) continue;
+                assert.ok(Math.abs(a.weight - b2.weight) > PHASE2_TOLERANCE + 1e-9,
+                    `${label}: missed spar in ${cat}: ${a.name}(${a.weight}) & ${b2.name}(${b2.weight}) both under cap and in tolerance`);
+            }
+    }
+
     // 3. per-strategy scheduling invariants
     for (const [stratName, slots] of [['balanced', balanced], ['grouped', grouped]]) {
         const seen = new Set();
@@ -405,4 +448,29 @@ test('streak 11: an exact-2.5kg pair (float boundary) pairs end-to-end, nobody d
 
     assert.equal(result.matches.length, 1, 'the exact-tolerance pair is matched');
     assert.equal(result.unmatched.length, 0, 'neither boxer is dropped');
+});
+
+// Scenario 12 (benchmark): a multi-spar cohort — several boxers in a tight weight cluster ask
+// for 2-3 spars/day. Each must get up to their cap against DISTINCT opponents, with no rematch,
+// no over-cap 1v1, no stranded in-tolerance pair, and no slot double-booking (asserted by the
+// strengthened assertInvariants above, exercised here with sparsPerDay > 1).
+test('streak 12: multi-spar cohort gets distinct opponents up to cap, no rematch/double-book', () => {
+    _id = 0;
+    const roster = [];
+    // 6 senior males clustered at 70-72 kg (all within 2.5), mixed clubs, asking for 2-3 spars.
+    const caps = [3, 2, 2, 3, 2, 1];
+    for (let i = 0; i < 6; i++)
+        roster.push(b({ yob: 2000, weight: 70 + i * 0.4, experience: 4,
+                        club: ['ClubX', 'ClubY', 'ClubZ'][i % 3], sparsPerDay: caps[i] }));
+
+    const result = runFull(roster);
+    assertInvariants(result, 'streak12');
+
+    // at least one boxer actually sparred more than once (the feature is exercised, not vacuous)
+    const appearances = new Map();
+    for (const m of result.matches)
+        for (const p of [m.red, m.blue, m.third].filter(Boolean))
+            appearances.set(p.id, (appearances.get(p.id) || 0) + 1);
+    assert.ok([...appearances.values()].some(n => n >= 2),
+        'at least one boxer is in two or more bouts');
 });
