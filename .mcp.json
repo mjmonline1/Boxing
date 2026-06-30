@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "boxing": {
+      "command": "node",
+      "args": ["mcp/boxing-server.js"]
+    }
+  }
+}
