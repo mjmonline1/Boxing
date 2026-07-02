@@ -81,6 +81,6 @@ Matching runs in three phases, all within-bucket only.
 ## Ring Allocation (RingAssigner)
 
 - 5 rings: R1–R5
-- R5 eligibility: all boxers female **or** male Schools/Junior (`yob >= 2010`). Youth and Senior males cannot use R5.
+- R5 eligibility: all boxers female **or** male Schools/Junior . Youth and Senior males cannot use R5.
 - Bout duration: Senior male = 3 × 3 min; all others = 3 × 2 min
 - Match ordering by day parity (heaviest first on odd days, lightest first on even days)
