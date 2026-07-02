@@ -179,6 +179,36 @@ app.get('/api/spar-dates', (req, res) => {
   res.json(dates);
 });
 
+// ---- STATUS + INTAKE ----
+
+app.get('/api/status', (req, res) => {
+  const boxers = readBoxersCSV();
+  const dates = fs.existsSync(path.join(__dirname, 'output', 'Spars'))
+    ? fs.readdirSync(path.join(__dirname, 'output', 'Spars')).filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort().reverse()
+    : [];
+  let latestSpars = null;
+  if (dates.length) {
+    const f = path.join(__dirname, 'output', 'Spars', dates[0], 'Spars.json');
+    if (fs.existsSync(f)) latestSpars = { date: dates[0], ...JSON.parse(fs.readFileSync(f, 'utf8')).summary };
+  }
+  res.json({
+    boxerCount: boxers?.length ?? 0,
+    bucketsReady: fs.existsSync(bucketsFull),
+    latestSpars,
+    pipelineReady: !!(boxers?.length && fs.existsSync(bucketsFull))
+  });
+});
+
+app.post('/api/boxer-intake', (req, res) => {
+  const boxer = req.body;
+  if (!boxer?.name || !boxer?.club) return res.status(400).json({ error: 'name and club required' });
+  const boxers = readBoxersCSV() || [];
+  const nextId = Math.max(0, ...boxers.map(b => b.id || 0)) + 1;
+  boxers.push({ submissionDate: new Date().toISOString(), fit: 'yes', sparsPerDay: 1, ...boxer, id: nextId });
+  writeBoxersCSV(boxers);
+  res.json({ ok: true, id: nextId, total: boxers.length });
+});
+
 // ---- FRONTEND ----
 app.use(express.static("public"));
 

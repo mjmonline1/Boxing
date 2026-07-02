@@ -15,6 +15,7 @@
     "category": "MaleSenior_Novice",
     "red": "Carlos Ortiz (Finchley ABC)",
     "blue": "Flash Elorde (Johnstone ABC)",
+    "third": "Carlos Zarate (Slough ABC)",
     "weightDiff": "1.00"
   },
   {
@@ -78,6 +79,7 @@
     "category": "MaleSenior_Novice",
     "red": "David Benavidez (Holy Family/Golden Gloves)",
     "blue": "Gervonta Davis (Club boxeo los alamos)",
+    "third": "Josh Taylor (Team Ponce&Mary)",
     "weightDiff": "2.00"
   },
   {
@@ -132,6 +134,7 @@
     "category": "Female",
     "red": "Nicola Adams (The Academy Boxing Club)",
     "blue": "Mary Kom (Team NL)",
+    "third": "Lucia Rijker (Team Ponce&Mary)",
     "weightDiff": "2.00"
   },
   {
@@ -159,6 +162,7 @@
     "category": "MaleYouth_OpenClass",
     "red": "Jermell Charlo (The Bronx)",
     "blue": "Artur Beterbiev (Finchley ABC)",
+    "third": "Gilberto Ramirez (Finchley ABC)",
     "weightDiff": "1.00"
   },
   {
@@ -195,6 +199,7 @@
     "category": "MaleSenior_Novice",
     "red": "Juan Marquez (Arbroath Amateur Boxing Club)",
     "blue": "Kostya Tszyu (Hands Of Stone Montrose)",
+    "third": "Jose Castillo (DOBLEJAB BOXING CLUB)",
     "weightDiff": "0.70"
   },
   {
@@ -249,6 +254,7 @@
     "category": "MaleSenior_Experienced",
     "red": "Billy Saunders (Johnstone ABC)",
     "blue": "Joe Joyce (Finchley ABC)",
+    "third": "Michael Watson (Johnstone ABC)",
     "weightDiff": "0.50"
   },
   {
@@ -330,6 +336,7 @@
     "category": "MaleSenior_OpenClass",
     "red": "David Haye (Holy Family/Golden Gloves)",
     "blue": "Carl Froch (Team NL)",
+    "third": "Tyson Fury (The Academy Boxing Club)",
     "weightDiff": "0.00"
   },
   {
@@ -393,6 +400,7 @@
     "category": "MaleYouth_Novice",
     "red": "Sandy Saddler (Dale youth)",
     "blue": "Ezzard Charles (Arbroath Amateur Boxing Club)",
+    "third": "Tony Canzoneri (Baldoyle BC)",
     "weightDiff": "1.00"
   },
   {
@@ -438,6 +446,7 @@
     "category": "MaleJunior_OpenClass",
     "red": "Evander Holyfield (Cookstown ABC)",
     "blue": "Roy Jones (Johnstone ABC)",
+    "third": "Bernard Hopkins (Baldoyle BC)",
     "weightDiff": "1.70"
   },
   {
