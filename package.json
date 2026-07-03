@@ -1,6 +1,6 @@
 {
   "name": "boxing-tournament-manager",
-  "version": "1.3.44",
+  "version": "1.3.45",
   "description": "TSC Boxing Tournament Management Tool",
   "main": "Server.js",
   "scripts": {
@@ -10,7 +10,9 @@
   },
   "c8": {
     "all": true,
-    "include": ["*.js"],
+    "include": [
+      "*.js"
+    ],
     "exclude": [
       "tests/**",
       "Server.js",
@@ -18,11 +20,15 @@
       "data-client.js",
       "theme.js"
     ],
-    "reporter": ["text", "lcov"]
+    "reporter": [
+      "text",
+      "lcov"
+    ]
   },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^17.4.2",
+    "edmonds-blossom": "^1.0.0",
     "express": "^4.18.2",
     "mongodb": "^6.0.0"
   },
