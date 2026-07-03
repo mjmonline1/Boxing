@@ -40,8 +40,8 @@ In `package.json`: `"version": "1.3.44"` → `"version": "1.3.45"`.
 
 - [ ] **Step 3: Smoke-check the API**
 
-Run: `node -e "const b=require('edmonds-blossom'); console.log(b([[0,1,6],[0,2,10],[1,2,5]], true))"`
-Expected: an array like `[ 1, 0, -1 ]` or `[ 2, -1, 0 ]` (a valid maximum matching; exact pairing depends on weights — with maxCardinality only one pair fits here).
+Run: `node -e "const blossom=require('edmonds-blossom'); console.log(blossom([[0,1,6],[0,2,10],[1,2,5]], true))"`
+Expected: `[ 2, -1, 0 ]`. **Gotcha:** the library assigns implicit globals (`b`, `path`) internally — never name a global-scope binding `const b` in a script that calls it (module-scoped code, like SparMaker.js, is unaffected).
 
 - [ ] **Step 4: Run existing suite (nothing should change)**
 
