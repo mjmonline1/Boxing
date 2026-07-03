@@ -37,6 +37,7 @@
 
 <script src="data-client.js"></script>
 <script src="constants.js"></script>
+<script src="group-utils.js"></script>
 <script>
 const SERVER = window.location.origin;
 
@@ -86,27 +87,26 @@ function scheduleToState(schedule) {
 
 function boutType(bout) {
   const hasFemale = b => b.gender === 'female';
-  if (hasFemale(bout.red) || hasFemale(bout.blue) || (bout.third && hasFemale(bout.third))) return 'female';
+  if (GroupUtils.membersOf(bout).some(hasFemale)) return 'female';
   const yob = bout.red.yob;
   const ag = AGE_GROUPS.find(a => a.yobMin !== null ? yob >= a.yobMin && yob <= a.yobMax : yob <= a.yobMax);
   return ag ? ag.label.toLowerCase() : 'senior';
 }
 
 function boutHTML(bout) {
-  if (bout.third) {
-    const d1 = Math.abs(bout.red.weight  - bout.blue.weight).toFixed(2);
-    const d2 = Math.abs(bout.red.weight  - bout.third.weight).toFixed(2);
-    const d3 = Math.abs(bout.blue.weight - bout.third.weight).toFixed(2);
+  if (GroupUtils.isGroup(bout)) {
+    const members = GroupUtils.membersOf(bout);
+    const pairs    = GroupUtils.generateBouts(members);
+    const names    = pairs.map(([a, b]) => `${a.name} vs ${b.name}`);
+    const diffs    = pairs.map(([a, b]) => Math.abs(a.weight - b.weight).toFixed(2));
     return `
       <div class="bb-names">
-        ${bout.red.name} vs ${bout.blue.name}<br>
-        ${bout.red.name} vs ${bout.third.name}<br>
-        ${bout.blue.name} vs ${bout.third.name}
+        ${names.join('<br>')}
       </div>
       <div class="bb-cat">${bout.category} <span class="group-badge">GROUP</span></div>
-      <div class="bb-weight">⚖ ${d1} / ${d2} / ${d3} kg diff</div>
+      <div class="bb-weight">⚖ ${diffs.join(' / ')} kg diff</div>
       <div class="bb-time">⏱ ${bout.startTime} – ${bout.endTime}</div>
-      <div class="bb-format">${boutFormat(bout.category)}</div>
+      <div class="bb-format">${boutFormat(bout.category, pairs.length)}</div>
     `;
   }
   return `
@@ -121,7 +121,7 @@ function boutHTML(bout) {
 // R5: every boxer must be female OR male Schools/Junior (YOB >= R5_ELIGIBLE_YOB_MIN)
 function canPlaceInR5(bout) {
   const ok = b => b.gender === 'female' || (b.gender === 'male' && b.yob >= R5_ELIGIBLE_YOB_MIN);
-  return ok(bout.red) && ok(bout.blue);
+  return GroupUtils.membersOf(bout).every(ok);
 }
 
 // ── Drag state ────────────────────────────────────────────────────────────────
@@ -157,18 +157,20 @@ function yToMins(clientY, col) {
   return Math.max(START_MINS, Math.round(raw));
 }
 
-function boutFormat(category) {
+function boutFormat(category, boutCount) {
   const senior = category && category.includes('Senior');
   const roundLen = senior ? 3 : 2;
   const total    = senior ? 11 : 8;
-  return `<span class="bout-duration">${total} min</span>  |  3 × ${roundLen} min rounds  |  1 min rest  |  1 min changeover`;
+  const groupNote = boutCount > 1 ? ` &middot; ${boutCount}&times; bouts, ${total * boutCount} min total` : '';
+  return `<span class="bout-duration">${total} min</span>  |  3 × ${roundLen} min rounds  |  1 min rest  |  1 min changeover${groupNote}`;
 }
 
 function computeTimes(state) {
   for (const bouts of Object.values(state)) {
     let cur = START_MINS;
     for (const bout of bouts) {
-      const dur         = bout.duration ?? (bout.category.includes('Senior') ? 11 : 8);
+      const single = bout.category.includes('Senior') ? 11 : 8;
+      const dur     = bout.duration ?? (single * GroupUtils.boutCount(GroupUtils.membersOf(bout)));
       bout.duration     = dur;
       // Honor manual pin: cur jumps forward to pinnedStart if pin is later than auto-cur
       if (bout.pinnedStart != null && bout.pinnedStart > cur) {
@@ -395,7 +397,10 @@ async function saveToServer(state) {
     for (const ring of rings) {
       const b = state[ring][i];
       if (b) bouts.push({ ring, sparId: b.sparId, category: b.category,
-                          red: b.red, blue: b.blue, weightDiff: b.weightDiff });
+                          red: b.red, blue: b.blue,
+                          ...(b.third ? { third: b.third } : {}),
+                          ...(b.extra && b.extra.length ? { extra: b.extra } : {}),
+                          weightDiff: b.weightDiff });
     }
     slots.push({ slot: i + 1, bouts });
   }
@@ -428,7 +433,10 @@ function exportAllocation(state) {
     for (const ring of rings) {
       const b = state[ring][i];
       if (b) bouts.push({ ring, sparId: b.sparId, category: b.category,
-                          red: b.red, blue: b.blue, weightDiff: b.weightDiff });
+                          red: b.red, blue: b.blue,
+                          ...(b.third ? { third: b.third } : {}),
+                          ...(b.extra && b.extra.length ? { extra: b.extra } : {}),
+                          weightDiff: b.weightDiff });
     }
     slots.push({ slot: i + 1, bouts });
   }
@@ -438,6 +446,8 @@ function exportAllocation(state) {
       slot: s.slot, ring: b.ring, sparId: b.sparId, category: b.category,
       red:  `${b.red.name} (${b.red.club})`,
       blue: `${b.blue.name} (${b.blue.club})`,
+      ...(b.third ? { third: `${b.third.name} (${b.third.club})` } : {}),
+      ...(b.extra && b.extra.length ? { extra: b.extra.map(x => `${x.name} (${x.club})`) } : {}),
       weightDiff: b.weightDiff
     }))
   );

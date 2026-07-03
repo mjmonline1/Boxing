@@ -2,13 +2,13 @@ Dataset Filter Tree Structure
 ================================
 
 [FILTER] root (137 items)
-  [BUCKET] Notfit (1 items)
+  [BUCKET] Notfit (2 items)
            Boxers who are not fit to compete
   [FILTER] Male (0 items)
            Fit male boxers
     [FILTER] MaleSchools (0 items)
              Male Schools (YOB 2012-2014)
-      [BUCKET] MaleSchools_Novice (1 items)
+      [BUCKET] MaleSchools_Novice (0 items)
                MaleSchools - Novice (0-5 bouts)
       [BUCKET] MaleSchools_Experienced (1 items)
                MaleSchools - Experienced (6-10 bouts)

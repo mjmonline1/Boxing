@@ -1,0 +1,171 @@
+number,Full Club Name,Custom Code,NAME,SURNAME,COUNTRY,GENDER,BIRTHDATE,IDENTITY CARD ,EXPIRY DATE,ROOM TYPE,HOTEL ROOM,,Total Dinners: 89,Total Breakfasts: 46,ADDITIONAL INFORMATION,ADDRESS
+,,,,,,,,PASSPORT NUMBER,,,NUMBER,LOCATOR,5/7,11/7,,BOXING CLUB
+1,Dukes boxing gym ,DUBG,SEAN,DUKE,UK,MALE,28/06/1986,560833881,27/08/2029,TWIN,,354980,NO,YES,,"26 Campsie Ave, Omagh, Co. Tyrone, BT79 0AB, United Kingdom"
+2,Dukes boxing gym ,DUBG,TEEJAY,HAMILTON,UK,MALE,08/10/2013,143435517,15/09/2028,TWIN,,354980,NO,YES,,"26 Campsie Ave, Omagh, Co. Tyrone, BT79 0AB, United Kingdom"
+3,Dukes boxing gym ,DUBG,SHANE,DUKE,Ireland,MALE,02/01/2009,PV7777565,14/06/2027,TWIN,,336497,NO,YES,,"26 Campsie Ave, Omagh, Co. Tyrone, BT79 0AB, United Kingdom"
+4,Dukes boxing gym ,DUBG,CONAN,MC LAUGHLIN,Ireland,MALE,19/8/2011,PW9305970,10/05/2031,TWIN,,336497,NO,YES,,"26 Campsie Ave, Omagh, Co. Tyrone, BT79 0AB, United Kingdom"
+5,Mulhuddart Boxing Club,MUBC,JOHN,BRENNAN,Ireland,MALE,26/2/1982,PN3496260,03/11/2031,TWIN,,336498,NO,YES,,"Top Floor, Parkside 1, Main Street, Mulhuddart, Dublin 15, D15 T9EP, Ireland"
+6,Mulhuddart Boxing Club,MUBC,CALUM,BRENNAN,Ireland,MALE,5/8/2011,PI8982860,03/05/2027,TWIN,,336498,NO,YES,,"Top Floor, Parkside 1, Main Street, Mulhuddart, Dublin 15, D15 T9EP, Ireland"
+7,Classic Boxing Olten ,CLBO,RAMON,ZEHN,Switzerland,MALE,20/01/1997,E3135043,NO HAY,DOUBLE,,336499,YES,YES,,"Frohburgstrasse 20, 4600 Olten, Switzerland"
+8,Classic Boxing Olten ,CLBO,CÉLINE NADINE,BRÜGGER,Switzerland,FEMALE,24/01/1998,C8946123,NO HAY,DOUBLE,,336499,YES,YES,,"Frohburgstrasse 20, 4600 Olten, Switzerland"
+9,Classic Boxing Olten ,CLBO,ALPHA AMADOU,KÄSER,Switzerland,MALE,14/05/2005,E4672616,NO HAY,TWIN,,336500,YES,YES,,"Frohburgstrasse 20, 4600 Olten, Switzerland"
+10,Classic Boxing Olten ,CLBO,MARWAN,EL OMAMI,Switzerland,MALE,08/02/1997,E4282165,NO HAY,TWIN,,336500,YES,YES,,"Frohburgstrasse 20, 4600 Olten, Switzerland"
+11,Classic Boxing Olten ,CLBO,NEXHMI,ZENUNI,North Macedonia,MALE,21/10/1991,GA0557317,31/07/2029,DUI,,336501,YES,YES,,"Frohburgstrasse 20, 4600 Olten, Switzerland"
+12,Holy Family Golden Gloves,HFGG,ERIC DANIEL ,SILVA BRITO,Portugal,MALE,28/1/2009,CE774531,11/07/2029,TWIN,,336502,YES,YES,,"46A Victoria Parade, Belfast, BT15 2EN"
+13,Holy Family Golden Gloves,HFGG,NNAMDI FINLAY,OKORO,UK,MALE,23/9/2008,155503457,17/06/2035,TWIN,,336502,YES,YES,,"46A Victoria Parade, Belfast, BT15 2EN"
+14,Holy Family Golden Gloves,HFGG,DANIEL,MCCULLOUGH,Ireland,MALE,16/11/1963,PG7671130,07/11/2029,TWIN,,336503,YES,YES,,"46A Victoria Parade, Belfast, BT15 2EN"
+15,Holy Family Golden Gloves,HFGG,Aidan,Walsh,UK,MALE,28/03/1997,PV1691025,20/01/2035,TWIN,,336503,YES,YES,,"46A Victoria Parade, Belfast, BT15 2EN"
+16,Holy Family Golden Gloves,HFGG,DAMIAN,MCCANN,Ireland,MALE,26/07/1964,PV7328848,31/1/2032,DUI,,336504,YES,YES,JUNIOR SUITE 1 de 4,"46A Victoria Parade, Belfast, BT15 2EN"
+17,Johnstone ABC,JABC,SAM,WYLIE,Ireland,MALE,04/09/1997,554632667,13/06/2028,DOUBLE,,336505,YES,NO,,"26 Macdowall Street, Johnstone, PA5 8QL, Scotland"
+18,Johnstone ABC,JABC,ELLE MICHELLE,WRIGHT,UK,FEMALE,11/09/2002,142124943,03/08/2033,DOUBLE,,336505,YES,NO,,"26 Macdowall Street, Johnstone, PA5 8QL, Scotland"
+19,Johnstone ABC,JABC,MAX,MCWILLIAMS,UK,MALE,03/06/2003,139128027,09/04/2033,TWIN,,336506,YES,NO,,"26 Macdowall Street, Johnstone, PA5 8QL, Scotland"
+20,Johnstone ABC,JABC,JOSEPH SEAN,MCMULLEN,UK,MALE,30/08/2002,556774751,30/08/2028,TWIN,,336506,YES,NO,,"26 Macdowall Street, Johnstone, PA5 8QL, Scotland"
+21,Johnstone ABC,JABC,EVAN,COCHRANE,UK,MALE,12/01/2007,132869554,18/05/2027,TWIN,,336507,YES,NO,,"26 Macdowall Street, Johnstone, PA5 8QL, Scotland"
+22,Johnstone ABC,JABC,FINLAY DAVID MUNRO,BROWN,UK,MALE,22/08/2005,132746389,23/05/2032,TWIN,,336507,YES,NO,,"26 Macdowall Street, Johnstone, PA5 8QL, Scotland"
+23,Johnstone ABC,JABC,TOMMY JOHN,BOWMAN,UK,MALE,05/07/2011,150955917,15/08/2029,TWIN,,336508,YES,NO,,"26 Macdowall Street, Johnstone, PA5 8QL, Scotland"
+24,Johnstone ABC,JABC,LEON ADAMS,MCDADE,UK,MALE,08/07/2010,128575029,14/01/2027,TWIN,,336508,YES,NO,,"26 Macdowall Street, Johnstone, PA5 8QL, Scotland"
+25,Johnstone ABC,JABC,OLIVER,SAWERS,UK,MALE,16/10/2010,131348530,25/04/2027,TRIPLE,,336509,YES,NO,,"26 Macdowall Street, Johnstone, PA5 8QL, Scotland"
+26,Johnstone ABC,JABC,MATTHEW DAVID BRIAN,LAWLER,UK,MALE,16/04/2009,131743136,26/04/2027,TRIPLE,,336509,YES,NO,,"26 Macdowall Street, Johnstone, PA5 8QL, Scotland"
+27,Johnstone ABC,JABC,REECE JOHN ROBERT,EDGAR,UK,MALE,03/01/2009,162020137,20/05/2036,TRIPLE,,336509,YES,NO,,"26 Macdowall Street, Johnstone, PA5 8QL, Scotland"
+28,Johnstone ABC,JABC,NAOMI CHRISTIE,BERTRAM,UK,FEMALE,17/03/2010,148669721,31/07/2029,DUI,,336510,YES,NO,,"26 Macdowall Street, Johnstone, PA5 8QL, Scotland"
+29,Johnstone ABC,JABC,DALE FRANCIS,DEANS,UK,MALE,29/11/1996,544396338,03/02/2027,DUI,,336511,YES,NO,,"26 Macdowall Street, Johnstone, PA5 8QL, Scotland"
+30,Johnstone ABC,JABC,KEVIN,MCINTYRE,UK,MALE,5/5/1978,133493378,31/05/2032,DUI,,336512,YES,NO,,"26 Macdowall Street, Johnstone, PA5 8QL, Scotland"
+31,Nederlandse Boksbond,NEBO,LIZ MARIA,THIJSSEN,UK,FEMALE,10/12/2008,NY264L7L2,01/05/2029,TWIN,,336513,YES,YES,make sure food available on arrival,"Koninginnegracht 8, 2514 AA 's-Gravenhage, The Netherlands"
+32,Nederlandse Boksbond,NEBO,LUNA AMARO,BEELOO,Holland,FEMALE,30/10/2003,955969,30/06/2032,TWIN,,336513,YES,YES,,"Koninginnegracht 8, 2514 AA 's-Gravenhage, The Netherlands"
+33,Nederlandse Boksbond,NEBO,ZOE HYACHINTA MARIA,VOGELS,Holland,FEMALE,24/01/2009,IXB9DH9R9,19/07/2028,TWIN,,336514,YES,YES,,"Koninginnegracht 8, 2514 AA 's-Gravenhage, The Netherlands"
+34,Nederlandse Boksbond,NEBO,TARA HENRIETTE ELISABETH,VOGELS,Holland,FEMALE,15/10/2006,IYFJHFL12,02/02/2028,TWIN,,336514,YES,YES,,"Koninginnegracht 8, 2514 AA 's-Gravenhage, The Netherlands"
+35,Nederlandse Boksbond,NEBO,DANIL DIMITRIVITCH,SERDJOEK,Holland,MALE,27/05/2006,NTDLP2KL8,02/03/2036,TWIN,,336515,YES,YES,,"Koninginnegracht 8, 2514 AA 's-Gravenhage, The Netherlands"
+36,Nederlandse Boksbond,NEBO,THIJMEN FRANSCZ,KRAAK,Holland,MALE,8/5/2005,NNHB325C6,29/09/2033,TWIN,,336515,YES,YES,,"Koninginnegracht 8, 2514 AA 's-Gravenhage, The Netherlands"
+37,Nederlandse Boksbond,NEBO,MARCIANO STEVEN NICOLAAS,PIKERO,Holland,MALE,31/08/2008,IV233FHH6,16/12/2026,TWIN,,336516,YES,YES,,"Koninginnegracht 8, 2514 AA 's-Gravenhage, The Netherlands"
+38,Nederlandse Boksbond,NEBO,BJARNE JOHANNES HENDRICK,MACHIELSE,Holland,MALE,18/10/2007,IYB8PH9D9,27/10/2026,TWIN,,336516,YES,YES,,"Koninginnegracht 8, 2514 AA 's-Gravenhage, The Netherlands"
+39,Nederlandse Boksbond,NEBO,FINN ROBERT,BOS,Holland,MALE,18/01/2001,NX1BDK366,07/10/2030,TWIN,,336517,YES,YES,,"Koninginnegracht 8, 2514 AA 's-Gravenhage, The Netherlands"
+40,Nederlandse Boksbond,NEBO,MAHMOUD AL,CHABTUN,Holland,MALE,30/01/2001,NM3P5CP52,15/04/2030,TWIN,,336517,YES,YES,,"Koninginnegracht 8, 2514 AA 's-Gravenhage, The Netherlands"
+41,Nederlandse Boksbond,NEBO,MAUD VAN DER,TOORN,Holland,FEMALE,11/07/2005,NN3FD5HP6,15/02/2023,TRIPLE,,336518,YES,YES,,"Koninginnegracht 8, 2514 AA 's-Gravenhage, The Netherlands"
+42,Nederlandse Boksbond,NEBO,AALIYAH LORRAINE,HOPPEMA,Holland,FEMALE,17/4/2007,NPD889736,10/05/2028,TRIPLE,,336518,YES,YES,,"Koninginnegracht 8, 2514 AA 's-Gravenhage, The Netherlands"
+43,Nederlandse Boksbond,NEBO,GABRIELLA MARIA,WEERHEIM,Holland,FEMALE,20/04/2005,NR2J8D415,24/06/2026,TRIPLE,,336518,YES,YES,,"Koninginnegracht 8, 2514 AA 's-Gravenhage, The Netherlands"
+44,Nederlandse Boksbond,NEBO,HUBERT FRANS S.,FIRENS,BELGIUM,MALE,11/12/1968,GC3877018,30/12/2031,DUI,,336519,YES,YES,junior suite 2 de 4,"Koninginnegracht 8, 2514 AA 's-Gravenhage, The Netherlands"
+45,Nederlandse Boksbond,NEBO,HENRI MARIETTE THEODORUS,VERHOEKX,Holland,MALE,20/01/1974,NN4P5R9H5,6/7/2028,DUI,,336520,YES,YES,,"Koninginnegracht 8, 2514 AA 's-Gravenhage, The Netherlands"
+46,Ashbourne boxing club.,ASBC,DESMOND,DONNELLY,Ireland,MALE,02/08/1951,PN0762304,26/05/2029,TWIN,,336521,YES,YES,,"Ballybin Road, Ashbourne, Co. Meath, Ireland"
+47,Ashbourne boxing club.,ASBC,OWEN ROE,DONNELLY,Ireland,MALE,22/09/1979,PR9974676,03/02/2036,TWIN,,336521,YES,YES,,"Ballybin Road, Ashbourne, Co. Meath, Ireland"
+48,Ashbourne boxing club.,ASBC,LUKE,BROUGHTON,Ireland,MALE,22/03/2007,PK0023457,19/12/2027,TWIN,,336522,YES,YES,,"Ballybin Road, Ashbourne, Co. Meath, Ireland"
+49,Ashbourne boxing club.,ASBC,BEN HARRY,CONDON,Ireland,MALE,24/10/2007,PK4128136,17/09/2026,TWIN,,336522,YES,YES,,"Ballybin Road, Ashbourne, Co. Meath, Ireland"
+50,The Bronx Boxing Club,TBBC,SEAN,McDONALD,UK,MALE,20/06/1991,560641110,02/09/2029,TWIN,,,YES,YES,,"Unit 2, Woodend Business CentreWoodend PlaceCowdenbeathFifeKY4 8HG"
+51,The Bronx Boxing Club,TBBC,ROCCO,McDONALD,UK,MALE,11/05/2010,149950242,27/06/2029,TWIN,,,YES,YES,,"Unit 2, Woodend Business CentreWoodend PlaceCowdenbeathFifeKY4 8HG"
+52,Beath Boxing Club ,BEBC,Conor,Hynd,UK,MALE,4/11/2003,146009518,16/04/2034,TWIN,,,YES,NO,,"Unit 2, Woodend Business CentreWoodend PlaceCowdenbeathFifeKY4 8HG"
+53,Beath Boxing Club ,BEBC,Lauryn,Hynd,UK,MALE,26/4/2000,559666984,21/03/2029,TWIN,,,YES,NO,,"Unit 2, Woodend Business CentreWoodend PlaceCowdenbeathFifeKY4 8HG"
+54,Beath Boxing Club ,BEBC,John,Cowan,UK,MALE,26/11/1983,544648187,15/04/2027,TWIN,,,YES,NO,,"Unit 2, Woodend Business CentreWoodend PlaceCowdenbeathFifeKY4 8HG"
+55,Beath Boxing Club ,BEBC,Junior,Cowan,UK,MALE,23/4/2011,130629848,05/04/2027,TWIN,,,YES,NO,,"Unit 2, Woodend Business CentreWoodend PlaceCowdenbeathFifeKY4 8HG"
+56,Beath Boxing Club ,BEBC,Owen,Buchanan,UK,MALE,22/03/1963,544185121,23/07/2027,TWIN,,,YES,NO,,"Unit 2, Woodend Business CentreWoodend PlaceCowdenbeathFifeKY4 8HG"
+57,Beath Boxing Club ,BEBC,Jack,Bowen,UK,MALE,29/4/2014,148600132,05/06/2029,TWIN,,,YES,NO,,"Unit 2, Woodend Business CentreWoodend PlaceCowdenbeathFifeKY4 8HG"
+58,Beath Boxing Club ,BEBC,Charlie,Bonnar,UK,MALE,05/02/2010,161280932,11/03/2036,TWIN,,,YES,NO,,"Unit 2, Woodend Business CentreWoodend PlaceCowdenbeathFifeKY4 8HG"
+59,Beath Boxing Club ,BEBC,Jamie,Mackie,UK,MALE,07/12/2009,146141028,26/04/2029,TWIN,,,YES,NO,,"Unit 2, Woodend Business CentreWoodend PlaceCowdenbeathFifeKY4 8HG"
+60,Beath Boxing Club ,BEBC,James,Cullen,UK,MALE,20/12/2012,133470111,25/05/2027,TWIN,,,YES,NO,,"Unit 2, Woodend Business CentreWoodend PlaceCowdenbeathFifeKY4 8HG"
+61,Beath Boxing Club ,BEBC,Alexander,Townsley,UK,MALE,19/11/2009,154094090,17/03/2030,TWIN,,,YES,NO,,"Unit 2, Woodend Business CentreWoodend PlaceCowdenbeathFifeKY4 8HG"
+62,Beath Boxing Club ,BEBC,Gene,Webster,UK,MALE,25/09/2009,152096596,04/09/2029,TWIN,,,YES,NO,,"Unit 2, Woodend Business CentreWoodend PlaceCowdenbeathFifeKY4 8HG"
+63,Beath Boxing Club ,BEBC,Ruby,Price,UK,FEMALE,09/04/2011,144180096,18/1/2029,DUI,,,YES,NO,,"Unit 2, Woodend Business CentreWoodend PlaceCowdenbeathFifeKY4 8HG"
+64,Arbroath Amateur Boxing Club ,AABC,Lewis,Mctavish,UK,MALE,10/11/2002,140839461,13/04/2033,TWIN,,,YES,NO,,Arbirlot Church Hall Arbirlot Arbroath Angus DD11 2NX
+65,Arbroath Amateur Boxing Club ,AABC,Flynn,Anderson,UK,MALE,22/09/2008,131909702,22/08/2027,TWIN,,,YES,NO,,Arbirlot Church Hall Arbirlot Arbroath Angus DD11 2NX
+66,Arbroath Amateur Boxing Club ,AABC,Alfie,Robertson,UK,MALE,06/05/2008,141830147,05/06/2028,TWIN,,,YES,NO,,Arbirlot Church Hall Arbirlot Arbroath Angus DD11 2NX
+67,Arbroath Amateur Boxing Club ,AABC,Preston,Elder,UK,MALE,26/10/2008,158232873,03/06/2035,TWIN,,,YES,NO,,Arbirlot Church Hall Arbirlot Arbroath Angus DD11 2NX
+68,Arbroath Amateur Boxing Club ,AABC,Kieran,Strachan,UK,MALE,25/07/2009,156258635,30/07/2035,TWIN,,,YES,NO,,Arbirlot Church Hall Arbirlot Arbroath Angus DD11 2NX
+69,Arbroath Amateur Boxing Club ,AABC,Cameron,Clark,UK,MALE,20/07/2009,139679265,17/07/2028,TWIN,,,YES,NO,,Arbirlot Church Hall Arbirlot Arbroath Angus DD11 2NX
+70,Arbroath Amateur Boxing Club ,AABC,Sean,Cargill,UK,MALE,06/05/2008,148940325,04/06/2034,TWIN,,,YES,NO,,Arbirlot Church Hall Arbirlot Arbroath Angus DD11 2NX
+71,Arbroath Amateur Boxing Club ,AABC,Giancarlo,Giacomini,UK,MALE,24/05/2007,147259894,26/04/2034,TWIN,,,YES,NO,,Arbirlot Church Hall Arbirlot Arbroath Angus DD11 2NX
+72,Arbroath Amateur Boxing Club ,AABC,Paul Don,Allen,UK,MALE,05/11/1983,155543035,16/05/2035,DUI,,,YES,NO,,Arbirlot Church Hall Arbirlot Arbroath Angus DD11 2NX
+73,Walsall Wood Boxing Club ,WWBC,Henry,Murray,UK,MALE,13/12/2005,135403882,30/12/2032,TWIN,,,YES,NO,,"Unit 10, Toll Point Industrial Estate, Chase Road, Brownhills, Walsall, WS8 6JZ, "
+74,Walsall Wood Boxing Club ,WWBC,Charles,Murray,UK,MALE,13/12/2005,136009540,19/12/2032,TWIN,,,YES,NO,,"Unit 10, Toll Point Industrial Estate, Chase Road, Brownhills, Walsall, WS8 6JZ, "
+75,Walsall Wood Boxing Club ,WWBC,Scott,Murray,UK,MALE,08/09/1967,531582657,03/07/2025,TWIN,,,YES,NO,,"Unit 10, Toll Point Industrial Estate, Chase Road, Brownhills, Walsall, WS8 6JZ, "
+76,Walsall Wood Boxing Club ,WWBC,George,Murray,UK,MALE,27/05/2003,144712432,23/10/2033,TWIN,,,YES,YES,llega el 6/7 para cenar solamente,"Unit 10, Toll Point Industrial Estate, Chase Road, Brownhills, Walsall, WS8 6JZ, "
+77,Cookstown ABC,CABC,John,Coyle,Ireland,MALE,12/08/1979,C42735276,15/02/2028,FAMILY,,,YES,YES,La suite para Familia 1/4 : madre padre y hija de 10 años,"42 Fairhill Road, Cookstown, County Tyrone"
+78,Cookstown ABC,CABC,Elaine,Coyle,Ireland,FEMALE,03/07/1979,PU5397351,26/05/2029,FAMILY,,,YES,YES,,"42 Fairhill Road, Cookstown, County Tyrone"
+79,Cookstown ABC,CABC,Sarah,Coyle,Ireland,FEMALE,18/02/2016,PR8723248,11/03/20025,FAMILY,,,YES,YES,,"42 Fairhill Road, Cookstown, County Tyrone"
+80,Cookstown ABC,CABC,Tom,Coyle,Ireland,MALE,20/10/2013,PH7027899,10/03/2025,TWIN,,,YES,YES,"2 hijos, Hab. al lado de los padres, mejor con 2 camas. ¿Hay otra hab. cerca de la suite?","42 Fairhill Road, Cookstown, County Tyrone"
+81,Cookstown ABC,CABC,John Joe,Coyle,Ireland,MALE,14/09/2011,PQ5292658,11/03/2025,TWIN,,,YES,YES,,"42 Fairhill Road, Cookstown, County Tyrone"
+82,Cookstown ABC,CABC,Fred,Hampsey,Ireland,MALE,12/03/1975,PW6231522,13/05/2036,DUI,,,YES,YES,,"42 Fairhill Road, Cookstown, County Tyrone"
+83,Hands of Stone Montrose,HOSM,OWEN,GARBACZ,Poland,MALE,25/10/2010,FC1227399,15/02/2033,TWIN,,,YES,NO,,"Ferry Road, Montrose, Angus, DD10 8DX"
+84,Hands of Stone Montrose,HOSM,DAMIAN,STEWART,UK,MALE,12/4/2009,162564944,15/5/2036,TWIN,,,YES,NO,,"Ferry Road, Montrose, Angus, DD10 8DX"
+85,Hands of Stone Montrose,HOSM,AIDEN,MCRAE,UK,MALE,18/08/2008,148319263,07/06/2029,TWIN,,,YES,NO,,"Ferry Road, Montrose, Angus, DD10 8DX"
+86,Hands of Stone Montrose,HOSM,RAMSEY,LUMGAIR,UK,MALE,28/10/2007,139432324,16/03/2028,TWIN,,,YES,NO,,"Ferry Road, Montrose, Angus, DD10 8DX"
+87,Hands of Stone Montrose,HOSM,PATRICK,SHAKESPEARE,UK,MALE,27/01/2004,135978219,23/09/2032,TWIN,,,YES,NO,,"Ferry Road, Montrose, Angus, DD10 8DX"
+88,Hands of Stone Montrose,HOSM,DANIEL,TOWNS,UK,MALE,07/04/1985,144346593,05/03/2034,TWIN,,,YES,NO,,"Ferry Road, Montrose, Angus, DD10 8DX"
+89,Hands of Stone Montrose,HOSM,MARK,STEPHEN,UK,MALE,26/10/1971,129508012,14/03/2032,DUI,,,YES,NO,junior suite 3/3,"Ferry Road, Montrose, Angus, DD10 8DX"
+90,STAFF,,Cliff,Perkins,UK,MALE,25/07/1962,557472336,22/10/2028,TWIN,115,,YES,NO,junior suite 4/4,"English Institute of Sport, Coleridge Road, Sheffield, S9 5DA"
+91,STAFF,,Nicky,FULLERTON,UK,MALE,01/06/1973,161367655,13/03/2036,TWIN,,,YES,YES,,"46A Victoria Parade, Belfast, BT15 2EN"
+92,,,Samuel,Storey,Ireland,MALE,09/08/1963,551975261,22/06/2028,DOUBLE,516,,NO,NO,LLEGAMOS EL SABADO POR LA NOCHE.LA SUITE 2/4,"Av Almirante Loaysa, 3, Murcia, 30007"
+93,,,Lisa ,Storey,UK,FEMALE,20/06/1971,537286076,27/06/2026,DOUBLE,516,,NO,NO,,"Av Almirante Loaysa, 3, Murcia, 30007"
+94,STAFF,,Michael Joseph,Martin,Ireland,MALE,09/01/1968,PQ7021803,17/10/2026,DUI,512,,YES,NO,la suite 3/4 sale el 10/7 por la mañana,"46A Victoria Parade, Belfast, BT15 2EN"
+95,Weston Warriors,WEWA,Mileigh,Addicott,UK,FEMALE,27/04/2012,129983330,14/03/2027,DUI,121,,YES,NO,Sale el 10/7 por la mañana,"Sydenham Community Centre, Parkway, Bridgwater, Somerset TA6 4QZ"
+96,Weston Warriors,WEWA,Gary,Addicott,UK,MALE,18/09/1985,559058634,14/03/2029,DOUBLE,114,,YES,NO,Sale el 10/7 por la mañana,"Sydenham Community Centre, Parkway, Bridgwater, Somerset TA6 4QZ"
+97,Weston Warriors,WEWA,Gail,Addicott,UK,FEMALE,25/11/1983,130757162,26/08/2032,DOUBLE,114,,NO,NO,llega el 6/7 por la noche y sale el 10/7 por la mañana,"Sydenham Community Centre, Parkway, Bridgwater, Somerset TA6 4QZ"
+98,,,Fionn ,Storey,Ireland,MALE,24/06/2005,PV2434603,07/06/2027,DUI,517,,NO,NO,LLEGAMOS EL SABADO POR LA NOCHE. LA SUITE 4/4,"Av Almirante Loaysa, 3, Murcia, 30007"
+99,Booth Boxing,BOBO,Finlay ,Anderson,UK,MALE,04/07/2010,128924794,12/01/2027,TWIN,,,NO,NO,llegan el lunes 6 para cenar y salen el 8 por la mañana. Solamente 2 noches. ,"200 Unit 12/13, Woodville Park Industrial Estate, Woodville Street, Glasgow, G51 2RL"
+100,Booth Boxing,BOBO,Henoc Kazadi,Wa Kazadi,Sweden,MALE,24/4/2003,AA1139667,15/06/2027,TWIN,,,NO,NO,,"200 Unit 12/13, Woodville Park Industrial Estate, Woodville Street, Glasgow, G51 2RL"
+#REF!,Boxing Stad Groningen,BOSG,Stijn ,Van der Meer ,Holland,MALE,26/05/1997,NY3KDJ4J9,29/07/2035,DUI,,,YES,YES,,"Smirnoffstraat 3, 9716 JP Groningen, Netherlands"
+#REF!,SK BOX Chlumec,SKBX,Martin František ,Rusňák,Czech Republic,MALE,16/12/2006,48874729,26/03/2034,DUI,,,NO,NO,,"Muchova 267, 40339 Chlumec, Ústí nad Labem Region, Czechia"
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,
+#REF!,,,,,,,,,,,,,,,,

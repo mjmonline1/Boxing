@@ -1,0 +1,36 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - link "← Home" [ref=f1e3] [cursor=pointer]:
+      - /url: index.html
+    - heading "Ring Manager" [level=1] [ref=f1e4]
+    - generic [ref=f1e5]: "Date:"
+    - combobox [ref=f1e6] [cursor=pointer]:
+      - option "2026-07-03" [selected]
+      - option "2026-07-01"
+      - option "2026-06-30"
+      - option "2026-06-26"
+      - option "2026-06-25"
+      - option "2026-06-07"
+      - option "2026-05-27"
+      - option "2026-05-25"
+      - option "2026-05-24"
+      - option "2026-05-23"
+      - option "2026-05-22"
+    - button "Undo Session Changes" [ref=f1e7] [cursor=pointer]
+    - button "Save" [ref=f1e8] [cursor=pointer]
+    - button "Export Allocation" [ref=f1e9] [cursor=pointer]
+    - button "☀️ Light" [ref=f1e10] [cursor=pointer]
+  - generic [ref=f1e11]:
+    - generic [ref=f1e12]: "Key:"
+    - generic [ref=f1e13]:
+      - text: Senior male
+      - generic [ref=f1e15]: (YOB ≤ 2006)
+    - generic [ref=f1e16]:
+      - text: Youth male
+      - generic [ref=f1e18]: (YOB 2007–2008)
+    - generic [ref=f1e19]:
+      - text: Junior male
+      - generic [ref=f1e21]: (YOB ≥ 2009)
+    - generic [ref=f1e22]:
+      - text: Female
+      - generic [ref=f1e24]: (either boxer)

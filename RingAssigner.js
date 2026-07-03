@@ -3,6 +3,7 @@
 const fs   = require('fs');
 const path = require('path');
 const { SENIOR_YOB_MAX, R5_ELIGIBLE_YOB_MIN } = require('./constants');
+const GroupUtils = require('./group-utils');
 
 const _d        = new Date();
 const TODAY     = `${_d.getFullYear()}-${String(_d.getMonth()+1).padStart(2,'0')}-${String(_d.getDate()).padStart(2,'0')}`;
@@ -17,19 +18,18 @@ const RINGS_ALL  = ['R1', 'R2', 'R3', 'R4', 'R5'];
 // All boxers in the match are male seniors (YOB ≤ SENIOR_YOB_MAX)
 function isBothSeniorMale(match) {
   const sm = b => b.gender === 'male' && b.yob <= SENIOR_YOB_MAX;
-  return sm(match.red) && sm(match.blue) && (!match.third || sm(match.third));
+  return GroupUtils.membersOf(match).every(sm);
 }
 
 // Any boxer in the match is female
 function hasFemale(match) {
-  return match.red.gender === 'female' || match.blue.gender === 'female'
-      || match.third?.gender === 'female';
+  return GroupUtils.membersOf(match).some(b => b.gender === 'female');
 }
 
 // R5-eligible: every boxer must be female OR male Schools/Junior (YOB ≥ R5_ELIGIBLE_YOB_MIN).
 function isR5Eligible(match) {
   const ok = b => b.gender === 'female' || (b.gender === 'male' && b.yob >= R5_ELIGIBLE_YOB_MIN);
-  return ok(match.red) && ok(match.blue) && (!match.third || ok(match.third));
+  return GroupUtils.membersOf(match).every(ok);
 }
 
 // ── Strategy 1: BALANCED ─────────────────────────────────────────────────────
@@ -90,7 +90,7 @@ function distributeGrouped(matches) {
 
 function boutDuration(match) {
   const single = isBothSeniorMale(match) ? 11 : 8;
-  return match.third ? single * 3 : single;
+  return single * GroupUtils.boutCount(GroupUtils.membersOf(match));
 }
 
 // ── Slot builder (shared) ────────────────────────────────────────────────────
@@ -101,7 +101,7 @@ function buildSlots(queues) {
   const slots       = [];
   let remaining     = activeRings.reduce((n, r) => n + queues[r].length, 0);
 
-  const boxerIds = m => [m.red, m.blue, m.third].filter(Boolean).map(b => b.id ?? b.name);
+  const boxerIds = m => GroupUtils.membersOf(m).map(b => b.id ?? b.name);
 
   // One bout per ring per slot. A boxer with sparsPerDay > 1 has multiple bouts, so a bout is
   // deferred to a later slot if either fighter is already busy in this slot — that ring simply
@@ -119,6 +119,7 @@ function buildSlots(queues) {
       bouts.push({ ring, sparId: m.sparId, category: m.category,
                    duration: boutDuration(m),
                    red: m.red, blue: m.blue, third: m.third || null,
+                   ...(m.extra && m.extra.length ? { extra: m.extra } : {}),
                    weightDiff: m.weightDiff });
       head[ring]++; remaining--;
     }
@@ -150,6 +151,7 @@ function flattenAllocations(slots) {
       red:  `${b.red.name} (${b.red.club})`,
       blue: `${b.blue.name} (${b.blue.club})`,
       ...(b.third ? { third: `${b.third.name} (${b.third.club})` } : {}),
+      ...(b.extra && b.extra.length ? { extra: b.extra.map(x => `${x.name} (${x.club})`) } : {}),
       weightDiff: b.weightDiff
     }))
   );
@@ -188,9 +190,7 @@ function run(day = 1) {
   // Sort by average bout weight to maximise boxer rest between days.
   // Odd days (Mon/Wed/Fri/Sun) → heaviest first so heavy fighters start early.
   // Even days (Tue/Thu/Sat)   → lightest first so they finish late — maximising gap.
-  const avgWeight = m => m.third
-    ? (m.red.weight + m.blue.weight + m.third.weight) / 3
-    : (m.red.weight + m.blue.weight) / 2;
+  const avgWeight = m => GroupUtils.avgWeight(GroupUtils.membersOf(m));
   const isOddDay  = day % 2 === 1;
   matches.sort((a, b) => isOddDay
     ? avgWeight(b) - avgWeight(a)   // desc

@@ -10,7 +10,8 @@ const assert   = require('node:assert/strict');
 const fs       = require('node:fs');
 const path     = require('node:path');
 
-const { AGE_GROUPS } = require('../constants');
+const { AGE_GROUPS, R5_ELIGIBLE_YOB_MIN } = require('../constants');
+const GroupUtils = require('../group-utils');
 
 function extractFunction(src, name) {
     const start = src.indexOf(`function ${name}`);
@@ -26,14 +27,25 @@ function extractFunction(src, name) {
 
 const HTML = fs.readFileSync(path.join(__dirname, '../RingManager.html'), 'utf8');
 const { boutType } = new Function(
-    'AGE_GROUPS',
+    'AGE_GROUPS', 'GroupUtils',
     extractFunction(HTML, 'boutType') + '\nreturn { boutType };'
-)(AGE_GROUPS);
+)(AGE_GROUPS, GroupUtils);
 
-function bout(redOver = {}, blueOver = {}, third = null) {
+const { canPlaceInR5 } = new Function(
+    'R5_ELIGIBLE_YOB_MIN', 'GroupUtils',
+    extractFunction(HTML, 'canPlaceInR5') + '\nreturn { canPlaceInR5 };'
+)(R5_ELIGIBLE_YOB_MIN, GroupUtils);
+
+const { boutHTML } = new Function(
+    'GroupUtils', 'boutFormat',
+    extractFunction(HTML, 'boutHTML') + '\nreturn { boutHTML };'
+)(GroupUtils, () => '');
+
+function bout(redOver = {}, blueOver = {}, third = null, extra = []) {
     const male = (yob = 2000) => ({ gender: 'male', yob, weight: 70, name: 'A', club: 'X' });
-    const b = { red: { ...male(), ...redOver }, blue: { ...male(), ...blueOver } };
+    const b = { red: { ...male(), ...redOver }, blue: { ...male(), ...blueOver }, category: 'Cat' };
     if (third) b.third = { ...male(), ...third };
+    if (extra.length) b.extra = extra.map(o => ({ ...male(), ...o }));
     return b;
 }
 
@@ -65,4 +77,37 @@ test('boutType: YOB boundaries', () => {
     assert.equal(boutType(bout({ yob: 2008 })), 'youth');
     assert.equal(boutType(bout({ yob: 2007 })), 'senior');
     assert.equal(boutType(bout({ yob: 1980 })), 'senior');
+});
+
+// --- N-member groups (4/5) & the canPlaceInR5 bug fix ----------------------
+
+test('boutType: female in extra[] of a 5-person group -> female', () => {
+    const b = bout({}, {}, { yob: 2010 }, [{ yob: 2010 }, { gender: 'female', yob: 2010 }]);
+    assert.equal(boutType(b), 'female');
+});
+
+test('canPlaceInR5: eligible third no longer silently ignored (pre-existing bug, now fixed)', () => {
+    const eligible   = { yob: R5_ELIGIBLE_YOB_MIN };
+    const ineligible = { yob: R5_ELIGIBLE_YOB_MIN - 1 };
+    assert.equal(canPlaceInR5(bout(eligible, eligible, eligible)), true);
+    // Before the fix, an ineligible third was invisible to this check.
+    assert.equal(canPlaceInR5(bout(eligible, eligible, ineligible)), false);
+});
+
+test('canPlaceInR5: ineligible member in extra[] also blocks placement', () => {
+    const eligible   = { yob: R5_ELIGIBLE_YOB_MIN };
+    const ineligible = { yob: R5_ELIGIBLE_YOB_MIN - 1 };
+    assert.equal(canPlaceInR5(bout(eligible, eligible, eligible, [eligible, ineligible])), false);
+});
+
+test('boutHTML: 5-member group renders all C(5,2)=10 pairwise bouts and diffs', () => {
+    const weights = [70, 71, 72, 73, 74];
+    const [red, blue, third, ...extra] = weights.map((weight, i) => ({ yob: 2000, weight, name: `M${i}` }));
+    const b = bout(red, blue, third, extra);
+    b.startTime = '10:00'; b.endTime = '10:30';
+    const html = boutHTML(b);
+    const names = (html.match(/M\d vs M\d/g) || []);
+    assert.equal(names.length, 10, 'C(5,2) = 10 pairwise name lines');
+    const diffs = html.match(/⚖ ([\d.]+ \/ ){9}[\d.]+ kg diff/);
+    assert.ok(diffs, '10 pairwise weight diffs rendered');
 });

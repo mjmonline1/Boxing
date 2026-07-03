@@ -69,6 +69,7 @@ test('mapRawHeader: maps every known survey header and falls back to lowercased'
         'Email address': 'email',
         'fit': 'fit',
         'Spars per Day': 'sparsPerDay',
+        'Auto Match': 'autoMatch',
         'Something Unknown': 'something unknown',  // fallback → lowercased
     };
     for (const [raw, key] of Object.entries(cases))
@@ -115,6 +116,17 @@ test('parseRawBoxers: missing fit/sparsPerDay COLUMNS fall back to defaults', ()
     const [b] = parseRawBoxers(text);
     assert.equal(b.fit, 'yes');       // absent column → default
     assert.equal(b.sparsPerDay, 1);   // absent column → default
+    assert.equal(b.autoMatch, 'yes'); // absent column → default (backward compatible)
+});
+
+test('parseRawBoxers: Auto Match column honoured — "no" preserved, blank defaults to yes', () => {
+    const header = RAW_HEADER + ',Auto Match';
+    const text = header + '\n' +
+        '2026-01-03,Excluded Boxer,ClubC,Male,01/01/2005,70,0,0,0,yes,1,no\n' +
+        '2026-01-04,Included Boxer,ClubD,Male,01/01/2005,70,0,0,0,yes,1,\n';
+    const [excluded, included] = parseRawBoxers(text);
+    assert.equal(excluded.autoMatch, 'no');
+    assert.equal(included.autoMatch, 'yes');
 });
 
 test('parseRawBoxers: empty text yields no boxers', () => {

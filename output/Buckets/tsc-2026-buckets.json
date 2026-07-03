@@ -3,8 +3,8 @@
     "totalOriginal": 137,
     "totalDistributed": 137,
     "finalBuckets": {
-      "Notfit": 1,
-      "MaleSchools_Novice": 1,
+      "Notfit": 2,
+      "MaleSchools_Novice": 0,
       "MaleSchools_Experienced": 1,
       "MaleSchools_OpenClass": 1,
       "MaleJunior_Novice": 9,
@@ -29,21 +29,22 @@
         "yob": 2013,
         "fit": false,
         "weight": 33,
-        "experience": 10
-      }
-    ],
-    "MaleSchools_Novice": [
+        "experience": 10,
+        "autoMatch": "yes"
+      },
       {
         "id": 4,
         "name": "Rocky Marciano",
         "club": "Team Ponce&Mary",
         "gender": "male",
         "yob": 2013,
-        "fit": true,
+        "fit": false,
         "weight": 40,
-        "experience": 3
+        "experience": 3,
+        "autoMatch": "yes"
       }
     ],
+    "MaleSchools_Novice": [],
     "MaleSchools_Experienced": [
       {
         "id": 42,
@@ -53,7 +54,8 @@
         "yob": 2012,
         "fit": true,
         "weight": 59,
-        "experience": 9
+        "experience": 9,
+        "autoMatch": "yes"
       }
     ],
     "MaleSchools_OpenClass": [
@@ -65,7 +67,8 @@
         "yob": 2012,
         "fit": true,
         "weight": 43,
-        "experience": 15
+        "experience": 15,
+        "autoMatch": "yes"
       }
     ],
     "MaleJunior_Novice": [
@@ -77,7 +80,8 @@
         "yob": 2011,
         "fit": true,
         "weight": 38,
-        "experience": 0
+        "experience": 0,
+        "autoMatch": "no"
       },
       {
         "id": 3,
@@ -87,7 +91,8 @@
         "yob": 2011,
         "fit": true,
         "weight": 40,
-        "experience": 1
+        "experience": 1,
+        "autoMatch": "no"
       },
       {
         "id": 12,
@@ -97,7 +102,8 @@
         "yob": 2011,
         "fit": true,
         "weight": 48,
-        "experience": 1
+        "experience": 1,
+        "autoMatch": "yes"
       },
       {
         "id": 29,
@@ -107,7 +113,8 @@
         "yob": 2010,
         "fit": true,
         "weight": 54,
-        "experience": 0
+        "experience": 0,
+        "autoMatch": "yes"
       },
       {
         "id": 65,
@@ -117,7 +124,8 @@
         "yob": 2011,
         "fit": true,
         "weight": 63,
-        "experience": 0
+        "experience": 0,
+        "autoMatch": "yes"
       },
       {
         "id": 70,
@@ -127,7 +135,8 @@
         "yob": 2010,
         "fit": true,
         "weight": 65,
-        "experience": 4
+        "experience": 4,
+        "autoMatch": "yes"
       },
       {
         "id": 71,
@@ -137,7 +146,8 @@
         "yob": 2010,
         "fit": true,
         "weight": 65,
-        "experience": 2
+        "experience": 2,
+        "autoMatch": "yes"
       },
       {
         "id": 75,
@@ -147,7 +157,8 @@
         "yob": 2010,
         "fit": true,
         "weight": 66,
-        "experience": 5
+        "experience": 5,
+        "autoMatch": "yes"
       },
       {
         "id": 123,
@@ -157,7 +168,8 @@
         "yob": 2011,
         "fit": true,
         "weight": 80,
-        "experience": 0
+        "experience": 0,
+        "autoMatch": "yes"
       }
     ],
     "MaleJunior_Experienced": [
@@ -169,7 +181,8 @@
         "yob": 2011,
         "fit": true,
         "weight": 45,
-        "experience": 10
+        "experience": 10,
+        "autoMatch": "yes"
       },
       {
         "id": 16,
@@ -179,7 +192,8 @@
         "yob": 2011,
         "fit": true,
         "weight": 50,
-        "experience": 8
+        "experience": 8,
+        "autoMatch": "yes"
       },
       {
         "id": 19,
@@ -189,7 +203,8 @@
         "yob": 2011,
         "fit": true,
         "weight": 52,
-        "experience": 7
+        "experience": 7,
+        "autoMatch": "yes"
       },
       {
         "id": 20,
@@ -199,7 +214,8 @@
         "yob": 2010,
         "fit": true,
         "weight": 52,
-        "experience": 10
+        "experience": 10,
+        "autoMatch": "yes"
       },
       {
         "id": 23,
@@ -209,7 +225,8 @@
         "yob": 2010,
         "fit": true,
         "weight": 53,
-        "experience": 7
+        "experience": 7,
+        "autoMatch": "yes"
       },
       {
         "id": 41,
@@ -219,7 +236,8 @@
         "yob": 2011,
         "fit": true,
         "weight": 59,
-        "experience": 8
+        "experience": 8,
+        "autoMatch": "yes"
       },
       {
         "id": 60,
@@ -229,7 +247,8 @@
         "yob": 2010,
         "fit": true,
         "weight": 63,
-        "experience": 9
+        "experience": 9,
+        "autoMatch": "yes"
       },
       {
         "id": 69,
@@ -239,7 +258,8 @@
         "yob": 2010,
         "fit": true,
         "weight": 65,
-        "experience": 6
+        "experience": 6,
+        "autoMatch": "yes"
       }
     ],
     "MaleJunior_OpenClass": [
@@ -251,7 +271,8 @@
         "yob": 2011,
         "fit": true,
         "weight": 42,
-        "experience": 12
+        "experience": 12,
+        "autoMatch": "yes"
       },
       {
         "id": 6,
@@ -261,7 +282,8 @@
         "yob": 2011,
         "fit": true,
         "weight": 42,
-        "experience": 17
+        "experience": 17,
+        "autoMatch": "yes"
       },
       {
         "id": 8,
@@ -271,7 +293,8 @@
         "yob": 2011,
         "fit": true,
         "weight": 45,
-        "experience": 16
+        "experience": 16,
+        "autoMatch": "yes"
       },
       {
         "id": 11,
@@ -281,7 +304,8 @@
         "yob": 2011,
         "fit": true,
         "weight": 48,
-        "experience": 19
+        "experience": 19,
+        "autoMatch": "yes"
       },
       {
         "id": 13,
@@ -291,7 +315,8 @@
         "yob": 2011,
         "fit": true,
         "weight": 49.7,
-        "experience": 12
+        "experience": 12,
+        "autoMatch": "yes"
       },
       {
         "id": 14,
@@ -301,7 +326,8 @@
         "yob": 2010,
         "fit": true,
         "weight": 50,
-        "experience": 26
+        "experience": 26,
+        "autoMatch": "yes"
       },
       {
         "id": 26,
@@ -311,7 +337,8 @@
         "yob": 2011,
         "fit": true,
         "weight": 54,
-        "experience": 16
+        "experience": 16,
+        "autoMatch": "yes"
       },
       {
         "id": 32,
@@ -321,7 +348,8 @@
         "yob": 2011,
         "fit": true,
         "weight": 56,
-        "experience": 24
+        "experience": 24,
+        "autoMatch": "yes"
       },
       {
         "id": 37,
@@ -331,7 +359,8 @@
         "yob": 2010,
         "fit": true,
         "weight": 57,
-        "experience": 11
+        "experience": 11,
+        "autoMatch": "yes"
       },
       {
         "id": 39,
@@ -341,7 +370,8 @@
         "yob": 2011,
         "fit": true,
         "weight": 58,
-        "experience": 20
+        "experience": 20,
+        "autoMatch": "yes"
       },
       {
         "id": 84,
@@ -351,7 +381,8 @@
         "yob": 2010,
         "fit": true,
         "weight": 68,
-        "experience": 20
+        "experience": 20,
+        "autoMatch": "yes"
       }
     ],
     "MaleYouth_Novice": [
@@ -363,7 +394,8 @@
         "yob": 2008,
         "fit": true,
         "weight": 50,
-        "experience": 5
+        "experience": 5,
+        "autoMatch": "yes"
       },
       {
         "id": 22,
@@ -373,7 +405,8 @@
         "yob": 2008,
         "fit": true,
         "weight": 53,
-        "experience": 2
+        "experience": 2,
+        "autoMatch": "yes"
       },
       {
         "id": 25,
@@ -383,7 +416,8 @@
         "yob": 2008,
         "fit": true,
         "weight": 54,
-        "experience": 5
+        "experience": 5,
+        "autoMatch": "yes"
       },
       {
         "id": 27,
@@ -393,7 +427,8 @@
         "yob": 2009,
         "fit": true,
         "weight": 54,
-        "experience": 4
+        "experience": 4,
+        "autoMatch": "yes"
       },
       {
         "id": 43,
@@ -403,7 +438,8 @@
         "yob": 2009,
         "fit": true,
         "weight": 60,
-        "experience": 3
+        "experience": 3,
+        "autoMatch": "yes"
       },
       {
         "id": 53,
@@ -413,7 +449,8 @@
         "yob": 2009,
         "fit": true,
         "weight": 60,
-        "experience": 1
+        "experience": 1,
+        "autoMatch": "yes"
       },
       {
         "id": 55,
@@ -423,7 +460,8 @@
         "yob": 2009,
         "fit": true,
         "weight": 61,
-        "experience": 3
+        "experience": 3,
+        "autoMatch": "yes"
       },
       {
         "id": 57,
@@ -433,7 +471,8 @@
         "yob": 2009,
         "fit": true,
         "weight": 62,
-        "experience": 4
+        "experience": 4,
+        "autoMatch": "yes"
       },
       {
         "id": 59,
@@ -443,7 +482,8 @@
         "yob": 2009,
         "fit": true,
         "weight": 63,
-        "experience": 0
+        "experience": 0,
+        "autoMatch": "yes"
       },
       {
         "id": 61,
@@ -453,7 +493,8 @@
         "yob": 2009,
         "fit": true,
         "weight": 63,
-        "experience": 0
+        "experience": 0,
+        "autoMatch": "yes"
       },
       {
         "id": 81,
@@ -463,7 +504,8 @@
         "yob": 2008,
         "fit": true,
         "weight": 67,
-        "experience": 0
+        "experience": 0,
+        "autoMatch": "yes"
       },
       {
         "id": 83,
@@ -473,7 +515,8 @@
         "yob": 2008,
         "fit": true,
         "weight": 67,
-        "experience": 3
+        "experience": 3,
+        "autoMatch": "yes"
       },
       {
         "id": 91,
@@ -483,7 +526,8 @@
         "yob": 2008,
         "fit": true,
         "weight": 70,
-        "experience": 4
+        "experience": 4,
+        "autoMatch": "yes"
       },
       {
         "id": 92,
@@ -493,7 +537,8 @@
         "yob": 2008,
         "fit": true,
         "weight": 70,
-        "experience": 5
+        "experience": 5,
+        "autoMatch": "yes"
       },
       {
         "id": 99,
@@ -503,7 +548,8 @@
         "yob": 2008,
         "fit": true,
         "weight": 71,
-        "experience": 5
+        "experience": 5,
+        "autoMatch": "yes"
       },
       {
         "id": 100,
@@ -513,7 +559,8 @@
         "yob": 2008,
         "fit": true,
         "weight": 71,
-        "experience": 0
+        "experience": 0,
+        "autoMatch": "yes"
       },
       {
         "id": 103,
@@ -523,7 +570,8 @@
         "yob": 2008,
         "fit": true,
         "weight": 72,
-        "experience": 2
+        "experience": 2,
+        "autoMatch": "yes"
       },
       {
         "id": 108,
@@ -533,7 +581,8 @@
         "yob": 2009,
         "fit": true,
         "weight": 73,
-        "experience": 5
+        "experience": 5,
+        "autoMatch": "yes"
       },
       {
         "id": 110,
@@ -543,7 +592,8 @@
         "yob": 2008,
         "fit": true,
         "weight": 74.4,
-        "experience": 1
+        "experience": 1,
+        "autoMatch": "yes"
       },
       {
         "id": 113,
@@ -553,7 +603,8 @@
         "yob": 2008,
         "fit": true,
         "weight": 75,
-        "experience": 0
+        "experience": 0,
+        "autoMatch": "yes"
       },
       {
         "id": 118,
@@ -563,7 +614,8 @@
         "yob": 2009,
         "fit": true,
         "weight": 78,
-        "experience": 0
+        "experience": 0,
+        "autoMatch": "yes"
       },
       {
         "id": 119,
@@ -573,7 +625,8 @@
         "yob": 2008,
         "fit": true,
         "weight": 79,
-        "experience": 4
+        "experience": 4,
+        "autoMatch": "yes"
       }
     ],
     "MaleYouth_Experienced": [
@@ -585,7 +638,8 @@
         "yob": 2009,
         "fit": true,
         "weight": 46,
-        "experience": 9
+        "experience": 9,
+        "autoMatch": "yes"
       },
       {
         "id": 21,
@@ -595,7 +649,8 @@
         "yob": 2009,
         "fit": true,
         "weight": 52,
-        "experience": 8
+        "experience": 8,
+        "autoMatch": "yes"
       },
       {
         "id": 79,
@@ -605,7 +660,8 @@
         "yob": 2009,
         "fit": true,
         "weight": 66,
-        "experience": 8
+        "experience": 8,
+        "autoMatch": "yes"
       },
       {
         "id": 88,
@@ -615,7 +671,8 @@
         "yob": 2008,
         "fit": true,
         "weight": 69,
-        "experience": 9
+        "experience": 9,
+        "autoMatch": "yes"
       },
       {
         "id": 90,
@@ -625,7 +682,8 @@
         "yob": 2008,
         "fit": true,
         "weight": 70,
-        "experience": 10
+        "experience": 10,
+        "autoMatch": "yes"
       }
     ],
     "MaleYouth_OpenClass": [
@@ -637,7 +695,8 @@
         "yob": 2009,
         "fit": true,
         "weight": 50,
-        "experience": 11
+        "experience": 11,
+        "autoMatch": "yes"
       },
       {
         "id": 18,
@@ -647,7 +706,8 @@
         "yob": 2008,
         "fit": true,
         "weight": 51,
-        "experience": 29
+        "experience": 29,
+        "autoMatch": "yes"
       },
       {
         "id": 28,
@@ -657,7 +717,8 @@
         "yob": 2009,
         "fit": true,
         "weight": 54,
-        "experience": 20
+        "experience": 20,
+        "autoMatch": "yes"
       },
       {
         "id": 51,
@@ -667,7 +728,8 @@
         "yob": 2009,
         "fit": true,
         "weight": 60,
-        "experience": 15
+        "experience": 15,
+        "autoMatch": "yes"
       },
       {
         "id": 58,
@@ -677,7 +739,8 @@
         "yob": 2009,
         "fit": true,
         "weight": 63,
-        "experience": 35
+        "experience": 35,
+        "autoMatch": "yes"
       },
       {
         "id": 68,
@@ -687,7 +750,8 @@
         "yob": 2008,
         "fit": true,
         "weight": 63.5,
-        "experience": 35
+        "experience": 35,
+        "autoMatch": "yes"
       },
       {
         "id": 74,
@@ -697,7 +761,8 @@
         "yob": 2009,
         "fit": true,
         "weight": 66,
-        "experience": 20
+        "experience": 20,
+        "autoMatch": "yes"
       },
       {
         "id": 98,
@@ -707,7 +772,8 @@
         "yob": 2008,
         "fit": true,
         "weight": 70,
-        "experience": 19
+        "experience": 19,
+        "autoMatch": "yes"
       },
       {
         "id": 101,
@@ -717,7 +783,8 @@
         "yob": 2008,
         "fit": true,
         "weight": 71,
-        "experience": 19
+        "experience": 19,
+        "autoMatch": "yes"
       },
       {
         "id": 102,
@@ -727,7 +794,8 @@
         "yob": 2008,
         "fit": true,
         "weight": 71,
-        "experience": 13
+        "experience": 13,
+        "autoMatch": "yes"
       },
       {
         "id": 111,
@@ -737,7 +805,8 @@
         "yob": 2009,
         "fit": true,
         "weight": 75,
-        "experience": 25
+        "experience": 25,
+        "autoMatch": "yes"
       },
       {
         "id": 114,
@@ -747,7 +816,8 @@
         "yob": 2009,
         "fit": true,
         "weight": 75,
-        "experience": 20
+        "experience": 20,
+        "autoMatch": "yes"
       }
     ],
     "MaleSenior_Novice": [
@@ -759,7 +829,8 @@
         "yob": 2006,
         "fit": true,
         "weight": 58,
-        "experience": 2
+        "experience": 2,
+        "autoMatch": "yes"
       },
       {
         "id": 45,
@@ -769,7 +840,8 @@
         "yob": 2005,
         "fit": true,
         "weight": 60,
-        "experience": 5
+        "experience": 5,
+        "autoMatch": "yes"
       },
       {
         "id": 46,
@@ -779,7 +851,8 @@
         "yob": 2006,
         "fit": true,
         "weight": 60,
-        "experience": 1
+        "experience": 1,
+        "autoMatch": "yes"
       },
       {
         "id": 56,
@@ -789,7 +862,8 @@
         "yob": 2002,
         "fit": true,
         "weight": 62,
-        "experience": 0
+        "experience": 0,
+        "autoMatch": "yes"
       },
       {
         "id": 76,
@@ -799,7 +873,8 @@
         "yob": 2002,
         "fit": true,
         "weight": 66,
-        "experience": 0
+        "experience": 0,
+        "autoMatch": "yes"
       },
       {
         "id": 86,
@@ -809,7 +884,8 @@
         "yob": 2004,
         "fit": true,
         "weight": 69,
-        "experience": 5
+        "experience": 5,
+        "autoMatch": "yes"
       },
       {
         "id": 89,
@@ -819,7 +895,8 @@
         "yob": 2007,
         "fit": true,
         "weight": 69.7,
-        "experience": 0
+        "experience": 0,
+        "autoMatch": "yes"
       },
       {
         "id": 94,
@@ -829,7 +906,8 @@
         "yob": 1997,
         "fit": true,
         "weight": 70,
-        "experience": 0
+        "experience": 0,
+        "autoMatch": "yes"
       },
       {
         "id": 109,
@@ -839,7 +917,8 @@
         "yob": 2005,
         "fit": true,
         "weight": 73,
-        "experience": 0
+        "experience": 0,
+        "autoMatch": "yes"
       },
       {
         "id": 112,
@@ -849,7 +928,8 @@
         "yob": 1999,
         "fit": true,
         "weight": 75,
-        "experience": 1
+        "experience": 1,
+        "autoMatch": "yes"
       },
       {
         "id": 116,
@@ -859,7 +939,8 @@
         "yob": 1996,
         "fit": true,
         "weight": 77,
-        "experience": 2
+        "experience": 2,
+        "autoMatch": "yes"
       },
       {
         "id": 126,
@@ -869,7 +950,8 @@
         "yob": 2000,
         "fit": true,
         "weight": 81,
-        "experience": 4
+        "experience": 4,
+        "autoMatch": "yes"
       },
       {
         "id": 127,
@@ -879,7 +961,8 @@
         "yob": 2007,
         "fit": true,
         "weight": 82,
-        "experience": 3
+        "experience": 3,
+        "autoMatch": "yes"
       },
       {
         "id": 128,
@@ -889,7 +972,8 @@
         "yob": 2004,
         "fit": true,
         "weight": 82,
-        "experience": 1
+        "experience": 1,
+        "autoMatch": "yes"
       },
       {
         "id": 131,
@@ -899,7 +983,8 @@
         "yob": 1991,
         "fit": true,
         "weight": 90,
-        "experience": 5
+        "experience": 5,
+        "autoMatch": "yes"
       },
       {
         "id": 132,
@@ -909,7 +994,8 @@
         "yob": 2003,
         "fit": true,
         "weight": 92,
-        "experience": 4
+        "experience": 4,
+        "autoMatch": "yes"
       },
       {
         "id": 133,
@@ -919,7 +1005,8 @@
         "yob": 2004,
         "fit": true,
         "weight": 98,
-        "experience": 0
+        "experience": 0,
+        "autoMatch": "yes"
       },
       {
         "id": 136,
@@ -929,7 +1016,8 @@
         "yob": 2000,
         "fit": true,
         "weight": 105,
-        "experience": 0
+        "experience": 0,
+        "autoMatch": "yes"
       }
     ],
     "MaleSenior_Experienced": [
@@ -941,7 +1029,8 @@
         "yob": 2002,
         "fit": true,
         "weight": 63,
-        "experience": 8
+        "experience": 8,
+        "autoMatch": "yes"
       },
       {
         "id": 66,
@@ -951,7 +1040,8 @@
         "yob": 2007,
         "fit": true,
         "weight": 63.5,
-        "experience": 10
+        "experience": 10,
+        "autoMatch": "yes"
       },
       {
         "id": 73,
@@ -961,7 +1051,8 @@
         "yob": 1997,
         "fit": true,
         "weight": 65.3,
-        "experience": 9
+        "experience": 9,
+        "autoMatch": "yes"
       },
       {
         "id": 104,
@@ -971,7 +1062,8 @@
         "yob": 2005,
         "fit": true,
         "weight": 72,
-        "experience": 9
+        "experience": 9,
+        "autoMatch": "yes"
       },
       {
         "id": 106,
@@ -981,7 +1073,8 @@
         "yob": 1991,
         "fit": true,
         "weight": 73,
-        "experience": 6
+        "experience": 6,
+        "autoMatch": "yes"
       },
       {
         "id": 135,
@@ -991,7 +1084,8 @@
         "yob": 2001,
         "fit": true,
         "weight": 105,
-        "experience": 7
+        "experience": 7,
+        "autoMatch": "yes"
       },
       {
         "id": 137,
@@ -1001,7 +1095,8 @@
         "yob": 2004,
         "fit": true,
         "weight": 119,
-        "experience": 10
+        "experience": 10,
+        "autoMatch": "yes"
       }
     ],
     "MaleSenior_OpenClass": [
@@ -1013,7 +1108,8 @@
         "yob": 2006,
         "fit": true,
         "weight": 55,
-        "experience": 33
+        "experience": 33,
+        "autoMatch": "yes"
       },
       {
         "id": 33,
@@ -1023,7 +1119,8 @@
         "yob": 1992,
         "fit": true,
         "weight": 57,
-        "experience": 230
+        "experience": 230,
+        "autoMatch": "yes"
       },
       {
         "id": 34,
@@ -1033,7 +1130,8 @@
         "yob": 2004,
         "fit": true,
         "weight": 57,
-        "experience": 24
+        "experience": 24,
+        "autoMatch": "yes"
       },
       {
         "id": 36,
@@ -1043,7 +1141,8 @@
         "yob": 1989,
         "fit": true,
         "weight": 57,
-        "experience": 22
+        "experience": 22,
+        "autoMatch": "yes"
       },
       {
         "id": 47,
@@ -1053,7 +1152,8 @@
         "yob": 2004,
         "fit": true,
         "weight": 60,
-        "experience": 110
+        "experience": 110,
+        "autoMatch": "yes"
       },
       {
         "id": 48,
@@ -1063,7 +1163,8 @@
         "yob": 2001,
         "fit": true,
         "weight": 60,
-        "experience": 40
+        "experience": 40,
+        "autoMatch": "yes"
       },
       {
         "id": 50,
@@ -1073,7 +1174,8 @@
         "yob": 2007,
         "fit": true,
         "weight": 60,
-        "experience": 23
+        "experience": 23,
+        "autoMatch": "yes"
       },
       {
         "id": 52,
@@ -1083,7 +1185,8 @@
         "yob": 2007,
         "fit": true,
         "weight": 60,
-        "experience": 13
+        "experience": 13,
+        "autoMatch": "yes"
       },
       {
         "id": 54,
@@ -1093,7 +1196,8 @@
         "yob": 2002,
         "fit": true,
         "weight": 60,
-        "experience": 27
+        "experience": 27,
+        "autoMatch": "yes"
       },
       {
         "id": 62,
@@ -1103,7 +1207,8 @@
         "yob": 1999,
         "fit": true,
         "weight": 63,
-        "experience": 48
+        "experience": 48,
+        "autoMatch": "yes"
       },
       {
         "id": 67,
@@ -1113,7 +1218,8 @@
         "yob": 1995,
         "fit": true,
         "weight": 63.5,
-        "experience": 75
+        "experience": 75,
+        "autoMatch": "yes"
       },
       {
         "id": 77,
@@ -1123,7 +1229,8 @@
         "yob": 2006,
         "fit": true,
         "weight": 66,
-        "experience": 24
+        "experience": 24,
+        "autoMatch": "yes"
       },
       {
         "id": 80,
@@ -1133,7 +1240,8 @@
         "yob": 2005,
         "fit": true,
         "weight": 66,
-        "experience": 70
+        "experience": 70,
+        "autoMatch": "yes"
       },
       {
         "id": 82,
@@ -1143,7 +1251,8 @@
         "yob": 2000,
         "fit": true,
         "weight": 67,
-        "experience": 21
+        "experience": 21,
+        "autoMatch": "yes"
       },
       {
         "id": 85,
@@ -1153,7 +1262,8 @@
         "yob": 1997,
         "fit": true,
         "weight": 68,
-        "experience": 100
+        "experience": 100,
+        "autoMatch": "yes"
       },
       {
         "id": 95,
@@ -1163,7 +1273,8 @@
         "yob": 2006,
         "fit": true,
         "weight": 70,
-        "experience": 23
+        "experience": 23,
+        "autoMatch": "yes"
       },
       {
         "id": 96,
@@ -1173,7 +1284,8 @@
         "yob": 2005,
         "fit": true,
         "weight": 70,
-        "experience": 50
+        "experience": 50,
+        "autoMatch": "yes"
       },
       {
         "id": 97,
@@ -1183,7 +1295,8 @@
         "yob": 2007,
         "fit": true,
         "weight": 70,
-        "experience": 25
+        "experience": 25,
+        "autoMatch": "yes"
       },
       {
         "id": 105,
@@ -1193,7 +1306,8 @@
         "yob": 2007,
         "fit": true,
         "weight": 72,
-        "experience": 36
+        "experience": 36,
+        "autoMatch": "yes"
       },
       {
         "id": 107,
@@ -1203,7 +1317,8 @@
         "yob": 2001,
         "fit": true,
         "weight": 73,
-        "experience": 14
+        "experience": 14,
+        "autoMatch": "yes"
       },
       {
         "id": 115,
@@ -1213,7 +1328,8 @@
         "yob": 2005,
         "fit": true,
         "weight": 75,
-        "experience": 32
+        "experience": 32,
+        "autoMatch": "yes"
       },
       {
         "id": 117,
@@ -1223,7 +1339,8 @@
         "yob": 2005,
         "fit": true,
         "weight": 77,
-        "experience": 33
+        "experience": 33,
+        "autoMatch": "yes"
       },
       {
         "id": 120,
@@ -1233,7 +1350,8 @@
         "yob": 2007,
         "fit": true,
         "weight": 79,
-        "experience": 13
+        "experience": 13,
+        "autoMatch": "yes"
       },
       {
         "id": 121,
@@ -1243,7 +1361,8 @@
         "yob": 2005,
         "fit": true,
         "weight": 79.4,
-        "experience": 23
+        "experience": 23,
+        "autoMatch": "yes"
       },
       {
         "id": 122,
@@ -1253,7 +1372,8 @@
         "yob": 2001,
         "fit": true,
         "weight": 80,
-        "experience": 21
+        "experience": 21,
+        "autoMatch": "yes"
       },
       {
         "id": 124,
@@ -1263,7 +1383,8 @@
         "yob": 2002,
         "fit": true,
         "weight": 80,
-        "experience": 16
+        "experience": 16,
+        "autoMatch": "yes"
       },
       {
         "id": 125,
@@ -1273,7 +1394,8 @@
         "yob": 2007,
         "fit": true,
         "weight": 80,
-        "experience": 15
+        "experience": 15,
+        "autoMatch": "yes"
       },
       {
         "id": 129,
@@ -1283,7 +1405,8 @@
         "yob": 2003,
         "fit": true,
         "weight": 84,
-        "experience": 16
+        "experience": 16,
+        "autoMatch": "yes"
       },
       {
         "id": 130,
@@ -1293,7 +1416,8 @@
         "yob": 2005,
         "fit": true,
         "weight": 90,
-        "experience": 18
+        "experience": 18,
+        "autoMatch": "yes"
       },
       {
         "id": 134,
@@ -1303,7 +1427,8 @@
         "yob": 1994,
         "fit": true,
         "weight": 100,
-        "experience": 63
+        "experience": 63,
+        "autoMatch": "yes"
       }
     ],
     "Female": [
@@ -1315,7 +1440,8 @@
         "yob": 2012,
         "fit": true,
         "weight": 53,
-        "experience": 21
+        "experience": 21,
+        "autoMatch": "yes"
       },
       {
         "id": 31,
@@ -1325,7 +1451,8 @@
         "yob": 1985,
         "fit": true,
         "weight": 55,
-        "experience": 0
+        "experience": 0,
+        "autoMatch": "yes"
       },
       {
         "id": 35,
@@ -1335,7 +1462,8 @@
         "yob": 2008,
         "fit": true,
         "weight": 57,
-        "experience": 10
+        "experience": 10,
+        "autoMatch": "yes"
       },
       {
         "id": 38,
@@ -1345,7 +1473,8 @@
         "yob": 2005,
         "fit": true,
         "weight": 57,
-        "experience": 49
+        "experience": 49,
+        "autoMatch": "yes"
       },
       {
         "id": 44,
@@ -1355,7 +1484,8 @@
         "yob": 2003,
         "fit": true,
         "weight": 60,
-        "experience": 11
+        "experience": 11,
+        "autoMatch": "yes"
       },
       {
         "id": 49,
@@ -1365,7 +1495,8 @@
         "yob": 2008,
         "fit": true,
         "weight": 60,
-        "experience": 24
+        "experience": 24,
+        "autoMatch": "yes"
       },
       {
         "id": 64,
@@ -1375,7 +1506,8 @@
         "yob": 2009,
         "fit": true,
         "weight": 63,
-        "experience": 5
+        "experience": 5,
+        "autoMatch": "yes"
       },
       {
         "id": 72,
@@ -1385,7 +1517,8 @@
         "yob": 2007,
         "fit": true,
         "weight": 65,
-        "experience": 36
+        "experience": 36,
+        "autoMatch": "yes"
       },
       {
         "id": 78,
@@ -1395,7 +1528,8 @@
         "yob": 1993,
         "fit": true,
         "weight": 66,
-        "experience": 3
+        "experience": 3,
+        "autoMatch": "yes"
       },
       {
         "id": 87,
@@ -1405,7 +1539,8 @@
         "yob": 2002,
         "fit": true,
         "weight": 69,
-        "experience": 2
+        "experience": 2,
+        "autoMatch": "yes"
       },
       {
         "id": 93,
@@ -1415,7 +1550,8 @@
         "yob": 2006,
         "fit": true,
         "weight": 70,
-        "experience": 0
+        "experience": 0,
+        "autoMatch": "yes"
       }
     ]
   }

@@ -152,6 +152,7 @@ body { font-family: Arial, sans-serif; margin: 0; background: #f0f2f5; }
 .red-corner   .boxer-tile { border-top: 2px solid #e53935; }
 .blue-corner  .boxer-tile { border-top: 2px solid #1e88e5; }
 .third-corner .boxer-tile { border-top: 2px solid #9c27b0; }
+.extra-corner .boxer-tile { border-top: 2px solid #9c27b0; }
 
 .match-card.group-drop-target {
   outline: 2px dashed #9c27b0; background: #fdf4ff;
@@ -170,6 +171,10 @@ body { font-family: Arial, sans-serif; margin: 0; background: #f0f2f5; }
 .boxer-club   { color: #777; font-size: 11px; margin-top: 2px; }
 .boxer-stats  { color: #999; font-size: 10px; margin-top: 3px; }
 .boxer-bucket { color: #aaa; font-size: 10px; margin-top: 3px; font-style: italic; }
+.boxer-manual-badge {
+  font-size: 9px; font-weight: bold; color: #c62828; background: #ffebee;
+  padding: 1px 5px; border-radius: 3px; vertical-align: middle;
+}
 
 .drag-hint {
   font-size: 10px; color: #ccc; margin-top: 6px; text-align: right;

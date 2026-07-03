@@ -1,0 +1,465 @@
+[
+  {
+    "slot": 1,
+    "ring": "R1",
+    "sparId": "S30",
+    "category": "MaleSenior_Novice",
+    "red": "Isaac Cruz (Slough ABC)",
+    "blue": "William Zepeda (Finchley ABC)",
+    "weightDiff": "2.00"
+  },
+  {
+    "slot": 1,
+    "ring": "R2",
+    "sparId": "S29",
+    "category": "MaleSenior_Novice",
+    "red": "Carlos Ortiz (Finchley ABC)",
+    "blue": "Flash Elorde (Johnstone ABC)",
+    "third": "Carlos Zarate (Slough ABC)",
+    "weightDiff": "1.00"
+  },
+  {
+    "slot": 1,
+    "ring": "R3",
+    "sparId": "S45",
+    "category": "MaleSenior_OpenClass",
+    "red": "Aaron Pryor (Elite Bolton)",
+    "blue": "Edwin Rosario (Team NL)",
+    "weightDiff": "0.00"
+  },
+  {
+    "slot": 1,
+    "ring": "R4",
+    "sparId": "S44",
+    "category": "MaleSenior_OpenClass",
+    "red": "Mikey Garcia (Johnstone ABC)",
+    "blue": "Hector Camacho (Club Boxeo Los Álamos)",
+    "weightDiff": "0.60"
+  },
+  {
+    "slot": 1,
+    "ring": "R5",
+    "sparId": "S50",
+    "category": "Female",
+    "red": "Regina Halmich (Johnstone ABC)",
+    "blue": "Holly Holm (DOBLE JAB BOXING CLUB)",
+    "weightDiff": "1.00"
+  },
+  {
+    "slot": 2,
+    "ring": "R1",
+    "sparId": "S19",
+    "category": "MaleYouth_Novice",
+    "red": "Regis Prograis (The Academy Boxing Club)",
+    "blue": "Ivan Baranchyk (DOBLE JAB BOXING CLUB)",
+    "weightDiff": "1.00"
+  },
+  {
+    "slot": 2,
+    "ring": "R2",
+    "sparId": "S43",
+    "category": "MaleSenior_OpenClass",
+    "red": "Jack Catterall (Wolverhampton)",
+    "blue": "Jorge Linares (NoMercy/champscamp)",
+    "weightDiff": "2.00"
+  },
+  {
+    "slot": 2,
+    "ring": "R3",
+    "sparId": "S24",
+    "category": "MaleYouth_OpenClass",
+    "red": "Ryan Garcia (Baldoyle BC)",
+    "blue": "Devin Haney (Team NL)",
+    "weightDiff": "0.00"
+  },
+  {
+    "slot": 2,
+    "ring": "R4",
+    "sparId": "S28",
+    "category": "MaleSenior_Novice",
+    "red": "David Benavidez (Holy Family/Golden Gloves)",
+    "blue": "Gervonta Davis (Club boxeo los alamos)",
+    "third": "Josh Taylor (Team Ponce&Mary)",
+    "weightDiff": "2.00"
+  },
+  {
+    "slot": 2,
+    "ring": "R5",
+    "sparId": "S2",
+    "category": "MaleJunior_Novice",
+    "red": "Chris Eubank (Flookburgh ABC)",
+    "blue": "Larry Holmes (Dale youth)",
+    "weightDiff": "1.00"
+  },
+  {
+    "slot": 3,
+    "ring": "R1",
+    "sparId": "S18",
+    "category": "MaleYouth_Novice",
+    "red": "Caleb Plant (Hands Of Stone Montrose)",
+    "blue": "Shakur Stevenson (DOBLE JAB BOXING CLUB)",
+    "weightDiff": "0.60"
+  },
+  {
+    "slot": 3,
+    "ring": "R2",
+    "sparId": "S42",
+    "category": "MaleSenior_OpenClass",
+    "red": "Badou Jack (Club Boxeo Los Álamos)",
+    "blue": "Jose Ramirez (Wolverhampton)",
+    "weightDiff": "2.00"
+  },
+  {
+    "slot": 3,
+    "ring": "R3",
+    "sparId": "S17",
+    "category": "MaleYouth_Novice",
+    "red": "Sergey Kovalev (Arbroath Amateur Boxing Club)",
+    "blue": "Edgar Berlanga (Hands Of Stone Montrose)",
+    "weightDiff": "1.00"
+  },
+  {
+    "slot": 3,
+    "ring": "R4",
+    "sparId": "S32",
+    "category": "MaleSenior_Experienced",
+    "red": "Nathan Cleverly (Finchley ABC)",
+    "blue": "Adonis Stevenson (Arbroath Amateur Boxing Club)",
+    "weightDiff": "1.00"
+  },
+  {
+    "slot": 3,
+    "ring": "R5",
+    "sparId": "S49",
+    "category": "Female",
+    "red": "Nicola Adams (The Academy Boxing Club)",
+    "blue": "Mary Kom (Team NL)",
+    "third": "Lucia Rijker (Team Ponce&Mary)",
+    "weightDiff": "2.00"
+  },
+  {
+    "slot": 4,
+    "ring": "R1",
+    "sparId": "S16",
+    "category": "MaleYouth_Novice",
+    "red": "Jermall Charlo (Arbroath Amateur Boxing Club)",
+    "blue": "Dmitry Bivol (Club Boxeo Los Álamos)",
+    "weightDiff": "0.00"
+  },
+  {
+    "slot": 4,
+    "ring": "R2",
+    "sparId": "S41",
+    "category": "MaleSenior_OpenClass",
+    "red": "Shawn Porter (Team NL)",
+    "blue": "Tony Bellew (Finchley ABC)",
+    "weightDiff": "2.00"
+  },
+  {
+    "slot": 4,
+    "ring": "R3",
+    "sparId": "S23",
+    "category": "MaleYouth_OpenClass",
+    "red": "Jermell Charlo (The Bronx)",
+    "blue": "Artur Beterbiev (Finchley ABC)",
+    "third": "Gilberto Ramirez (Finchley ABC)",
+    "weightDiff": "1.00"
+  },
+  {
+    "slot": 4,
+    "ring": "R4",
+    "sparId": "S15",
+    "category": "MaleYouth_Novice",
+    "red": "Micky Ward (Arbroath Amateur Boxing Club)",
+    "blue": "Diego Corrales (Dale youth)",
+    "weightDiff": "0.00"
+  },
+  {
+    "slot": 4,
+    "ring": "R5",
+    "sparId": "S1",
+    "category": "MaleJunior_Novice",
+    "red": "Callum Smith (The Academy Boxing Club)",
+    "blue": "Nigel Benn (Flookburgh ABC)",
+    "weightDiff": "2.00"
+  },
+  {
+    "slot": 5,
+    "ring": "R1",
+    "sparId": "S40",
+    "category": "MaleSenior_OpenClass",
+    "red": "Danny Garcia (ICELAND)",
+    "blue": "Keith Thurman (Team NL)",
+    "weightDiff": "0.00"
+  },
+  {
+    "slot": 5,
+    "ring": "R2",
+    "sparId": "S20",
+    "category": "MaleYouth_Experienced",
+    "red": "Jeff Fenech (NoMercy/champscamp)",
+    "blue": "Arturo Gatti (Arbroath Amateur Boxing Club)",
+    "weightDiff": "1.00"
+  },
+  {
+    "slot": 5,
+    "ring": "R3",
+    "sparId": "S39",
+    "category": "MaleSenior_OpenClass",
+    "red": "Jack Sharkey (Slough ABC)",
+    "blue": "Marco Barrera (JR Boxing Academy)",
+    "weightDiff": "1.00"
+  },
+  {
+    "slot": 5,
+    "ring": "R4",
+    "sparId": "S14",
+    "category": "MaleYouth_Novice",
+    "red": "Max Schmeling (Club Boxeo Los Álamos)",
+    "blue": "James Braddock (Team Ponce&Mary)",
+    "weightDiff": "0.00"
+  },
+  {
+    "slot": 5,
+    "ring": "R5",
+    "sparId": "S5",
+    "category": "MaleJunior_Experienced",
+    "red": "Terence Crawford (Dale youth)",
+    "blue": "Johnny Nelson (Arklow BC)",
+    "weightDiff": "2.00"
+  },
+  {
+    "slot": 6,
+    "ring": "R1",
+    "sparId": "S38",
+    "category": "MaleSenior_OpenClass",
+    "red": "Sonny Liston (Fitsquare boxing team)",
+    "blue": "Max Baer (TSC Berlin)",
+    "weightDiff": "0.00"
+  },
+  {
+    "slot": 6,
+    "ring": "R2",
+    "sparId": "S31",
+    "category": "MaleSenior_Experienced",
+    "red": "Billy Saunders (Johnstone ABC)",
+    "blue": "Joe Joyce (Finchley ABC)",
+    "third": "Michael Watson (Johnstone ABC)",
+    "weightDiff": "0.50"
+  },
+  {
+    "slot": 6,
+    "ring": "R3",
+    "sparId": "S22",
+    "category": "MaleYouth_OpenClass",
+    "red": "Naoya Inoue (Baldoyle BC)",
+    "blue": "Lawrence Okolie (Islington)",
+    "weightDiff": "0.50"
+  },
+  {
+    "slot": 6,
+    "ring": "R4",
+    "sparId": "S37",
+    "category": "MaleSenior_OpenClass",
+    "red": "Demetrius Andrade (Johnstone ABC)",
+    "blue": "Daniel Dubois (Holy Family/Golden Gloves)",
+    "weightDiff": "0.50"
+  },
+  {
+    "slot": 6,
+    "ring": "R5",
+    "sparId": "S48",
+    "category": "Female",
+    "red": "Ann Wolfe (Club Boxeo Los Álamos)",
+    "blue": "Cecilia Braekhus (Team NL)",
+    "weightDiff": "0.00"
+  },
+  {
+    "slot": 7,
+    "ring": "R1",
+    "sparId": "S13",
+    "category": "MaleYouth_Novice",
+    "red": "Vasyl Lomachenko (Club Boxeo Los Álamos)",
+    "blue": "Errol Spence (Hands Of Stone Montrose)",
+    "weightDiff": "0.00"
+  },
+  {
+    "slot": 7,
+    "ring": "R2",
+    "sparId": "S12",
+    "category": "MaleYouth_Novice",
+    "red": "Deontay Wilder (Cricklewood Boxing Club)",
+    "blue": "Oleksandr Usyk (Slough ABC)",
+    "weightDiff": "1.00"
+  },
+  {
+    "slot": 7,
+    "ring": "R3",
+    "sparId": "S26",
+    "category": "MaleSenior_Novice",
+    "red": "Wladimir Klitschko (Dale youth)",
+    "blue": "Andy Ruiz (Hands Of Stone Montrose)",
+    "weightDiff": "2.00"
+  },
+  {
+    "slot": 7,
+    "ring": "R4",
+    "sparId": "S11",
+    "category": "MaleYouth_Novice",
+    "red": "Andre Ward (Club Boxeo Los Álamos)",
+    "blue": "Anthony Joshua (The Academy Boxing Club)",
+    "weightDiff": "0.00"
+  },
+  {
+    "slot": 7,
+    "ring": "R5",
+    "sparId": "S9",
+    "category": "MaleJunior_OpenClass",
+    "red": "Bob Fitzsimmons (NoMercy/champscamp)",
+    "blue": "James Corbett (Baldoyle BC)",
+    "weightDiff": "1.00"
+  },
+  {
+    "slot": 8,
+    "ring": "R1",
+    "sparId": "S35",
+    "category": "MaleSenior_OpenClass",
+    "red": "David Haye (Holy Family/Golden Gloves)",
+    "blue": "Carl Froch (Team NL)",
+    "third": "Tyson Fury (The Academy Boxing Club)",
+    "weightDiff": "0.00"
+  },
+  {
+    "slot": 8,
+    "ring": "R2",
+    "sparId": "S36",
+    "category": "MaleSenior_OpenClass",
+    "red": "Joe Calzaghe (Team NL)",
+    "blue": "Amir Khan (The Academy Boxing Club)",
+    "weightDiff": "0.00"
+  },
+  {
+    "slot": 8,
+    "ring": "R3",
+    "sparId": "S27",
+    "category": "MaleSenior_Novice",
+    "red": "Juan Marquez (Arbroath Amateur Boxing Club)",
+    "blue": "Kostya Tszyu (Hands Of Stone Montrose)",
+    "third": "Thomas Hearns (Camac Boxing Club)",
+    "extra": [
+      "Mickey Walker (The Academy Boxing Club)",
+      "Barney Ross (Cherry Orchard)"
+    ],
+    "weightDiff": "0.70"
+  },
+  {
+    "slot": 8,
+    "ring": "R4",
+    "sparId": "S25",
+    "category": "MaleSenior_Novice",
+    "red": "Jack Johnson (Dale youth)",
+    "blue": "Vitali Klitschko (DOBLE JAB BOXING CLUB)",
+    "weightDiff": "2.00"
+  },
+  {
+    "slot": 8,
+    "ring": "R5",
+    "sparId": "S47",
+    "category": "Female",
+    "red": "Katie Taylor (Finchley ABC)",
+    "blue": "Amanda Serrano (Team NL)",
+    "weightDiff": "0.00"
+  },
+  {
+    "slot": 9,
+    "ring": "R1",
+    "sparId": "S34",
+    "category": "MaleSenior_OpenClass",
+    "red": "Joe Gans (Dale youth)",
+    "blue": "Stanley Ketchel (Hispaboxing)",
+    "weightDiff": "0.00"
+  },
+  {
+    "slot": 9,
+    "ring": "R2",
+    "sparId": "S33",
+    "category": "MaleSenior_OpenClass",
+    "red": "Jack Dempsey (Team NL)",
+    "blue": "Harry Greb (Asc Nürnberg)",
+    "weightDiff": "2.00"
+  },
+  {
+    "slot": 9,
+    "ring": "R3",
+    "sparId": "S8",
+    "category": "MaleJunior_OpenClass",
+    "red": "Jersey Joe Walcott (Baldoyle BC)",
+    "blue": "Gene Tunney (Baldoyle BC)",
+    "weightDiff": "2.00"
+  },
+  {
+    "slot": 9,
+    "ring": "R4",
+    "sparId": "S10",
+    "category": "MaleYouth_Novice",
+    "red": "Sandy Saddler (Dale youth)",
+    "blue": "Ezzard Charles (Arbroath Amateur Boxing Club)",
+    "third": "Tony Canzoneri (Baldoyle BC)",
+    "weightDiff": "1.00"
+  },
+  {
+    "slot": 9,
+    "ring": "R5",
+    "sparId": "S46",
+    "category": "Female",
+    "red": "Laila Ali (Sydenham ABC)",
+    "blue": "Claressa Shields (Team Ponce&Mary)",
+    "weightDiff": "2.00"
+  },
+  {
+    "slot": 10,
+    "ring": "R1",
+    "sparId": "S4",
+    "category": "MaleJunior_Experienced",
+    "red": "Carlos Monzon (Camac Boxing Club)",
+    "blue": "Archie Moore (Johnstone ABC)",
+    "weightDiff": "1.00"
+  },
+  {
+    "slot": 10,
+    "ring": "R2",
+    "sparId": "S3",
+    "category": "MaleJunior_Experienced",
+    "red": "Marvin Hagler (Flookburgh ABC)",
+    "blue": "Julio Chavez (Baldoyle BC)",
+    "weightDiff": "2.00"
+  },
+  {
+    "slot": 10,
+    "ring": "R3",
+    "sparId": "S21",
+    "category": "MaleYouth_OpenClass",
+    "red": "Sugar Ray Leonard (The Academy Boxing Club)",
+    "blue": "Roberto Duran (Finchley ABC)",
+    "weightDiff": "1.00"
+  },
+  {
+    "slot": 10,
+    "ring": "R4",
+    "sparId": "S7",
+    "category": "MaleJunior_OpenClass",
+    "red": "Evander Holyfield (Cookstown ABC)",
+    "blue": "Roy Jones (Johnstone ABC)",
+    "third": "Bernard Hopkins (Baldoyle BC)",
+    "weightDiff": "1.70"
+  },
+  {
+    "slot": 10,
+    "ring": "R5",
+    "sparId": "S6",
+    "category": "MaleJunior_OpenClass",
+    "red": "Joe Frazier (The Academy Boxing Club)",
+    "blue": "George Foreman (The Academy Boxing Club)",
+    "weightDiff": "0.00"
+  }
+]

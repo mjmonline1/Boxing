@@ -63,6 +63,8 @@ function assertMatch(m, label = 'match') {
   assertBoxerDoc(m.blue, `${label}.blue`);
   assert.ok(m.third == null || typeof m.third === 'object', `${label}: third absent|null|object`);
   if (m.third) assertBoxerDoc(m.third, `${label}.third`);
+  assert.ok(m.extra == null || Array.isArray(m.extra), `${label}: extra absent|null|array`);
+  if (m.extra) m.extra.forEach((b, i) => assertBoxerDoc(b, `${label}.extra[${i}]`));
   assert.match(String(m.weightDiff), /^\d+\.\d{2}$/, `${label}: weightDiff is 2dp string`);
   assert.equal(typeof m.category, 'string', `${label}: category is string`);
   assert.ok(m.groupId === null || typeof m.groupId === 'string', `${label}: groupId null|string`);
@@ -106,6 +108,7 @@ function assertScheduleDoc(doc, label = 'schedule') {
       assertBoxerDoc(bt.red,  `${label}.bout.red`);
       assertBoxerDoc(bt.blue, `${label}.bout.blue`);
       assert.ok(bt.third === null || typeof bt.third === 'object', `${label}: bout.third null|object`);
+      assert.ok(bt.extra == null || Array.isArray(bt.extra), `${label}: bout.extra absent|null|array`);
       assert.match(String(bt.weightDiff), /^\d+\.\d{2}$/, `${label}: bout.weightDiff 2dp`);
     }
   }

@@ -1,0 +1,26 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - link "← Home" [ref=e3] [cursor=pointer]:
+      - /url: index.html
+    - heading "Spar Manager" [level=1] [ref=e4]
+    - generic [ref=e5]: "Date:"
+    - combobox [ref=e6] [cursor=pointer]
+    - button "Reset" [ref=e7] [cursor=pointer]
+    - button "Save Spars" [ref=e8] [cursor=pointer]
+    - button "☀️ Light" [ref=e9] [cursor=pointer]
+  - generic [ref=e10]:
+    - generic [ref=e11]: "Key:"
+    - generic [ref=e12]: Senior male
+    - generic [ref=e14]: Junior male
+    - generic [ref=e16]: Youth male
+    - generic [ref=e18]: Female
+    - generic [ref=e20]: Drag any boxer onto another to swap them · Drop onto the pool panel to unmatch · Drop an unmatched boxer onto another unmatched boxer to create a new pair · Ctrl+drop an unmatched boxer onto a group's card (not a tile) to add them — no size limit
+  - generic [ref=e21]:
+    - generic [ref=e22]: "Category:"
+    - combobox [ref=e23]:
+      - option "All categories" [selected]
+    - generic [ref=e24]: "Search:"
+    - textbox "name or club…" [ref=e25]
+  - generic [ref=e29]:
+    - generic [ref=e30]: Unmatched Pool
+    - generic [ref=e31]: Drop a paired boxer here to free them

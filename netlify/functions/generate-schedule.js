@@ -2,6 +2,7 @@
 const { MongoClient } = require('mongodb');
 const { distributeGrouped, buildSlots, makeSummary,
         isBothSeniorMale, hasFemale, isR5Eligible, RINGS_ALL } = require('../../RingAssigner');
+const GroupUtils = require('../../group-utils');
 
 let cachedClient;
 async function getDb() {
@@ -20,7 +21,7 @@ exports.handler = async (event) => {
     }
 
     const matches = sparsDoc.matches.map((m, i) => ({ sparId: `S${i + 1}`, ...m }));
-    const avg     = m => m.third ? (m.red.weight + m.blue.weight + m.third.weight) / 3 : (m.red.weight + m.blue.weight) / 2;
+    const avg     = m => GroupUtils.avgWeight(GroupUtils.membersOf(m));
     matches.sort((a, b) => day % 2 === 1 ? avg(b) - avg(a) : avg(a) - avg(b));
 
     const queues  = distributeGrouped(matches);

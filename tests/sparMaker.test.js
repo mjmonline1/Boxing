@@ -1,6 +1,6 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { pairBoxers, pairAll } = require('../SparMaker');
+const { pairBoxers, pairAll, checkMatchingRisks } = require('../SparMaker');
 
 const WEIGHT_TOLERANCE = 2.0;
 const PHASE2_TOLERANCE = 2.5;
@@ -233,6 +233,34 @@ test('pairAll runs phases 1-3b, skips Notfit/empty, folds leftover into a group'
     assert.equal(r.phases.phase3.unmatched.length, 1); // F
 });
 
+// 17b. maxPhase stops the pipeline early — same fixture as test 17.
+test('pairAll maxPhase=1 stops after phase 1: no phase-2 pair, no group fold', () => {
+    const buckets = {
+        Grp: [eb('A', 70, 'X'), eb('B', 71, 'Y'), eb('C', 70.5, 'Z')],
+        P2:  [eb('D', 60, 'X'), eb('E', 62.3, 'Y')],
+        Solo: [eb('F', 100, 'X')],
+    };
+    const r = pairAll(buckets, { maxPhase: 1 });
+    assert.equal(r.matches.length, 1, 'only the phase-1 A/C pair');
+    assert.equal(r.groupCount, 0, 'no group fold — B stays unmatched');
+    assert.equal(r.unmatched.length, 4, 'B, D, E, F all still unmatched');
+    assert.equal(r.phases.phase2.matches.length, 0);
+    assert.equal(r.phases.phase3.groups.length, 0);
+});
+
+test('pairAll maxPhase=2 runs phase 2 but skips the group fold', () => {
+    const buckets = {
+        Grp: [eb('A', 70, 'X'), eb('B', 71, 'Y'), eb('C', 70.5, 'Z')],
+        P2:  [eb('D', 60, 'X'), eb('E', 62.3, 'Y')],
+        Solo: [eb('F', 100, 'X')],
+    };
+    const r = pairAll(buckets, { maxPhase: 2 });
+    assert.equal(r.matches.length, 2, 'A/C and D/E pair, but B is not folded in');
+    assert.equal(r.groupCount, 0, 'group fold did not run');
+    assert.equal(r.unmatched.length, 2, 'B and F remain unmatched, not folded');
+    assert.ok(r.unmatched.some(b => b.name === 'B'));
+});
+
 // 18. tol1 option is honoured — widening phase 1 matches what default leaves for phase 2.
 test('pairAll respects custom tol1', () => {
     const buckets = { Cat: [eb('D', 60, 'X'), eb('E', 62.3, 'Y')] };
@@ -251,6 +279,72 @@ test('pairBoxers pairs an exact-tolerance pair despite float error (phase-2 edge
     const { matches, unmatched } = pairBoxers(boxers, 'Cat', PHASE2_TOLERANCE);
     assert.equal(matches.length, 1, 'exact-2.5 pair must match');
     assert.equal(unmatched.length, 0);
+});
+
+// 20. checkMatchingRisks — reproduces the design doc's own worked examples
+// (docs/matching-optimality-design.md) so the detector matches the documented cases.
+test('checkMatchingRisks flags the doc\'s stranding example (63.5 stranded near a taken 65.7)', () => {
+    const matches = [{ category: 'Female', groupId: null,
+        red: { name: 'B', weight: 65.7 }, blue: { name: 'C', weight: 67.4 } }];
+    const unmatched = [{ name: 'A', weight: 63.5, category: 'Female' }];
+    const { strandedCandidates, overSpreadTrios } = checkMatchingRisks(matches, unmatched);
+    assert.equal(overSpreadTrios.length, 0);
+    assert.equal(strandedCandidates.length, 1);
+    assert.equal(strandedCandidates[0].nearestMatchedPartner, 'B');
+    assert.equal(strandedCandidates[0].diff, 2.2);
+});
+
+test('checkMatchingRisks flags the doc\'s over-spread trio example (70/72 pair + 73.9 third)', () => {
+    const matches = [{ category: 'Cat', groupId: 'g1',
+        red: { name: 'R', weight: 70.0 }, blue: { name: 'Bl', weight: 72.0 }, third: { name: 'T', weight: 73.9 } }];
+    const { overSpreadTrios, strandedCandidates } = checkMatchingRisks(matches, []);
+    assert.equal(strandedCandidates.length, 0);
+    assert.equal(overSpreadTrios.length, 1);
+    assert.equal(overSpreadTrios[0].worstPair, 'R vs T');
+    assert.equal(overSpreadTrios[0].worstDiff, 3.9);
+});
+
+// Defensive-only: phase 3b itself never produces >3-member groups, but a
+// SparManager-grown 5-member group (extra[]) fed back through checkMatchingRisks
+// (e.g. on a re-save) must not crash and must scan all C(5,2)=10 pairs.
+test('checkMatchingRisks: a manually-grown 5-member group scans all C(5,2)=10 pairs without crashing', () => {
+    const matches = [{ category: 'Cat', groupId: 'g1',
+        red: { name: 'R', weight: 70.0 }, blue: { name: 'Bl', weight: 71.0 }, third: { name: 'T', weight: 72.0 },
+        extra: [{ name: 'E1', weight: 73.0 }, { name: 'E2', weight: 80.0 }] }];
+    const { overSpreadTrios } = checkMatchingRisks(matches, []);
+    assert.equal(overSpreadTrios.length, 1);
+    assert.equal(overSpreadTrios[0].worstPair, 'R vs E2');
+    assert.equal(overSpreadTrios[0].worstDiff, 10);
+});
+
+test('matchedCount reducer counts every member including extra[]', () => {
+    const matches = [
+        { red: {}, blue: {} },
+        { red: {}, blue: {}, third: {} },
+        { red: {}, blue: {}, third: {}, extra: [{}, {}] },
+    ];
+    const GroupUtils = require('../group-utils');
+    const matchedCount = matches.reduce((n, m) => n + GroupUtils.membersOf(m).length, 0);
+    assert.equal(matchedCount, 2 + 3 + 5);
+});
+
+// 21. pairAll — autoMatch='no' boxers are held out of pairing entirely and returned
+// as manualMatch, not paired and not counted as unmatched.
+test('pairAll holds autoMatch="no" boxers out of pairing, returns them as manualMatch', () => {
+    const buckets = { Cat: [eb('A', 70, 'X'), eb('B', 71, 'Y'), { ...eb('C', 70.5, 'Z'), autoMatch: 'no' }] };
+    const r = pairAll(buckets);
+    assert.equal(r.matches.length, 1, 'A/B still pair normally');
+    assert.equal(r.unmatched.length, 0, 'C is not "unmatched" — held out, not attempted');
+    assert.equal(r.manualMatch.length, 1);
+    assert.equal(r.manualMatch[0].name, 'C');
+    assert.equal(r.manualMatch[0].category, 'Cat');
+});
+
+test('pairAll: boxers with no autoMatch field default to auto-matched (backward compatible)', () => {
+    const buckets = { Cat: [eb('A', 70, 'X'), eb('B', 71, 'Y')] };
+    const r = pairAll(buckets);
+    assert.equal(r.matches.length, 1);
+    assert.equal(r.manualMatch.length, 0);
 });
 
 // 20. Same bug end-to-end through pairAll: the exact-2.5 pair surfaces as a match, not as

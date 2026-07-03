@@ -1,4 +1,7 @@
 // Copyright (c) 2026 ITLR Assets. All rights reserved.
+//
+// Runtime port: reads process.env.PORT from .env, falls back to 5500 if unset.
+// Check .env before assuming 5500 — it currently overrides this to a different port.
 require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
@@ -17,6 +20,8 @@ app.use(express.json());
 app.use(express.static(__dirname));
 
 const FILE = path.join(__dirname, "Sparrings.json");
+
+app.use('/api', (req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });
 
 // ---- API ----
 app.get('/api/version', (req, res) => {
@@ -59,8 +64,8 @@ function runWithCapture(fn) {
   console.log   = (...a) => { logs.push(a.map(String).join(' ')); origLog(...a); };
   console.error = (...a) => { logs.push('ERROR: ' + a.map(String).join(' ')); origError(...a); };
   try {
-    fn();
-    return { success: true, output: logs.join('\n'), error: null };
+    const result = fn();
+    return { success: true, output: logs.join('\n'), error: null, ...(result || {}) };
   } catch (e) {
     return { success: false, output: logs.join('\n'), error: e.message };
   } finally {
@@ -73,7 +78,8 @@ function runWithCapture(fn) {
 // PUT /api/data/buckets — there is no server-side "run buckets" step.
 
 app.post("/api/run/spar-maker", (req, res) => {
-  res.json(runWithCapture(runSparMaker));
+  const maxPhase = parseInt(req.query.maxPhase) || 3;
+  res.json(runWithCapture(() => runSparMaker(maxPhase)));
 });
 
 app.post("/api/run/ring-assigner", (req, res) => {
@@ -90,12 +96,12 @@ const BOXER_RAW_HEADERS = [
   'LOST (the number only)', 'Additional information or comments (optional)',
   'I understand that all boxers have to weigh in on Monday 7th July.',
   'I accept that boxers under 50kg use 12oz gloves, 50-69kg use 14oz gloves and 70kg plus use 16oz gloves. Headgear, protectors (male and female) and mouthguards MUST be worn during spars.',
-  'Email address', 'fit', 'Spars per Day'
+  'Email address', 'fit', 'Auto Match', 'Spars per Day'
 ];
 const BOXER_INTERNAL_KEYS = [
   'submissionDate', 'name', 'club', 'gender', 'category', 'dob',
   'weight', 'bouts', 'won', 'lost', 'comments',
-  'consent1', 'consent2', 'email', 'fit', 'sparsPerDay'
+  'consent1', 'consent2', 'email', 'fit', 'autoMatch', 'sparsPerDay'
 ];
 
 function readBoxersCSV() {

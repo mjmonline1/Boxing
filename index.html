@@ -199,6 +199,12 @@
     <option value="7">Sunday</option>
   </select>
   <span id="dayParity" style="font-size:20px;color:var(--muted);"></span>
+  <label for="maxPhaseInput" style="white-space:nowrap;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-left:1rem;">Match Phase</label>
+  <select id="maxPhaseInput" style="padding:4px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:24px;cursor:pointer;">
+    <option value="1">Phase 1 only (±2kg)</option>
+    <option value="2">Phase 1+2 (±2.5kg)</option>
+    <option value="3" selected>All phases (+ groups)</option>
+  </select>
 </div>
 
 <div class="grid">
@@ -341,6 +347,8 @@
     showModal(title, 'Running…');
     const url = endpoint.includes('generate-schedule')
       ? `${endpoint}?day=${parseInt(document.getElementById('dayInput').value) || 1}`
+      : endpoint.includes('spar-maker') || endpoint.includes('generate-spars')
+      ? `${endpoint}?maxPhase=${parseInt(document.getElementById('maxPhaseInput').value) || 3}`
       : endpoint;
     try {
       const res = await fetch(url, { method: 'POST' });
