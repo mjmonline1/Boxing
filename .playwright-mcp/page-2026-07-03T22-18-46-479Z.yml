@@ -1,0 +1,85 @@
+- generic [active] [ref=f6e1]:
+  - button "☀️ Light" [ref=f6e2] [cursor=pointer]
+  - banner [ref=f6e3]:
+    - paragraph [ref=f6e4]: TSC 2026
+  - generic [ref=f6e5]:
+    - generic [ref=f6e6]:
+      - generic [ref=f6e7]: Tournament Day
+      - generic [ref=f6e8]:
+        - combobox "Tournament Day" [ref=f6e9] [cursor=pointer]:
+          - option "Monday"
+          - option "Tuesday"
+          - option "Wednesday"
+          - option "Thursday"
+          - option "Friday" [selected]
+          - option "Saturday"
+          - option "Sunday"
+        - generic [ref=f6e10]: (wt desc)
+    - generic [ref=f6e11]:
+      - generic [ref=f6e12]: Match Phase
+      - combobox "Match Phase" [ref=f6e13] [cursor=pointer]:
+        - option "Phase 1 only (±2kg)"
+        - option "Phase 1+2 (±2.5kg)"
+        - option "All phases (+ groups)" [selected]
+    - generic [ref=f6e14]:
+      - generic [ref=f6e15]: Algorithm
+      - combobox "Algorithm" [ref=f6e16] [cursor=pointer]:
+        - option "Greedy (fast, current)" [selected]
+        - option "Optimal (maximum matching)"
+    - generic [ref=f6e17]:
+      - generic [ref=f6e18]: Trio Tol
+      - spinbutton "Trio Tol" [ref=f6e19]: "2.0"
+  - generic [ref=f6e20]:
+    - link "Step 1 🥊 Boxer Manager Add, edit and review the boxer roster" [ref=f6e21] [cursor=pointer]:
+      - /url: BoxerManager.html
+      - generic [ref=f6e22]: Step 1
+      - generic [ref=f6e23]: 🥊
+      - generic [ref=f6e24]: Boxer Manager
+      - generic [ref=f6e25]: Add, edit and review the boxer roster
+    - link "Step 2 🪣 Put Fighters into Categories Distribute boxers into weight & age brackets" [ref=f6e26] [cursor=pointer]:
+      - /url: BucketAssigner.html
+      - generic [ref=f6e27]: Step 2
+      - generic [ref=f6e28]: 🪣
+      - generic [ref=f6e29]: Put Fighters into Categories
+      - generic [ref=f6e30]: Distribute boxers into weight & age brackets
+    - generic [ref=f6e31] [cursor=pointer]:
+      - generic [ref=f6e32]: Step 3
+      - generic [ref=f6e33]: ⚡
+      - generic [ref=f6e34]: Create Spars
+      - generic [ref=f6e35]: Auto-pair boxers by weight & club
+    - link "Step 4 📋 Spar Manager Review and manage sparring assignments" [ref=f6e36] [cursor=pointer]:
+      - /url: SparManager.html
+      - generic [ref=f6e37]: Step 4
+      - generic [ref=f6e38]: 📋
+      - generic [ref=f6e39]: Spar Manager
+      - generic [ref=f6e40]: Review and manage sparring assignments
+    - generic [ref=f6e41] [cursor=pointer]:
+      - generic [ref=f6e42]: Step 5
+      - generic [ref=f6e43]: 🔔
+      - generic [ref=f6e44]: Assign Rings
+      - generic [ref=f6e45]: Auto-allocate bouts to rings & time slots
+    - link "Step 6 🏟️ Ring Manager View and adjust ring & schedule allocations" [ref=f6e46] [cursor=pointer]:
+      - /url: RingManager.html
+      - generic [ref=f6e47]: Step 6
+      - generic [ref=f6e48]: 🏟️
+      - generic [ref=f6e49]: Ring Manager
+      - generic [ref=f6e50]: View and adjust ring & schedule allocations
+    - link "Tools ⚙️ Utilities Import spreadsheet data into the database" [ref=f6e51] [cursor=pointer]:
+      - /url: Utilities.html
+      - generic [ref=f6e52]: Tools
+      - generic [ref=f6e53]: ⚙️
+      - generic [ref=f6e54]: Utilities
+      - generic [ref=f6e55]: Import spreadsheet data into the database
+  - 'img "Pipeline: Registered Boxers to Bucketizer to SparMaker to RingManager" [ref=f6e56]':
+    - generic [ref=f6e57]:
+      - generic [ref=f6e58]: classify
+      - generic [ref=f6e59]: pair
+      - generic [ref=f6e60]: schedule
+    - generic [ref=f6e61]:
+      - generic [ref=f6e64]: RegisteredBoxers
+      - link "Open Boxing.png" [ref=f6e65] [cursor=pointer]:
+        - /url: SVG/boxing.png
+        - generic [ref=f6e68]: Bucketizer
+      - generic [ref=f6e71]: Spar Manager
+      - generic [ref=f6e74]: Ring Manager
+  - paragraph [ref=f6e75]: v1.3.47
