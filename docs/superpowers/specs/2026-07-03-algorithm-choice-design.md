@@ -164,6 +164,14 @@ the knob admits 2.0–2.5 trios, which checkMatchingRisks still reports —
 that is visibility, not a bug. Exposed as a number input in index.html and
 a `trioTol` query param on spar-maker/generate-spars. Greedy is unaffected.
 
+Real-roster verification (137 boxers, 2026-07-03): greedy ships 109 matched
+including **3 over-spread trios** (worst internal bouts 4.0 / 3.0 / 2.3 kg);
+optimal@2.0 ships 106 matched with **zero**; optimal@2.5 ships 107 with one
+2.0–2.5 trio, duly flagged. Clarification to the Testing section's invariant:
+optimal's matched count dominates greedy's on the **pairing pass** (both
+paired 100 boxers into 50 matches); its *total* can be lower because it
+refuses the over-tolerance trio bouts greedy uses to inflate its count.
+
 ## Out of scope
 
 - Changing greedy in any way (byte-identical baseline preserved).
