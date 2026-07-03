@@ -1,10 +1,10 @@
 # Matching Optimality & Round-Robin Spread — Design Note
 
-> **STATUS: DO NOT IMPLEMENT unless explicitly instructed.**
-> This documents two *known, linked limitations* and the options for fixing them.
-> The current code is intentional and correct for the production roster. No change
-> should be made to the matcher or group-join tolerance on the basis of this note
-> alone — only on an explicit, specific instruction from the maintainer.
+> **STATUS: Option 1 IMPLEMENTED (2026-07-03) as a selectable algorithm — see
+> `docs/superpowers/specs/2026-07-03-algorithm-choice-design.md`.**
+> Greedy remains the default and is byte-identical. The limitations below
+> still describe greedy's behaviour; the `optimal` algorithm fixes both (A)
+> and (B) when selected.
 
 ## Scope
 
