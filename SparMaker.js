@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const GroupUtils = require('./group-utils');
+const blossom = require('edmonds-blossom');
 
 // Configuration
 const _d          = new Date();
@@ -95,6 +96,75 @@ function pairBoxers(boxers, categoryName, tolerance = WEIGHT_TOLERANCE, sparCoun
         }
     }
 
+    return { matches, unmatched: leftover };
+}
+
+/**
+ * Optimal per-bucket pairing: one maximum-weight matching solve (Edmonds
+ * blossom, maxCardinality) over all in-tolerance pairs. Same contract as
+ * pairBoxers. Unlike greedy there is no tight-then-loose two-pass — callers
+ * pass the full combined tolerance (default PHASE2_TOLERANCE).
+ * maxCardinality guarantees the most boxers spar; the edge score then picks
+ * the closest-weight, different-club-preferring matching among those.
+ */
+function pairBoxersOptimal(boxers, categoryName, tolerance = PHASE2_TOLERANCE, sparCount, partneredWith) {
+    const leftover = boxers.filter(b => !Number.isFinite(b.weight));
+    const pool = boxers.filter(b => Number.isFinite(b.weight))
+                       .sort((a, b) => a.weight - b.weight);
+    const matches = [];
+
+    const count    = sparCount     || new Map();
+    const partners = partneredWith || new Map();
+    const cap  = b => b.sparsPerDay || 1;
+    const used = b => count.get(b) || 0;
+    const hasMet = (a, b) => partners.get(a)?.has(b);
+    const meet = (a, b) => {
+        (partners.get(a) || partners.set(a, new Set()).get(a)).add(b);
+        (partners.get(b) || partners.set(b, new Set()).get(b)).add(a);
+    };
+
+    // Loop-and-rerun for sparsPerDay > 1: after each solve, boxers still under
+    // their daily cap re-enter (minus already-met partners) until no pair forms.
+    // With everyone at sparsPerDay=1 (the real roster) this runs exactly once.
+    while (true) {
+        const eligible = pool.filter(b => used(b) < cap(b));
+        const edges = [];
+        for (let i = 0; i < eligible.length; i++) {
+            for (let j = i + 1; j < eligible.length; j++) {
+                const diff = Math.abs(eligible[i].weight - eligible[j].weight);
+                if (diff > tolerance + WEIGHT_EPS) continue;
+                if (hasMet(eligible[i], eligible[j])) continue;
+                // Rank: closer weight better, different club a small bonus —
+                // same preferences as greedy's tie-breaking. maxCardinality
+                // makes pair COUNT dominate regardless of this score's scale.
+                const score = 1000 - diff * 10 + (eligible[i].club !== eligible[j].club ? 5 : 0);
+                edges.push([i, j, score]);
+            }
+        }
+        if (edges.length === 0) break;
+
+        const mate = blossom(edges, true);
+        let formed = 0;
+        for (let i = 0; i < eligible.length; i++) {
+            const j = mate[i];
+            if (j == null || j < 0 || j < i) continue; // unmatched, no-edge vertex, or already emitted
+            const red = eligible[i], blue = eligible[j];
+            count.set(red,  used(red)  + 1);
+            count.set(blue, used(blue) + 1);
+            meet(red, blue);
+            matches.push({
+                red, blue,
+                weightDiff: Math.abs(red.weight - blue.weight).toFixed(2),
+                category: categoryName,
+                groupId: null
+            });
+            formed++;
+        }
+        if (formed === 0) break;
+    }
+
+    // Same leftover semantics as greedy: never-matched, or matched but still under cap.
+    leftover.push(...pool.filter(b => used(b) < cap(b)));
     return { matches, unmatched: leftover };
 }
 
@@ -343,4 +413,4 @@ if (require.main === module) {
 }
 /* c8 ignore stop */
 
-module.exports = { main, pairBoxers, pairAll, buildPhaseLog, checkMatchingRisks };
+module.exports = { main, pairBoxers, pairBoxersOptimal, pairAll, buildPhaseLog, checkMatchingRisks };
