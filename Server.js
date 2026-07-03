@@ -78,8 +78,9 @@ function runWithCapture(fn) {
 // PUT /api/data/buckets — there is no server-side "run buckets" step.
 
 app.post("/api/run/spar-maker", (req, res) => {
-  const maxPhase = parseInt(req.query.maxPhase) || 3;
-  res.json(runWithCapture(() => runSparMaker(maxPhase)));
+  const maxPhase  = parseInt(req.query.maxPhase) || 3;
+  const algorithm = req.query.algorithm === 'optimal' ? 'optimal' : 'greedy';
+  res.json(runWithCapture(() => runSparMaker(maxPhase, algorithm)));
 });
 
 app.post("/api/run/ring-assigner", (req, res) => {

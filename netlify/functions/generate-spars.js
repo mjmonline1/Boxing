@@ -13,7 +13,8 @@ async function getDb() {
 
 exports.handler = async (event) => {
   try {
-    const maxPhase = parseInt(event?.queryStringParameters?.maxPhase) || 3;
+    const maxPhase  = parseInt(event?.queryStringParameters?.maxPhase) || 3;
+    const algorithm = event?.queryStringParameters?.algorithm === 'optimal' ? 'optimal' : 'greedy';
     const db = await getDb();
     const bucketsDoc = await db.collection('buckets').findOne({ _id: 'current' });
     if (!bucketsDoc?.finalBuckets) {
@@ -21,7 +22,7 @@ exports.handler = async (event) => {
     }
 
     const { matches: allMatches, unmatched: stillRemaining, manualMatch, groupCount, phases } =
-      pairAll(bucketsDoc.finalBuckets, { maxPhase });
+      pairAll(bucketsDoc.finalBuckets, { maxPhase, algorithm });
 
     const total = bucketsDoc.summary?.totalDistributed ?? (allMatches.length * 2 + stillRemaining.length);
     const result = {
