@@ -177,6 +177,43 @@
     color: var(--faint);
     white-space: nowrap;
   }
+
+  /* Settings bar above the step grid — wraps instead of overflowing. */
+  .controls {
+    width: 100%;
+    max-width: 760px;
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 22px;
+    padding: 16px 20px;
+    margin-bottom: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .controls .control { display: flex; flex-direction: column; gap: 6px; }
+  .controls label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .controls .control-row { display: flex; align-items: center; gap: 8px; }
+  .controls select,
+  .controls input {
+    padding: 5px 9px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 15px;
+    cursor: pointer;
+  }
+  .controls input[type="number"] { width: 64px; cursor: text; }
+  .controls #dayParity { font-size: 12px; color: var(--muted); white-space: nowrap; }
 </style>
 <link rel="stylesheet" href="theme.css">
 </head>
@@ -187,31 +224,41 @@
 <header>
   <p class="eyebrow">TSC 2026</p></header>
 
-<div style="width:100%;max-width:760px;display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;">
-  <label for="dayInput" style="white-space:nowrap;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);">Tournament Day</label>
-  <select id="dayInput" style="padding:4px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:24px;cursor:pointer;">
-    <option value="1">Monday</option>
-    <option value="2">Tuesday</option>
-    <option value="3">Wednesday</option>
-    <option value="4">Thursday</option>
-    <option value="5">Friday</option>
-    <option value="6">Saturday</option>
-    <option value="7">Sunday</option>
-  </select>
-  <span id="dayParity" style="font-size:20px;color:var(--muted);"></span>
-  <label for="maxPhaseInput" style="white-space:nowrap;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-left:1rem;">Match Phase</label>
-  <select id="maxPhaseInput" style="padding:4px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:24px;cursor:pointer;">
-    <option value="1">Phase 1 only (±2kg)</option>
-    <option value="2">Phase 1+2 (±2.5kg)</option>
-    <option value="3" selected>All phases (+ groups)</option>
-  </select>
-  <label for="algoInput" style="white-space:nowrap;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-left:1rem;">Algorithm</label>
-  <select id="algoInput" style="padding:4px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:24px;cursor:pointer;">
-    <option value="greedy" selected>Greedy (fast, current)</option>
-    <option value="optimal">Optimal (maximum matching)</option>
-  </select>
-  <label for="trioTolInput" style="white-space:nowrap;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-left:1rem;">Trio Tol</label>
-  <input id="trioTolInput" type="number" min="2" max="2.5" step="0.1" value="2.0" style="width:70px;padding:4px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:24px;" />
+<div class="controls">
+  <div class="control">
+    <label for="dayInput">Tournament Day</label>
+    <div class="control-row">
+      <select id="dayInput">
+        <option value="1">Monday</option>
+        <option value="2">Tuesday</option>
+        <option value="3">Wednesday</option>
+        <option value="4">Thursday</option>
+        <option value="5">Friday</option>
+        <option value="6">Saturday</option>
+        <option value="7">Sunday</option>
+      </select>
+      <span id="dayParity"></span>
+    </div>
+  </div>
+  <div class="control">
+    <label for="maxPhaseInput">Match Phase</label>
+    <select id="maxPhaseInput">
+      <option value="1">Phase 1 only (±2kg)</option>
+      <option value="2">Phase 1+2 (±2.5kg)</option>
+      <option value="3" selected>All phases (+ groups)</option>
+    </select>
+  </div>
+  <div class="control">
+    <label for="algoInput">Algorithm</label>
+    <select id="algoInput">
+      <option value="greedy" selected>Greedy (fast, current)</option>
+      <option value="optimal">Optimal (maximum matching)</option>
+    </select>
+  </div>
+  <div class="control">
+    <label for="trioTolInput">Trio Tol</label>
+    <input id="trioTolInput" type="number" min="2" max="2.5" step="0.1" value="2.0" />
+  </div>
 </div>
 
 <div class="grid">
