@@ -83,3 +83,81 @@ test('optimal: sparsPerDay=2 boxer gets two distinct opponents via rerun loop', 
     const opponents = matches.map(m => (m.red === multi ? m.blue : m.red).id);
     assert.equal(new Set(opponents).size, 2, 'two different opponents, no rematch');
 });
+
+// --- pairAll dispatch ---------------------------------------------------------
+
+test('pairAll algorithm=optimal: seed-255 bucket fully paired; greedy control strands one', () => {
+    const mk = () => ({ Female: [bx(63.5), bx(65.7), bx(67.4), bx(67.4)] });
+    const opt = pairAll(mk(), { algorithm: 'optimal' });
+    assert.equal(opt.unmatched.length, 0, 'optimal: nobody unmatched');
+    assert.equal(opt.matches.length, 2);
+    const greedy = pairAll(mk());
+    assert.equal(greedy.unmatched.length, 1, 'greedy control: 63.5 stranded (or folded check)');
+});
+
+test('pairAll algorithm=optimal: over-spread trio never forms (doc case 70/72 + 73.9)', () => {
+    // Greedy folds 73.9 onto the 70/72 pair → an internal 3.9 kg bout.
+    // Optimal must not ship any trio with an internal diff above tol2.
+    const r = pairAll({ Cat: [bx(70.0), bx(72.0), bx(73.9)] }, { algorithm: 'optimal' });
+    const { overSpreadTrios } = checkMatchingRisks(r.matches, r.unmatched);
+    assert.equal(overSpreadTrios.length, 0, 'no over-spread trio under optimal');
+    // The trio is rejected (70↔73.9 = 3.9 > 2.5): one clean pair + one unmatched.
+    assert.equal(r.matches.length, 1);
+    assert.equal(r.unmatched.length, 1);
+});
+
+test('pairAll algorithm=optimal: trio-fold still forms valid trios (all three diffs in tolerance)', () => {
+    // 70, 71, 72: optimal pairs two, the leftover is within 2.5 of BOTH members
+    // and the pair diff is fine → a legal trio forms at maxPhase 3.
+    const r = pairAll({ Cat: [bx(70), bx(71), bx(72)] }, { algorithm: 'optimal' });
+    assert.equal(r.matches.length, 1);
+    assert.ok(r.matches[0].third, 'leftover folded into a round-robin trio');
+    assert.equal(r.unmatched.length, 0);
+    const { overSpreadTrios } = checkMatchingRisks(r.matches, r.unmatched);
+    assert.equal(overSpreadTrios.length, 0);
+});
+
+test('pairAll algorithm=optimal: maxPhase<3 skips the trio-fold', () => {
+    const r = pairAll({ Cat: [bx(70), bx(71), bx(72)] }, { algorithm: 'optimal', maxPhase: 1 });
+    assert.equal(r.matches.length, 1);
+    assert.ok(!r.matches[0].third);
+    assert.equal(r.unmatched.length, 1);
+});
+
+test('pairAll algorithm=optimal: phaseLog shape — combined pass under phase1, phase2 empty', () => {
+    const r = pairAll({ Cat: [bx(70), bx(71)] }, { algorithm: 'optimal' });
+    assert.equal(r.phases.phase1.matches.length, 1);
+    assert.equal(r.phases.phase2.matches.length, 0, 'optimal never populates phase 2');
+});
+
+test('pairAll algorithm=optimal: manualMatch and NaN-weight behave identically to greedy', () => {
+    const held = bx(70.2, { autoMatch: 'no' });
+    const nan  = bx(NaN);
+    const r = pairAll({ Cat: [bx(70), held, bx(70.4), nan] }, { algorithm: 'optimal' });
+    assert.deepEqual(r.manualMatch.map(b => b.id), [held.id], 'autoMatch=no held out');
+    assert.ok(r.unmatched.some(b => b.id === nan.id), 'NaN weight unmatched');
+    assert.equal(r.matches.length, 1, 'remaining two pair normally');
+});
+
+test('pairAll: matched-count invariant — optimal never matches fewer boxers than greedy', () => {
+    const fixtures = [
+        () => ({ A: [bx(63.5), bx(65.7), bx(67.4), bx(67.4)] }),                  // stranding case
+        () => ({ A: [bx(70), bx(71), bx(72)] }),                                   // trio case
+        () => ({ A: [bx(50), bx(51.8), bx(53.6), bx(55.4)], B: [bx(90), bx(99)] }), // chain + hopeless
+    ];
+    const countMatched = r => r.matches.reduce((n, m) => n + (m.third ? 3 : 2), 0);
+    for (const mk of fixtures) {
+        const o = countMatched(pairAll(mk(), { algorithm: 'optimal' }));
+        const g = countMatched(pairAll(mk()));
+        assert.ok(o >= g, `optimal (${o}) must match at least as many boxers as greedy (${g})`);
+    }
+});
+
+test('pairAll: omitted algorithm defaults to greedy (byte-identical baseline)', () => {
+    const mk = () => ({ Cat: [bx(70), bx(71.5), bx(74), bx(76.6)] });
+    const def = pairAll(mk());
+    const g   = pairAll(mk(), { algorithm: 'greedy' });
+    assert.deepEqual(
+        def.matches.map(m => `${m.red.weight}-${m.blue.weight}`),
+        g.matches.map(m => `${m.red.weight}-${m.blue.weight}`));
+});
