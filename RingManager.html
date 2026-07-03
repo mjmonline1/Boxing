@@ -15,6 +15,7 @@
   <span class="stats" id="stats"></span>
   <label class="date-label">Date:</label>
   <select id="dateSelect" class="date-select"></select>
+  <input id="searchInput" class="ring-search" type="text" placeholder="find boxer…" />
 <button id="resetBtn">Undo Session Changes</button>
   <button id="saveBtn">Save</button>
   <button id="exportBtn">Export Allocation</button>
@@ -347,6 +348,7 @@ function render(state) {
       block.draggable = true;
       block.style.top    = topPx(bout.startMinutes) + 'px';
       block.style.height = (bout.duration * PX_PER_MIN) + 'px';
+      block.dataset.find = GroupUtils.membersOf(bout).map(b => `${b.name} ${b.club}`).join(' ').toLowerCase();
       block.innerHTML = boutHTML(bout);
 
       block.addEventListener('dragstart', e => {
@@ -368,6 +370,16 @@ function render(state) {
   });
 
   buildRuler(endMins);
+  applySearch();  // re-dim non-matching bouts after any re-render (e.g. a drag)
+}
+
+// Dim bout blocks whose boxers/clubs don't match the search term. The grid is
+// time-positioned, so we dim rather than filter — removing blocks would leave holes.
+function applySearch() {
+  const term = document.getElementById('searchInput').value.toLowerCase().trim();
+  document.querySelectorAll('.bout-block').forEach(block => {
+    block.classList.toggle('search-dim', term !== '' && !block.dataset.find.includes(term));
+  });
 }
 
 function updateStats(state) {
@@ -503,6 +515,7 @@ async function bootWithSchedule() {
   };
   document.getElementById('saveBtn').onclick   = () => saveToServer(state);
   document.getElementById('exportBtn').onclick = () => exportAllocation(state);
+  document.getElementById('searchInput').oninput = applySearch;
 }
 
 (async () => {
