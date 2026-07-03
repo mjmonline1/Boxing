@@ -365,7 +365,7 @@ function logUnmatched(label, boxers) {
         .forEach(b => console.log(`    - ${b.name} (${b.weight}kg, ${b.experience} bouts, ${b.club})`));
 }
 
-function main(maxPhase = 3) {
+function main(maxPhase = 3, algorithm = 'greedy') {
     if (!fs.existsSync(SOURCE_FILE)) {
         console.error(`Error: ${SOURCE_FILE} not found. Run PutAllFightersinBuckets.js first.`);
         process.exit(1);
@@ -374,7 +374,7 @@ function main(maxPhase = 3) {
     const data = JSON.parse(fs.readFileSync(SOURCE_FILE, 'utf8'));
 
     const { matches: allMatches, unmatched: stillRemaining, manualMatch, groupCount, phases } =
-        pairAll(data.finalBuckets, { maxPhase });
+        pairAll(data.finalBuckets, { maxPhase, algorithm });
 
     console.log(`--- Phase 1 — Within-bucket (±2 kg) ---`);
     logUnmatched('Phase 1', phases.phase1.unmatched);
