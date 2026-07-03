@@ -80,7 +80,9 @@ function runWithCapture(fn) {
 app.post("/api/run/spar-maker", (req, res) => {
   const maxPhase  = parseInt(req.query.maxPhase) || 3;
   const algorithm = req.query.algorithm === 'optimal' ? 'optimal' : 'greedy';
-  res.json(runWithCapture(() => runSparMaker(maxPhase, algorithm)));
+  const rawTrioTol = parseFloat(req.query.trioTol);
+  const trioTol = Number.isFinite(rawTrioTol) ? Math.min(2.5, Math.max(2.0, rawTrioTol)) : undefined;
+  res.json(runWithCapture(() => runSparMaker(maxPhase, algorithm, trioTol)));
 });
 
 app.post("/api/run/ring-assigner", (req, res) => {

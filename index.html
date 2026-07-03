@@ -210,6 +210,8 @@
     <option value="greedy" selected>Greedy (fast, current)</option>
     <option value="optimal">Optimal (maximum matching)</option>
   </select>
+  <label for="trioTolInput" style="white-space:nowrap;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-left:1rem;">Trio Tol</label>
+  <input id="trioTolInput" type="number" min="2" max="2.5" step="0.1" value="2.0" style="width:70px;padding:4px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:24px;" />
 </div>
 
 <div class="grid">
@@ -353,7 +355,7 @@
     const url = endpoint.includes('generate-schedule')
       ? `${endpoint}?day=${parseInt(document.getElementById('dayInput').value) || 1}`
       : endpoint.includes('spar-maker') || endpoint.includes('generate-spars')
-      ? `${endpoint}?maxPhase=${parseInt(document.getElementById('maxPhaseInput').value) || 3}&algorithm=${document.getElementById('algoInput').value === 'optimal' ? 'optimal' : 'greedy'}`
+      ? `${endpoint}?maxPhase=${parseInt(document.getElementById('maxPhaseInput').value) || 3}&algorithm=${document.getElementById('algoInput').value === 'optimal' ? 'optimal' : 'greedy'}&trioTol=${parseFloat(document.getElementById('trioTolInput').value) || 2.0}`
       : endpoint;
     try {
       const res = await fetch(url, { method: 'POST' });

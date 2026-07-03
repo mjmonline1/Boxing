@@ -15,6 +15,8 @@ exports.handler = async (event) => {
   try {
     const maxPhase  = parseInt(event?.queryStringParameters?.maxPhase) || 3;
     const algorithm = event?.queryStringParameters?.algorithm === 'optimal' ? 'optimal' : 'greedy';
+    const rawTrioTol = parseFloat(event?.queryStringParameters?.trioTol);
+    const trioTol = Number.isFinite(rawTrioTol) ? Math.min(2.5, Math.max(2.0, rawTrioTol)) : undefined;
     const db = await getDb();
     const bucketsDoc = await db.collection('buckets').findOne({ _id: 'current' });
     if (!bucketsDoc?.finalBuckets) {
@@ -22,7 +24,7 @@ exports.handler = async (event) => {
     }
 
     const { matches: allMatches, unmatched: stillRemaining, manualMatch, groupCount, phases } =
-      pairAll(bucketsDoc.finalBuckets, { maxPhase, algorithm });
+      pairAll(bucketsDoc.finalBuckets, { maxPhase, algorithm, ...(trioTol != null ? { trioTol } : {}) });
 
     const total = bucketsDoc.summary?.totalDistributed ?? (allMatches.length * 2 + stillRemaining.length);
     const result = {
