@@ -23,20 +23,20 @@ const BOXER_RAW_HEADERS = [
   'LOST (the number only)', 'Additional information or comments (optional)',
   'I understand that all boxers have to weigh in on Monday 7th July.',
   'I accept that boxers under 50kg use 12oz gloves, 50-69kg use 14oz gloves and 70kg plus use 16oz gloves. Headgear, protectors (male and female) and mouthguards MUST be worn during spars.',
-  'Email address', 'fit', 'Spars per Day'
+  'Email address', 'fit', 'Auto Match', 'Spars per Day'
 ];
 const BOXER_INTERNAL_KEYS = [
   'submissionDate', 'name', 'club', 'gender', 'category', 'dob',
   'weight', 'bouts', 'won', 'lost', 'comments',
-  'consent1', 'consent2', 'email', 'fit', 'sparsPerDay'
+  'consent1', 'consent2', 'email', 'fit', 'autoMatch', 'sparsPerDay'
 ];
 
 function generateCleanCSV() {
   const boxers = parseRawBoxers(fs.readFileSync(BOXERS_CSV, 'utf8'));
   const esc = v => { const s = String(v ?? ''); return /[,"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
   const csv = [
-    'id,name,club,gender,yob,fit,weight,experience',
-    ...boxers.map(b => [b.id, b.name, b.club, b.gender, b.yob, b.fit, b.weight, b.experience].map(esc).join(','))
+    'id,name,club,gender,yob,fit,weight,experience,autoMatch',
+    ...boxers.map(b => [b.id, b.name, b.club, b.gender, b.yob, b.fit, b.weight, b.experience, b.autoMatch].map(esc).join(','))
   ].join('\n') + '\n';
   fs.writeFileSync(CLEAN_CSV, csv, 'utf8');
 }
@@ -61,7 +61,13 @@ function capture(fn) {
   const orig = { log: console.log, error: console.error };
   console.log   = (...a) => logs.push(a.map(String).join(' '));
   console.error = (...a) => logs.push('ERROR: ' + a.map(String).join(' '));
-  try   { fn(); return { success: true,  output: logs.join('\n') }; }
+  try {
+    const result = fn();
+    // Only spread plain-object returns (e.g. SparMaker.main's results) — run()/
+    // runTSCBuckets return undefined or a class instance, neither safe to spread.
+    const extra = (result && result.constructor === Object) ? result : {};
+    return { success: true, output: logs.join('\n'), ...extra };
+  }
   catch (e) { return { success: false, output: logs.join('\n'), error: e.message }; }
   finally   { Object.assign(console, orig); }
 }
@@ -85,7 +91,12 @@ const TOOLS = [
   {
     name: 'generate_spars',
     description: 'Run SparMaker — reads buckets JSON, generates sparring pairs, writes Spars.json.',
-    inputSchema: { type: 'object', properties: {} }
+    inputSchema: {
+      type: 'object',
+      properties: {
+        maxPhase: { type: 'number', enum: [1, 2, 3], description: '1=phase 1 only (±2kg), 2=+phase 2 (±2.5kg), 3=+phase 3b groups (default).' }
+      }
+    }
   },
   {
     name: 'assign_rings',
@@ -187,7 +198,7 @@ function addBoxer({ name, club, gender, yob, weight, experience }) {
     submissionDate: new Date().toISOString(), name, club, gender,
     category: '', dob: `01/01/${yob}`, weight: String(weight),
     bouts: String(experience), won: '', lost: '', comments: '',
-    consent1: '', consent2: '', email: '', fit: 'yes', sparsPerDay: '1',
+    consent1: '', consent2: '', email: '', fit: 'yes', autoMatch: 'yes', sparsPerDay: '1',
     id: nextId
   });
   writeBoxersCSV(boxers);
@@ -211,7 +222,7 @@ function callTool(name, args = {}) {
   switch (name) {
     case 'get_status':     return getStatus();
     case 'get_boxers':     return getBoxers(args);
-    case 'generate_spars': return capture(runSparMaker);
+    case 'generate_spars': return capture(() => runSparMaker(args.maxPhase ?? 3));
     case 'assign_rings':   return capture(() => runRingAssigner(args.day ?? 1));
     case 'set_fit':        return setFit(args);
     case 'run_buckets':    return capture(() => { generateCleanCSV(); runTSCBuckets(CLEAN_CSV); });

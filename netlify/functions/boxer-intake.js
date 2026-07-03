@@ -15,7 +15,7 @@ exports.handler = async (event) => {
     const col = db.collection('boxers');
     const last = await col.findOne({}, { sort: { id: -1 }, projection: { id: 1 } });
     const nextId = (last?.id ?? 0) + 1;
-    const doc = { submissionDate: new Date().toISOString(), fit: 'yes', sparsPerDay: 1, ...boxer, id: nextId };
+    const doc = { submissionDate: new Date().toISOString(), fit: 'yes', autoMatch: 'yes', sparsPerDay: 1, ...boxer, id: nextId };
     await col.insertOne(doc);
     const total = await col.countDocuments();
     return { statusCode: 200, body: JSON.stringify({ ok: true, id: nextId, total }) };

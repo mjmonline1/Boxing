@@ -161,3 +161,21 @@ test('e2e: real CSV roster survives the whole pipeline with all invariants', (t)
     assert.ok(result.matches.length > 0, 'real roster should produce matches');
     assertInvariants(result, 'real-csv');
 });
+
+// --- N-member group (SparManager-grown, extra[]) through ring assignment ---
+// pairBoxers/pairAll never emit >3-member groups; a 4th+ member only ever comes
+// from a manual SparManager edit. Simulate that hand-off directly into RingAssigner.
+
+test('e2e: a manually-grown 5-member group (extra[]) keeps all members and correct duration through ring assignment', () => {
+    const b = (name, weight) => ({ name, club: 'X', gender: 'male', yob: 2000, weight, experience: 0 });
+    const match = {
+        sparId: 'S1', category: 'MaleSenior_OpenClass', weightDiff: '1.00',
+        red: b('R', 70), blue: b('Bl', 71), third: b('T', 72),
+        extra: [b('E1', 73), b('E2', 74)],
+    };
+    const slots = buildSlots(distributeBalanced([match]));
+    const placed = slots.flatMap(s => s.bouts).find(bt => bt.sparId === 'S1');
+    assert.ok(placed, 'the group was scheduled');
+    assert.deepEqual(placed.extra.map(x => x.name), ['E1', 'E2'], 'extra members preserved through buildSlots');
+    assert.equal(placed.duration, 11 * 10, 'senior-male group of 5 = 11min x C(5,2)=10 bouts');
+});

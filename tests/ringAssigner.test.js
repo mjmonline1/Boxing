@@ -251,3 +251,37 @@ test('buildSlots: a boxer in two bouts is deferred to separate slots, not double
     const all = slots.flatMap(s => s.bouts.map(b => b.sparId));
     assert.deepEqual(new Set(all), new Set(['S1', 'S2']), 'both bouts scheduled exactly once');
 });
+
+// --- N-member groups (4/5) -------------------------------------------------
+
+test('boutDuration: 4-member group = single x 6 (C(4,2)), 5-member group = single x 10 (C(5,2))', () => {
+    const m4 = match({ category: 'Cat', extra: [bx(), bx()] }); // red,blue,third + 2 extra = 4
+    const m5 = match({ category: 'Cat', extra: [bx(), bx(), bx()] }); // red,blue,third + 3 extra = 5
+    assert.equal(boutDuration(m4), 11 * 6);  // default bx() fixtures are senior male -> 11 min/bout
+    assert.equal(boutDuration(m5), 11 * 10);
+});
+
+test('classifiers scan every member, including extra[]', () => {
+    assert.equal(isBothSeniorMale(match({ red: seniorM(), blue: seniorM(), third: seniorM(), extra: [seniorM()] })), true);
+    assert.equal(isBothSeniorMale(match({ red: seniorM(), blue: seniorM(), third: seniorM(), extra: [juniorM()] })), false);
+    assert.equal(hasFemale(match({ red: seniorM(), blue: seniorM(), third: seniorM(), extra: [female()] })), true);
+    assert.equal(isR5Eligible(match({ red: juniorM(), blue: juniorM(), third: juniorM(), extra: [juniorM(), juniorM()] })), true);
+    assert.equal(isR5Eligible(match({ red: juniorM(), blue: juniorM(), third: juniorM(), extra: [juniorM(), seniorM()] })), false);
+});
+
+test('flattenAllocations: a 5-member group includes formatted extra[], a plain pair omits the key entirely', () => {
+    const slots = [{
+        slot: 1,
+        bouts: [
+            { ring: 'R1', sparId: 'S1', category: 'Cat', red: bx(), blue: bx(), third: bx(),
+              extra: [bx(), bx()], weightDiff: '1.00' },
+            { ring: 'R2', sparId: 'S2', category: 'Cat', red: bx(), blue: bx(), third: null,
+              weightDiff: '0.50' },
+        ],
+    }];
+    const rows = flattenAllocations(slots);
+    assert.ok('extra' in rows[0], 'group row keeps extra');
+    assert.equal(rows[0].extra.length, 2);
+    assert.ok(!('extra' in rows[1]), 'plain pair row has no extra key at all — byte-identical wire format');
+    assert.ok(!('third' in rows[1]), 'plain pair row has no third key either');
+});

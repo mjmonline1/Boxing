@@ -1,6 +1,7 @@
 // Copyright (c) 2026 ITLR Assets. All rights reserved.
 const fs = require('fs');
 const path = require('path');
+const GroupUtils = require('./group-utils');
 
 // Configuration
 const _d          = new Date();
@@ -109,16 +110,19 @@ function pairBoxers(boxers, categoryName, tolerance = WEIGHT_TOLERANCE, sparCoun
  *
  * Returns the final matches/unmatched plus per-phase breakdowns for reporting.
  */
-function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE } = {}) {
+function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE, maxPhase = 3 } = {}) {
     let allMatches = [];
     const sparCount = new Map(); // boxer → spars assigned (carries the daily-cap budget across phases)
     const partnered = new Map(); // boxer → Set already sparred (no rematch across phases)
+    const manualMatch = []; // boxers with autoMatch='no' — held out, paired by hand later (e.g. SparMaker.html)
 
     // Phase 1 — within-bucket, ±tol1
     const bucketUnmatched = {};
     const phase1Matches = [];
-    for (const [category, boxers] of Object.entries(buckets)) {
-        if (category === 'Notfit' || boxers.length === 0) continue;
+    for (const [category, boxersRaw] of Object.entries(buckets)) {
+        if (category === 'Notfit' || boxersRaw.length === 0) continue;
+        manualMatch.push(...boxersRaw.filter(b => b.autoMatch === 'no').map(b => ({ ...b, category })));
+        const boxers = boxersRaw.filter(b => b.autoMatch !== 'no');
         const { matches, unmatched } = pairBoxers(boxers, category, tol1, sparCount, partnered);
         allMatches = allMatches.concat(matches);
         phase1Matches.push(...matches);
@@ -131,62 +135,74 @@ function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE } =
     // already matched but still under its daily cap has had its spar — it isn't "unmatched".
     let allUnmatched = [];
     const phase2Matches = [];
-    for (const [category, boxers] of Object.entries(bucketUnmatched)) {
-        if (boxers.length === 0) continue;
-        const { matches, unmatched } = pairBoxers(boxers, category, tol2, sparCount, partnered);
-        allMatches = allMatches.concat(matches);
-        phase2Matches.push(...matches);
-        allUnmatched = allUnmatched.concat(
-            unmatched.filter(b => (sparCount.get(b) || 0) === 0)
-                     .map(b => ({ ...b, _bucket: category })));
+    if (maxPhase >= 2) {
+        for (const [category, boxers] of Object.entries(bucketUnmatched)) {
+            if (boxers.length === 0) continue;
+            const { matches, unmatched } = pairBoxers(boxers, category, tol2, sparCount, partnered);
+            allMatches = allMatches.concat(matches);
+            phase2Matches.push(...matches);
+            allUnmatched = allUnmatched.concat(
+                unmatched.filter(b => (sparCount.get(b) || 0) === 0)
+                         .map(b => ({ ...b, _bucket: category })));
+        }
+    } else {
+        // Stopped after phase 1 — everyone still unmatched carries through untouched.
+        allUnmatched = Object.entries(bucketUnmatched)
+            .flatMap(([category, boxers]) => boxers.map(b => ({ ...b, _bucket: category })));
     }
     const phase2Unmatched = [...allUnmatched];
 
     // Phase 3b — round-robin: unmatched boxer joins existing 1v1 pair in same bucket (±tol1)
     let groupCounter = 0;
     const stillRemaining = [];
-    for (const boxer of allUnmatched) {
-        // A non-finite weight can't be group-matched either: `NaN > tol1` is false, so
-        // the tolerance guard below would NOT skip it and the boxer could be folded into
-        // a group on a bogus comparison. Leave it unmatched.
-        if (!Number.isFinite(boxer.weight)) { stillRemaining.push(boxer); continue; }
+    if (maxPhase >= 3) {
+        for (const boxer of allUnmatched) {
+            // A non-finite weight can't be group-matched either: `NaN > tol1` is false, so
+            // the tolerance guard below would NOT skip it and the boxer could be folded into
+            // a group on a bogus comparison. Leave it unmatched.
+            if (!Number.isFinite(boxer.weight)) { stillRemaining.push(boxer); continue; }
 
-        const bucket = boxer._bucket;
-        let bestIdx = -1, bestDiff = Infinity, bestIsDiffClub = false;
+            const bucket = boxer._bucket;
+            let bestIdx = -1, bestDiff = Infinity, bestIsDiffClub = false;
 
-        for (let i = 0; i < allMatches.length; i++) {
-            const m = allMatches[i];
-            if (m.groupId) continue;
-            if (m.category !== bucket) continue;
+            for (let i = 0; i < allMatches.length; i++) {
+                const m = allMatches[i];
+                if (m.groupId) continue;
+                if (m.category !== bucket) continue;
 
-            for (const partner of [m.red, m.blue]) {
-                const diff = Math.abs(boxer.weight - partner.weight);
-                if (diff > tol1 + WEIGHT_EPS) continue;
-                const isDiffClub = boxer.club !== partner.club;
-                if (isDiffClub && !bestIsDiffClub) {
-                    bestIdx = i; bestDiff = diff; bestIsDiffClub = true;
-                } else if (isDiffClub === bestIsDiffClub && diff < bestDiff) {
-                    bestIdx = i; bestDiff = diff;
+                for (const partner of [m.red, m.blue]) {
+                    const diff = Math.abs(boxer.weight - partner.weight);
+                    if (diff > tol1 + WEIGHT_EPS) continue;
+                    const isDiffClub = boxer.club !== partner.club;
+                    if (isDiffClub && !bestIsDiffClub) {
+                        bestIdx = i; bestDiff = diff; bestIsDiffClub = true;
+                    } else if (isDiffClub === bestIsDiffClub && diff < bestDiff) {
+                        bestIdx = i; bestDiff = diff;
+                    }
                 }
             }
-        }
 
-        if (bestIdx !== -1) {
-            const anchor = allMatches[bestIdx];
-            anchor.groupId = `g${++groupCounter}`;
-            anchor.third   = boxer;
-        } else {
-            stillRemaining.push(boxer);
+            if (bestIdx !== -1) {
+                const anchor = allMatches[bestIdx];
+                anchor.groupId = `g${++groupCounter}`;
+                anchor.third   = boxer;
+            } else {
+                stillRemaining.push(boxer);
+            }
         }
+    } else {
+        // Stopped before phase 3b — leftovers stay unmatched rather than being folded into trios.
+        stillRemaining.push(...allUnmatched);
     }
 
     // Rename _bucket to category on unmatched, strip from matched boxer objects
-    allMatches.forEach(m => { delete m.red._bucket; delete m.blue._bucket; if (m.third) delete m.third._bucket; });
+    allMatches.forEach(m => GroupUtils.membersOf(m).forEach(b => delete b._bucket));
     stillRemaining.forEach(b => { b.category = b._bucket; delete b._bucket; });
 
     return {
         matches:    allMatches,
         unmatched:  stillRemaining,
+        manualMatch,
         groupCount: groupCounter,
         phases: {
             phase1: { matches: phase1Matches, unmatched: phase1Unmatched },
@@ -194,6 +210,52 @@ function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE } =
             phase3: { groups: allMatches.filter(m => m.groupId), unmatched: stillRemaining },
         },
     };
+}
+
+// Lean display/report view of `pairAll`'s phases — shared by the file-mode
+// pipeline (SparMaker.main), Server.js's run response, and the Mongo-mode
+// netlify function so there's exactly one place that builds this shape.
+function buildPhaseLog(phases) {
+    const unmatchedView = list => [...list].sort((a, b) => a.weight - b.weight)
+        .map(b => ({ name: b.name, weight: b.weight, experience: b.experience, club: b.club }));
+    const boutView = m => ({ red: m.red.name, redWeight: m.red.weight, blue: m.blue.name, blueWeight: m.blue.weight, weightDiff: m.weightDiff, category: m.category });
+    return {
+        phase1: unmatchedView(phases.phase1.unmatched), phase1Bouts: phases.phase1.matches.map(boutView),
+        phase2: unmatchedView(phases.phase2.unmatched), phase2Bouts: phases.phase2.matches.map(boutView),
+        phase3: unmatchedView(phases.phase3.unmatched),
+        phase3Groups: phases.phase3.groups.map(m => ({ groupId: m.groupId, red: m.red.name, redWeight: m.red.weight, blue: m.blue.name, blueWeight: m.blue.weight, third: m.third.name, thirdWeight: m.third.weight, category: m.category })),
+    };
+}
+
+// Post-hoc audit of a finished pairAll() result against the two known, parked
+// matcher limitations in docs/matching-optimality-design.md. Pure — reads the
+// final matches/unmatched, no re-pairing, no I/O.
+function checkMatchingRisks(matches, unmatched) {
+    // (B) Over-spread trio — exact: a groupId trio's worst internal pairwise
+    // diff exceeding tolerance is a certain fact about the saved result.
+    const overSpreadTrios = matches.filter(m => m.groupId).map(m => {
+        const pairs = GroupUtils.generateBouts(GroupUtils.membersOf(m))
+            .map(([a, b]) => ({ a, b, diff: Math.abs(a.weight - b.weight) }));
+        const worst = pairs.reduce((x, y) => y.diff > x.diff ? y : x);
+        if (worst.diff <= WEIGHT_TOLERANCE + WEIGHT_EPS) return null;
+        return { groupId: m.groupId, category: m.category, red: m.red.name, blue: m.blue.name, third: m.third.name,
+                 worstPair: `${worst.a.name} vs ${worst.b.name}`, worstDiff: +worst.diff.toFixed(2) };
+    }).filter(Boolean);
+
+    // (A) Stranding candidate — heuristic: an unmatched boxer with a same-bucket
+    // matched boxer within phase-2 tolerance had a partner taken by someone else.
+    // Not proof a full re-pairing would rescue them (swapping could cascade), so
+    // this flags a candidate, not a confirmed stranding.
+    const matchedBoxers = matches.flatMap(m => GroupUtils.membersOf(m).map(b => ({ ...b, category: m.category })));
+    const strandedCandidates = unmatched.filter(u => Number.isFinite(u.weight)).map(u => {
+        const nearest = matchedBoxers
+            .filter(m => m.category === u.category && Math.abs(m.weight - u.weight) <= PHASE2_TOLERANCE + WEIGHT_EPS)
+            .sort((a, b) => Math.abs(a.weight - u.weight) - Math.abs(b.weight - u.weight))[0];
+        return nearest ? { name: u.name, weight: u.weight, category: u.category,
+                            nearestMatchedPartner: nearest.name, diff: +Math.abs(nearest.weight - u.weight).toFixed(2) } : null;
+    }).filter(Boolean);
+
+    return { overSpreadTrios, strandedCandidates };
 }
 
 /* c8 ignore start */
@@ -204,7 +266,7 @@ function logUnmatched(label, boxers) {
         .forEach(b => console.log(`    - ${b.name} (${b.weight}kg, ${b.experience} bouts, ${b.club})`));
 }
 
-function main() {
+function main(maxPhase = 3) {
     if (!fs.existsSync(SOURCE_FILE)) {
         console.error(`Error: ${SOURCE_FILE} not found. Run PutAllFightersinBuckets.js first.`);
         process.exit(1);
@@ -212,20 +274,30 @@ function main() {
 
     const data = JSON.parse(fs.readFileSync(SOURCE_FILE, 'utf8'));
 
-    const { matches: allMatches, unmatched: stillRemaining, groupCount, phases } =
-        pairAll(data.finalBuckets);
+    const { matches: allMatches, unmatched: stillRemaining, manualMatch, groupCount, phases } =
+        pairAll(data.finalBuckets, { maxPhase });
 
-    console.log('--- Phase 1 — Within-bucket (±2 kg) ---');
+    console.log(`--- Phase 1 — Within-bucket (±2 kg) ---`);
     logUnmatched('Phase 1', phases.phase1.unmatched);
-    console.log('\n--- Phase 2 — Within-bucket (±2.5 kg) ---');
-    logUnmatched('Phase 2', phases.phase2.unmatched);
-    console.log('\n--- Phase 3b — Group Round-Robin (±2 kg, within bucket) ---');
-    phases.phase3.groups.forEach(m =>
-        console.log(`  Group ${m.groupId}: ${m.red.name} / ${m.blue.name} / ${m.third.name}`));
-    logUnmatched('Phase 3b', stillRemaining);
+    if (maxPhase >= 2) {
+        console.log('\n--- Phase 2 — Within-bucket (±2.5 kg) ---');
+        logUnmatched('Phase 2', phases.phase2.unmatched);
+    }
+    if (maxPhase >= 3) {
+        console.log('\n--- Phase 3b — Group Round-Robin (±2 kg, within bucket) ---');
+        phases.phase3.groups.forEach(m =>
+            console.log(`  Group ${m.groupId}: ${m.red.name} / ${m.blue.name} / ${m.third.name}`));
+    } else {
+        console.log(`\n--- Stopped after phase ${maxPhase} — not run: ${maxPhase < 2 ? 'phase 2, phase 3b' : 'phase 3b'} ---`);
+    }
+    logUnmatched(maxPhase >= 3 ? 'Phase 3b' : `phase ${maxPhase} (stopped)`, stillRemaining);
+    if (manualMatch.length) {
+        console.log(`\n--- Held for manual match (autoMatch=no): ${manualMatch.length} ---`);
+        manualMatch.forEach(b => console.log(`  - ${b.name} (${b.weight}kg, ${b.club})`));
+    }
 
     const totalBoxers = data.summary.totalDistributed;
-    const matchedCount = allMatches.reduce((n, m) => n + (m.third ? 3 : 2), 0);
+    const matchedCount = allMatches.reduce((n, m) => n + GroupUtils.membersOf(m).length, 0);
     const unmatchedCount = stillRemaining.length;
 
     console.log('\n--- Final Summary ---');
@@ -248,18 +320,27 @@ function main() {
             unmatchedCount,
             matchCount: allMatches.length,
             groupCount,
+            maxPhase,
             successRate: `${((matchedCount/totalBoxers)*100).toFixed(1)}%`
         },
         matches: allMatches,
-        unmatched: stillRemaining
+        unmatched: stillRemaining,
+        manualMatch,
+        phaseLog: buildPhaseLog(phases),
+        matchRisks: checkMatchingRisks(allMatches, stillRemaining)
     };
 
     fs.mkdirSync(path.dirname(OUTPUT_FILE), { recursive: true });
     fs.writeFileSync(OUTPUT_FILE, JSON.stringify(results, null, 2));
     console.log(`\nResults saved to ${OUTPUT_FILE}`);
+    return results;
 }
 
-if (require.main === module) main();
+if (require.main === module) {
+    const phaseArg = process.argv.find(a => a.startsWith('--max-phase='));
+    const maxPhase = phaseArg ? parseInt(phaseArg.split('=')[1]) : 3;
+    main(maxPhase);
+}
 /* c8 ignore stop */
 
-module.exports = { main, pairBoxers, pairAll };
+module.exports = { main, pairBoxers, pairAll, buildPhaseLog, checkMatchingRisks };

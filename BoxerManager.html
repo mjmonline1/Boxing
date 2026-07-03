@@ -25,6 +25,7 @@
   <span id="statMale"></span>
   <span id="statFemale"></span>
   <span id="statUnfit"></span>
+  <span id="statAutoOff"></span>
   <span id="statShowing" class="stat-showing"></span>
 </div>
 
@@ -40,6 +41,7 @@
         <th onclick="sortBy('yob')">YOB</th>
         <th onclick="sortBy('category')">Category</th>
         <th onclick="sortBy('fit')">Fit</th>
+        <th onclick="sortBy('autoMatch')">Auto Match</th>
         <th onclick="sortBy('sparsPerDay')">Spars/Day</th>
         <th onclick="sortBy('weight')">Weight (kg)</th>
         <th onclick="sortBy('bouts')">Bouts</th>
@@ -117,10 +119,17 @@
       </div>
     </div>
 
-    <div class="form-row">
+    <div class="form-row three">
       <div class="form-group">
         <label>Fit to compete?</label>
         <select id="f_fit">
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Auto Match?</label>
+        <select id="f_auto_match">
           <option value="yes">Yes</option>
           <option value="no">No</option>
         </select>
@@ -231,6 +240,7 @@ function mapHeader(raw) {
   if (norm === 'email address') return 'email';
   if (norm === 'fit') return 'fit';
   if (norm === 'spars per day') return 'sparsPerDay';
+  if (norm === 'auto match') return 'autoMatch';
   return norm;
 }
 
@@ -252,13 +262,14 @@ function parseCSV(text) {
     o.experience = o.bouts;
     o.id = idx + 1;
     if (!o.fit) o.fit = 'yes';
+    if (o.autoMatch !== 'no') o.autoMatch = 'yes';
     o.gender = o.gender ? o.gender.toLowerCase() : 'male';
     return o;
   });
 }
 
 function serializeCSV(data) {
-  const headers = ['submissionDate','name','club','gender','category','dob','weight','bouts','won','lost','comments','consent1','consent2','email','fit','sparsPerDay'];
+  const headers = ['submissionDate','name','club','gender','category','dob','weight','bouts','won','lost','comments','consent1','consent2','email','fit','autoMatch','sparsPerDay'];
   const esc = v => {
     const s = String(v ?? '');
     return /[,"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
@@ -351,6 +362,7 @@ function renderTable() {
       <td>${b.yob || ''}</td>
       <td class="truncate">${escHtml(b.category || '')}</td>
       <td class="${b.fit === 'yes' ? 'fit-yes' : 'fit-no'}">${b.fit}</td>
+      <td class="${b.autoMatch !== 'no' ? 'fit-yes' : 'fit-no'}">${b.autoMatch ?? 'yes'}</td>
       <td>${b.sparsPerDay ?? 1}</td>
       <td>${b.weight}</td>
       <td>${b.bouts}</td>
@@ -362,6 +374,7 @@ function renderTable() {
       <td class="truncate">${escHtml(b.submissionDate || '')}</td>
       <td class="actions">
         <button class="${b.fit === 'yes' ? 'btn-fit-yes' : 'btn-fit-no'}" onclick="toggleFit(${b.id})">${b.fit === 'yes' ? 'Fit ✓' : 'Unfit ✗'}</button>
+        <button class="${b.autoMatch !== 'no' ? 'btn-fit-yes' : 'btn-fit-no'}" onclick="toggleAutoMatch(${b.id})">${b.autoMatch !== 'no' ? 'Auto ✓' : 'Manual ✗'}</button>
         <button class="btn-edit"   onclick="openModal(${b.id})">Edit</button>
         <button class="btn-delete" onclick="deleteBoxer(${b.id})">Delete</button>
       </td>
@@ -369,7 +382,7 @@ function renderTable() {
   `).join('');
 
   document.querySelectorAll('thead th').forEach(th => th.classList.remove('sort-asc', 'sort-desc'));
-  const cols = ['id','name','club','gender','yob','category','fit','sparsPerDay','weight','bouts','won','lost','dob','email','comments','submissionDate'];
+  const cols = ['id','name','club','gender','yob','category','fit','autoMatch','sparsPerDay','weight','bouts','won','lost','dob','email','comments','submissionDate'];
   const idx  = cols.indexOf(sortCol);
   if (idx >= 0) document.querySelectorAll('thead th')[idx].classList.add(sortDir === 1 ? 'sort-asc' : 'sort-desc');
 
@@ -382,10 +395,12 @@ function updateStats() {
   const males   = boxers.filter(b => b.gender === 'male').length;
   const females = boxers.filter(b => b.gender === 'female').length;
   const unfit   = boxers.filter(b => b.fit === 'no').length;
+  const autoOff = boxers.filter(b => b.autoMatch === 'no').length;
   document.getElementById('statTotal').textContent  = `Total: ${boxers.length}`;
   document.getElementById('statMale').textContent   = `Male: ${males}`;
   document.getElementById('statFemale').textContent = `Female: ${females}`;
   document.getElementById('statUnfit').textContent  = `Not fit: ${unfit}`;
+  document.getElementById('statAutoOff').textContent = `Manual match: ${autoOff}`;
 }
 
 function updateClubsList() {
@@ -451,6 +466,7 @@ function openModal(id) {
     document.getElementById('f_won').value             = '0';
     document.getElementById('f_lost').value            = '0';
     document.getElementById('f_fit').value             = 'yes';
+    document.getElementById('f_auto_match').value      = 'yes';
     document.getElementById('f_spars_per_day').value   = '1';
     document.getElementById('f_email').value           = '';
     document.getElementById('f_comments').value        = '';
@@ -469,6 +485,7 @@ function openModal(id) {
     document.getElementById('f_won').value             = b.won   ?? 0;
     document.getElementById('f_lost').value            = b.lost  ?? 0;
     document.getElementById('f_fit').value             = b.fit || 'yes';
+    document.getElementById('f_auto_match').value      = b.autoMatch === 'no' ? 'no' : 'yes';
     document.getElementById('f_spars_per_day').value   = b.sparsPerDay ?? 1;
     document.getElementById('f_email').value           = b.email || '';
     document.getElementById('f_comments').value        = b.comments || '';
@@ -497,6 +514,7 @@ function saveRow() {
   const won      = parseInt(document.getElementById('f_won').value, 10)    || 0;
   const lost     = parseInt(document.getElementById('f_lost').value, 10)   || 0;
   const fit      = document.getElementById('f_fit').value;
+  const autoMatch = document.getElementById('f_auto_match').value;
   const sparsPerDay = parseInt(document.getElementById('f_spars_per_day').value, 10) || 1;
   const email    = document.getElementById('f_email').value.trim();
   const comments = document.getElementById('f_comments').value.trim();
@@ -515,11 +533,11 @@ function saveRow() {
 
   if (editingId === null) {
     const newId = boxers.length ? Math.max(...boxers.map(b => b.id)) + 1 : 1;
-    boxers.push({ id: newId, name, club, gender, category, dob, yob, weight, bouts, won, lost, fit, sparsPerDay, email, comments, submissionDate, consent1, consent2, experience });
+    boxers.push({ id: newId, name, club, gender, category, dob, yob, weight, bouts, won, lost, fit, autoMatch, sparsPerDay, email, comments, submissionDate, consent1, consent2, experience });
     showToast(`Added ${name} (ID ${newId})`);
   } else {
     const idx = boxers.findIndex(b => b.id === editingId);
-    boxers[idx] = { ...boxers[idx], name, club, gender, category, dob, yob, weight, bouts, won, lost, fit, sparsPerDay, email, comments, experience };
+    boxers[idx] = { ...boxers[idx], name, club, gender, category, dob, yob, weight, bouts, won, lost, fit, autoMatch, sparsPerDay, email, comments, experience };
     showToast(`Updated ${name}`);
   }
 
@@ -537,6 +555,15 @@ function toggleFit(id) {
   filterTable();
   updateStats();
   showToast(`${b.name} marked as ${b.fit === 'yes' ? 'fit' : 'unfit'}`);
+  saveToServer();
+}
+
+function toggleAutoMatch(id) {
+  const b = boxers.find(x => x.id === id);
+  b.autoMatch = b.autoMatch === 'no' ? 'yes' : 'no';
+  filterTable();
+  updateStats();
+  showToast(`${b.name} set to ${b.autoMatch === 'no' ? 'manual match' : 'auto match'}`);
   saveToServer();
 }
 
@@ -574,6 +601,7 @@ async function loadFromServer() {
     boxers = await DataClient.get('boxers');
     boxers.forEach(b => {
       b.fit = (b.fit === true || b.fit === 'yes') ? 'yes' : 'no';
+      b.autoMatch = (b.autoMatch === false || b.autoMatch === 'no') ? 'no' : 'yes';
       b.sparsPerDay = parseInt(b.sparsPerDay, 10) || 1;
     });
     document.getElementById('addBtn').disabled = false;

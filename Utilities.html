@@ -197,6 +197,7 @@
       <button class="btn btn-blue" id="rptFighters">Fighters</button>
       <button class="btn btn-blue" id="rptBuckets">Buckets</button>
       <button class="btn btn-blue" id="rptSpars">Spars</button>
+      <button class="btn btn-blue" id="rptPhases">Phase Breakdown</button>
       <button class="btn btn-blue" id="rptRings">Rings</button>
     </div>
     <div style="margin-top:0.75rem;display:flex;align-items:center;gap:0.5rem;">
@@ -436,8 +437,9 @@ document.getElementById('rptSpars').addEventListener('click', async () => {
       columnStyles: { 0: { cellWidth: 8 }, 6: { cellWidth: 18 } }
     });
     const unmatched = data.unmatched;
+    let y = 28;
     if (Array.isArray(unmatched) && unmatched.length) {
-      let y = doc.lastAutoTable.finalY + 8;
+      y = doc.lastAutoTable.finalY + 8;
       if (y > 175) { doc.addPage(); y = 20; }
       doc.autoTable({
         startY: y,
@@ -450,9 +452,145 @@ document.getElementById('rptSpars').addEventListener('click', async () => {
         headStyles: { fillColor: [200, 80, 70] },
         alternateRowStyles: { fillColor: [245, 245, 245] }
       });
+      y = doc.lastAutoTable.finalY;
+    }
+    const manualMatch = data.manualMatch;
+    if (Array.isArray(manualMatch) && manualMatch.length) {
+      y = (y > 28 ? y : doc.lastAutoTable.finalY) + 8;
+      if (y > 175) { doc.addPage(); y = 20; }
+      doc.autoTable({
+        startY: y,
+        head: [
+          [{ content: `Manual Match Required — autoMatch=No (${manualMatch.length})`, colSpan: 4, styles: { fillColor: [106, 27, 154], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 } }],
+          ['Name', 'Club', 'Category', 'Weight (kg)']
+        ],
+        body: manualMatch.map(b => [b.name || '', b.club || '', b.category || '', b.weight || '']),
+        styles: { fontSize: 7.5, cellPadding: 1.8 },
+        headStyles: { fillColor: [142, 68, 173] },
+        alternateRowStyles: { fillColor: [245, 245, 245] }
+      });
     }
     doc.save('spars.pdf');
-    setRptStatus('success', `✓ spars.pdf — ${matches.length} pairs${unmatched?.length ? `, ${unmatched.length} unmatched` : ''}`);
+    setRptStatus('success', `✓ spars.pdf — ${matches.length} pairs${unmatched?.length ? `, ${unmatched.length} unmatched` : ''}${manualMatch?.length ? `, ${manualMatch.length} manual` : ''}`);
+  } catch (e) { setRptStatus('error', `Error: ${e.message}`); }
+});
+
+document.getElementById('rptPhases').addEventListener('click', async () => {
+  try {
+    const date = document.getElementById('rptDate').value;
+    if (!date) { setRptStatus('error', 'Select a date first.'); return; }
+    setRptStatus('info', 'Loading phase breakdown…');
+    const data = await DataClient.get('spars', { date });
+    const log = data && data.phaseLog;
+    if (!log) { setRptStatus('error', 'No phase data for this date — regenerate spars to include it.'); return; }
+    const doc = makePdf(`Phase Breakdown Report — ${date}`);
+    let y = 28;
+
+    const boutTable = (bouts) => {
+      doc.autoTable({
+        startY: y,
+        head: [['Red Corner', 'Wt', 'Blue Corner', 'Wt', 'Category']],
+        body: bouts.map(b => [b.red, b.redWeight, b.blue, b.blueWeight, b.category || '']),
+        styles: { fontSize: 7.5, cellPadding: 1.8 },
+        headStyles: { fillColor: [33, 150, 243] },
+        alternateRowStyles: { fillColor: [245, 245, 245] }
+      });
+      y = doc.lastAutoTable.finalY + 4;
+    };
+    const unmatchedTable = (boxers) => {
+      doc.autoTable({
+        startY: y,
+        head: [[{ content: `Unmatched (${boxers.length})`, colSpan: 3, styles: { fillColor: [180, 50, 40], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 } }], ['Name', 'Club', 'Weight (kg)']],
+        body: boxers.map(b => [b.name || '', b.club || '', b.weight || '']),
+        styles: { fontSize: 7.5, cellPadding: 1.8 },
+        headStyles: { fillColor: [200, 80, 70] },
+        alternateRowStyles: { fillColor: [245, 245, 245] }
+      });
+      y = doc.lastAutoTable.finalY + 8;
+      if (y > 175) { doc.addPage(); y = 20; }
+    };
+    const sectionTitle = (text) => {
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(0);
+      doc.text(text, 14, y); y += 5;
+      doc.setFont('helvetica', 'normal');
+    };
+
+    sectionTitle('Phase 1 — Within-bucket (±2 kg)');
+    if (log.phase1Bouts.length) boutTable(log.phase1Bouts);
+    unmatchedTable(log.phase1);
+
+    sectionTitle('Phase 2 — Within-bucket (±2.5 kg)');
+    if (log.phase2Bouts.length) boutTable(log.phase2Bouts);
+    unmatchedTable(log.phase2);
+
+    const risks = data.matchRisks;
+    const riskByGroup = new Map((risks?.overSpreadTrios || []).map(r => [r.groupId, r]));
+
+    sectionTitle('Phase 3b — Group Round-Robin (±2 kg)');
+    if (log.phase3Groups.length) {
+      doc.autoTable({
+        startY: y,
+        head: [['Group', 'Red', 'Wt', 'Blue', 'Wt', 'Third', 'Wt', 'Category', 'Max Diff']],
+        body: log.phase3Groups.map(g => {
+          const maxDiff = Math.max(
+            Math.abs(g.redWeight - g.blueWeight),
+            Math.abs(g.redWeight - g.thirdWeight),
+            Math.abs(g.blueWeight - g.thirdWeight));
+          const flagged = riskByGroup.has(g.groupId);
+          return [g.groupId, g.red, g.redWeight, g.blue, g.blueWeight, g.third, g.thirdWeight, g.category || '',
+                  (flagged ? '⚠ ' : '') + maxDiff.toFixed(2) + ' kg'];
+        }),
+        styles: { fontSize: 7.5, cellPadding: 1.8 },
+        headStyles: { fillColor: [33, 150, 243] },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
+        didParseCell: (d) => {
+          if (d.section !== 'body') return;
+          const g = log.phase3Groups[d.row.index];
+          if (riskByGroup.has(g.groupId)) {
+            d.cell.styles.fillColor = [253, 218, 218];
+            if (d.column.index === 8) { d.cell.styles.textColor = [180, 20, 20]; d.cell.styles.fontStyle = 'bold'; }
+          }
+        }
+      });
+      y = doc.lastAutoTable.finalY + 4;
+    }
+    unmatchedTable(log.phase3);
+
+    if (risks) {
+      sectionTitle('⚠ Over-Spread Trios (internal bout exceeds ±2 kg)');
+      if (risks.overSpreadTrios.length) {
+        doc.autoTable({
+          startY: y,
+          head: [['Group', 'Red', 'Blue', 'Third', 'Worst Pair', 'Worst Diff']],
+          body: risks.overSpreadTrios.map(r => [r.groupId, r.red, r.blue, r.third, r.worstPair, r.worstDiff + ' kg']),
+          styles: { fontSize: 7.5, cellPadding: 1.8 },
+          headStyles: { fillColor: [200, 80, 70] },
+          alternateRowStyles: { fillColor: [245, 245, 245] }
+        });
+        y = doc.lastAutoTable.finalY + 8;
+      } else {
+        doc.setFontSize(9); doc.setTextColor(90); doc.text('None — all trios within tolerance.', 14, y); y += 8;
+      }
+      if (y > 175) { doc.addPage(); y = 20; }
+
+      sectionTitle('⚠ Possible Stranded Boxers (in-tolerance partner was taken by someone else)');
+      if (risks.strandedCandidates.length) {
+        doc.autoTable({
+          startY: y,
+          head: [['Name', 'Weight', 'Category', 'Nearest Matched Partner', 'Diff']],
+          body: risks.strandedCandidates.map(r => [r.name, r.weight, r.category, r.nearestMatchedPartner, r.diff + ' kg']),
+          styles: { fontSize: 7.5, cellPadding: 1.8 },
+          headStyles: { fillColor: [200, 80, 70] },
+          alternateRowStyles: { fillColor: [245, 245, 245] }
+        });
+        y = doc.lastAutoTable.finalY + 4;
+      } else {
+        doc.setFontSize(9); doc.setTextColor(90); doc.text('None — no stranding candidates.', 14, y); y += 4;
+      }
+    }
+
+    doc.save('phases.pdf');
+    setRptStatus('success', `✓ phases.pdf — ${log.phase1Bouts.length + log.phase2Bouts.length} bouts, ${log.phase3Groups.length} groups`);
   } catch (e) { setRptStatus('error', `Error: ${e.message}`); }
 });
 

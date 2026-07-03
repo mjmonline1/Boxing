@@ -2,7 +2,8 @@
 // The pairing algorithm itself lives in ../../SparMaker (pairAll) — shared with the
 // file-mode pipeline so there is exactly one source of truth for matching logic.
 const { MongoClient } = require('mongodb');
-const { pairAll }     = require('../../SparMaker');
+const { pairAll, buildPhaseLog, checkMatchingRisks } = require('../../SparMaker');
+const GroupUtils = require('../../group-utils');
 
 let cachedClient;
 async function getDb() {
@@ -10,46 +11,34 @@ async function getDb() {
   return cachedClient.db('boxing');
 }
 
-exports.handler = async () => {
+exports.handler = async (event) => {
   try {
+    const maxPhase = parseInt(event?.queryStringParameters?.maxPhase) || 3;
     const db = await getDb();
     const bucketsDoc = await db.collection('buckets').findOne({ _id: 'current' });
     if (!bucketsDoc?.finalBuckets) {
       return { statusCode: 400, body: JSON.stringify({ error: 'No bucket data. Run BucketAssigner first.' }) };
     }
 
-    const { matches: allMatches, unmatched: stillRemaining, groupCount, phases } =
-      pairAll(bucketsDoc.finalBuckets);
-
-    const unmatchedView = list => [...list]
-      .sort((a, b) => a.weight - b.weight)
-      .map(b => ({ name: b.name, weight: b.weight, experience: b.experience, club: b.club }));
-    const boutView = m => ({ red: m.red.name, redWeight: m.red.weight, blue: m.blue.name, blueWeight: m.blue.weight, weightDiff: m.weightDiff, category: m.category });
-
-    const phase1Unmatched = unmatchedView(phases.phase1.unmatched);
-    const phase1Bouts     = phases.phase1.matches.map(boutView);
-    const phase2Unmatched = unmatchedView(phases.phase2.unmatched);
-    const phase2Bouts     = phases.phase2.matches.map(boutView);
-    const phase3Unmatched = unmatchedView(phases.phase3.unmatched);
-    const phase3Groups    = phases.phase3.groups.map(m => ({ groupId: m.groupId, red: m.red.name, redWeight: m.red.weight, blue: m.blue.name, blueWeight: m.blue.weight, third: m.third.name, thirdWeight: m.third.weight, category: m.category }));
+    const { matches: allMatches, unmatched: stillRemaining, manualMatch, groupCount, phases } =
+      pairAll(bucketsDoc.finalBuckets, { maxPhase });
 
     const total = bucketsDoc.summary?.totalDistributed ?? (allMatches.length * 2 + stillRemaining.length);
     const result = {
       summary: {
         totalBoxers:    total,
-        matchedCount:   allMatches.reduce((n, m) => n + (m.third ? 3 : 2), 0),
+        matchedCount:   allMatches.reduce((n, m) => n + GroupUtils.membersOf(m).length, 0),
         unmatchedCount: stillRemaining.length,
         matchCount:     allMatches.length,
         groupCount,
+        maxPhase,
         successRate:    (((total - stillRemaining.length) / total) * 100).toFixed(1) + '%'
       },
       matches:   allMatches,
       unmatched: stillRemaining,
-      phaseLog:  {
-        phase1: phase1Unmatched, phase1Bouts,
-        phase2: phase2Unmatched, phase2Bouts,
-        phase3: phase3Unmatched, phase3Groups
-      }
+      manualMatch,
+      phaseLog:  buildPhaseLog(phases),
+      matchRisks: checkMatchingRisks(allMatches, stillRemaining)
     };
 
     const today = new Date().toISOString().split('T')[0];

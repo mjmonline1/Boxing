@@ -64,6 +64,7 @@ function mapRawHeader(raw) {
   if (norm === 'email address') return 'email';
   if (norm === 'fit') return 'fit';
   if (norm === 'spars per day') return 'sparsPerDay';
+  if (norm === 'auto match') return 'autoMatch';
   return norm;
 }
 
@@ -91,6 +92,7 @@ function parseRawBoxers(text) {
     obj.id = idx + 1;
     if (!obj.fit) obj.fit = 'yes';
     if (!obj.sparsPerDay) obj.sparsPerDay = 1;
+    if (obj.autoMatch !== 'no') obj.autoMatch = 'yes';
     return obj;
   });
 }

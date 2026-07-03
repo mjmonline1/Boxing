@@ -2,6 +2,8 @@ const { MongoClient } = require('mongodb');
 
 const SINGLE_DOC_KEYS = new Set(['spars', 'schedule', 'buckets']);
 
+const json = (statusCode, data) => ({ statusCode, headers: { 'Cache-Control': 'no-store' }, body: JSON.stringify(data) });
+
 let cachedClient;
 
 async function getDb() {
@@ -14,7 +16,7 @@ async function getDb() {
 
 exports.handler = async (event) => {
   const key = event.queryStringParameters?.key;
-  if (!key) return { statusCode: 400, body: JSON.stringify({ error: 'key required' }) };
+  if (!key) return json(400, { error: 'key required' });
 
   try {
     const db = await getDb();
@@ -25,16 +27,16 @@ exports.handler = async (event) => {
         // ?dates=1 → return list of date-stamped IDs for this collection
         if (event.queryStringParameters?.dates === '1') {
           const docs = await col.find({ _id: /^\d{4}-\d{2}-\d{2}$/ }).sort({ _id: -1 }).toArray();
-          return { statusCode: 200, body: JSON.stringify(docs.map(d => d._id)) };
+          return json(200, docs.map(d => d._id));
         }
         const id = event.queryStringParameters?.date || 'current';
         const doc = await col.findOne({ _id: id });
-        if (!doc) return { statusCode: 200, body: JSON.stringify(null) };
+        if (!doc) return json(200, null);
         const { _id, ...data } = doc;
-        return { statusCode: 200, body: JSON.stringify(data) };
+        return json(200, data);
       }
       const docs = await col.find({}).toArray();
-      return { statusCode: 200, body: JSON.stringify(docs.map(({ _id, ...d }) => d)) };
+      return json(200, docs.map(({ _id, ...d }) => d));
     }
 
     if (event.httpMethod === 'PUT') {
@@ -49,21 +51,21 @@ exports.handler = async (event) => {
         await col.deleteMany({});
         if (Array.isArray(data) && data.length > 0) await col.insertMany(data);
       }
-      return { statusCode: 200, body: JSON.stringify({ ok: true }) };
+      return json(200, { ok: true });
     }
 
     if (event.httpMethod === 'PATCH') {
       const id = parseInt(event.queryStringParameters?.id);
-      if (!id) return { statusCode: 400, body: JSON.stringify({ error: 'id required' }) };
+      if (!id) return json(400, { error: 'id required' });
       const fields = JSON.parse(event.body);
       await col.updateOne({ id }, { $set: fields });
-      return { statusCode: 200, body: JSON.stringify({ ok: true }) };
+      return json(200, { ok: true });
     }
 
-    return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
+    return json(405, { error: 'Method not allowed' });
   } catch (e) {
     console.error(e);
-    return { statusCode: 500, body: JSON.stringify({ error: e.message }) };
+    return json(500, { error: e.message });
   }
 };
 
