@@ -1,12 +1,12 @@
 {
   "summary": {
     "totalBoxers": 137,
-    "matchedCount": 109,
-    "unmatchedCount": 24,
+    "matchedCount": 106,
+    "unmatchedCount": 27,
     "matchCount": 50,
-    "groupCount": 9,
+    "groupCount": 6,
     "maxPhase": 3,
-    "successRate": "79.6%"
+    "successRate": "77.4%"
   },
   "matches": [
     {
@@ -173,17 +173,6 @@
     },
     {
       "red": {
-        "id": 11,
-        "name": "Evander Holyfield",
-        "club": "Cookstown ABC",
-        "gender": "male",
-        "yob": 2011,
-        "fit": true,
-        "weight": 48,
-        "experience": 19,
-        "autoMatch": "yes"
-      },
-      "blue": {
         "id": 13,
         "name": "Roy Jones",
         "club": "Johnstone ABC",
@@ -194,10 +183,7 @@
         "experience": 12,
         "autoMatch": "yes"
       },
-      "weightDiff": "1.70",
-      "category": "MaleJunior_OpenClass",
-      "groupId": "g1",
-      "third": {
+      "blue": {
         "id": 14,
         "name": "Bernard Hopkins",
         "club": "Baldoyle BC",
@@ -206,6 +192,20 @@
         "fit": true,
         "weight": 50,
         "experience": 26,
+        "autoMatch": "yes"
+      },
+      "weightDiff": "0.30",
+      "category": "MaleJunior_OpenClass",
+      "groupId": "g1",
+      "third": {
+        "id": 11,
+        "name": "Evander Holyfield",
+        "club": "Cookstown ABC",
+        "gender": "male",
+        "yob": 2011,
+        "fit": true,
+        "weight": 48,
+        "experience": 19,
         "autoMatch": "yes"
       }
     },
@@ -265,17 +265,6 @@
     },
     {
       "red": {
-        "id": 22,
-        "name": "Sandy Saddler",
-        "club": "Dale youth",
-        "gender": "male",
-        "yob": 2008,
-        "fit": true,
-        "weight": 53,
-        "experience": 2,
-        "autoMatch": "yes"
-      },
-      "blue": {
         "id": 25,
         "name": "Ezzard Charles",
         "club": "Arbroath Amateur Boxing Club",
@@ -286,10 +275,7 @@
         "experience": 5,
         "autoMatch": "yes"
       },
-      "weightDiff": "1.00",
-      "category": "MaleYouth_Novice",
-      "groupId": "g2",
-      "third": {
+      "blue": {
         "id": 27,
         "name": "Tony Canzoneri",
         "club": "Baldoyle BC",
@@ -298,6 +284,20 @@
         "fit": true,
         "weight": 54,
         "experience": 4,
+        "autoMatch": "yes"
+      },
+      "weightDiff": "0.00",
+      "category": "MaleYouth_Novice",
+      "groupId": "g2",
+      "third": {
+        "id": 22,
+        "name": "Sandy Saddler",
+        "club": "Dale youth",
+        "gender": "male",
+        "yob": 2008,
+        "fit": true,
+        "weight": 53,
+        "experience": 2,
         "autoMatch": "yes"
       }
     },
@@ -627,17 +627,6 @@
     },
     {
       "red": {
-        "id": 98,
-        "name": "Jermell Charlo",
-        "club": "The Bronx",
-        "gender": "male",
-        "yob": 2008,
-        "fit": true,
-        "weight": 70,
-        "experience": 19,
-        "autoMatch": "yes"
-      },
-      "blue": {
         "id": 101,
         "name": "Artur Beterbiev",
         "club": "Finchley ABC",
@@ -648,10 +637,7 @@
         "experience": 19,
         "autoMatch": "yes"
       },
-      "weightDiff": "1.00",
-      "category": "MaleYouth_OpenClass",
-      "groupId": "g3",
-      "third": {
+      "blue": {
         "id": 102,
         "name": "Gilberto Ramirez",
         "club": "Finchley ABC",
@@ -660,6 +646,20 @@
         "fit": true,
         "weight": 71,
         "experience": 13,
+        "autoMatch": "yes"
+      },
+      "weightDiff": "0.00",
+      "category": "MaleYouth_OpenClass",
+      "groupId": "g3",
+      "third": {
+        "id": 98,
+        "name": "Jermell Charlo",
+        "club": "The Bronx",
+        "gender": "male",
+        "yob": 2008,
+        "fit": true,
+        "weight": 70,
+        "experience": 19,
         "autoMatch": "yes"
       }
     },
@@ -746,17 +746,6 @@
     },
     {
       "red": {
-        "id": 86,
-        "name": "Juan Marquez",
-        "club": "Arbroath Amateur Boxing Club",
-        "gender": "male",
-        "yob": 2004,
-        "fit": true,
-        "weight": 69,
-        "experience": 5,
-        "autoMatch": "yes"
-      },
-      "blue": {
         "id": 89,
         "name": "Kostya Tszyu",
         "club": "Hands Of Stone Montrose",
@@ -767,10 +756,7 @@
         "experience": 0,
         "autoMatch": "yes"
       },
-      "weightDiff": "0.70",
-      "category": "MaleSenior_Novice",
-      "groupId": "g4",
-      "third": {
+      "blue": {
         "id": 94,
         "name": "Jose Castillo",
         "club": "DOBLEJAB BOXING CLUB",
@@ -779,6 +765,20 @@
         "fit": true,
         "weight": 70,
         "experience": 0,
+        "autoMatch": "yes"
+      },
+      "weightDiff": "0.30",
+      "category": "MaleSenior_Novice",
+      "groupId": "g4",
+      "third": {
+        "id": 86,
+        "name": "Juan Marquez",
+        "club": "Arbroath Amateur Boxing Club",
+        "gender": "male",
+        "yob": 2004,
+        "fit": true,
+        "weight": 69,
+        "experience": 5,
         "autoMatch": "yes"
       }
     },
@@ -807,32 +807,10 @@
       },
       "weightDiff": "2.00",
       "category": "MaleSenior_Novice",
-      "groupId": "g5",
-      "third": {
-        "id": 116,
-        "name": "Josh Taylor",
-        "club": "Team Ponce&Mary",
-        "gender": "male",
-        "yob": 1996,
-        "fit": true,
-        "weight": 77,
-        "experience": 2,
-        "autoMatch": "yes"
-      }
+      "groupId": null
     },
     {
       "red": {
-        "id": 126,
-        "name": "Carlos Ortiz",
-        "club": "Finchley ABC",
-        "gender": "male",
-        "yob": 2000,
-        "fit": true,
-        "weight": 81,
-        "experience": 4,
-        "autoMatch": "yes"
-      },
-      "blue": {
         "id": 127,
         "name": "Flash Elorde",
         "club": "Johnstone ABC",
@@ -843,10 +821,7 @@
         "experience": 3,
         "autoMatch": "yes"
       },
-      "weightDiff": "1.00",
-      "category": "MaleSenior_Novice",
-      "groupId": "g6",
-      "third": {
+      "blue": {
         "id": 128,
         "name": "Carlos Zarate",
         "club": "Slough ABC",
@@ -855,6 +830,20 @@
         "fit": true,
         "weight": 82,
         "experience": 1,
+        "autoMatch": "yes"
+      },
+      "weightDiff": "0.00",
+      "category": "MaleSenior_Novice",
+      "groupId": "g5",
+      "third": {
+        "id": 126,
+        "name": "Carlos Ortiz",
+        "club": "Finchley ABC",
+        "gender": "male",
+        "yob": 2000,
+        "fit": true,
+        "weight": 81,
+        "experience": 4,
         "autoMatch": "yes"
       }
     },
@@ -910,18 +899,7 @@
       },
       "weightDiff": "0.50",
       "category": "MaleSenior_Experienced",
-      "groupId": "g7",
-      "third": {
-        "id": 73,
-        "name": "Michael Watson",
-        "club": "Johnstone ABC",
-        "gender": "male",
-        "yob": 1997,
-        "fit": true,
-        "weight": 65.3,
-        "experience": 9,
-        "autoMatch": "yes"
-      }
+      "groupId": null
     },
     {
       "red": {
@@ -1017,20 +995,6 @@
         "autoMatch": "yes"
       },
       "blue": {
-        "id": 48,
-        "name": "Carl Froch",
-        "club": "Team NL",
-        "gender": "male",
-        "yob": 2001,
-        "fit": true,
-        "weight": 60,
-        "experience": 40,
-        "autoMatch": "yes"
-      },
-      "weightDiff": "0.00",
-      "category": "MaleSenior_OpenClass",
-      "groupId": "g8",
-      "third": {
         "id": 54,
         "name": "Tyson Fury",
         "club": "The Academy Boxing Club",
@@ -1040,10 +1004,11 @@
         "weight": 60,
         "experience": 27,
         "autoMatch": "yes"
-      }
-    },
-    {
-      "red": {
+      },
+      "weightDiff": "0.00",
+      "category": "MaleSenior_OpenClass",
+      "groupId": "g6",
+      "third": {
         "id": 50,
         "name": "Joe Calzaghe",
         "club": "Team NL",
@@ -1052,6 +1017,19 @@
         "fit": true,
         "weight": 60,
         "experience": 23,
+        "autoMatch": "yes"
+      }
+    },
+    {
+      "red": {
+        "id": 48,
+        "name": "Carl Froch",
+        "club": "Team NL",
+        "gender": "male",
+        "yob": 2001,
+        "fit": true,
+        "weight": 60,
+        "experience": 40,
         "autoMatch": "yes"
       },
       "blue": {
@@ -1395,17 +1373,6 @@
     },
     {
       "red": {
-        "id": 64,
-        "name": "Nicola Adams",
-        "club": "The Academy Boxing Club",
-        "gender": "female",
-        "yob": 2009,
-        "fit": true,
-        "weight": 63,
-        "experience": 5,
-        "autoMatch": "yes"
-      },
-      "blue": {
         "id": 72,
         "name": "Mary Kom",
         "club": "Team NL",
@@ -1416,10 +1383,7 @@
         "experience": 36,
         "autoMatch": "yes"
       },
-      "weightDiff": "2.00",
-      "category": "Female",
-      "groupId": "g9",
-      "third": {
+      "blue": {
         "id": 78,
         "name": "Lucia Rijker",
         "club": "Team Ponce&Mary",
@@ -1429,7 +1393,10 @@
         "weight": 66,
         "experience": 3,
         "autoMatch": "yes"
-      }
+      },
+      "weightDiff": "1.00",
+      "category": "Female",
+      "groupId": null
     },
     {
       "red": {
@@ -1605,6 +1572,30 @@
       "category": "MaleYouth_OpenClass"
     },
     {
+      "id": 64,
+      "name": "Nicola Adams",
+      "club": "The Academy Boxing Club",
+      "gender": "female",
+      "yob": 2009,
+      "fit": true,
+      "weight": 63,
+      "experience": 5,
+      "autoMatch": "yes",
+      "category": "Female"
+    },
+    {
+      "id": 73,
+      "name": "Michael Watson",
+      "club": "Johnstone ABC",
+      "gender": "male",
+      "yob": 1997,
+      "fit": true,
+      "weight": 65.3,
+      "experience": 9,
+      "autoMatch": "yes",
+      "category": "MaleSenior_Experienced"
+    },
+    {
       "id": 79,
       "name": "Floyd Patterson",
       "club": "The Academy Boxing Club",
@@ -1651,6 +1642,18 @@
       "experience": 20,
       "autoMatch": "yes",
       "category": "MaleJunior_OpenClass"
+    },
+    {
+      "id": 116,
+      "name": "Josh Taylor",
+      "club": "Team Ponce&Mary",
+      "gender": "male",
+      "yob": 1996,
+      "fit": true,
+      "weight": 77,
+      "experience": 2,
+      "autoMatch": "yes",
+      "category": "MaleSenior_Novice"
     },
     {
       "id": 123,
@@ -1808,10 +1811,10 @@
         "club": "The Academy Boxing Club"
       },
       {
-        "name": "Bernard Hopkins",
-        "weight": 50,
-        "experience": 26,
-        "club": "Baldoyle BC"
+        "name": "Evander Holyfield",
+        "weight": 48,
+        "experience": 19,
+        "club": "Cookstown ABC"
       },
       {
         "name": "Thomas Hearns",
@@ -1826,16 +1829,16 @@
         "club": "Slough ABC"
       },
       {
+        "name": "Sandy Saddler",
+        "weight": 53,
+        "experience": 2,
+        "club": "Dale youth"
+      },
+      {
         "name": "Mickey Walker",
         "weight": 54,
         "experience": 0,
         "club": "The Academy Boxing Club"
-      },
-      {
-        "name": "Tony Canzoneri",
-        "weight": 54,
-        "experience": 4,
-        "club": "Baldoyle BC"
       },
       {
         "name": "Barney Ross",
@@ -1862,9 +1865,15 @@
         "club": "The Academy Boxing Club"
       },
       {
-        "name": "Tyson Fury",
+        "name": "Joe Calzaghe",
         "weight": 60,
-        "experience": 27,
+        "experience": 23,
+        "club": "Team NL"
+      },
+      {
+        "name": "Nicola Adams",
+        "weight": 63,
+        "experience": 5,
         "club": "The Academy Boxing Club"
       },
       {
@@ -1892,28 +1901,22 @@
         "club": "DOBLE JAB BOXING CLUB"
       },
       {
-        "name": "Lucia Rijker",
-        "weight": 66,
-        "experience": 3,
-        "club": "Team Ponce&Mary"
-      },
-      {
         "name": "Erik Morales",
         "weight": 68,
         "experience": 20,
         "club": "Baldoyle BC"
       },
       {
-        "name": "Jose Castillo",
-        "weight": 70,
-        "experience": 0,
-        "club": "DOBLEJAB BOXING CLUB"
+        "name": "Juan Marquez",
+        "weight": 69,
+        "experience": 5,
+        "club": "Arbroath Amateur Boxing Club"
       },
       {
-        "name": "Gilberto Ramirez",
-        "weight": 71,
-        "experience": 13,
-        "club": "Finchley ABC"
+        "name": "Jermell Charlo",
+        "weight": 70,
+        "experience": 19,
+        "club": "The Bronx"
       },
       {
         "name": "Josh Taylor",
@@ -1928,10 +1931,10 @@
         "club": "DOBLE JAB BOXING CLUB"
       },
       {
-        "name": "Carlos Zarate",
-        "weight": 82,
-        "experience": 1,
-        "club": "Slough ABC"
+        "name": "Carlos Ortiz",
+        "weight": 81,
+        "experience": 4,
+        "club": "Finchley ABC"
       },
       {
         "name": "Roman Gonzalez",
@@ -2026,11 +2029,11 @@
         "category": "MaleJunior_OpenClass"
       },
       {
-        "red": "Evander Holyfield",
-        "redWeight": 48,
-        "blue": "Roy Jones",
-        "blueWeight": 49.7,
-        "weightDiff": "1.70",
+        "red": "Roy Jones",
+        "redWeight": 49.7,
+        "blue": "Bernard Hopkins",
+        "blueWeight": 50,
+        "weightDiff": "0.30",
         "category": "MaleJunior_OpenClass"
       },
       {
@@ -2050,11 +2053,11 @@
         "category": "MaleJunior_OpenClass"
       },
       {
-        "red": "Sandy Saddler",
-        "redWeight": 53,
-        "blue": "Ezzard Charles",
+        "red": "Ezzard Charles",
+        "redWeight": 54,
+        "blue": "Tony Canzoneri",
         "blueWeight": 54,
-        "weightDiff": "1.00",
+        "weightDiff": "0.00",
         "category": "MaleYouth_Novice"
       },
       {
@@ -2154,11 +2157,11 @@
         "category": "MaleYouth_OpenClass"
       },
       {
-        "red": "Jermell Charlo",
-        "redWeight": 70,
-        "blue": "Artur Beterbiev",
+        "red": "Artur Beterbiev",
+        "redWeight": 71,
+        "blue": "Gilberto Ramirez",
         "blueWeight": 71,
-        "weightDiff": "1.00",
+        "weightDiff": "0.00",
         "category": "MaleYouth_OpenClass"
       },
       {
@@ -2186,11 +2189,11 @@
         "category": "MaleSenior_Novice"
       },
       {
-        "red": "Juan Marquez",
-        "redWeight": 69,
-        "blue": "Kostya Tszyu",
-        "blueWeight": 69.7,
-        "weightDiff": "0.70",
+        "red": "Kostya Tszyu",
+        "redWeight": 69.7,
+        "blue": "Jose Castillo",
+        "blueWeight": 70,
+        "weightDiff": "0.30",
         "category": "MaleSenior_Novice"
       },
       {
@@ -2202,11 +2205,11 @@
         "category": "MaleSenior_Novice"
       },
       {
-        "red": "Carlos Ortiz",
-        "redWeight": 81,
-        "blue": "Flash Elorde",
+        "red": "Flash Elorde",
+        "redWeight": 82,
+        "blue": "Carlos Zarate",
         "blueWeight": 82,
-        "weightDiff": "1.00",
+        "weightDiff": "0.00",
         "category": "MaleSenior_Novice"
       },
       {
@@ -2252,13 +2255,13 @@
       {
         "red": "David Haye",
         "redWeight": 60,
-        "blue": "Carl Froch",
+        "blue": "Tyson Fury",
         "blueWeight": 60,
         "weightDiff": "0.00",
         "category": "MaleSenior_OpenClass"
       },
       {
-        "red": "Joe Calzaghe",
+        "red": "Carl Froch",
         "redWeight": 60,
         "blue": "Amir Khan",
         "blueWeight": 60,
@@ -2362,11 +2365,11 @@
         "category": "Female"
       },
       {
-        "red": "Nicola Adams",
-        "redWeight": 63,
-        "blue": "Mary Kom",
-        "blueWeight": 65,
-        "weightDiff": "2.00",
+        "red": "Mary Kom",
+        "redWeight": 65,
+        "blue": "Lucia Rijker",
+        "blueWeight": 66,
+        "weightDiff": "1.00",
         "category": "Female"
       },
       {
@@ -2410,10 +2413,10 @@
         "club": "The Academy Boxing Club"
       },
       {
-        "name": "Bernard Hopkins",
-        "weight": 50,
-        "experience": 26,
-        "club": "Baldoyle BC"
+        "name": "Evander Holyfield",
+        "weight": 48,
+        "experience": 19,
+        "club": "Cookstown ABC"
       },
       {
         "name": "Thomas Hearns",
@@ -2428,16 +2431,16 @@
         "club": "Slough ABC"
       },
       {
+        "name": "Sandy Saddler",
+        "weight": 53,
+        "experience": 2,
+        "club": "Dale youth"
+      },
+      {
         "name": "Mickey Walker",
         "weight": 54,
         "experience": 0,
         "club": "The Academy Boxing Club"
-      },
-      {
-        "name": "Tony Canzoneri",
-        "weight": 54,
-        "experience": 4,
-        "club": "Baldoyle BC"
       },
       {
         "name": "Barney Ross",
@@ -2464,9 +2467,15 @@
         "club": "The Academy Boxing Club"
       },
       {
-        "name": "Tyson Fury",
+        "name": "Joe Calzaghe",
         "weight": 60,
-        "experience": 27,
+        "experience": 23,
+        "club": "Team NL"
+      },
+      {
+        "name": "Nicola Adams",
+        "weight": 63,
+        "experience": 5,
         "club": "The Academy Boxing Club"
       },
       {
@@ -2494,28 +2503,22 @@
         "club": "DOBLE JAB BOXING CLUB"
       },
       {
-        "name": "Lucia Rijker",
-        "weight": 66,
-        "experience": 3,
-        "club": "Team Ponce&Mary"
-      },
-      {
         "name": "Erik Morales",
         "weight": 68,
         "experience": 20,
         "club": "Baldoyle BC"
       },
       {
-        "name": "Jose Castillo",
-        "weight": 70,
-        "experience": 0,
-        "club": "DOBLEJAB BOXING CLUB"
+        "name": "Juan Marquez",
+        "weight": 69,
+        "experience": 5,
+        "club": "Arbroath Amateur Boxing Club"
       },
       {
-        "name": "Gilberto Ramirez",
-        "weight": 71,
-        "experience": 13,
-        "club": "Finchley ABC"
+        "name": "Jermell Charlo",
+        "weight": 70,
+        "experience": 19,
+        "club": "The Bronx"
       },
       {
         "name": "Josh Taylor",
@@ -2530,10 +2533,10 @@
         "club": "DOBLE JAB BOXING CLUB"
       },
       {
-        "name": "Carlos Zarate",
-        "weight": 82,
-        "experience": 1,
-        "club": "Slough ABC"
+        "name": "Carlos Ortiz",
+        "weight": 81,
+        "experience": 4,
+        "club": "Finchley ABC"
       },
       {
         "name": "Roman Gonzalez",
@@ -2653,6 +2656,18 @@
         "club": "The Academy Boxing Club"
       },
       {
+        "name": "Nicola Adams",
+        "weight": 63,
+        "experience": 5,
+        "club": "The Academy Boxing Club"
+      },
+      {
+        "name": "Michael Watson",
+        "weight": 65.3,
+        "experience": 9,
+        "club": "Johnstone ABC"
+      },
+      {
         "name": "Floyd Patterson",
         "weight": 66,
         "experience": 8,
@@ -2675,6 +2690,12 @@
         "weight": 68,
         "experience": 20,
         "club": "Baldoyle BC"
+      },
+      {
+        "name": "Josh Taylor",
+        "weight": 77,
+        "experience": 2,
+        "club": "Team Ponce&Mary"
       },
       {
         "name": "Pernell Whitaker",
@@ -2728,133 +2749,96 @@
     "phase3Groups": [
       {
         "groupId": "g1",
-        "red": "Evander Holyfield",
-        "redWeight": 48,
-        "blue": "Roy Jones",
-        "blueWeight": 49.7,
-        "third": "Bernard Hopkins",
-        "thirdWeight": 50,
+        "red": "Roy Jones",
+        "redWeight": 49.7,
+        "blue": "Bernard Hopkins",
+        "blueWeight": 50,
+        "third": "Evander Holyfield",
+        "thirdWeight": 48,
         "category": "MaleJunior_OpenClass"
       },
       {
         "groupId": "g2",
-        "red": "Sandy Saddler",
-        "redWeight": 53,
-        "blue": "Ezzard Charles",
+        "red": "Ezzard Charles",
+        "redWeight": 54,
+        "blue": "Tony Canzoneri",
         "blueWeight": 54,
-        "third": "Tony Canzoneri",
-        "thirdWeight": 54,
+        "third": "Sandy Saddler",
+        "thirdWeight": 53,
         "category": "MaleYouth_Novice"
       },
       {
         "groupId": "g3",
-        "red": "Jermell Charlo",
-        "redWeight": 70,
-        "blue": "Artur Beterbiev",
+        "red": "Artur Beterbiev",
+        "redWeight": 71,
+        "blue": "Gilberto Ramirez",
         "blueWeight": 71,
-        "third": "Gilberto Ramirez",
-        "thirdWeight": 71,
+        "third": "Jermell Charlo",
+        "thirdWeight": 70,
         "category": "MaleYouth_OpenClass"
       },
       {
         "groupId": "g4",
-        "red": "Juan Marquez",
-        "redWeight": 69,
-        "blue": "Kostya Tszyu",
-        "blueWeight": 69.7,
-        "third": "Jose Castillo",
-        "thirdWeight": 70,
+        "red": "Kostya Tszyu",
+        "redWeight": 69.7,
+        "blue": "Jose Castillo",
+        "blueWeight": 70,
+        "third": "Juan Marquez",
+        "thirdWeight": 69,
         "category": "MaleSenior_Novice"
       },
       {
         "groupId": "g5",
-        "red": "David Benavidez",
-        "redWeight": 73,
-        "blue": "Gervonta Davis",
-        "blueWeight": 75,
-        "third": "Josh Taylor",
-        "thirdWeight": 77,
+        "red": "Flash Elorde",
+        "redWeight": 82,
+        "blue": "Carlos Zarate",
+        "blueWeight": 82,
+        "third": "Carlos Ortiz",
+        "thirdWeight": 81,
         "category": "MaleSenior_Novice"
       },
       {
         "groupId": "g6",
-        "red": "Carlos Ortiz",
-        "redWeight": 81,
-        "blue": "Flash Elorde",
-        "blueWeight": 82,
-        "third": "Carlos Zarate",
-        "thirdWeight": 82,
-        "category": "MaleSenior_Novice"
-      },
-      {
-        "groupId": "g7",
-        "red": "Billy Saunders",
-        "redWeight": 63,
-        "blue": "Joe Joyce",
-        "blueWeight": 63.5,
-        "third": "Michael Watson",
-        "thirdWeight": 65.3,
-        "category": "MaleSenior_Experienced"
-      },
-      {
-        "groupId": "g8",
         "red": "David Haye",
         "redWeight": 60,
-        "blue": "Carl Froch",
+        "blue": "Tyson Fury",
         "blueWeight": 60,
-        "third": "Tyson Fury",
+        "third": "Joe Calzaghe",
         "thirdWeight": 60,
         "category": "MaleSenior_OpenClass"
-      },
-      {
-        "groupId": "g9",
-        "red": "Nicola Adams",
-        "redWeight": 63,
-        "blue": "Mary Kom",
-        "blueWeight": 65,
-        "third": "Lucia Rijker",
-        "thirdWeight": 66,
-        "category": "Female"
       }
     ]
   },
   "matchRisks": {
-    "overSpreadTrios": [
-      {
-        "groupId": "g5",
-        "category": "MaleSenior_Novice",
-        "red": "David Benavidez",
-        "blue": "Gervonta Davis",
-        "third": "Josh Taylor",
-        "worstPair": "David Benavidez vs Josh Taylor",
-        "worstDiff": 4
-      },
-      {
-        "groupId": "g7",
-        "category": "MaleSenior_Experienced",
-        "red": "Billy Saunders",
-        "blue": "Joe Joyce",
-        "third": "Michael Watson",
-        "worstPair": "Billy Saunders vs Michael Watson",
-        "worstDiff": 2.3
-      },
-      {
-        "groupId": "g9",
-        "category": "Female",
-        "red": "Nicola Adams",
-        "blue": "Mary Kom",
-        "third": "Lucia Rijker",
-        "worstPair": "Nicola Adams vs Lucia Rijker",
-        "worstDiff": 3
-      }
-    ],
+    "overSpreadTrios": [],
     "strandedCandidates": [
+      {
+        "name": "Nicola Adams",
+        "weight": 63,
+        "category": "Female",
+        "nearestMatchedPartner": "Mary Kom",
+        "diff": 2
+      },
+      {
+        "name": "Michael Watson",
+        "weight": 65.3,
+        "category": "MaleSenior_Experienced",
+        "nearestMatchedPartner": "Joe Joyce",
+        "diff": 1.8
+      },
       {
         "name": "Riddick Bowe",
         "weight": 66,
         "category": "MaleYouth_OpenClass",
         "nearestMatchedPartner": "Lawrence Okolie",
         "diff": 2.5
+      },
+      {
+        "name": "Josh Taylor",
+        "weight": 77,
+        "category": "MaleSenior_Novice",
+        "nearestMatchedPartner": "Gervonta Davis",
+        "diff": 2
       }
     ]
   }
