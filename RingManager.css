@@ -50,6 +50,18 @@ body {
   cursor: pointer;
 }
 
+.ring-search {
+  padding: 4px 8px;
+  border-radius: 5px;
+  border: 1px solid var(--border, #ccc);
+  background: var(--surface2, #f5f5f5);
+  color: var(--text, #333);
+  font-size: 12px;
+}
+
+/* Search: dim bouts that don't match the current term (grid keeps its layout). */
+.bout-block.search-dim { opacity: 0.12; }
+
 /* ── Legend ── */
 #legend {
   display: flex;
