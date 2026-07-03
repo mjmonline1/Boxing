@@ -180,7 +180,7 @@ function pairBoxersOptimal(boxers, categoryName, tolerance = PHASE2_TOLERANCE, s
  *
  * Returns the final matches/unmatched plus per-phase breakdowns for reporting.
  */
-function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE, maxPhase = 3, algorithm = 'greedy' } = {}) {
+function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE, maxPhase = 3, algorithm = 'greedy', trioTol = WEIGHT_TOLERANCE } = {}) {
     let allMatches = [];
     const sparCount = new Map(); // boxer → spars assigned (carries the daily-cap budget across phases)
     const partnered = new Map(); // boxer → Set already sparred (no rematch across phases)
@@ -255,10 +255,13 @@ function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE, ma
                     // A trio means everyone fights everyone: require ALL THREE
                     // pairwise diffs in tolerance (fixes limitation (B) — greedy
                     // only checks the nearer member). Rank by worst internal diff.
+                    // Fold tolerance is the adjustable `trioTol` (default 2.0 —
+                    // keeps the zero-over-spread-trio guarantee; settings above
+                    // 2.0 will surface those trios in matchRisks by design).
                     const d1 = Math.abs(boxer.weight - m.red.weight);
                     const d2 = Math.abs(boxer.weight - m.blue.weight);
                     const d3 = Math.abs(m.red.weight - m.blue.weight);
-                    if (d1 > tol2 + WEIGHT_EPS || d2 > tol2 + WEIGHT_EPS || d3 > tol2 + WEIGHT_EPS) continue;
+                    if (d1 > trioTol + WEIGHT_EPS || d2 > trioTol + WEIGHT_EPS || d3 > trioTol + WEIGHT_EPS) continue;
                     const worst = Math.max(d1, d2, d3);
                     const isDiffClub = boxer.club !== m.red.club && boxer.club !== m.blue.club;
                     if (isDiffClub && !bestIsDiffClub) {
@@ -365,7 +368,7 @@ function logUnmatched(label, boxers) {
         .forEach(b => console.log(`    - ${b.name} (${b.weight}kg, ${b.experience} bouts, ${b.club})`));
 }
 
-function main(maxPhase = 3, algorithm = 'greedy') {
+function main(maxPhase = 3, algorithm = 'greedy', trioTol) {
     if (!fs.existsSync(SOURCE_FILE)) {
         console.error(`Error: ${SOURCE_FILE} not found. Run PutAllFightersinBuckets.js first.`);
         process.exit(1);
@@ -374,7 +377,7 @@ function main(maxPhase = 3, algorithm = 'greedy') {
     const data = JSON.parse(fs.readFileSync(SOURCE_FILE, 'utf8'));
 
     const { matches: allMatches, unmatched: stillRemaining, manualMatch, groupCount, phases } =
-        pairAll(data.finalBuckets, { maxPhase, algorithm });
+        pairAll(data.finalBuckets, { maxPhase, algorithm, ...(trioTol != null ? { trioTol } : {}) });
 
     console.log(`--- Phase 1 — Within-bucket (±2 kg) ---`);
     logUnmatched('Phase 1', phases.phase1.unmatched);

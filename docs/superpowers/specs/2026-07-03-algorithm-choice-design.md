@@ -152,6 +152,18 @@ cases where greedy reports them — this is the key regression assertion.
 | `index.html` | Algorithm dropdown; `runScript()` URL param |
 | `tests/sparMakerOptimal.test.js` | New — cases above |
 
+## Amendment (2026-07-03, post final review): adjustable trio-fold tolerance
+
+The final review found the original text self-contradictory: the trio-fold
+accepted diffs up to tol2 (2.5) while also promising zero over-spread trios
+(flagged above 2.0 by checkMatchingRisks). Resolution (user decision):
+`pairAll` gains `trioTol` (default `WEIGHT_TOLERANCE` = 2.0, UI/server
+clamped to [2.0, 2.5]) controlling the optimal fold's all-three-diffs check.
+At the default the zero-over-spread promise holds; deliberately loosening
+the knob admits 2.0–2.5 trios, which checkMatchingRisks still reports —
+that is visibility, not a bug. Exposed as a number input in index.html and
+a `trioTol` query param on spar-maker/generate-spars. Greedy is unaffected.
+
 ## Out of scope
 
 - Changing greedy in any way (byte-identical baseline preserved).

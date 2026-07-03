@@ -161,3 +161,34 @@ test('pairAll: omitted algorithm defaults to greedy (byte-identical baseline)', 
         def.matches.map(m => `${m.red.weight}-${m.blue.weight}`),
         g.matches.map(m => `${m.red.weight}-${m.blue.weight}`));
 });
+
+// --- adjustable trio-fold tolerance (trioTol) ---------------------------------
+
+test('pairAll optimal: default trioTol=2.0 rejects a trio in the 2.0-2.5 band (zero over-spread guarantee)', () => {
+    // Reviewer's case: optimal pairs 72.3/72.4; leftover 70.0 is 2.3/2.4 from
+    // the members — above the default 2.0 fold tolerance, so NO trio forms.
+    const r = pairAll({ Cat: [bx(70.0), bx(72.3), bx(72.4)] }, { algorithm: 'optimal' });
+    assert.equal(r.matches.length, 1);
+    assert.ok(!r.matches[0].third, 'no trio at default trioTol');
+    assert.equal(r.unmatched.length, 1);
+    const { overSpreadTrios } = checkMatchingRisks(r.matches, r.unmatched);
+    assert.equal(overSpreadTrios.length, 0);
+});
+
+test('pairAll optimal: trioTol=2.5 admits that same trio (and matchRisks reports it, by design)', () => {
+    const r = pairAll({ Cat: [bx(70.0), bx(72.3), bx(72.4)] }, { algorithm: 'optimal', trioTol: 2.5 });
+    assert.equal(r.matches.length, 1);
+    assert.ok(r.matches[0].third, 'trio forms at trioTol=2.5');
+    assert.equal(r.unmatched.length, 0);
+    const { overSpreadTrios } = checkMatchingRisks(r.matches, r.unmatched);
+    assert.equal(overSpreadTrios.length, 1, 'over-2.0 trio is surfaced in the risk report');
+});
+
+test('pairAll greedy: trioTol option is ignored — greedy fold unchanged at tol1', () => {
+    const mk = () => ({ Cat: [bx(70.0), bx(72.0), bx(73.9)] });
+    const a = pairAll(mk());
+    const b = pairAll(mk(), { trioTol: 2.5 });
+    assert.deepEqual(
+        a.matches.map(m => [m.red.weight, m.blue.weight, m.third?.weight ?? null]),
+        b.matches.map(m => [m.red.weight, m.blue.weight, m.third?.weight ?? null]));
+});
