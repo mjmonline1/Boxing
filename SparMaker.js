@@ -180,7 +180,7 @@ function pairBoxersOptimal(boxers, categoryName, tolerance = PHASE2_TOLERANCE, s
  *
  * Returns the final matches/unmatched plus per-phase breakdowns for reporting.
  */
-function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE, maxPhase = 3 } = {}) {
+function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE, maxPhase = 3, algorithm = 'greedy' } = {}) {
     let allMatches = [];
     const sparCount = new Map(); // boxer → spars assigned (carries the daily-cap budget across phases)
     const partnered = new Map(); // boxer → Set already sparred (no rematch across phases)
@@ -193,7 +193,11 @@ function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE, ma
         if (category === 'Notfit' || boxersRaw.length === 0) continue;
         manualMatch.push(...boxersRaw.filter(b => b.autoMatch === 'no').map(b => ({ ...b, category })));
         const boxers = boxersRaw.filter(b => b.autoMatch !== 'no');
-        const { matches, unmatched } = pairBoxers(boxers, category, tol1, sparCount, partnered);
+        const { matches, unmatched } = algorithm === 'optimal'
+            // Optimal solves the whole bucket once at the combined tolerance —
+            // no tight-then-loose two-pass (that exists only to unstick greedy).
+            ? pairBoxersOptimal(boxers, category, tol2, sparCount, partnered)
+            : pairBoxers(boxers, category, tol1, sparCount, partnered);
         allMatches = allMatches.concat(matches);
         phase1Matches.push(...matches);
         bucketUnmatched[category] = unmatched;
@@ -205,7 +209,14 @@ function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE, ma
     // already matched but still under its daily cap has had its spar — it isn't "unmatched".
     let allUnmatched = [];
     const phase2Matches = [];
-    if (maxPhase >= 2) {
+    if (algorithm === 'optimal') {
+        // Already solved at tol2 — there is no second pass. Never-matched
+        // boxers (count 0) carry to the trio-fold, tagged with their bucket.
+        allUnmatched = Object.entries(bucketUnmatched)
+            .flatMap(([category, boxers]) => boxers
+                .filter(b => (sparCount.get(b) || 0) === 0)
+                .map(b => ({ ...b, _bucket: category })));
+    } else if (maxPhase >= 2) {
         for (const [category, boxers] of Object.entries(bucketUnmatched)) {
             if (boxers.length === 0) continue;
             const { matches, unmatched } = pairBoxers(boxers, category, tol2, sparCount, partnered);
@@ -239,6 +250,24 @@ function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE, ma
                 const m = allMatches[i];
                 if (m.groupId) continue;
                 if (m.category !== bucket) continue;
+
+                if (algorithm === 'optimal') {
+                    // A trio means everyone fights everyone: require ALL THREE
+                    // pairwise diffs in tolerance (fixes limitation (B) — greedy
+                    // only checks the nearer member). Rank by worst internal diff.
+                    const d1 = Math.abs(boxer.weight - m.red.weight);
+                    const d2 = Math.abs(boxer.weight - m.blue.weight);
+                    const d3 = Math.abs(m.red.weight - m.blue.weight);
+                    if (d1 > tol2 + WEIGHT_EPS || d2 > tol2 + WEIGHT_EPS || d3 > tol2 + WEIGHT_EPS) continue;
+                    const worst = Math.max(d1, d2, d3);
+                    const isDiffClub = boxer.club !== m.red.club && boxer.club !== m.blue.club;
+                    if (isDiffClub && !bestIsDiffClub) {
+                        bestIdx = i; bestDiff = worst; bestIsDiffClub = true;
+                    } else if (isDiffClub === bestIsDiffClub && worst < bestDiff) {
+                        bestIdx = i; bestDiff = worst;
+                    }
+                    continue;
+                }
 
                 for (const partner of [m.red, m.blue]) {
                     const diff = Math.abs(boxer.weight - partner.weight);
