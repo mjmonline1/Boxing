@@ -27,14 +27,14 @@
   <span class="legend-item"><span class="swatch swatch-youth"></span>Youth male</span>
   <span class="legend-item"><span class="swatch swatch-female"></span>Female</span>
   <span class="legend-hint">
-    Drag any boxer onto another to swap them · Drop onto the pool panel to unmatch · Drop an unmatched boxer onto another unmatched boxer to create a new pair · Ctrl+drop an unmatched boxer onto a group's card (not a tile) to add them — no size limit
+    Drag any boxer onto another to swap them · Drop onto the pool panel to unmatch · Drop an unmatched boxer onto another to create a new pair · Drop a single boxer on the “start a new spar” card to begin one, then drop an opponent in the open corner · Ctrl+drop an unmatched boxer onto a group's card (not a tile) to add them — no size limit
   </span>
 </div>
 
 <div id="filterbar">
   <label>Category:</label>
   <select id="filterCat"><option value="">All categories</option></select>
-  <label class="filter-label-spaced">Search:</label>
+  <label class="filter-label-spaced">Search spars:</label>
   <input id="searchInput" type="text" placeholder="name or club…" />
 </div>
 
@@ -48,10 +48,11 @@
     <div id="unmatched-header">
       <div id="unmatched-title">Unmatched Pool</div>
       <div class="sub">Drop a paired boxer here to free them</div>
+      <input id="searchPool" type="text" placeholder="search pool…" />
     </div>
     <div id="unmatched-zone">
       <div id="pair-hint">
-        Drop one boxer onto another to create a pair<br>Ctrl+drop onto a group's card (not a boxer tile) to add them
+        Drop one boxer onto another to create a pair<br>…or drop a single boxer on the “start a new spar” card, then add an opponent<br>Ctrl+drop onto a group's card (not a boxer tile) to add them
       </div>
       <div id="unmatched-list"></div>
     </div>
@@ -176,7 +177,7 @@ function boxerType(b) {
   return b.gender === 'female' ? 'female' : ageGroup(b.yob);
 }
 function deriveCategory(a, b) {
-  if (a.gender === 'female' || b.gender === 'female') return 'FitFemales';
+  if (a.gender === 'female' || b.gender === 'female') return 'Female';
   const ag  = ageGroup(a.yob);
   const agLabel = ag[0].toUpperCase() + ag.slice(1);
   const exp = a.experience || 0;
@@ -296,6 +297,33 @@ function addMember(unmatchedId, sparId) {
   state.unmatched = state.unmatched.filter(b => b.id !== unmatchedId);
 }
 
+// Start a new spar with a single boxer, leaving the blue corner open until an
+// opponent is dropped in. Represented as a match with `red` but no `blue`.
+function createSpar(boxerId) {
+  const info = findBoxer(boxerId);
+  if (!info || info.loc.type !== 'unmatched') return;
+  const boxer = clone(info.boxer);
+  state.unmatched = state.unmatched.filter(b => b.id !== boxerId);
+  state.matches.push({
+    sparId:     `S${Date.now()}`,
+    red:        boxer,
+    weightDiff: null,
+    category:   deriveCategory(boxer, boxer)   // single-boxer category (age/exp of red)
+  });
+}
+
+// Fill the open corner of an incomplete spar, completing the pair.
+function completeSpar(sparId, boxerId) {
+  const m = state.matches.find(m => m.sparId === sparId);
+  if (!m || m.blue) return;                    // only for incomplete spars
+  const info = findBoxer(boxerId);
+  if (!info || info.loc.type !== 'unmatched') return;
+  m.blue       = clone(info.boxer);
+  m.weightDiff = Math.abs(m.red.weight - m.blue.weight).toFixed(2);
+  m.category   = deriveCategory(m.red, m.blue);
+  state.unmatched = state.unmatched.filter(b => b.id !== boxerId);
+}
+
 function swapMatch(sparId) {
   const m = state.matches.find(m => m.sparId === sparId);
   if (m) [m.red, m.blue] = [m.blue, m.red];
@@ -309,7 +337,7 @@ function filteredMatches() {
   return state.matches.filter(m => {
     if (cat && m.category !== cat) return false;
     if (search) {
-      const hay = `${m.red.name} ${m.red.club} ${m.blue.name} ${m.blue.club}`.toLowerCase();
+      const hay = `${m.red.name} ${m.red.club} ${m.blue?.name || ''} ${m.blue?.club || ''}`.toLowerCase();
       if (!hay.includes(search)) return false;
     }
     return true;
@@ -443,24 +471,63 @@ function renderPhaseLog() {
   document.getElementById('pairs-col').appendChild(wrap);
 }
 
+// Persistent drop target that turns a single dropped boxer into a new (incomplete) spar.
+function makeStarterCard() {
+  const card = document.createElement('div');
+  card.className = 'match-card starter-card';
+  const prompt = document.createElement('div');
+  prompt.className = 'drop-prompt';
+  prompt.textContent = '➕ Drop a boxer here to start a new spar';
+  card.appendChild(prompt);
+
+  card.addEventListener('dragover', e => {
+    const info = draggedId !== null ? findBoxer(draggedId) : null;
+    if (info?.loc.type === 'unmatched') {
+      e.preventDefault();
+      prompt.classList.add('drag-over');
+    }
+  });
+  card.addEventListener('dragleave', e => {
+    if (!card.contains(e.relatedTarget)) prompt.classList.remove('drag-over');
+  });
+  card.addEventListener('drop', e => {
+    e.preventDefault();
+    prompt.classList.remove('drag-over');
+    const fromId = parseInt(e.dataTransfer.getData('text/plain'));
+    const info = findBoxer(fromId);
+    if (!info || info.loc.type !== 'unmatched') return;
+    const name = info.boxer.name;
+    createSpar(fromId);
+    populateCategoryFilter();
+    render();
+    showToast(`New spar started with ${name} — drop an opponent to complete it`);
+  });
+  return card;
+}
+
 function renderPairs() {
   const matches   = filteredMatches();
   const container = document.getElementById('pairs');
   document.getElementById('list-title').textContent =
-    `${matches.length} of ${state.matches.length} pair${state.matches.length !== 1 ? 's' : ''}`;
+    `${matches.length} of ${state.matches.length} spar${state.matches.length !== 1 ? 's' : ''}`;
 
   container.innerHTML = '';
+  container.appendChild(makeStarterCard());   // always-available "start a new spar" target
 
   if (matches.length === 0) {
-    container.innerHTML =
-      '<div class="empty-filter-msg">No pairs match the filter</div>';
+    const msg = document.createElement('div');
+    msg.className = 'empty-filter-msg';
+    msg.textContent = state.matches.length === 0
+      ? 'No spars yet — drop a boxer above to start one, or drop one boxer onto another in the pool.'
+      : 'No spars match the filter';
+    container.appendChild(msg);
     return;
   }
 
   matches.forEach(m => {
     const type     = boutType(m);
     const diff     = parseFloat(m.weightDiff);
-    const sameClub = m.red.club === m.blue.club;
+    const sameClub = m.blue && m.red.club === m.blue.club;
     const bigDiff  = diff > 3;
 
     const card = document.createElement('div');
@@ -477,6 +544,10 @@ function renderPairs() {
       meta.innerHTML = `<span class="spar-id">${m.sparId}</span>
         <span class="rr-badge">⬡ Round Robin &middot; ${boutCount}&times; bout${boutCount !== 1 ? 's' : ''}</span>
         <span class="cat-badge">${m.category}</span>`;
+    } else if (!m.blue) {
+      meta.innerHTML = `<span class="spar-id">${m.sparId}</span>
+        <span class="cat-badge">${m.category}</span>
+        <span class="incomplete-badge">⏳ needs opponent</span>`;
     } else {
       meta.innerHTML = `<span class="spar-id">${m.sparId}</span>
         <span class="cat-badge">${m.category}</span>
@@ -524,6 +595,46 @@ function renderPairs() {
         matchup.appendChild(vs);
       }
     });
+
+    // Incomplete spar: render an open blue corner that completes the pair on drop.
+    if (!m.blue) {
+      const vs = document.createElement('div');
+      vs.className = 'vs-col'; vs.textContent = 'vs';
+      matchup.appendChild(vs);
+
+      const wrap = document.createElement('div');
+      wrap.className = 'corner-wrap blue-corner';
+      wrap.innerHTML = '<div class="corner-label">🔵 Blue corner</div>';
+      const slot = document.createElement('div');
+      slot.className = 'drop-prompt open-slot';
+      slot.textContent = 'Drop an opponent here';
+      wrap.appendChild(slot);
+      matchup.appendChild(wrap);
+
+      slot.addEventListener('dragover', e => {
+        const info = draggedId !== null ? findBoxer(draggedId) : null;
+        if (info?.loc.type === 'unmatched') {
+          e.preventDefault();
+          e.stopPropagation();   // don't bubble to the card's Ctrl-drop handler
+          slot.classList.add('drag-over');
+        }
+      });
+      slot.addEventListener('dragleave', () => slot.classList.remove('drag-over'));
+      slot.addEventListener('drop', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        slot.classList.remove('drag-over');
+        const fromId = parseInt(e.dataTransfer.getData('text/plain'));
+        const info = findBoxer(fromId);
+        if (!info || info.loc.type !== 'unmatched') return;
+        const name = info.boxer.name;
+        completeSpar(m.sparId, fromId);
+        populateCategoryFilter();
+        render();
+        showToast(`${name} added — spar complete`);
+      });
+    }
+
     card.appendChild(matchup);
 
     // Card background as drop zone — Ctrl+drop unmatched boxer here → grow the group, no cap
@@ -554,9 +665,11 @@ function renderPairs() {
 
     const hint = document.createElement('div');
     hint.className = 'drag-hint';
-    hint.textContent = GroupUtils.isGroup(m)
-      ? 'drag to re-pair · drop to pool to remove · Ctrl+drop unmatched here to add another'
-      : 'drag to re-pair · Ctrl+drop unmatched here to start a group';
+    hint.textContent = !m.blue
+      ? 'drop an opponent in the blue corner to complete this spar · drop to pool to remove'
+      : GroupUtils.isGroup(m)
+        ? 'drag to re-pair · drop to pool to remove · Ctrl+drop unmatched here to add another'
+        : 'drag to re-pair · Ctrl+drop unmatched here to start a group';
     card.appendChild(hint);
 
     container.appendChild(card);
@@ -568,7 +681,7 @@ function renderUnmatched() {
   const title  = document.getElementById('unmatched-title');
   const hint   = document.getElementById('pair-hint');
   const cat    = document.getElementById('filterCat').value;
-  const search = document.getElementById('searchInput').value.toLowerCase().trim();
+  const search = document.getElementById('searchPool').value.toLowerCase().trim();
 
   const visible = state.unmatched.filter(b => {
     if (cat && b.category !== cat) return false;
@@ -600,14 +713,48 @@ function renderUnmatched() {
 
 function updateStats() {
   const groupCount = state.matches.filter(m => GroupUtils.isGroup(m)).length;
-  const pairCount  = state.matches.length - groupCount;
+  const incompleteCount = state.matches.filter(m => !m.blue).length;
+  const pairCount  = state.matches.length - groupCount - incompleteCount;
   const manualCount = state.unmatched.filter(b => b.manual).length;
   const parts = [];
   if (pairCount  > 0) parts.push(`${pairCount} pair${pairCount !== 1 ? 's' : ''}`);
   if (groupCount > 0) parts.push(`${groupCount} group${groupCount !== 1 ? 's' : ''}`);
+  if (incompleteCount > 0) parts.push(`${incompleteCount} incomplete`);
   parts.push(`${state.unmatched.length - manualCount} unmatched`);
   if (manualCount > 0) parts.push(`${manualCount} manual`);
   document.getElementById('stats').textContent = parts.join(' · ');
+}
+
+// ── Drag auto-scroll ──────────────────────────────────────────────────────────
+// Native HTML5 drag doesn't scroll overflow containers, so a drop target below
+// the fold is unreachable. While dragging, scroll whichever column the cursor is
+// over when it nears the top/bottom edge.
+let autoScrollRAF = null;
+function stopAutoScroll() {
+  if (autoScrollRAF) { cancelAnimationFrame(autoScrollRAF); autoScrollRAF = null; }
+}
+function edgeAutoScroll(e) {
+  if (draggedId === null) { stopAutoScroll(); return; }
+  const EDGE = 60, SPEED = 14;
+  const cols = ['pairs-col', 'unmatched-zone']
+    .map(id => document.getElementById(id))
+    .filter(Boolean);
+
+  let target = null, dir = 0;
+  for (const c of cols) {
+    const r = c.getBoundingClientRect();
+    if (e.clientX < r.left || e.clientX > r.right ||
+        e.clientY < r.top  || e.clientY > r.bottom) continue;
+    if      (e.clientY < r.top + EDGE)    { target = c; dir = -1; }
+    else if (e.clientY > r.bottom - EDGE) { target = c; dir =  1; }
+    break;   // cursor is inside this column; don't test the other
+  }
+
+  stopAutoScroll();
+  if (target && dir) {
+    const step = () => { target.scrollTop += dir * SPEED; autoScrollRAF = requestAnimationFrame(step); };
+    step();
+  }
 }
 
 // ── Static event bindings ─────────────────────────────────────────────────────
@@ -623,6 +770,14 @@ function bindStaticEvents() {
   document.getElementById('exportBtn').addEventListener('click', exportJSON);
   document.getElementById('filterCat').addEventListener('change', render);
   document.getElementById('searchInput').addEventListener('input', render);
+  document.getElementById('searchPool').addEventListener('input', renderUnmatched);
+
+  // Auto-scroll the columns while dragging near their edges. Capture phase is
+  // required: tile/card/slot dragover handlers call stopPropagation, so a
+  // bubbling listener would never fire over a drop target.
+  document.addEventListener('dragover', edgeAutoScroll, true);
+  document.addEventListener('drop', stopAutoScroll, true);
+  document.addEventListener('dragend', stopAutoScroll, true);
 
   // Unmatched zone: drop a boxer here to unmatch them
   const zone = document.getElementById('unmatched-zone');
@@ -653,27 +808,36 @@ async function exportJSON() {
   // Manual-tagged boxers (autoMatch='no', surfaced from originalData.manualMatch) go
   // back into their own list on save, not into unmatched — same distinction SparMaker
   // makes: unmatched means "the algorithm tried and failed", manual means "never tried".
-  const manual    = state.unmatched.filter(b => b.manual).map(({ manual, ...rest }) => rest);
-  const nonManual = state.unmatched.filter(b => !b.manual);
+  // Incomplete spars (an open blue corner) aren't real bouts — return their lone
+  // boxer to the pool so the saved file stays valid.
+  const completeMatches   = state.matches.filter(m => m.blue);
+  const incompleteMembers = state.matches.filter(m => !m.blue).map(m => clone(m.red));
+  const pool = [...state.unmatched, ...incompleteMembers];
 
-  const total = originalData?.summary?.totalBoxers ?? (state.matches.length * 2 + state.unmatched.length);
+  const manual    = pool.filter(b => b.manual).map(({ manual, ...rest }) => rest);
+  const nonManual = pool.filter(b => !b.manual).map(({ manual, ...rest }) => rest);
+
+  const total = originalData?.summary?.totalBoxers ?? (completeMatches.length * 2 + pool.length);
   const output = {
     summary: {
       totalBoxers:    total,
-      matchedCount:   state.matches.reduce((n, m) => n + GroupUtils.membersOf(m).length, 0),
+      matchedCount:   completeMatches.reduce((n, m) => n + GroupUtils.membersOf(m).length, 0),
       unmatchedCount: nonManual.length,
-      matchCount:     state.matches.length,
-      successRate:    ((state.matches.length * 2) / total * 100).toFixed(1) + '%'
+      matchCount:     completeMatches.length,
+      successRate:    ((completeMatches.length * 2) / total * 100).toFixed(1) + '%'
     },
-    matches:     state.matches.map(({ sparId, ...rest }) => rest),
+    matches:     completeMatches.map(({ sparId, ...rest }) => rest),
     unmatched:   nonManual.map(b => ({ red: b })),
     manualMatch: manual,
     ...(originalData?.phaseLog   ? { phaseLog:   originalData.phaseLog }   : {}),
     ...(originalData?.matchRisks ? { matchRisks: originalData.matchRisks } : {}),
   };
+  const note = incompleteMembers.length
+    ? ` (${incompleteMembers.length} incomplete spar${incompleteMembers.length !== 1 ? 's' : ''} returned to pool)`
+    : '';
   try {
     await DataClient.save('spars', output);
-    showToast('Saved to server — Spars.json updated');
+    showToast('Saved to server — Spars.json updated' + note);
   } catch {
     const blob = new Blob([JSON.stringify(output, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');

@@ -11,6 +11,7 @@ const path = require("path");
 const { main: runSparMaker } = require("./SparMaker");
 const { run: runRingAssigner } = require("./RingAssigner");
 const { parseRawBoxers } = require("./boxer-csv");
+const { regenerateBuckets } = require("./buckets-regen");
 
 const app = express();
 const PORT = process.env.PORT || 5500;
@@ -74,15 +75,25 @@ function runWithCapture(fn) {
   }
 }
 
-// Note: buckets are assigned client-side in BucketAssigner.html and saved via
-// PUT /api/data/buckets — there is no server-side "run buckets" step.
+// Bucket (re)generation lives in ./buckets-regen (shared with the MCP server) so both
+// entry points stay identical. It rebuilds buckets from the roster while preserving
+// manual placements by stable id — see that module for the full contract.
+
+app.post("/api/run/buckets", (req, res) => {
+  res.json(runWithCapture(() => ({ boxerCount: regenerateBuckets() })));
+});
 
 app.post("/api/run/spar-maker", (req, res) => {
   const maxPhase  = parseInt(req.query.maxPhase) || 3;
   const algorithm = req.query.algorithm === 'optimal' ? 'optimal' : 'greedy';
   const rawTrioTol = parseFloat(req.query.trioTol);
   const trioTol = Number.isFinite(rawTrioTol) ? Math.min(2.5, Math.max(2.0, rawTrioTol)) : undefined;
-  res.json(runWithCapture(() => runSparMaker(maxPhase, algorithm, trioTol)));
+  res.json(runWithCapture(() => {
+    // Always rebuild categories from the current roster first, so spars can never
+    // run on a stale bucket file left over from a previous roster.
+    regenerateBuckets();
+    return runSparMaker(maxPhase, algorithm, trioTol);
+  }));
 });
 
 app.post("/api/run/ring-assigner", (req, res) => {
@@ -93,8 +104,10 @@ app.post("/api/run/ring-assigner", (req, res) => {
 // ---- PIPELINE DATA ----
 const BOXERS_CSV = path.join(__dirname, 'data', 'Registered Boxer2026.csv');
 
+// `id` leads the schema so every boxer's stable identity is persisted with the row.
+// parseRawBoxers honours it on read; writeBoxersCSV writes it back on every save.
 const BOXER_RAW_HEADERS = [
-  'date', 'Full name', 'Club', 'Gender', 'Category', 'Date of Birth',
+  'id', 'date', 'Full name', 'Club', 'Gender', 'Category', 'Date of Birth',
   'Current weight (kg)', 'BOUTS (the number only)', 'WON (the number only)',
   'LOST (the number only)', 'Additional information or comments (optional)',
   'I understand that all boxers have to weigh in on Monday 7th July.',
@@ -102,7 +115,7 @@ const BOXER_RAW_HEADERS = [
   'Email address', 'fit', 'Auto Match', 'Spars per Day'
 ];
 const BOXER_INTERNAL_KEYS = [
-  'submissionDate', 'name', 'club', 'gender', 'category', 'dob',
+  'id', 'submissionDate', 'name', 'club', 'gender', 'category', 'dob',
   'weight', 'bouts', 'won', 'lost', 'comments',
   'consent1', 'consent2', 'email', 'fit', 'autoMatch', 'sparsPerDay'
 ];

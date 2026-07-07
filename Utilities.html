@@ -199,6 +199,9 @@
       <button class="btn btn-blue" id="rptSpars">Spars</button>
       <button class="btn btn-blue" id="rptPhases">Phase Breakdown</button>
       <button class="btn btn-blue" id="rptRings">Rings</button>
+      <button class="btn btn-blue" id="rptRingsEach">Rings (per ring)</button>
+      <button class="btn btn-blue" id="rptBoard">Ring Board</button>
+      <button class="btn btn-blue" id="rptBoardEach">Ring Board (per ring)</button>
     </div>
     <div style="margin-top:0.75rem;display:flex;align-items:center;gap:0.5rem;">
       <label for="rptDate" style="font-size:13px;color:var(--muted);">Date (Spars &amp; Rings):</label>
@@ -368,9 +371,9 @@ document.getElementById('rptFighters').addEventListener('click', async () => {
     const doc = makePdf('Fighters Report');
     doc.autoTable({
       startY: 28,
-      head: [['#', 'Name', 'Club', 'Gender', 'Category', 'DOB', 'Weight (kg)', 'Bouts', 'Won', 'Lost', 'Fit']],
+      head: [['ID', 'Name', 'Club', 'Gender', 'Category', 'DOB', 'Weight (kg)', 'Bouts', 'Won', 'Lost', 'Fit']],
       body: boxers.map((b, i) => [
-        i + 1, b.name || '', b.club || '', b.gender || '', b.category || '',
+        b.id ?? i + 1, b.name || '', b.club || '', b.gender || '', b.category || '',
         b.dob || '', b.weight || '', b.bouts || 0, b.won || 0, b.lost || 0, b.fit || ''
       ]),
       styles: { fontSize: 7.5, cellPadding: 1.8 },
@@ -392,16 +395,19 @@ document.getElementById('rptBuckets').addEventListener('click', async () => {
     const doc = makePdf('Buckets Report');
     let y = 28;
     let totalFighters = 0;
-    for (const [bucketName, fighters] of Object.entries(fb)) {
+    // Render all buckets in their normal order, but push "Not fit" to the bottom
+    const isNotFit = name => /not\s*fit/i.test(name);
+    const orderedBuckets = Object.entries(fb).sort((a, b) => (isNotFit(a[0]) ? 1 : 0) - (isNotFit(b[0]) ? 1 : 0));
+    for (const [bucketName, fighters] of orderedBuckets) {
       if (!Array.isArray(fighters) || !fighters.length) continue;
       totalFighters += fighters.length;
       doc.autoTable({
         startY: y,
         head: [
           [{ content: `${bucketName}  (${fighters.length} fighters)`, colSpan: 5, styles: { fillColor: [45, 51, 59], textColor: [205, 217, 229], fontStyle: 'bold', fontSize: 8 } }],
-          ['#', 'Name', 'Club', 'Weight (kg)', 'Bouts']
+          ['ID', 'Name', 'Club', 'Weight (kg)', 'Bouts']
         ],
-        body: fighters.map((b, i) => [i + 1, b.name || '', b.club || '', b.weight || '', b.bouts || 0]),
+        body: fighters.map((b, i) => [b.id ?? i + 1, b.name || '', b.club || '', b.weight || '', b.bouts ?? b.experience ?? 0]),
         styles: { fontSize: 7.5, cellPadding: 1.8 },
         headStyles: { fillColor: [33, 150, 243] },
         alternateRowStyles: { fillColor: [245, 245, 245] },
@@ -594,6 +600,43 @@ document.getElementById('rptPhases').addEventListener('click', async () => {
   } catch (e) { setRptStatus('error', `Error: ${e.message}`); }
 });
 
+// Build the ring timetable exactly like RingManager: per ring, bouts in slot order,
+// clock starting 15:00, each bout = its duration + 1 min changeover.
+// Returns entries ordered by ring number then time, with startTime/endTime filled in.
+function ringTimetable(slots) {
+  const START = 16 * 60, CHG = 1;
+  const fmt = m => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
+  const ringNum = r => parseInt(String(r).replace(/\D/g, ''), 10) || 0;
+  const byRing = {};
+  for (const slot of slots) {
+    for (const bout of (slot.bouts || [])) {
+      const ring = bout.ring || 'Unassigned';
+      (byRing[ring] = byRing[ring] || []).push({ slot: slot.slot, bout });
+    }
+  }
+  const out = [];
+  Object.keys(byRing).sort((a, b) => ringNum(a) - ringNum(b) || a.localeCompare(b)).forEach(ring => {
+    const q = byRing[ring].sort((a, b) => Number(a.slot) - Number(b.slot));
+    let cur = START;
+    for (const e of q) {
+      const b = e.bout;
+      const members = [b.red, b.blue, b.third].filter(Boolean);
+      const single = (b.category || '').includes('Senior') ? 11 : 8;
+      const boutCount = members.length >= 2 ? members.length * (members.length - 1) / 2 : 1;
+      const dur = b.duration != null ? b.duration : single * boutCount;
+      if (b.pinnedStart != null && b.pinnedStart > cur) cur = b.pinnedStart;
+      e.ring = ring;
+      e.startTime = fmt(cur);
+      e.endTime = fmt(cur + dur);
+      cur += dur + CHG;
+      out.push(e);
+    }
+  });
+  return out;
+}
+
+const withWt = b => b ? (b.name || '') + (b.weight != null ? ` (${b.weight} kg)` : '') : '';
+
 document.getElementById('rptRings').addEventListener('click', async () => {
   try {
     const date = document.getElementById('rptDate').value;
@@ -603,28 +646,181 @@ document.getElementById('rptRings').addEventListener('click', async () => {
     const slots = data && (data.slots || (Array.isArray(data) ? data : null));
     if (!slots || !slots.length) { setRptStatus('error', 'No schedule data.'); return; }
     const doc = makePdf(`Ring Schedule Report — ${date}`);
-    const rows = [];
-    for (const slot of slots) {
-      for (const bout of (slot.bouts || [])) {
-        rows.push([
-          slot.slot, bout.ring || '', bout.sparId || '',
-          bout.red?.name || '', bout.red?.club || '',
-          bout.blue?.name || '', bout.blue?.club || '',
-          bout.category || '', bout.weightDiff ? bout.weightDiff + ' kg' : ''
-        ]);
-      }
-    }
+    // ordered by ring number, then chronologically (time)
+    const rows = ringTimetable(slots).map(e => {
+      const b = e.bout;
+      return [
+        `${e.startTime}–${e.endTime}`, e.ring, b.sparId || '',
+        withWt(b.red), b.red?.club || '',
+        withWt(b.blue), b.blue?.club || '',
+        b.category || ''
+      ];
+    });
     doc.autoTable({
       startY: 28,
-      head: [['Slot', 'Ring', 'Spar', 'Red Corner', 'Red Club', 'Blue Corner', 'Blue Club', 'Category', 'Wt Diff']],
+      head: [['Time', 'Ring', 'Spar', 'Red Corner', 'Red Club', 'Blue Corner', 'Blue Club', 'Category']],
       body: rows,
       styles: { fontSize: 7.5, cellPadding: 1.8 },
       headStyles: { fillColor: [33, 150, 243] },
       alternateRowStyles: { fillColor: [245, 245, 245] },
-      columnStyles: { 0: { cellWidth: 10 }, 1: { cellWidth: 10 }, 2: { cellWidth: 12 }, 8: { cellWidth: 14 } }
+      columnStyles: { 0: { cellWidth: 16 }, 1: { cellWidth: 10 }, 2: { cellWidth: 12 } }
     });
     doc.save('rings.pdf');
-    setRptStatus('success', `✓ rings.pdf — ${rows.length} bouts across ${slots.length} slots`);
+    setRptStatus('success', `✓ rings.pdf — ${rows.length} bouts`);
+  } catch (e) { setRptStatus('error', `Error: ${e.message}`); }
+});
+
+// One PDF per ring (separate downloads)
+document.getElementById('rptRingsEach').addEventListener('click', async () => {
+  try {
+    const date = document.getElementById('rptDate').value;
+    if (!date) { setRptStatus('error', 'Select a date first.'); return; }
+    setRptStatus('info', 'Loading schedule…');
+    const data = await DataClient.get('schedule', { date });
+    const slots = data && (data.slots || (Array.isArray(data) ? data : null));
+    if (!slots || !slots.length) { setRptStatus('error', 'No schedule data.'); return; }
+
+    const entries = ringTimetable(slots);
+    const byRing = {};
+    for (const e of entries) (byRing[e.ring] = byRing[e.ring] || []).push(e);
+    const rings = Object.keys(byRing);
+    if (!rings.length) { setRptStatus('error', 'No bouts to report.'); return; }
+
+    let total = 0;
+    for (const ring of rings) {
+      const doc = makePdf(`Ring ${ring} — ${date}`);
+      const rows = byRing[ring].map(e => {
+        const b = e.bout;
+        return [
+          `${e.startTime}–${e.endTime}`, b.sparId || '',
+          withWt(b.red), b.red?.club || '',
+          withWt(b.blue), b.blue?.club || '',
+          b.category || ''
+        ];
+      });
+      doc.autoTable({
+        startY: 28,
+        head: [['Time', 'Spar', 'Red Corner', 'Red Club', 'Blue Corner', 'Blue Club', 'Category']],
+        body: rows,
+        styles: { fontSize: 7.5, cellPadding: 1.8 },
+        headStyles: { fillColor: [33, 150, 243] },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
+        columnStyles: { 0: { cellWidth: 16 }, 1: { cellWidth: 12 } }
+      });
+      doc.save(`ring-${ring}-${date}.pdf`);
+      total += rows.length;
+    }
+    setRptStatus('success', `✓ ${rings.length} ring PDFs (${rings.join(', ')}) — ${total} bouts`);
+  } catch (e) { setRptStatus('error', `Error: ${e.message}`); }
+});
+
+// Ring Board — reproduces the RingManager screen: rings as columns, time (slots) down the page.
+document.getElementById('rptBoard').addEventListener('click', async () => {
+  try {
+    const date = document.getElementById('rptDate').value;
+    if (!date) { setRptStatus('error', 'Select a date first.'); return; }
+    setRptStatus('info', 'Loading schedule…');
+    const data = await DataClient.get('schedule', { date });
+    const slots = data && (data.slots || (Array.isArray(data) ? data : null));
+    if (!slots || !slots.length) { setRptStatus('error', 'No schedule data.'); return; }
+
+    const entries = ringTimetable(slots);
+    const ringNum = r => parseInt(String(r).replace(/\D/g, ''), 10) || 0;
+    const rings = [...new Set(entries.map(e => e.ring))].sort((a, b) => ringNum(a) - ringNum(b) || a.localeCompare(b));
+    const slotNums = [...new Set(entries.map(e => Number(e.slot)))].sort((a, b) => a - b);
+    const cell = {};
+    entries.forEach(e => { cell[e.ring + '|' + e.slot] = e; });
+
+    const doc = makePdf(`Ring Board — ${date}`);
+    const body = slotNums.map(sn => ['Slot ' + sn, ...rings.map(r => {
+      const e = cell[r + '|' + sn];
+      if (!e) return '';
+      const b = e.bout;
+      const mem = [b.red, b.blue, b.third].filter(Boolean);
+      const names = mem.length > 2
+        ? mem.map(x => `${x.name} (${x.weight}kg)`).join('\n')
+        : `${b.red?.name || ''} (${b.red?.weight}kg)\nvs ${b.blue?.name || ''} (${b.blue?.weight}kg)`;
+      return `${e.startTime}–${e.endTime}${mem.length > 2 ? '  GROUP' : ''}\n${names}\n${b.category || ''}`;
+    })]);
+
+    const ringColWidth = Math.max(30, Math.floor((277 - 16) / rings.length));
+    const columnStyles = { 0: { cellWidth: 16, fontStyle: 'bold', valign: 'middle' } };
+    rings.forEach((_, i) => { columnStyles[i + 1] = { cellWidth: ringColWidth }; });
+
+    doc.autoTable({
+      startY: 28,
+      head: [['Slot', ...rings]],
+      body,
+      styles: { fontSize: 6.8, cellPadding: 1.6, valign: 'top', overflow: 'linebreak', lineWidth: 0.1, lineColor: [200, 200, 200] },
+      headStyles: { fillColor: [33, 150, 243], halign: 'center' },
+      columnStyles,
+    });
+    doc.save(`ring-board-${date}.pdf`);
+    setRptStatus('success', `✓ ring-board.pdf — ${rings.length} rings × ${slotNums.length} slots`);
+  } catch (e) { setRptStatus('error', `Error: ${e.message}`); }
+});
+
+// Ring Board (per ring) — one PDF, each ring on its own page (board-style, same fields as Ring Board).
+document.getElementById('rptBoardEach').addEventListener('click', async () => {
+  try {
+    const date = document.getElementById('rptDate').value;
+    if (!date) { setRptStatus('error', 'Select a date first.'); return; }
+    setRptStatus('info', 'Loading schedule…');
+    const data = await DataClient.get('schedule', { date });
+    const slots = data && (data.slots || (Array.isArray(data) ? data : null));
+    if (!slots || !slots.length) { setRptStatus('error', 'No schedule data.'); return; }
+
+    const entries = ringTimetable(slots);
+    const ringNum = r => parseInt(String(r).replace(/\D/g, ''), 10) || 0;
+    const rings = [...new Set(entries.map(e => e.ring))].sort((a, b) => ringNum(a) - ringNum(b) || a.localeCompare(b));
+    if (!rings.length) { setRptStatus('error', 'No bouts to report.'); return; }
+    const byRing = {};
+    entries.forEach(e => (byRing[e.ring] = byRing[e.ring] || []).push(e));
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const drawHeader = ring => {
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(15);
+      doc.text(`Ring ${ring} — ${date}`, 14, 16);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(120);
+      doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 23);
+      doc.setTextColor(0);
+    };
+
+    let first = true, total = 0;
+    for (const ring of rings) {
+      if (!first) doc.addPage();
+      first = false;
+      const rows = byRing[ring].map(e => {
+        const b = e.bout;
+        const mem = [b.red, b.blue, b.third].filter(Boolean);
+        const matchup = mem.length > 2
+          ? mem.map(x => `${x.name} (${x.weight}kg)`).join('\n')
+          : `${b.red?.name || ''} (${b.red?.weight}kg)\nvs ${b.blue?.name || ''} (${b.blue?.weight}kg)`;
+        return [`Slot ${e.slot}`, `${e.startTime}–${e.endTime}`, matchup, b.category || ''];
+      });
+      doc.autoTable({
+        startY: 28,
+        margin: { top: 28 },
+        head: [['Slot', 'Time', 'Matchup', 'Category']],
+        body: rows,
+        styles: { fontSize: 11, cellPadding: 2.5, valign: 'top', overflow: 'linebreak' },
+        headStyles: { fillColor: [33, 150, 243] },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
+        columnStyles: { 0: { cellWidth: 18 }, 1: { cellWidth: 40 } },
+        didDrawPage: () => {
+          drawHeader(ring);
+          const pw = doc.internal.pageSize.getWidth();
+          const ph = doc.internal.pageSize.getHeight();
+          doc.setFont('helvetica', 'italic'); doc.setFontSize(9); doc.setTextColor(120);
+          doc.text('Times are for guidance only', pw / 2, ph - 8, { align: 'center' });
+          doc.setTextColor(0); doc.setFont('helvetica', 'normal');
+        },
+      });
+      total += rows.length;
+    }
+    doc.save(`ring-boards-${date}.pdf`);
+    setRptStatus('success', `✓ ring-boards.pdf — ${rings.length} rings (one page each), ${total} bouts`);
   } catch (e) { setRptStatus('error', `Error: ${e.message}`); }
 });
 </script>
