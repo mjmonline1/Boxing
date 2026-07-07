@@ -188,7 +188,8 @@ td {
 }
 #filterbar label { color: var(--text-muted); }
 #filterbar select,
-#filterbar input {
+#filterbar input,
+#searchPool {
   background: var(--input-bg);
   border-color: var(--input-border);
   color: var(--text-primary);
@@ -218,6 +219,7 @@ td {
   border-color: var(--surface-border);
   color: var(--text-muted);
 }
+.incomplete-badge { background: var(--panel-bg); color: #ffb74d; }
 
 /* ── SparManager: unmatched panel ── */
 #unmatched-col {

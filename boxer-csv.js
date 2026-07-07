@@ -48,6 +48,7 @@ function normalizeGender(v) {
 // Map a raw survey-export header to the internal boxer key.
 function mapRawHeader(raw) {
   const norm = raw.trim().toLowerCase();
+  if (norm === 'id') return 'id';
   if (norm === 'date') return 'submissionDate';
   if (norm === 'full name') return 'name';
   if (norm === 'club') return 'club';
@@ -71,11 +72,19 @@ function mapRawHeader(raw) {
 // Parse the RAW survey export (the Registered Boxer2026.csv shape) into boxer objects.
 // Pure: takes the file text, returns boxers[]. Derives yob from dob, experience from
 // bouts, and defaults fit/sparsPerDay the way registration expects.
+//
+// Boxer identity is STABLE: when the CSV carries an `id` column, each boxer keeps that
+// id across roster edits (rows added/removed/reordered) — never re-derived from row
+// position. Rows with a blank id (e.g. a freshly appended boxer) get the next id above
+// the current max, so ids never collide. A legacy file with no `id` column at all falls
+// back to positional ids (idx+1), preserving the original behaviour.
 function parseRawBoxers(text) {
   const lines = splitRecords(text);
   if (lines.length === 0) return [];
   const headers = splitLine(lines[0]).map(mapRawHeader);
-  return lines.slice(1).map((line, idx) => {
+  const hasIdColumn = headers.includes('id');
+
+  const boxers = lines.slice(1).map((line, idx) => {
     const vals = splitLine(line);
     const obj = {};
     headers.forEach((h, i) => {
@@ -83,18 +92,27 @@ function parseRawBoxers(text) {
       if (h === 'weight') obj[h] = parseFloat(v) || 0;
       else if (['bouts', 'won', 'lost'].includes(h)) obj[h] = parseInt(v) || 0;
       else if (h === 'sparsPerDay') obj[h] = parseInt(v) || 1;
+      else if (h === 'id') obj[h] = parseInt(v) || 0;
       else obj[h] = v;
     });
     obj.gender = obj.gender ? normalizeGender(obj.gender) : 'male';
     const dobParts = (obj.dob || '').split('/');
     obj.yob = parseInt(dobParts[2]) || 0;
     obj.experience = obj.bouts || 0;
-    obj.id = idx + 1;
+    if (!hasIdColumn) obj.id = idx + 1;   // legacy: positional id
     if (!obj.fit) obj.fit = 'yes';
     if (!obj.sparsPerDay) obj.sparsPerDay = 1;
     if (obj.autoMatch !== 'no') obj.autoMatch = 'yes';
     return obj;
   });
+
+  // Second pass: assign stable ids to any id-column rows left blank, above the max
+  // existing id so a new boxer never steals an existing boxer's identity.
+  if (hasIdColumn) {
+    let maxId = boxers.reduce((m, b) => Math.max(m, b.id || 0), 0);
+    boxers.forEach(b => { if (!b.id) b.id = ++maxId; });
+  }
+  return boxers;
 }
 
 module.exports = { splitRecords, splitLine, normalizeGender, mapRawHeader, parseRawBoxers };

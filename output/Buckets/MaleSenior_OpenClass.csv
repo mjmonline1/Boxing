@@ -1,31 +1,16 @@
 id,name,club,gender,yob,fit,weight,experience
-30,Jack Dempsey,Team NL,male,2006,yes,55,33
-33,Harry Greb,Asc Nürnberg,male,1992,yes,57,230
-34,Joe Gans,Dale youth,male,2004,yes,57,24
-36,Stanley Ketchel,Hispaboxing,male,1989,yes,57,22
-47,David Haye,Holy Family/Golden Gloves,male,2004,yes,60,110
-48,Carl Froch,Team NL,male,2001,yes,60,40
-50,Joe Calzaghe,Team NL,male,2007,yes,60,23
-52,Amir Khan,The Academy Boxing Club,male,2007,yes,60,13
-54,Tyson Fury,The Academy Boxing Club,male,2002,yes,60,27
-62,Demetrius Andrade,Johnstone ABC,male,1999,yes,63,48
-67,Daniel Dubois,Holy Family/Golden Gloves,male,1995,yes,63.5,75
-77,Sonny Liston,Fitsquare boxing team,male,2006,yes,66,24
-80,Max Baer,TSC Berlin,male,2005,yes,66,70
-82,Jack Sharkey,Slough ABC,male,2000,yes,67,21
-85,Marco Barrera,JR Boxing Academy,male,1997,yes,68,100
-95,Danny Garcia,ICELAND,male,2006,yes,70,23
-96,Keith Thurman,Team NL,male,2005,yes,70,50
-97,Shawn Porter,Team NL,male,2007,yes,70,25
-105,Tony Bellew,Finchley ABC,male,2007,yes,72,36
-107,Badou Jack,Club Boxeo Los Álamos,male,2001,yes,73,14
-115,Jose Ramirez,Wolverhampton,male,2005,yes,75,32
-117,Jack Catterall,Wolverhampton,male,2005,yes,77,33
-120,Jorge Linares,NoMercy/champscamp,male,2007,yes,79,13
-121,Mikey Garcia,Johnstone ABC,male,2005,yes,79.4,23
-122,Hector Camacho,Club Boxeo Los Álamos,male,2001,yes,80,21
-124,Aaron Pryor,Elite Bolton,male,2002,yes,80,16
-125,Edwin Rosario,Team NL,male,2007,yes,80,15
-129,Roman Gonzalez,Hands Of Stone Montrose,male,2003,yes,84,16
-130,Juan Estrada,BSG 76,male,2005,yes,90,18
-134,Chris Colbert,Holy Family/Golden Gloves,male,1994,yes,100,63
+29,Giancarlo Giacomini,Arbroath Amateur Boxing Club,male,2007,yes,70,13
+31,Luke Broughton,Ashbourne boxing club.,male,2007,yes,83,25
+40,Alpha Käser,Classic Boxing Olten,male,2005,yes,76,28
+67,Paul Alexander Gudiño Mena,Guante de Oro Murcia,male,2004,yes,70,15
+83,Finlay Brown,Johnstone ABC,male,2005,yes,81,24
+89,Ouassim Ennadraoui,Los Álamos Boxeo Lorca,male,2001,yes,83,15
+92,Mahmoud Al Chabtun,Nederlandse Boksbond,male,2001,yes,60,15
+93,Bjarne Machielse,Nederlandse Boksbond,male,2007,yes,65,15
+94,Thijmen Kraak,Nederlandse Boksbond,male,2005,yes,65,15
+95,Danil Serdjoek,Nederlandse Boksbond,male,2006,yes,70,15
+96,Finn Bos,Nederlandse Boksbond,male,2001,yes,70,15
+97,Martin František Rusňák,SK BOX Chlumec,male,2006,yes,80,80
+102,George Murray,Walsall Wood Boxing Club,male,2003,yes,77,40
+103,Charles Murray,Walsall Wood Boxing Club,male,2005,yes,79,41
+104,Henry Murray,Walsall Wood Boxing Club,male,2005,yes,82,42

@@ -1,23 +1,15 @@
 id,name,club,gender,yob,fit,weight,experience
-15,Thomas Hearns,Camac Boxing Club,male,2008,yes,50,5
-22,Sandy Saddler,Dale youth,male,2008,yes,53,2
-25,Ezzard Charles,Arbroath Amateur Boxing Club,male,2008,yes,54,5
-27,Tony Canzoneri,Baldoyle BC,male,2009,yes,54,4
-43,Andre Ward,Club Boxeo Los Álamos,male,2009,yes,60,3
-53,Anthony Joshua,The Academy Boxing Club,male,2009,yes,60,1
-55,Deontay Wilder,Cricklewood Boxing Club,male,2009,yes,61,3
-57,Oleksandr Usyk,Slough ABC,male,2009,yes,62,4
-59,Vasyl Lomachenko,Club Boxeo Los Álamos,male,2009,yes,63,0
-61,Errol Spence,Hands Of Stone Montrose,male,2009,yes,63,0
-81,Max Schmeling,Club Boxeo Los Álamos,male,2008,yes,67,0
-83,James Braddock,Team Ponce&Mary,male,2008,yes,67,3
-91,Micky Ward,Arbroath Amateur Boxing Club,male,2008,yes,70,4
-92,Diego Corrales,Dale youth,male,2008,yes,70,5
-99,Jermall Charlo,Arbroath Amateur Boxing Club,male,2008,yes,71,5
-100,Dmitry Bivol,Club Boxeo Los Álamos,male,2008,yes,71,0
-103,Sergey Kovalev,Arbroath Amateur Boxing Club,male,2008,yes,72,2
-108,Edgar Berlanga,Hands Of Stone Montrose,male,2009,yes,73,5
-110,Caleb Plant,Hands Of Stone Montrose,male,2008,yes,74.4,1
-113,Shakur Stevenson,DOBLE JAB BOXING CLUB,male,2008,yes,75,0
-118,Regis Prograis,The Academy Boxing Club,male,2009,yes,78,0
-119,Ivan Baranchyk,DOBLE JAB BOXING CLUB,male,2008,yes,79,4
+19,David Alejandro González herrera,Apolo Fitness Boxing Águilas,male,2009,yes,70,3
+20,Gabriel Soto Domingo,Apolo Fitness Boxing Águilas,male,2009,yes,65.7,3
+21,Saif Tair,Apolo Fitness Boxing Águilas,male,2009,yes,73.5,3
+22,Flynn Anderson,Arbroath Amateur Boxing Club,male,2008,yes,66,5
+23,Keiran Strachan,Arbroath Amateur Boxing Club,male,2009,yes,66,0
+24,Cameron Clark,Arbroath Amateur Boxing Club,male,2009,yes,72,0
+36,Gene Webster,Beath Boxing Club,male,2009,yes,62,3
+41,Antonio Mansilla Molina,Club de Boxeo Jumilla,male,2009,yes,59,3
+69,Damian Stewart,Hands of Stone Montrose,male,2009,yes,62,1
+73,Finlay Okoro,Holy Family Golden Gloves,male,2008,yes,67,3
+74,Eric Silva,Holy Family Golden Gloves,male,2009,yes,67,1
+85,Ilyas Ennaimi EzZemzami,Los Álamos Boxeo Lorca,male,2009,yes,68,3
+86,Justin Toledo Jimenez,Los Álamos Boxeo Lorca,male,2009,yes,70,3
+99,Thiago Olivares,TEAM PONCE Y MARI,male,2009,yes,59,3

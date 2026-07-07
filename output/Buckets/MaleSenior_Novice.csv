@@ -1,19 +1,13 @@
 id,name,club,gender,yob,fit,weight,experience
-40,Jack Johnson,Dale youth,male,2006,yes,58,2
-45,Wladimir Klitschko,Dale youth,male,2005,yes,60,5
-46,Vitali Klitschko,DOBLE JAB BOXING CLUB,male,2006,yes,60,1
-56,Andy Ruiz,Hands Of Stone Montrose,male,2002,yes,62,0
-76,Ken Norton,DOBLE JAB BOXING CLUB,male,2002,yes,66,0
-86,Juan Marquez,Arbroath Amateur Boxing Club,male,2004,yes,69,5
-89,Kostya Tszyu,Hands Of Stone Montrose,male,2007,yes,69.7,0
-94,Jose Castillo,DOBLEJAB BOXING CLUB,male,1997,yes,70,0
-109,David Benavidez,Holy Family/Golden Gloves,male,2005,yes,73,0
-112,Gervonta Davis,Club boxeo los alamos,male,1999,yes,75,1
-116,Josh Taylor,Team Ponce&Mary,male,1996,yes,77,2
-126,Carlos Ortiz,Finchley ABC,male,2000,yes,81,4
-127,Flash Elorde,Johnstone ABC,male,2007,yes,82,3
-128,Carlos Zarate,Slough ABC,male,2004,yes,82,1
-131,Isaac Cruz,Slough ABC,male,1991,yes,90,5
-132,William Zepeda,Finchley ABC,male,2003,yes,92,4
-133,Ray Beltran,DOBLE JAB BOXING CLUB,male,2004,yes,98,0
-136,Jose Pedraza,Holy Family/Golden Gloves,male,2000,yes,105,0
+28,Lewis McTavish,Arbroath Amateur Boxing Club,male,2002,yes,92,3
+30,Ben Condon,Ashbourne boxing club.,male,2007,yes,67,2
+39,Stijn Van der Meer,Boxing Stad Groningen,male,1997,yes,80,3
+50,DANIEL LARA,Doble Jab Boxing Club,male,1998,yes,58,3
+52,ANTONIO RUBIO,Doble Jab Boxing Club,male,2002,yes,72,3
+53,LEO UCHUARI,Doble Jab Boxing Club,male,2002,yes,72,3
+55,DEIBY OVANDO,Doble Jab Boxing Club,male,2000,yes,91,3
+66,Marwan Jahjah bouzid,Guante de Oro Murcia,male,2006,yes,80,3
+70,Ramsay Lumgair,Hands of Stone Montrose,male,2007,yes,67,1
+72,Paddy Shakespeare,Hands of Stone Montrose,male,2004,yes,107,0
+80,Max McWilliams,Johnstone ABC,male,2003,yes,56,5
+81,Evan Cochrane,Johnstone ABC,male,2007,yes,79,5

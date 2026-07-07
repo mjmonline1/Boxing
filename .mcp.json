@@ -1,8 +1,19 @@
 {
   "mcpServers": {
     "boxing": {
-      "command": "node",
-      "args": ["mcp/boxing-server.js"]
+      "command": "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe",
+      "args": [
+        "compose",
+        "-f",
+        "C:/Code/Boxing/docker-compose.yml",
+        "exec",
+        "-T",
+        "-w",
+        "/app",
+        "boxing-manager",
+        "node",
+        "mcp/boxing-server.js"
+      ]
     }
   }
 }

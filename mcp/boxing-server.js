@@ -10,15 +10,16 @@ const ROOT = path.join(__dirname, '..');
 const { main: runSparMaker } = require('../SparMaker');
 const { run: runRingAssigner } = require('../RingAssigner');
 const { parseRawBoxers } = require('../boxer-csv');
-const { runTSCBuckets } = require('../PutAllFightersinBuckets');
+const { regenerateBuckets } = require('../buckets-regen');
 
 const BOXERS_CSV   = path.join(ROOT, 'data', 'Registered Boxer2026.csv');
-const CLEAN_CSV    = path.join(ROOT, 'data', 'RegisteredBoxers2025.csv');
 const BUCKETS_FILE = path.join(ROOT, 'output', 'Buckets', 'tsc-2026-buckets.json');
 const SPARS_BASE   = path.join(ROOT, 'output', 'Spars');
 
+// `id` leads the schema so set_fit/add_boxer preserve each boxer's stable identity
+// on write — must match Server.js's schema or a write here reverts to positional ids.
 const BOXER_RAW_HEADERS = [
-  'date', 'Full name', 'Club', 'Gender', 'Category', 'Date of Birth',
+  'id', 'date', 'Full name', 'Club', 'Gender', 'Category', 'Date of Birth',
   'Current weight (kg)', 'BOUTS (the number only)', 'WON (the number only)',
   'LOST (the number only)', 'Additional information or comments (optional)',
   'I understand that all boxers have to weigh in on Monday 7th July.',
@@ -26,20 +27,10 @@ const BOXER_RAW_HEADERS = [
   'Email address', 'fit', 'Auto Match', 'Spars per Day'
 ];
 const BOXER_INTERNAL_KEYS = [
-  'submissionDate', 'name', 'club', 'gender', 'category', 'dob',
+  'id', 'submissionDate', 'name', 'club', 'gender', 'category', 'dob',
   'weight', 'bouts', 'won', 'lost', 'comments',
   'consent1', 'consent2', 'email', 'fit', 'autoMatch', 'sparsPerDay'
 ];
-
-function generateCleanCSV() {
-  const boxers = parseRawBoxers(fs.readFileSync(BOXERS_CSV, 'utf8'));
-  const esc = v => { const s = String(v ?? ''); return /[,"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
-  const csv = [
-    'id,name,club,gender,yob,fit,weight,experience,autoMatch',
-    ...boxers.map(b => [b.id, b.name, b.club, b.gender, b.yob, b.fit, b.weight, b.experience, b.autoMatch].map(esc).join(','))
-  ].join('\n') + '\n';
-  fs.writeFileSync(CLEAN_CSV, csv, 'utf8');
-}
 
 function writeBoxersCSV(boxers) {
   const esc = v => { const s = String(v ?? ''); return /[,"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
@@ -222,10 +213,11 @@ function callTool(name, args = {}) {
   switch (name) {
     case 'get_status':     return getStatus();
     case 'get_boxers':     return getBoxers(args);
-    case 'generate_spars': return capture(() => runSparMaker(args.maxPhase ?? 3));
+    // Rebuild buckets from the current roster first so spars never use stale buckets.
+    case 'generate_spars': return capture(() => { regenerateBuckets(); return runSparMaker(args.maxPhase ?? 3); });
     case 'assign_rings':   return capture(() => runRingAssigner(args.day ?? 1));
     case 'set_fit':        return setFit(args);
-    case 'run_buckets':    return capture(() => { generateCleanCSV(); runTSCBuckets(CLEAN_CSV); });
+    case 'run_buckets':    return capture(() => ({ boxerCount: regenerateBuckets() }));
     case 'add_boxer':      return addBoxer(args);
     case 'get_schedule':   return getSchedule(args);
     case 'get_buckets':    return getBuckets();
