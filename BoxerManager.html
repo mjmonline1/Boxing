@@ -39,7 +39,7 @@
         <th onclick="sortBy('club')">Club</th>
         <th onclick="sortBy('gender')">Gender</th>
         <th onclick="sortBy('yob')">YOB</th>
-        <th onclick="sortBy('category')">Category</th>
+        <th onclick="sortBy('category')" title="Calculated bucket (gender → age → bouts)">Bucket (auto)</th>
         <th onclick="sortBy('fit')">Fit</th>
         <th onclick="sortBy('autoMatch')">Auto Match</th>
         <th onclick="sortBy('sparsPerDay')">Spars/Day</th>
@@ -93,11 +93,6 @@
     </div>
 
     <div class="form-row">
-      <div class="form-group">
-        <label>Category</label>
-        <input id="f_category" type="text" placeholder="e.g. Junior (2009 &amp; younger)" list="categoriesList">
-        <datalist id="categoriesList"></datalist>
-      </div>
       <div class="form-group">
         <label>Weight (kg)</label>
         <input id="f_weight" type="number" min="20" max="250" step="0.1" placeholder="e.g. 65.5">
@@ -192,6 +187,7 @@
 <div id="toast"></div>
 
 <script src="data-client.js"></script>
+<script src="constants.js"></script>
 <script>
 // ── State ─────────────────────────────────────────────────────────────────────
 
@@ -328,6 +324,7 @@ async function saveFile() {
 
 function loadData(text, filename) {
   boxers = parseCSV(text);
+  boxers.forEach(b => { b.category = computedBucket(b); });   // recompute the calculated bucket
   document.getElementById('addBtn').disabled = false;
   document.getElementById('saveBtn').disabled = false;
   document.getElementById('statsBar').style.display = 'flex';
@@ -408,9 +405,24 @@ function updateClubsList() {
   document.getElementById('clubsList').innerHTML = clubs.map(c => `<option value="${escHtml(c)}">`).join('');
 }
 
+// The category shown is ALWAYS the calculated bucket (gender→YOB→bouts) from constants.js —
+// the same one the bucketiser assigns — never a hand-entered value. Female → 'Female';
+// under-Schools YOB → '' (no male age bucket covers them).
+function computedBucket(b) {
+  if (!b) return '';
+  if (b.gender === 'female') return 'Female';
+  const yob  = b.yob || 0;
+  const exp  = b.experience ?? b.bouts ?? 0;
+  const ag   = AGE_GROUPS.find(g => g.yobMin !== null ? (yob >= g.yobMin && yob <= g.yobMax) : (yob <= g.yobMax));
+  const tier = EXPERIENCE_TIERS.find(t => exp >= t.min && exp <= t.max);
+  return ag && tier ? `${ag.key}_${tier.key}` : '';
+}
+
 function updateCategoriesList() {
+  const el = document.getElementById('categoriesList');   // datalist removed with the input; guard so this no-ops
+  if (!el) return;
   const cats = [...new Set(boxers.map(b => b.category).filter(Boolean))].sort();
-  document.getElementById('categoriesList').innerHTML = cats.map(c => `<option value="${escHtml(c)}">`).join('');
+  el.innerHTML = cats.map(c => `<option value="${escHtml(c)}">`).join('');
 }
 
 function escHtml(s) {
@@ -459,7 +471,6 @@ function openModal(id) {
     document.getElementById('f_name').value            = '';
     document.getElementById('f_club').value            = '';
     document.getElementById('f_gender').value          = 'male';
-    document.getElementById('f_category').value        = '';
     document.getElementById('f_dob').value             = '';
     document.getElementById('f_weight').value          = '';
     document.getElementById('f_bouts').value           = '0';
@@ -478,7 +489,6 @@ function openModal(id) {
     document.getElementById('f_name').value            = b.name || '';
     document.getElementById('f_club').value            = b.club || '';
     document.getElementById('f_gender').value          = b.gender || 'male';
-    document.getElementById('f_category').value        = b.category || '';
     document.getElementById('f_dob').value             = b.dob || '';
     document.getElementById('f_weight').value          = b.weight || '';
     document.getElementById('f_bouts').value           = b.bouts ?? 0;
@@ -507,7 +517,6 @@ function saveRow() {
   const name     = document.getElementById('f_name').value.trim();
   const club     = document.getElementById('f_club').value.trim();
   const gender   = document.getElementById('f_gender').value;
-  const category = document.getElementById('f_category').value.trim();
   const dob      = document.getElementById('f_dob').value.trim();
   const weight   = parseFloat(document.getElementById('f_weight').value);
   const bouts    = parseInt(document.getElementById('f_bouts').value, 10)  || 0;
@@ -533,11 +542,14 @@ function saveRow() {
 
   if (editingId === null) {
     const newId = boxers.length ? Math.max(...boxers.map(b => b.id)) + 1 : 1;
-    boxers.push({ id: newId, name, club, gender, category, dob, yob, weight, bouts, won, lost, fit, autoMatch, sparsPerDay, email, comments, submissionDate, consent1, consent2, experience });
+    const nb = { id: newId, name, club, gender, dob, yob, weight, bouts, won, lost, fit, autoMatch, sparsPerDay, email, comments, submissionDate, consent1, consent2, experience };
+    nb.category = computedBucket(nb);   // display-only; not persisted to the CSV
+    boxers.push(nb);
     showToast(`Added ${name} (ID ${newId})`);
   } else {
     const idx = boxers.findIndex(b => b.id === editingId);
-    boxers[idx] = { ...boxers[idx], name, club, gender, category, dob, yob, weight, bouts, won, lost, fit, autoMatch, sparsPerDay, email, comments, experience };
+    boxers[idx] = { ...boxers[idx], name, club, gender, dob, yob, weight, bouts, won, lost, fit, autoMatch, sparsPerDay, email, comments, experience };
+    boxers[idx].category = computedBucket(boxers[idx]);
     showToast(`Updated ${name}`);
   }
 
@@ -603,6 +615,7 @@ async function loadFromServer() {
       b.fit = (b.fit === true || b.fit === 'yes') ? 'yes' : 'no';
       b.autoMatch = (b.autoMatch === false || b.autoMatch === 'no') ? 'no' : 'yes';
       b.sparsPerDay = parseInt(b.sparsPerDay, 10) || 1;
+      b.category = computedBucket(b);   // always the calculated bucket, not a stored value
     });
     document.getElementById('addBtn').disabled = false;
     document.getElementById('saveBtn').disabled = false;
@@ -637,25 +650,6 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && modalOpen) closeModal();
   if (e.key === 'Enter'  && modalOpen) saveRow();
   if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveToServer(); }
-});
-
-// ── DOB → Category auto-fill ──────────────────────────────────────────────────
-
-function deriveCategory(yob) {
-  if (!yob) return '';
-  const age = new Date().getFullYear() - yob;
-  if (age >= 12 && age <= 14) return 'Schools';
-  if (age >= 15 && age <= 16) return 'Junior';
-  if (age >= 17 && age <= 18) return 'Youth';
-  if (age >= 19) return 'Senior';
-  return '';
-}
-
-document.getElementById('f_dob').addEventListener('change', () => {
-  const parts = document.getElementById('f_dob').value.split('/');
-  const yob = parseInt(parts[2]);
-  const cat = deriveCategory(yob);
-  if (cat) document.getElementById('f_category').value = cat;
 });
 
 // ── Auto-load ─────────────────────────────────────────────────────────────────

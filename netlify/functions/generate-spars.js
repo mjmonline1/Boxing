@@ -14,7 +14,10 @@ async function getDb() {
 exports.handler = async (event) => {
   try {
     const maxPhase  = parseInt(event?.queryStringParameters?.maxPhase) || 3;
-    const algorithm = event?.queryStringParameters?.algorithm === 'optimal' ? 'optimal' : 'greedy';
+    // Note: DB mode does not read cross-day output/Spars/<date>/Spars.json, so randomSelect's
+    // priorPairs freshness is not wired here — randomness still applies within each run.
+    const algorithm = ['optimal', 'randomSelect'].includes(event?.queryStringParameters?.algorithm)
+      ? event.queryStringParameters.algorithm : 'greedy';
     const rawTrioTol = parseFloat(event?.queryStringParameters?.trioTol);
     const trioTol = Number.isFinite(rawTrioTol) ? Math.min(2.5, Math.max(2.0, rawTrioTol)) : undefined;
     const db = await getDb();
