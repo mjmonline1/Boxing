@@ -265,11 +265,17 @@
     <select id="algoInput">
       <option value="greedy" selected>Greedy (fast, current)</option>
       <option value="optimal">Optimal (maximum matching)</option>
+      <option value="randomSelect">Random Select (varies opponents)</option>
+      <option value="salvage">Salvage (max coverage, human-style)</option>
     </select>
   </div>
   <div class="control">
     <label for="trioTolInput">Trio Tol</label>
     <input id="trioTolInput" type="number" min="2" max="2.5" step="0.1" value="2.0" />
+  </div>
+  <div class="control">
+    <label for="tightCrossInput" title="After phase 2, pair leftover fighters ≤1kg apart across age groups (same tier & gender)">Tight ±1kg cross-bucket</label>
+    <input id="tightCrossInput" type="checkbox" checked />
   </div>
 </div>
 
@@ -384,6 +390,21 @@
   </div>
 </div>
 
+<!-- Confirmation dialog for destructive actions (Create Spars / Assign Rings overwrite saved data) -->
+<div id="confirmModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:110; align-items:center; justify-content:center; padding:2rem;">
+  <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; width:100%; max-width:620px; display:flex; flex-direction:column; overflow:hidden;">
+    <div style="display:flex; align-items:center; gap:12px; padding:14px 20px; background:var(--surface2); border-bottom:1px solid var(--border);">
+      <span style="font-size:30px; line-height:1;">&#9888;&#65039;</span>
+      <strong id="confirmTitle" style="font-family:'Barlow Condensed',sans-serif; font-size:30px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase;"></strong>
+    </div>
+    <p id="confirmMessage" style="margin:0; padding:1.25rem 1.5rem; font-size:20px; line-height:1.5; color:var(--text);"></p>
+    <div style="display:flex; gap:12px; justify-content:flex-end; padding:14px 20px; background:var(--surface2); border-top:1px solid var(--border);">
+      <button id="confirmCancel" style="font-family:inherit; font-size:18px; padding:10px 22px; border-radius:8px; cursor:pointer; background:var(--surface); color:var(--text); border:1px solid var(--border);">Cancel</button>
+      <button id="confirmOk" style="font-family:inherit; font-size:18px; padding:10px 22px; border-radius:8px; cursor:pointer; background:var(--red); color:#fff; border:1px solid var(--red); font-weight:700;">Overwrite</button>
+    </div>
+  </div>
+</div>
+
 <script src="data-client.js"></script>
 
 <script>
@@ -412,7 +433,7 @@
     const url = endpoint.includes('generate-schedule')
       ? `${endpoint}?day=${parseInt(document.getElementById('dayInput').value) || 1}`
       : endpoint.includes('spar-maker') || endpoint.includes('generate-spars')
-      ? `${endpoint}?maxPhase=${parseInt(document.getElementById('maxPhaseInput').value) || 3}&algorithm=${document.getElementById('algoInput').value === 'optimal' ? 'optimal' : 'greedy'}&trioTol=${parseFloat(document.getElementById('trioTolInput').value) || 2.0}`
+      ? `${endpoint}?maxPhase=${parseInt(document.getElementById('maxPhaseInput').value) || 3}&algorithm=${['optimal', 'randomSelect', 'salvage'].includes(document.getElementById('algoInput').value) ? document.getElementById('algoInput').value : 'greedy'}&trioTol=${parseFloat(document.getElementById('trioTolInput').value) || 2.0}&tightCross=${document.getElementById('tightCrossInput').checked}`
       : endpoint;
     try {
       const res = await fetch(url, { method: 'POST' });
@@ -462,13 +483,47 @@
     document.getElementById('modal').style.display = 'none';
   }
 
+  // Promise-based confirm dialog: resolves true on Overwrite, false on Cancel/backdrop.
+  function confirmAction(title, message, okLabel = 'Overwrite') {
+    return new Promise(resolve => {
+      const modal = document.getElementById('confirmModal');
+      document.getElementById('confirmTitle').textContent = title;
+      document.getElementById('confirmMessage').textContent = message;
+      const okBtn = document.getElementById('confirmOk');
+      const cancelBtn = document.getElementById('confirmCancel');
+      okBtn.textContent = okLabel;
+      modal.style.display = 'flex';
+      const cleanup = result => {
+        modal.style.display = 'none';
+        okBtn.removeEventListener('click', onOk);
+        cancelBtn.removeEventListener('click', onCancel);
+        modal.removeEventListener('click', onBackdrop);
+        resolve(result);
+      };
+      const onOk = () => cleanup(true);
+      const onCancel = () => cleanup(false);
+      const onBackdrop = e => { if (e.target === modal) cleanup(false); };
+      okBtn.addEventListener('click', onOk);
+      cancelBtn.addEventListener('click', onCancel);
+      modal.addEventListener('click', onBackdrop);
+    });
+  }
+
   document.getElementById('modal').addEventListener('click', e => {
     if (e.target === e.currentTarget) closeModal();
   });
 
   ['runSparMakerBtn', 'runRingAssignerBtn'].forEach(id => {
     const btn = document.getElementById(id);
-    btn.addEventListener('click', () => runScript(btn.dataset.endpoint, btn.dataset.title, btn));
+    btn.addEventListener('click', async () => {
+      const isRings = id === 'runRingAssignerBtn';
+      const message = isRings
+        ? `This replaces the ring schedule and allocations for Day ${parseInt(dayInput.value) || 1}. Any manual ring changes will be lost and cannot be recovered.`
+        : `This regenerates the buckets and replaces today's sparring assignments — including any manually-created groups or hand edits in Spars.json. This cannot be undone.`;
+      const ok = await confirmAction(btn.dataset.title, message, btn.dataset.title);
+      if (!ok) return;
+      runScript(btn.dataset.endpoint, btn.dataset.title, btn);
+    });
   });
 
   DataClient.getVersion().then(v => {

@@ -163,6 +163,88 @@
   #rptStatusBox.info    { background: var(--blue-dim);  color: var(--blue);  border: 1px solid rgba(88,166,255,0.3); }
   #rptStatusBox.success { background: var(--green-dim); color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
   #rptStatusBox.error   { background: var(--red-dim);   color: var(--red);   border: 1px solid rgba(248,81,73,0.3); }
+
+  #backupStatusBox {
+    display: none;
+    margin-top: 1rem;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  #backupStatusBox.info    { background: var(--blue-dim);  color: var(--blue);  border: 1px solid rgba(88,166,255,0.3); }
+  #backupStatusBox.success { background: var(--green-dim); color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
+  #backupStatusBox.error   { background: var(--red-dim);   color: var(--red);   border: 1px solid rgba(248,81,73,0.3); }
+
+  /* Report parameter dialog */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    width: 340px;
+    max-width: calc(100vw - 2rem);
+  }
+  .modal-card h3 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+  .modal-opt {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text);
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .modal-opt:hover { border-color: var(--blue); }
+  .modal-opt input { accent-color: var(--blue); }
+  .modal-label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin: 0.9rem 0 0.35rem;
+  }
+  .modal-select {
+    width: 100%;
+    padding: 7px 9px;
+    font-size: 13px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--input-bg);
+    color: var(--fg);
+  }
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 1.1rem;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
 </style>
 <link rel="stylesheet" href="theme.css">
 </head>
@@ -198,10 +280,11 @@
       <button class="btn btn-blue" id="rptBuckets">Buckets</button>
       <button class="btn btn-blue" id="rptSpars">Spars</button>
       <button class="btn btn-blue" id="rptPhases">Phase Breakdown</button>
-      <button class="btn btn-blue" id="rptRings">Rings</button>
-      <button class="btn btn-blue" id="rptRingsEach">Rings (per ring)</button>
       <button class="btn btn-blue" id="rptBoard">Ring Board</button>
       <button class="btn btn-blue" id="rptBoardEach">Ring Board (per ring)</button>
+      <button class="btn btn-blue" id="rptFighterBouts">Sessions by Fighter</button>
+      <button class="btn btn-blue" id="rptClashes">Ring Clashes</button>
+      <button class="btn btn-blue" id="rptCoverage">Spar Coverage</button>
     </div>
     <div style="margin-top:0.75rem;display:flex;align-items:center;gap:0.5rem;">
       <label for="rptDate" style="font-size:13px;color:var(--muted);">Date (Spars &amp; Rings):</label>
@@ -210,11 +293,45 @@
     <div id="rptStatusBox"></div>
   </div>
 
+  <div class="util-card">
+    <h2>&#128190; Backup</h2>
+    <p>Save a timestamped copy of all data files (roster, buckets, spars, schedules) into <code>output/Backup/</code>. Run this before Create Spars or Assign Rings, which overwrite data.</p>
+    <div class="btn-row">
+      <button class="btn btn-blue" id="backupBtn">&#128190; Backup All Data</button>
+    </div>
+    <div id="backupStatusBox"></div>
+  </div>
+
+</div>
+
+<!-- Fighters report parameter dialog -->
+<div class="modal-overlay" id="fightersModal">
+  <div class="modal-card">
+    <h3>&#128100; Fighters Report</h3>
+    <label class="modal-opt"><input type="radio" name="fitFilter" value="all" checked> All fighters</label>
+    <label class="modal-opt"><input type="radio" name="fitFilter" value="fit"> Fit only</label>
+    <label class="modal-opt"><input type="radio" name="fitFilter" value="notfit"> Not fit only</label>
+    <label class="modal-label" for="fightersOrder">Order by</label>
+    <select class="modal-select" id="fightersOrder">
+      <option value="id">ID</option>
+      <option value="name">Name (A–Z)</option>
+      <option value="club">Club (A–Z)</option>
+      <option value="gender">Gender</option>
+      <option value="category">Category</option>
+      <option value="weight">Weight (light → heavy)</option>
+      <option value="bouts">Bouts (most → fewest)</option>
+    </select>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="fightersCancel">Cancel</button>
+      <button class="btn btn-blue" id="fightersGenerate">Generate PDF</button>
+    </div>
+  </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script src="data-client.js"></script>
+<script src="ring-clash.js"></script>
 <script>
   function splitCSVRecords(text) {
     const records = [];
@@ -349,6 +466,44 @@ function setRptStatus(type, msg) {
   el.style.display = 'block';
 }
 
+// ── Backup ───────────────────────────────────────────────────────────────────
+// Local-only: POSTs to server.js /api/backup, which copies data/ + output/ into
+// output/Backup/<timestamp>/. Not available in remote (Netlify) mode.
+document.getElementById('backupBtn').addEventListener('click', async () => {
+  const box = document.getElementById('backupStatusBox');
+  const set = (type, msg) => { box.className = type; box.textContent = msg; box.style.display = 'block'; };
+  const btn = document.getElementById('backupBtn');
+  set('info', 'Backing up all data files…');
+  btn.disabled = true;
+  try {
+    const res = await fetch(`${window.location.origin}/api/backup`, { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok || !data.success) throw new Error(data.error || res.statusText);
+    set('success', `✓ Backed up ${data.fileCount} files to ${data.path}`);
+  } catch (e) {
+    set('error', `Backup failed: ${e.message}`);
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// Report date display: "08/07/2026 - Wed" from an ISO "2026-07-08" string.
+// Used for on-report (title/body) dates only — .pdf filenames keep the ISO form
+// since "/" is not filename-safe. Weekday derived in UTC so it can't drift a day.
+function fmtReportDate(iso) {
+  if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso || '';
+  const [y, m, d] = iso.split('-');
+  const dow = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date(Date.UTC(+y, +m - 1, +d)).getUTCDay()];
+  return `${d}/${m}/${y} - ${dow}`;
+}
+
+// "Generated:" timestamp in the same date format as the reports, plus 24h time.
+function fmtGenerated(dt = new Date()) {
+  const iso  = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+  const hhmm = `${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
+  return `${fmtReportDate(iso)} ${hhmm}`;
+}
+
 function makePdf(title) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
@@ -358,17 +513,59 @@ function makePdf(title) {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(120);
-  doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 23);
+  doc.text(`Generated: ${fmtGenerated()}`, 14, 23);
   doc.setTextColor(0);
   return doc;
 }
 
-document.getElementById('rptFighters').addEventListener('click', async () => {
+// A fighter counts as "not fit" only when explicitly marked so; blank/unknown → fit
+// (matches the roster default where a missing `fit` value is treated as 'yes').
+function isFighterFit(b) {
+  const s = String(b && b.fit != null ? b.fit : '').trim().toLowerCase();
+  return !(s === 'no' || s === 'n' || s === 'false' || s === '0');
+}
+
+// Fighters report parameter dialog: pick which fighters to include, then generate.
+const fightersModal = document.getElementById('fightersModal');
+document.getElementById('rptFighters').addEventListener('click', () => {
+  fightersModal.classList.add('open');
+});
+document.getElementById('fightersCancel').addEventListener('click', () => {
+  fightersModal.classList.remove('open');
+});
+fightersModal.addEventListener('click', (e) => {
+  if (e.target === fightersModal) fightersModal.classList.remove('open');
+});
+
+// Sort comparators for the Fighters report "Order by" dropdown. Text keys sort
+// A–Z with name as tiebreak; weight ascending; bouts descending (most first).
+const FIGHTER_SORTS = {
+  id:       (a, b) => (a.id || 0) - (b.id || 0),
+  name:     (a, b) => (a.name || '').localeCompare(b.name || ''),
+  club:     (a, b) => (a.club || '').localeCompare(b.club || '') || (a.name || '').localeCompare(b.name || ''),
+  gender:   (a, b) => (a.gender || '').localeCompare(b.gender || '') || (a.name || '').localeCompare(b.name || ''),
+  category: (a, b) => (a.category || '').localeCompare(b.category || '') || (a.name || '').localeCompare(b.name || ''),
+  weight:   (a, b) => (a.weight || 0) - (b.weight || 0) || (a.name || '').localeCompare(b.name || ''),
+  bouts:    (a, b) => (b.bouts || 0) - (a.bouts || 0) || (a.name || '').localeCompare(b.name || '')
+};
+const FIGHTER_SORT_LABELS = { id: 'ID', name: 'Name', club: 'Club', gender: 'Gender', category: 'Category', weight: 'Weight', bouts: 'Bouts' };
+
+document.getElementById('fightersGenerate').addEventListener('click', async () => {
+  const filter = (document.querySelector('input[name="fitFilter"]:checked') || {}).value || 'all';
+  const order  = document.getElementById('fightersOrder').value || 'id';
+  fightersModal.classList.remove('open');
   try {
     setRptStatus('info', 'Loading fighters…');
-    const boxers = await DataClient.get('boxers');
-    if (!boxers || !boxers.length) { setRptStatus('error', 'No fighters in database.'); return; }
-    const doc = makePdf('Fighters Report');
+    const all = await DataClient.get('boxers');
+    if (!all || !all.length) { setRptStatus('error', 'No fighters in database.'); return; }
+    let boxers = filter === 'fit' ? all.filter(isFighterFit)
+               : filter === 'notfit' ? all.filter(b => !isFighterFit(b))
+               : all;
+    if (!boxers.length) { setRptStatus('error', `No ${filter === 'fit' ? 'fit' : 'unfit'} fighters to report.`); return; }
+    boxers = [...boxers].sort(FIGHTER_SORTS[order] || FIGHTER_SORTS.id);
+    const label = filter === 'fit' ? ' (Fit only)' : filter === 'notfit' ? ' (Not fit only)' : '';
+    const orderNote = order !== 'id' ? ` — by ${FIGHTER_SORT_LABELS[order]}` : '';
+    const doc = makePdf('Fighters Report' + label + orderNote);
     doc.autoTable({
       startY: 28,
       head: [['ID', 'Name', 'Club', 'Gender', 'Category', 'DOB', 'Weight (kg)', 'Bouts', 'Won', 'Lost', 'Fit']],
@@ -381,8 +578,9 @@ document.getElementById('rptFighters').addEventListener('click', async () => {
       alternateRowStyles: { fillColor: [245, 245, 245] },
       columnStyles: { 0: { cellWidth: 8 }, 6: { cellWidth: 18 }, 7: { cellWidth: 12 }, 8: { cellWidth: 10 }, 9: { cellWidth: 10 }, 10: { cellWidth: 10 } }
     });
-    doc.save('fighters.pdf');
-    setRptStatus('success', `✓ fighters.pdf — ${boxers.length} fighters`);
+    const suffix = filter === 'fit' ? '-fit' : filter === 'notfit' ? '-notfit' : '';
+    doc.save(`fighters${suffix}.pdf`);
+    setRptStatus('success', `✓ fighters${suffix}.pdf — ${boxers.length} fighters`);
   } catch (e) { setRptStatus('error', `Error: ${e.message}`); }
 });
 
@@ -404,14 +602,14 @@ document.getElementById('rptBuckets').addEventListener('click', async () => {
       doc.autoTable({
         startY: y,
         head: [
-          [{ content: `${bucketName}  (${fighters.length} fighters)`, colSpan: 5, styles: { fillColor: [45, 51, 59], textColor: [205, 217, 229], fontStyle: 'bold', fontSize: 8 } }],
-          ['ID', 'Name', 'Club', 'Weight (kg)', 'Bouts']
+          [{ content: `${bucketName}  (${fighters.length} fighters)`, colSpan: 6, styles: { fillColor: [45, 51, 59], textColor: [205, 217, 229], fontStyle: 'bold', fontSize: 8 } }],
+          ['ID', 'Name', 'Club', 'Date of Birth', 'Weight (kg)', 'Bouts']
         ],
-        body: fighters.map((b, i) => [b.id ?? i + 1, b.name || '', b.club || '', b.weight || '', b.bouts ?? b.experience ?? 0]),
+        body: fighters.map((b, i) => [b.id ?? i + 1, b.name || '', b.club || '', b.dob || '', b.weight || '', b.bouts ?? b.experience ?? 0]),
         styles: { fontSize: 7.5, cellPadding: 1.8 },
         headStyles: { fillColor: [33, 150, 243] },
         alternateRowStyles: { fillColor: [245, 245, 245] },
-        columnStyles: { 0: { cellWidth: 8 }, 3: { cellWidth: 20 }, 4: { cellWidth: 14 } }
+        columnStyles: { 0: { cellWidth: 8 }, 3: { cellWidth: 20 }, 4: { cellWidth: 20 }, 5: { cellWidth: 14 } }
       });
       y = doc.lastAutoTable.finalY + 6;
       if (y > 175) { doc.addPage(); y = 20; }
@@ -429,7 +627,7 @@ document.getElementById('rptSpars').addEventListener('click', async () => {
     const data = await DataClient.get('spars', { date });
     const matches = data && (data.matches || (Array.isArray(data) ? data : null));
     if (!matches || !matches.length) { setRptStatus('error', 'No spar data.'); return; }
-    const doc = makePdf(`Sparring Pairs Report — ${date}`);
+    const doc = makePdf(`Sparring Pairs Report — ${fmtReportDate(date)}`);
     doc.autoTable({
       startY: 28,
       head: [['#', 'Red Corner', 'Red Club', 'Blue Corner', 'Blue Club', 'Category', 'Weight Diff']],
@@ -489,7 +687,7 @@ document.getElementById('rptPhases').addEventListener('click', async () => {
     const data = await DataClient.get('spars', { date });
     const log = data && data.phaseLog;
     if (!log) { setRptStatus('error', 'No phase data for this date — regenerate spars to include it.'); return; }
-    const doc = makePdf(`Phase Breakdown Report — ${date}`);
+    const doc = makePdf(`Phase Breakdown Report — ${fmtReportDate(date)}`);
     let y = 28;
 
     const boutTable = (bouts) => {
@@ -637,7 +835,7 @@ function ringTimetable(slots) {
 
 const withWt = b => b ? (b.name || '') + (b.weight != null ? ` (${b.weight} kg)` : '') : '';
 
-document.getElementById('rptRings').addEventListener('click', async () => {
+document.getElementById('rptRings')?.addEventListener('click', async () => {
   try {
     const date = document.getElementById('rptDate').value;
     if (!date) { setRptStatus('error', 'Select a date first.'); return; }
@@ -645,7 +843,7 @@ document.getElementById('rptRings').addEventListener('click', async () => {
     const data = await DataClient.get('schedule', { date });
     const slots = data && (data.slots || (Array.isArray(data) ? data : null));
     if (!slots || !slots.length) { setRptStatus('error', 'No schedule data.'); return; }
-    const doc = makePdf(`Ring Schedule Report — ${date}`);
+    const doc = makePdf(`Ring Schedule Report — ${fmtReportDate(date)}`);
     // ordered by ring number, then chronologically (time)
     const rows = ringTimetable(slots).map(e => {
       const b = e.bout;
@@ -671,7 +869,7 @@ document.getElementById('rptRings').addEventListener('click', async () => {
 });
 
 // One PDF per ring (separate downloads)
-document.getElementById('rptRingsEach').addEventListener('click', async () => {
+document.getElementById('rptRingsEach')?.addEventListener('click', async () => {
   try {
     const date = document.getElementById('rptDate').value;
     if (!date) { setRptStatus('error', 'Select a date first.'); return; }
@@ -688,7 +886,7 @@ document.getElementById('rptRingsEach').addEventListener('click', async () => {
 
     let total = 0;
     for (const ring of rings) {
-      const doc = makePdf(`Ring ${ring} — ${date}`);
+      const doc = makePdf(`Ring ${ring} — ${fmtReportDate(date)}`);
       const rows = byRing[ring].map(e => {
         const b = e.bout;
         return [
@@ -731,7 +929,7 @@ document.getElementById('rptBoard').addEventListener('click', async () => {
     const cell = {};
     entries.forEach(e => { cell[e.ring + '|' + e.slot] = e; });
 
-    const doc = makePdf(`Ring Board — ${date}`);
+    const doc = makePdf(`Ring Board — ${fmtReportDate(date)}`);
     const body = slotNums.map(sn => ['Slot ' + sn, ...rings.map(r => {
       const e = cell[r + '|' + sn];
       if (!e) return '';
@@ -779,11 +977,31 @@ document.getElementById('rptBoardEach').addEventListener('click', async () => {
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+    // Embed a Unicode TTF so fighter names with Latin Extended-A characters (e.g. š, ň in
+    // "Martin František Rusňák") render correctly — jsPDF's built-in Helvetica only covers
+    // Latin-1/WinAnsi and garbles those glyphs. Applied to the table body only; the ASCII
+    // header/footer stay on Helvetica. If the font can't load, fall back to Helvetica so the
+    // report still generates.
+    let bodyFont = 'helvetica';
+    try {
+      const b64 = await fetch('fonts/NotoSans-Regular.ttf')
+        .then(r => { if (!r.ok) throw new Error('font ' + r.status); return r.arrayBuffer(); })
+        .then(buf => {
+          let s = ''; const bytes = new Uint8Array(buf);
+          for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+          return btoa(s);
+        });
+      doc.addFileToVFS('NotoSans-Regular.ttf', b64);
+      doc.addFont('NotoSans-Regular.ttf', 'NotoSans', 'normal');
+      bodyFont = 'NotoSans';
+    } catch (_) { /* keep Helvetica */ }
+
     const drawHeader = ring => {
       doc.setFont('helvetica', 'bold'); doc.setFontSize(15);
-      doc.text(`Ring ${ring} — ${date}`, 14, 16);
+      doc.text(`Ring ${ring} — ${fmtReportDate(date)}`, 14, 16);
       doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(120);
-      doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 23);
+      doc.text(`Generated: ${fmtGenerated()}`, 14, 23);
       doc.setTextColor(0);
     };
 
@@ -795,17 +1013,17 @@ document.getElementById('rptBoardEach').addEventListener('click', async () => {
         const b = e.bout;
         const mem = [b.red, b.blue, b.third].filter(Boolean);
         const matchup = mem.length > 2
-          ? mem.map(x => `${x.name} (${x.weight}kg)`).join('\n')
-          : `${b.red?.name || ''} (${b.red?.weight}kg)\nvs ${b.blue?.name || ''} (${b.blue?.weight}kg)`;
-        return [`Slot ${e.slot}`, `${e.startTime}–${e.endTime}`, matchup, b.category || ''];
+          ? mem.map(x => `${x.name} (${x.weight}kg) — ${x.club || ''}`).join('\n')
+          : `${b.red?.name || ''} (${b.red?.weight}kg) — ${b.red?.club || ''}\nvs ${b.blue?.name || ''} (${b.blue?.weight}kg) — ${b.blue?.club || ''}`;
+        return [`Slot ${e.slot}`, `${e.startTime}–${e.endTime}`, matchup];
       });
       doc.autoTable({
         startY: 28,
         margin: { top: 28 },
-        head: [['Slot', 'Time', 'Matchup', 'Category']],
+        head: [['Slot', 'Time', 'Matchup']],
         body: rows,
-        styles: { fontSize: 11, cellPadding: 2.5, valign: 'top', overflow: 'linebreak' },
-        headStyles: { fillColor: [33, 150, 243] },
+        styles: { font: bodyFont, fontSize: 11, cellPadding: 2.5, valign: 'top', overflow: 'linebreak' },
+        headStyles: { fillColor: [33, 150, 243], font: 'helvetica', fontStyle: 'bold' },
         alternateRowStyles: { fillColor: [245, 245, 245] },
         columnStyles: { 0: { cellWidth: 18 }, 1: { cellWidth: 40 } },
         didDrawPage: () => {
@@ -821,6 +1039,298 @@ document.getElementById('rptBoardEach').addEventListener('click', async () => {
     }
     doc.save(`ring-boards-${date}.pdf`);
     setRptStatus('success', `✓ ring-boards.pdf — ${rings.length} rings (one page each), ${total} bouts`);
+  } catch (e) { setRptStatus('error', `Error: ${e.message}`); }
+});
+
+// ── Sessions by Fighter ──────────────────────────────────────────────────────
+// From the ring allocation (schedule): one row per fighter with their total number
+// of bouts that day and which time slots they fight in. Sorted by bout count so any
+// fighter in multiple bouts/slots is easy to spot.
+document.getElementById('rptFighterBouts').addEventListener('click', async () => {
+  try {
+    const date = document.getElementById('rptDate').value;
+    if (!date) { setRptStatus('error', 'Select a date first.'); return; }
+    setRptStatus('info', 'Loading schedule…');
+    const data = await DataClient.get('schedule', { date });
+    const slots = data && (data.slots || (Array.isArray(data) ? data : null));
+    if (!slots || !slots.length) { setRptStatus('error', 'No schedule data.'); return; }
+
+    // Aggregate per fighter across every scheduled bout.
+    const byFighter = new Map(); // id -> { id, name, club, count, slots:Set }
+    for (const s of slots) {
+      for (const b of (s.bouts || [])) {
+        for (const p of [b.red, b.blue, b.third, ...(b.extra || [])].filter(Boolean)) {
+          let e = byFighter.get(p.id);
+          if (!e) { e = { id: p.id, name: p.name || '', club: p.club || '', count: 0, slots: new Set() }; byFighter.set(p.id, e); }
+          e.count++;
+          e.slots.add(s.slot);
+        }
+      }
+    }
+    if (!byFighter.size) { setRptStatus('error', 'No bouts to report.'); return; }
+
+    const rows = [...byFighter.values()]
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
+      .map(e => [e.id, e.name, e.club, e.count, [...e.slots].sort((x, y) => x - y).join(', ')]);
+
+    const doc = makePdf(`Sessions by Fighter — ${fmtReportDate(date)}`);
+
+    // Embed the Unicode font for the table body so accented names render correctly
+    // (jsPDF's Helvetica garbles Latin Extended-A like š/ň). Falls back to Helvetica.
+    let bodyFont = 'helvetica';
+    try {
+      const b64 = await fetch('fonts/NotoSans-Regular.ttf')
+        .then(r => { if (!r.ok) throw new Error('font ' + r.status); return r.arrayBuffer(); })
+        .then(buf => { let s = ''; const u = new Uint8Array(buf); for (let i = 0; i < u.length; i++) s += String.fromCharCode(u[i]); return btoa(s); });
+      doc.addFileToVFS('NotoSans-Regular.ttf', b64);
+      doc.addFont('NotoSans-Regular.ttf', 'NotoSans', 'normal');
+      bodyFont = 'NotoSans';
+    } catch (_) { /* keep Helvetica */ }
+
+    doc.autoTable({
+      startY: 28,
+      head: [['ID', 'Fighter', 'Club', 'Sessions', 'Slots']],
+      body: rows,
+      styles: { font: bodyFont, fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: [33, 150, 243], font: 'helvetica', fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
+      columnStyles: { 0: { cellWidth: 12 }, 3: { cellWidth: 16 } }
+    });
+    doc.save(`sessions-by-fighter-${date}.pdf`);
+    setRptStatus('success', `✓ sessions-by-fighter.pdf — ${rows.length} fighters`);
+  } catch (e) { setRptStatus('error', `Error: ${e.message}`); }
+});
+
+// ── Ring Clashes ─────────────────────────────────────────────────────────────
+// Reconstructs each bout's wall-clock time (the schedule stores none) the way
+// RingManager does — bouts pack sequentially per ring from 16:00 — then flags any
+// fighter double-booked in two rings whose times overlap (or are too tight to reach).
+document.getElementById('rptClashes').addEventListener('click', async () => {
+  try {
+    const date = document.getElementById('rptDate').value;
+    if (!date) { setRptStatus('error', 'Select a date first.'); return; }
+    setRptStatus('info', 'Loading schedule…');
+    const data = await DataClient.get('schedule', { date });
+    const slots = data && (data.slots || (Array.isArray(data) ? data : null));
+    if (!slots || !slots.length) { setRptStatus('error', 'No schedule data.'); return; }
+
+    // Ring-packing constants — must match RingManager.html computeTimes().
+    const START = 16 * 60, CHANGEOVER = 1;
+    const membersOf = b => [b.red, b.blue, b.third, ...(b.extra || [])].filter(Boolean);
+    const boutCount = n => n * (n - 1) / 2;
+    const fmt = m => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
+
+    // Rebuild per-ring bout order (slots ascending), then replay sequential times.
+    const rings = {};
+    for (const s of slots) for (const b of (s.bouts || [])) (rings[b.ring] = rings[b.ring] || []).push(b);
+    const entries = [];
+    const boardBouts = {};   // ring → [{ slotIdx, ring, start, end, label, members }]
+    for (const [ring, bouts] of Object.entries(rings)) {
+      let cur = START;
+      boardBouts[ring] = [];
+      bouts.forEach((b, slotIdx) => {
+        const mem = membersOf(b);
+        const single = (b.category || '').includes('Senior') ? 11 : 8;
+        const start = cur, end = cur + single * boutCount(mem.length);
+        cur = end + CHANGEOVER;
+        const label = `vs ${mem.slice(1).map(m => m.name).join(' & ') || '?'}`;
+        for (const p of mem) entries.push({ id: p.id, name: p.name || '', club: p.club || '', ring, start, end, sparId: b.sparId, label });
+        boardBouts[ring].push({ slotIdx, ring, start, end, label, members: mem });
+      });
+    }
+
+    const clashes = RingClash.findClashes(entries, 3);
+
+    // Back-to-back (consecutive-slot) warnings — a fighter in slot i and slot i+1
+    // (position across ring queues), same or different ring. Matches RingManager's
+    // live warning; complements the cross-ring time-overlap clashes above.
+    const byFighter = new Map();   // id → [{ slotIdx, ring, name, club, bout }]
+    for (const ring of Object.keys(boardBouts)) {
+      for (const bout of boardBouts[ring]) {
+        for (const p of bout.members) {
+          if (!byFighter.has(p.id)) byFighter.set(p.id, []);
+          byFighter.get(p.id).push({ slotIdx: bout.slotIdx, ring, name: p.name || '', club: p.club || '', bout });
+        }
+      }
+    }
+    const consec = [];
+    for (const appts of byFighter.values()) {
+      appts.sort((a, b) => a.slotIdx - b.slotIdx);
+      for (let i = 0; i < appts.length; i++) for (let j = i + 1; j < appts.length; j++) {
+        if (appts[j].slotIdx - appts[i].slotIdx !== 1) continue;   // only adjacent slots
+        consec.push({ name: appts[i].name, club: appts[i].club, a: appts[i], b: appts[j] });
+      }
+    }
+    consec.sort((p, q) => String(p.name).localeCompare(String(q.name)));
+
+    const doc = makePdf(`Ring Clashes — ${fmtReportDate(date)}`);
+    let bodyFont = 'helvetica';
+    try {
+      const b64 = await fetch('fonts/NotoSans-Regular.ttf')
+        .then(r => { if (!r.ok) throw new Error('font ' + r.status); return r.arrayBuffer(); })
+        .then(buf => { let s = ''; const u = new Uint8Array(buf); for (let i = 0; i < u.length; i++) s += String.fromCharCode(u[i]); return btoa(s); });
+      doc.addFileToVFS('NotoSans-Regular.ttf', b64);
+      doc.addFont('NotoSans-Regular.ttf', 'NotoSans', 'normal');
+      bodyFont = 'NotoSans';
+    } catch (_) { /* keep Helvetica */ }
+
+    if (!clashes.length && !consec.length) {
+      doc.setFontSize(12);
+      doc.setTextColor(30, 130, 60);
+      doc.text(`✓ No clashes or back-to-back bouts found for ${fmtReportDate(date)}.`, 14, 40);
+      doc.save(`ring-clashes-${date}.pdf`);
+      setRptStatus('success', `✓ ring-clashes.pdf — nothing flagged`);
+      return;
+    }
+
+    let y = 28;
+
+    // Section 1 — cross-ring double-bookings (time overlap / too tight to reach).
+    if (clashes.length) {
+      doc.setFontSize(11); doc.setTextColor(244, 67, 54);
+      doc.text('Cross-ring double-bookings', 14, y);
+      doc.autoTable({
+        startY: y + 3,
+        head: [['Fighter', 'Club', 'Conflict', 'Bout A', 'Bout B']],
+        body: clashes.map(c => [
+          c.name, c.club,
+          c.type === 'overlap' ? `OVERLAP ${-c.gap}m` : `TIGHT ${c.gap}m`,
+          `${c.a.ring}  ${fmt(c.a.start)}–${fmt(c.a.end)}  ${c.a.label}`,
+          `${c.b.ring}  ${fmt(c.b.start)}–${fmt(c.b.end)}  ${c.b.label}`
+        ]),
+        styles: { font: bodyFont, fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: [244, 67, 54], font: 'helvetica', fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [253, 240, 240] },
+        columnStyles: { 2: { cellWidth: 24, fontStyle: 'bold' } }
+      });
+      y = doc.lastAutoTable.finalY + 10;
+    }
+
+    // Section 2 — back-to-back (consecutive-slot) appearances, same or different ring.
+    if (consec.length) {
+      const fmtBout = x => `${x.ring} slot ${x.slotIdx + 1}  ${fmt(x.bout.start)}–${fmt(x.bout.end)}  ${x.bout.label}`;
+      doc.setFontSize(11); doc.setTextColor(200, 120, 0);
+      doc.text('Back-to-back (consecutive slots)', 14, y);
+      doc.autoTable({
+        startY: y + 3,
+        head: [['Fighter', 'Club', 'Slots', 'Bout A', 'Bout B']],
+        body: consec.map(c => [
+          c.name, c.club,
+          `${c.a.slotIdx + 1} & ${c.b.slotIdx + 1}${c.a.ring === c.b.ring ? ` (${c.a.ring})` : ''}`,
+          fmtBout(c.a), fmtBout(c.b)
+        ]),
+        styles: { font: bodyFont, fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: [255, 152, 0], font: 'helvetica', fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [255, 244, 224] },
+        columnStyles: { 2: { cellWidth: 24, fontStyle: 'bold' } }
+      });
+    }
+
+    doc.save(`ring-clashes-${date}.pdf`);
+    const parts = [];
+    if (clashes.length) parts.push(`${clashes.length} clash${clashes.length !== 1 ? 'es' : ''}`);
+    if (consec.length)  parts.push(`${consec.length} back-to-back`);
+    setRptStatus(clashes.length ? 'error' : 'info', `⚠ ${parts.join(' · ')} — see ring-clashes.pdf`);
+  } catch (e) { setRptStatus('error', `Error: ${e.message}`); }
+});
+
+// ── Spar Coverage ────────────────────────────────────────────────────────────
+// Fit-status vs scheduling integrity check for a date. Uses the LIVE roster for
+// current fit status (match/bout members carry a stale fit snapshot), and counts a
+// fighter as "has a spar" if matched OR placed on the ring board.
+document.getElementById('rptCoverage').addEventListener('click', async () => {
+  try {
+    const date = document.getElementById('rptDate').value;
+    if (!date) { setRptStatus('error', 'Select a date first.'); return; }
+    setRptStatus('info', 'Loading roster, spars & rings…');
+    const roster = await DataClient.get('boxers');
+    if (!roster || !roster.length) { setRptStatus('error', 'No fighters in database.'); return; }
+    const spars    = await DataClient.get('spars',    { date }).catch(() => null);
+    const schedule = await DataClient.get('schedule', { date }).catch(() => null);
+    const matches  = spars && spars.matches ? spars.matches : [];
+    const slots    = schedule && (schedule.slots || (Array.isArray(schedule) ? schedule : [])) || [];
+    if (!matches.length && !slots.length) { setRptStatus('error', `No spar or ring data for ${date}.`); return; }
+
+    const members = x => [x.red, x.blue, x.third, ...(x.extra || [])].filter(Boolean);
+    const byId = new Map(roster.map(b => [b.id, b]));
+    // id → { ring, slot, opponents:[names] }. Ring-board location wins over "matched only".
+    const whereById = new Map();
+    const record = (p, others, ring, slot) => {
+      const existing = whereById.get(p.id);
+      const opp = others.map(o => o.name).filter(Boolean);
+      if (!existing) whereById.set(p.id, { ring, slot, opponents: opp });
+      else if (ring && !existing.ring) { existing.ring = ring; existing.slot = slot; existing.opponents = opp; }
+    };
+    for (const m of matches) { const mem = members(m); for (const p of mem) record(p, mem.filter(o => o !== p), null, null); }
+    for (const s of slots) for (const b of (s.bouts || [])) { const mem = members(b); for (const p of mem) record(p, mem.filter(o => o !== p), b.ring, s.slot); }
+    const scheduledIds = new Set(whereById.keys());
+
+    const fitNoSpar = roster.filter(b => isFighterFit(b) && !scheduledIds.has(b.id))
+      .sort((a, b) => (a.weight || 0) - (b.weight || 0));
+    const unfitOnCard = roster.filter(b => !isFighterFit(b) && scheduledIds.has(b.id))
+      .sort((a, b) => (a.weight || 0) - (b.weight || 0));
+
+    const doc = makePdf(`Spar Coverage — ${fmtReportDate(date)}`);
+    let bodyFont = 'helvetica';
+    try {
+      const b64 = await fetch('fonts/NotoSans-Regular.ttf')
+        .then(r => { if (!r.ok) throw new Error('font ' + r.status); return r.arrayBuffer(); })
+        .then(buf => { let s = ''; const u = new Uint8Array(buf); for (let i = 0; i < u.length; i++) s += String.fromCharCode(u[i]); return btoa(s); });
+      doc.addFileToVFS('NotoSans-Regular.ttf', b64);
+      doc.addFont('NotoSans-Regular.ttf', 'NotoSans', 'normal');
+      bodyFont = 'NotoSans';
+    } catch (_) { /* keep Helvetica */ }
+
+    if (!fitNoSpar.length && !unfitOnCard.length) {
+      doc.setFontSize(12); doc.setTextColor(30, 130, 60);
+      doc.text('✓ All good — every fit fighter has a spar and no unfit fighter is scheduled.', 14, 40);
+      doc.save(`spar-coverage-${date}.pdf`);
+      setRptStatus('success', '✓ spar-coverage.pdf — all clear');
+      return;
+    }
+
+    const sectionHeader = (text, color) => {
+      const y = (doc.lastAutoTable ? doc.lastAutoTable.finalY : 22) + 10;
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(...color);
+      doc.text(text, 14, y); doc.setTextColor(0);
+      return y + 3;
+    };
+
+    // Section 1 — fit but no spar
+    let startY = sectionHeader(`Fit — no spar (${fitNoSpar.length})`, [33, 150, 243]);
+    if (fitNoSpar.length) {
+      doc.autoTable({
+        startY,
+        head: [['ID', 'Name', 'Club', 'Gender', 'YOB', 'Weight (kg)', 'Bouts']],
+        body: fitNoSpar.map(b => [b.id, b.name || '', b.club || '', b.gender || '', b.yob || '', b.weight || '', b.bouts || 0]),
+        styles: { font: bodyFont, fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: [33, 150, 243], font: 'helvetica', fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
+        columnStyles: { 0: { cellWidth: 10 } }
+      });
+    } else { doc.setFont(bodyFont, 'normal'); doc.setFontSize(9); doc.setTextColor(30, 130, 60); doc.text('✓ none', 16, startY + 2); doc.setTextColor(0); }
+
+    // Section 2 — unfit but still scheduled
+    startY = sectionHeader(`Unfit — still scheduled (${unfitOnCard.length})`, [244, 67, 54]);
+    if (unfitOnCard.length) {
+      doc.autoTable({
+        startY,
+        head: [['ID', 'Name', 'Club', 'Weight (kg)', 'Where', 'Opponent(s)']],
+        body: unfitOnCard.map(b => {
+          const w = whereById.get(b.id) || {};
+          const where = w.ring ? `${w.ring} · slot ${w.slot}` : 'matched — no ring yet';
+          return [b.id, b.name || '', b.club || '', b.weight || '', where, (w.opponents || []).join(', ')];
+        }),
+        styles: { font: bodyFont, fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: [244, 67, 54], font: 'helvetica', fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [253, 240, 240] },
+        columnStyles: { 0: { cellWidth: 10 } }
+      });
+    } else { doc.setFont(bodyFont, 'normal'); doc.setFontSize(9); doc.setTextColor(30, 130, 60); doc.text('✓ none', 16, startY + 2); doc.setTextColor(0); }
+
+    doc.save(`spar-coverage-${date}.pdf`);
+    setRptStatus(fitNoSpar.length || unfitOnCard.length ? 'error' : 'success',
+      `⚠ ${fitNoSpar.length} fit w/o spar · ${unfitOnCard.length} unfit scheduled — see spar-coverage.pdf`);
   } catch (e) { setRptStatus('error', `Error: ${e.message}`); }
 });
 </script>

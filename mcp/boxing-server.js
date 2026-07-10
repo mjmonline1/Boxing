@@ -18,8 +18,10 @@ const SPARS_BASE   = path.join(ROOT, 'output', 'Spars');
 
 // `id` leads the schema so set_fit/add_boxer preserve each boxer's stable identity
 // on write — must match Server.js's schema or a write here reverts to positional ids.
+// The registration `Category` column was removed — the calculated bucket is authoritative.
+// RAW_HEADERS/INTERNAL_KEYS are zipped positionally on write, so keep them aligned.
 const BOXER_RAW_HEADERS = [
-  'id', 'date', 'Full name', 'Club', 'Gender', 'Category', 'Date of Birth',
+  'id', 'date', 'Full name', 'Club', 'Gender', 'Date of Birth',
   'Current weight (kg)', 'BOUTS (the number only)', 'WON (the number only)',
   'LOST (the number only)', 'Additional information or comments (optional)',
   'I understand that all boxers have to weigh in on Monday 7th July.',
@@ -27,7 +29,7 @@ const BOXER_RAW_HEADERS = [
   'Email address', 'fit', 'Auto Match', 'Spars per Day'
 ];
 const BOXER_INTERNAL_KEYS = [
-  'id', 'submissionDate', 'name', 'club', 'gender', 'category', 'dob',
+  'id', 'submissionDate', 'name', 'club', 'gender', 'dob',
   'weight', 'bouts', 'won', 'lost', 'comments',
   'consent1', 'consent2', 'email', 'fit', 'autoMatch', 'sparsPerDay'
 ];
@@ -187,7 +189,7 @@ function addBoxer({ name, club, gender, yob, weight, experience }) {
   const nextId = Math.max(0, ...boxers.map(b => Number(b.id) || 0)) + 1;
   boxers.push({
     submissionDate: new Date().toISOString(), name, club, gender,
-    category: '', dob: `01/01/${yob}`, weight: String(weight),
+    dob: `01/01/${yob}`, weight: String(weight),
     bouts: String(experience), won: '', lost: '', comments: '',
     consent1: '', consent2: '', email: '', fit: 'yes', autoMatch: 'yes', sparsPerDay: '1',
     id: nextId

@@ -16,6 +16,13 @@ const PHASE2_TOLERANCE        = 2.5;
 // compare with a tiny epsilon to keep exact-boundary pairs from being silently dropped.
 const WEIGHT_EPS              = 1e-9;
 
+// Unordered stable-id pair key — used by Random Select to test/build the cross-day
+// "already sparred earlier in the week" set (priorPairs). Order-independent so a
+// bout stored as (a,b) on one day matches an (b,a) lookup on another.
+function pairKey(a, b) {
+    return a.id < b.id ? `${a.id}|${b.id}` : `${b.id}|${a.id}`;
+}
+
 function pairBoxers(boxers, categoryName, tolerance = WEIGHT_TOLERANCE, sparCount, partneredWith) {
     // A boxer with a non-finite weight (e.g. a blank CSV weight cell → NaN) can't be
     // matched by weight, and worse, a NaN sitting mid-list would break the ascending
@@ -169,6 +176,159 @@ function pairBoxersOptimal(boxers, categoryName, tolerance = PHASE2_TOLERANCE, s
 }
 
 /**
+ * Random Select per-bucket pairing: a clone of greedy `pairBoxers` (same setup,
+ * caps, no-rematch, and NaN handling) that differs only in HOW it chooses among
+ * eligible opponents. Instead of the single closest-weight, different-club-first
+ * opponent, it gathers every in-tolerance eligible opponent and picks one at
+ * RANDOM from the best non-empty priority tier:
+ *   rank = (differentClub ? 0 : 2) + (fresh ? 0 : 1)
+ * so different-club always beats same-club (club avoidance stays top priority,
+ * identical to greedy), and within a club tier a "fresh" opponent (id-pair not in
+ * `priorPairs` = not sparred on an earlier day) beats a repeat. `Math.random` —
+ * fresh, non-reproducible each run. Greedy/optimal are left byte-identical.
+ */
+function pairBoxersRandom(boxers, categoryName, tolerance = WEIGHT_TOLERANCE, sparCount, partneredWith, priorPairs = null) {
+    const leftover = boxers.filter(b => !Number.isFinite(b.weight));
+    const pool = boxers.filter(b => Number.isFinite(b.weight))
+                       .sort((a, b) => a.weight - b.weight);
+    const matches = [];
+
+    const count    = sparCount     || new Map();
+    const partners = partneredWith || new Map();
+    const cap  = b => b.sparsPerDay || 1;
+    const used = b => count.get(b) || 0;
+    const hasMet = (a, b) => partners.get(a)?.has(b);
+    const meet = (a, b) => {
+        (partners.get(a) || partners.set(a, new Set()).get(a)).add(b);
+        (partners.get(b) || partners.set(b, new Set()).get(b)).add(a);
+    };
+
+    while (pool.length > 0) {
+        const current = pool[0];
+
+        // Gather every eligible opponent (same constraints as greedy), tagged with
+        // its priority tier, then random-pick from the best tier present.
+        let bestRank = Infinity;
+        const candidates = []; // { index, rank }
+        for (let i = 1; i < pool.length; i++) {
+            const opponent = pool[i];
+            const weightDiff = Math.abs(current.weight - opponent.weight);
+            if (weightDiff > tolerance + WEIGHT_EPS) break; // pool is weight-sorted — nothing closer follows
+            if (used(opponent) >= cap(opponent)) continue;  // opponent at their daily cap
+            if (hasMet(current, opponent)) continue;         // already sparred this run — no rematch
+
+            const sameClub = current.club === opponent.club;
+            const repeat   = priorPairs ? priorPairs.has(pairKey(current, opponent)) : false;
+            const rank = (sameClub ? 2 : 0) + (repeat ? 1 : 0);
+            if (rank < bestRank) bestRank = rank;
+            candidates.push({ index: i, rank });
+        }
+
+        const tier = candidates.filter(c => c.rank === bestRank);
+        if (tier.length > 0) {
+            const bestOpponentIndex = tier[Math.floor(Math.random() * tier.length)].index;
+            const opponent = pool[bestOpponentIndex];
+            count.set(current,  used(current)  + 1);
+            count.set(opponent, used(opponent) + 1);
+            meet(current, opponent);
+            matches.push({
+                red: current,
+                blue: opponent,
+                weightDiff: Math.abs(current.weight - opponent.weight).toFixed(2),
+                category: categoryName,
+                groupId: null
+            });
+            // Remove whoever reached their cap; keep under-cap boxers in the pool for more spars.
+            // Splice the opponent (index ≥ 1) before shifting current (index 0) so indices stay valid.
+            if (used(opponent) >= cap(opponent)) pool.splice(bestOpponentIndex, 1);
+            if (used(current)  >= cap(current))  pool.shift();
+        } else {
+            // current can find no (further) opponent — it leaves as a leftover for the next phase.
+            leftover.push(pool.shift());
+        }
+    }
+
+    return { matches, unmatched: leftover };
+}
+
+/**
+ * Phase 4 — human-style SALVAGE of the still-unmatched pool. Learned from how the human
+ * hand-finished spars after the strict phases (see docs analysis): pair the leftovers by
+ *   - crossing AGE group freely (a Youth may spar a Senior),
+ *   - keeping EXPERIENCE tiers separate (Novice/OpenClass/Experienced never mix),
+ *   - NO weight cap — always take the closest available opponent, however far,
+ *   - keeping club-avoidance as a strong preference (not a hard rule),
+ *   - crossing GENDER only as a last resort (all same-gender options tried first).
+ * Optimal (max-cardinality) within each group so the most leftover boxers get a spar.
+ * Self-contained capacity/no-rematch tracking: the pool is never-matched boxers, so a
+ * local budget is correct and leaves the cross-phase Maps (keyed by original refs) clean.
+ */
+function pairBoxersSalvage(pool, { crossGender = 'lastResort', maxGap = Infinity, label = 'SALVAGE' } = {}) {
+    const matches  = [];
+    const used     = new Map();   // boxer → salvage spars used
+    const partners = new Map();   // boxer → Set already paired within salvage
+    const cap  = b => b.sparsPerDay || 1;
+    const of   = b => used.get(b) || 0;
+    const meet = (a, b) => {
+        (partners.get(a) || partners.set(a, new Set()).get(a)).add(b);
+        (partners.get(b) || partners.set(b, new Set()).get(b)).add(a);
+    };
+    // Experience tier from the source bucket name (…_Novice/_OpenClass/_Experienced).
+    // The Female bucket carries no tier suffix → its own 'None' group.
+    const tierOf = b => {
+        const m = /_(Novice|OpenClass|Experienced)$/.exec(b._bucket || b.category || '');
+        return m ? m[1] : 'None';
+    };
+    const eligible = () => pool.filter(b => Number.isFinite(b.weight) && of(b) < cap(b));
+
+    // One optimal max-cardinality solve over a subset: pair the most boxers, then among
+    // those matchings prefer different club (big bonus), closest weight, then closest age.
+    const solve = subset => {
+        if (subset.length < 2) return;
+        const edges = [];
+        for (let i = 0; i < subset.length; i++) for (let j = i + 1; j < subset.length; j++) {
+            const a = subset[i], b = subset[j];
+            if (partners.get(a)?.has(b)) continue;   // no rematch within this pass
+            const diff      = Math.abs(a.weight - b.weight);
+            if (diff > maxGap + WEIGHT_EPS) continue; // weight cap (Infinity for salvage, e.g. 1.0 for tight cross)
+            const clubBonus = a.club !== b.club ? 100 : 0;
+            const agePen    = Math.abs((a.yob || 0) - (b.yob || 0)) * 0.5;
+            edges.push([i, j, Math.round(10000 + clubBonus - diff * 10 - agePen)]);
+        }
+        if (!edges.length) return;
+        const mate = blossom(edges, true);
+        for (let i = 0; i < subset.length; i++) {
+            const j = mate[i];
+            if (j == null || j < 0 || j < i) continue;
+            const a = subset[i], b = subset[j];
+            if (of(a) >= cap(a) || of(b) >= cap(b)) continue;
+            used.set(a, of(a) + 1); used.set(b, of(b) + 1);
+            meet(a, b);
+            matches.push({ red: a, blue: b, weightDiff: Math.abs(a.weight - b.weight).toFixed(2),
+                           category: label, groupId: null });
+        }
+    };
+
+    // Round A — within (gender, experience tier): cross age, same gender, same tier.
+    const groups = new Map();
+    for (const b of eligible()) {
+        const key = `${b.gender}||${tierOf(b)}`;
+        (groups.get(key) || groups.set(key, []).get(key)).push(b);
+    }
+    for (const subset of groups.values()) solve(subset);
+
+    // Round B — cross-gender LAST RESORT, still within tier: only whoever Round A left.
+    if (crossGender !== 'never') {
+        const byTier = new Map();
+        for (const b of eligible()) (byTier.get(tierOf(b)) || byTier.set(tierOf(b), []).get(tierOf(b))).push(b);
+        for (const subset of byTier.values()) solve(subset);
+    }
+
+    const remaining = pool.filter(b => of(b) < cap(b));
+    return { matches, remaining };
+}
+
+/**
  * Run the full 3-phase pairing pipeline on a bucket map. Pure: no I/O, no logging.
  * Shared by SparMaker.main() (file mode) and netlify/functions/generate-spars.js (DB mode)
  * so the matching algorithm lives in exactly one place.
@@ -180,7 +340,7 @@ function pairBoxersOptimal(boxers, categoryName, tolerance = PHASE2_TOLERANCE, s
  *
  * Returns the final matches/unmatched plus per-phase breakdowns for reporting.
  */
-function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE, maxPhase = 3, algorithm = 'greedy', trioTol = WEIGHT_TOLERANCE } = {}) {
+function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE, maxPhase = 3, algorithm = 'greedy', trioTol = WEIGHT_TOLERANCE, priorPairs = null, salvageCrossGender = 'lastResort', tightCross = true, tightTol = 1.0 } = {}) {
     let allMatches = [];
     const sparCount = new Map(); // boxer → spars assigned (carries the daily-cap budget across phases)
     const partnered = new Map(); // boxer → Set already sparred (no rematch across phases)
@@ -197,6 +357,8 @@ function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE, ma
             // Optimal solves the whole bucket once at the combined tolerance —
             // no tight-then-loose two-pass (that exists only to unstick greedy).
             ? pairBoxersOptimal(boxers, category, tol2, sparCount, partnered)
+            : algorithm === 'randomSelect'
+            ? pairBoxersRandom(boxers, category, tol1, sparCount, partnered, priorPairs)
             : pairBoxers(boxers, category, tol1, sparCount, partnered);
         allMatches = allMatches.concat(matches);
         phase1Matches.push(...matches);
@@ -219,7 +381,9 @@ function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE, ma
     } else if (maxPhase >= 2) {
         for (const [category, boxers] of Object.entries(bucketUnmatched)) {
             if (boxers.length === 0) continue;
-            const { matches, unmatched } = pairBoxers(boxers, category, tol2, sparCount, partnered);
+            const { matches, unmatched } = algorithm === 'randomSelect'
+                ? pairBoxersRandom(boxers, category, tol2, sparCount, partnered, priorPairs)
+                : pairBoxers(boxers, category, tol2, sparCount, partnered);
             allMatches = allMatches.concat(matches);
             phase2Matches.push(...matches);
             allUnmatched = allUnmatched.concat(
@@ -233,9 +397,23 @@ function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE, ma
     }
     const phase2Unmatched = [...allUnmatched];
 
+    // Phase 2c — tight (±tightTol, default 1 kg) CROSS-bucket pairing of the phase-2
+    // leftovers: cross AGE group, keep experience tier + gender (reuses the salvage
+    // matcher with a weight cap). Catches near-identical-weight leftovers the strict
+    // within-bucket phases structurally can't reach; runs before the trio phase for all
+    // algorithms. `remaining` (still unmatched) then flows into the trio phase as before.
+    let crossMatches = [];
+    if (tightCross && maxPhase >= 3) {
+        const { matches: cMatches, remaining } = pairBoxersSalvage(allUnmatched, { crossGender: 'never', maxGap: tightTol, label: 'CROSS' });
+        crossMatches = cMatches;
+        allMatches = allMatches.concat(cMatches);
+        allUnmatched = remaining;
+    }
+    const phaseCrossUnmatched = [...allUnmatched];
+
     // Phase 3b — round-robin: unmatched boxer joins existing 1v1 pair in same bucket (±tol1)
     let groupCounter = 0;
-    const stillRemaining = [];
+    let stillRemaining = [];
     if (maxPhase >= 3) {
         for (const boxer of allUnmatched) {
             // A non-finite weight can't be group-matched either: `NaN > tol1` is false, so
@@ -245,11 +423,30 @@ function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE, ma
 
             const bucket = boxer._bucket;
             let bestIdx = -1, bestDiff = Infinity, bestIsDiffClub = false;
+            // Random Select: collect all eligible anchor pairs, then random-pick from the
+            // best (diffClub/fresh) tier — same greedy fold semantics, randomised choice.
+            let randBestRank = Infinity;
+            const randAnchors = []; // { index, rank }
 
             for (let i = 0; i < allMatches.length; i++) {
                 const m = allMatches[i];
                 if (m.groupId) continue;
                 if (m.category !== bucket) continue;
+
+                if (algorithm === 'randomSelect') {
+                    // Mirror greedy's fold rule: at least one member within tol1.
+                    const near = Math.min(Math.abs(boxer.weight - m.red.weight),
+                                          Math.abs(boxer.weight - m.blue.weight));
+                    if (near > tol1 + WEIGHT_EPS) continue;
+                    const isDiffClub = boxer.club !== m.red.club && boxer.club !== m.blue.club;
+                    const fresh = priorPairs
+                        ? !priorPairs.has(pairKey(boxer, m.red)) && !priorPairs.has(pairKey(boxer, m.blue))
+                        : true;
+                    const rank = (isDiffClub ? 0 : 2) + (fresh ? 0 : 1);
+                    if (rank < randBestRank) randBestRank = rank;
+                    randAnchors.push({ index: i, rank });
+                    continue;
+                }
 
                 if (algorithm === 'optimal') {
                     // A trio means everyone fights everyone: require ALL THREE
@@ -284,6 +481,11 @@ function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE, ma
                 }
             }
 
+            if (algorithm === 'randomSelect') {
+                const tier = randAnchors.filter(a => a.rank === randBestRank);
+                if (tier.length > 0) bestIdx = tier[Math.floor(Math.random() * tier.length)].index;
+            }
+
             if (bestIdx !== -1) {
                 const anchor = allMatches[bestIdx];
                 anchor.groupId = `g${++groupCounter}`;
@@ -295,6 +497,18 @@ function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE, ma
     } else {
         // Stopped before phase 3b — leftovers stay unmatched rather than being folded into trios.
         stillRemaining.push(...allUnmatched);
+    }
+
+    // Snapshot the phase-3 leftovers before salvage so the phase log reports each stage.
+    const phase3Unmatched = [...stillRemaining];
+
+    // Phase 4 — human-style salvage of whoever's still unmatched (relaxed cross-bucket).
+    let phase4Matches = [];
+    if (algorithm === 'salvage') {
+        const { matches: sMatches, remaining } = pairBoxersSalvage(stillRemaining, { crossGender: salvageCrossGender });
+        phase4Matches = sMatches;
+        allMatches.push(...sMatches);
+        stillRemaining = remaining;
     }
 
     // Rename _bucket to category on unmatched, strip from matched boxer objects
@@ -309,7 +523,9 @@ function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE, ma
         phases: {
             phase1: { matches: phase1Matches, unmatched: phase1Unmatched },
             phase2: { matches: phase2Matches, unmatched: phase2Unmatched },
-            phase3: { groups: allMatches.filter(m => m.groupId), unmatched: stillRemaining },
+            phaseCross: { matches: crossMatches, unmatched: phaseCrossUnmatched },
+            phase3: { groups: allMatches.filter(m => m.groupId), unmatched: phase3Unmatched },
+            phase4: { matches: phase4Matches, unmatched: stillRemaining },
         },
     };
 }
@@ -324,8 +540,13 @@ function buildPhaseLog(phases) {
     return {
         phase1: unmatchedView(phases.phase1.unmatched), phase1Bouts: phases.phase1.matches.map(boutView),
         phase2: unmatchedView(phases.phase2.unmatched), phase2Bouts: phases.phase2.matches.map(boutView),
+        // Phase 2c tight ±1kg cross-bucket bouts (empty when tightCross is off).
+        phaseCrossBouts: ((phases.phaseCross || { matches: [] }).matches).map(boutView),
         phase3: unmatchedView(phases.phase3.unmatched),
         phase3Groups: phases.phase3.groups.map(m => ({ groupId: m.groupId, red: m.red.name, redWeight: m.red.weight, blue: m.blue.name, blueWeight: m.blue.weight, third: m.third.name, thirdWeight: m.third.weight, category: m.category })),
+        // Phase 4 salvage (empty unless the 'salvage' algorithm ran) — final unmatched pool.
+        phase4: unmatchedView((phases.phase4 || { unmatched: [] }).unmatched),
+        phase4Bouts: ((phases.phase4 || { matches: [] }).matches).map(boutView),
     };
 }
 
@@ -368,7 +589,32 @@ function logUnmatched(label, boxers) {
         .forEach(b => console.log(`    - ${b.name} (${b.weight}kg, ${b.experience} bouts, ${b.club})`));
 }
 
-function main(maxPhase = 3, algorithm = 'greedy', trioTol) {
+// Cross-day memory for Random Select: scan output/Spars/<date>/Spars.json for every
+// dated folder strictly BEFORE currentDate and collect the unordered id-pair key of
+// every bout already fought that week. Random Select prefers opponents NOT in this set.
+// Pure-ish: reads the filesystem, never writes. Missing/unreadable files are skipped.
+function loadPriorPairs(currentDate) {
+    const prior = new Set();
+    const sparsDir = path.dirname(path.dirname(OUTPUT_FILE)); // output/Spars
+    if (!fs.existsSync(sparsDir)) return prior;
+    for (const d of fs.readdirSync(sparsDir)) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(d) || d >= currentDate) continue;
+        const file = path.join(sparsDir, d, 'Spars.json');
+        if (!fs.existsSync(file)) continue;
+        try {
+            const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+            for (const m of data.matches || []) {
+                const members = GroupUtils.membersOf(m);
+                for (const [a, b] of GroupUtils.generateBouts(members)) {
+                    if (a?.id != null && b?.id != null) prior.add(pairKey(a, b));
+                }
+            }
+        } catch { /* skip malformed day file */ }
+    }
+    return prior;
+}
+
+function main(maxPhase = 3, algorithm = 'greedy', trioTol, tightCross = true) {
     if (!fs.existsSync(SOURCE_FILE)) {
         console.error(`Error: ${SOURCE_FILE} not found. Run PutAllFightersinBuckets.js first.`);
         process.exit(1);
@@ -376,14 +622,21 @@ function main(maxPhase = 3, algorithm = 'greedy', trioTol) {
 
     const data = JSON.parse(fs.readFileSync(SOURCE_FILE, 'utf8'));
 
+    // Random Select avoids opponents already sparred on earlier days this week.
+    const priorPairs = algorithm === 'randomSelect' ? loadPriorPairs(TODAY) : null;
+
     const { matches: allMatches, unmatched: stillRemaining, manualMatch, groupCount, phases } =
-        pairAll(data.finalBuckets, { maxPhase, algorithm, ...(trioTol != null ? { trioTol } : {}) });
+        pairAll(data.finalBuckets, { maxPhase, algorithm, ...(trioTol != null ? { trioTol } : {}), priorPairs, tightCross });
 
     console.log(`--- Phase 1 — Within-bucket (±2 kg) ---`);
     logUnmatched('Phase 1', phases.phase1.unmatched);
     if (maxPhase >= 2) {
         console.log('\n--- Phase 2 — Within-bucket (±2.5 kg) ---');
         logUnmatched('Phase 2', phases.phase2.unmatched);
+    }
+    if (tightCross && phases.phaseCross.matches.length) {
+        console.log('\n--- Phase 2c — Tight ±1kg cross-bucket (cross-age, tier/gender kept) ---');
+        phases.phaseCross.matches.forEach(m => console.log(`  ${m.red.name} vs ${m.blue.name} (Δ${m.weightDiff}kg)`));
     }
     if (maxPhase >= 3) {
         console.log('\n--- Phase 3b — Group Round-Robin (±2 kg, within bucket) ---');
@@ -392,7 +645,12 @@ function main(maxPhase = 3, algorithm = 'greedy', trioTol) {
     } else {
         console.log(`\n--- Stopped after phase ${maxPhase} — not run: ${maxPhase < 2 ? 'phase 2, phase 3b' : 'phase 3b'} ---`);
     }
-    logUnmatched(maxPhase >= 3 ? 'Phase 3b' : `phase ${maxPhase} (stopped)`, stillRemaining);
+    logUnmatched(maxPhase >= 3 ? 'Phase 3b' : `phase ${maxPhase} (stopped)`, phases.phase3.unmatched);
+    if (algorithm === 'salvage' && phases.phase4.matches.length) {
+        console.log(`\n--- Phase 4 — Salvage (cross-age, closest weight, club-avoid; tiers/gender kept) ---`);
+        phases.phase4.matches.forEach(m => console.log(`  ${m.red.name} vs ${m.blue.name} (Δ${m.weightDiff}kg)`));
+        logUnmatched('Phase 4 salvage', stillRemaining);
+    }
     if (manualMatch.length) {
         console.log(`\n--- Held for manual match (autoMatch=no): ${manualMatch.length} ---`);
         manualMatch.forEach(b => console.log(`  - ${b.name} (${b.weight}kg, ${b.club})`));
@@ -445,4 +703,4 @@ if (require.main === module) {
 }
 /* c8 ignore stop */
 
-module.exports = { main, pairBoxers, pairBoxersOptimal, pairAll, buildPhaseLog, checkMatchingRisks };
+module.exports = { main, pairBoxers, pairBoxersOptimal, pairBoxersRandom, pairBoxersSalvage, pairAll, loadPriorPairs, pairKey, buildPhaseLog, checkMatchingRisks };

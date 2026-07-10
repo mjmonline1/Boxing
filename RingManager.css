@@ -241,3 +241,113 @@ body {
 .bout-duration { color: #e67e22; font-weight: bold; }
 .status-ok      { color: #4caf50; font-weight: bold; }
 .status-overrun { color: #f44336; font-weight: bold; }
+
+/* ── Add Bout button + dialog ── */
+#addBoutBtn { background: #e67e22; color: white; }
+
+.ab-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 100;
+  align-items: flex-start; justify-content: center;
+  overflow-y: auto; padding: 40px 16px;
+}
+.ab-overlay.open { display: flex; }
+.ab-card {
+  background: var(--surface, #fff);
+  color: var(--text, #222);
+  border: 1px solid var(--border, #ccc);
+  border-radius: 10px;
+  padding: 20px 22px;
+  width: 420px; max-width: 100%;
+}
+.ab-card h3 { margin: 0 0 14px; font-size: 17px; }
+.ab-field { margin-bottom: 12px; position: relative; }
+.ab-field > label { display: block; font-size: 12px; font-weight: bold; color: var(--muted, #666); margin-bottom: 4px; }
+.ab-opt { font-weight: normal; font-style: italic; }
+.ab-row { display: flex; gap: 12px; }
+.ab-half { flex: 1; }
+.ab-search, .ab-select {
+  width: 100%; padding: 7px 9px; font-size: 13px;
+  border: 1px solid var(--border, #ccc); border-radius: 6px;
+  background: var(--surface2, #fff); color: var(--text, #222);
+}
+.ab-results {
+  display: none;
+  position: absolute; left: 0; right: 0; top: 100%; z-index: 5;
+  max-height: 200px; overflow-y: auto;
+  background: var(--surface, #fff);
+  border: 1px solid var(--border, #ccc); border-top: none;
+  border-radius: 0 0 6px 6px;
+}
+.ab-results.open { display: block; }
+.ab-result {
+  padding: 6px 9px; font-size: 13px; cursor: pointer;
+  border-bottom: 1px solid var(--border, #eee);
+}
+.ab-result:hover { background: var(--surface2, #f0f5ff); }
+.ab-result small { color: var(--muted, #888); }
+.ab-picked { font-size: 13px; margin-top: 4px; min-height: 0; }
+.ab-picked:empty { display: none; }
+.ab-picked .chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--surface2, #eef4ff); color: var(--text, #222);
+  border: 1px solid var(--border, #ccd); border-radius: 14px;
+  padding: 3px 10px; font-weight: bold;
+}
+.ab-picked .chip small { font-weight: normal; color: var(--muted, #777); }
+.ab-picked .chip button {
+  border: none; background: none; cursor: pointer; color: #c0392b;
+  font-weight: bold; font-size: 14px; line-height: 1; padding: 0;
+}
+/* ── Cross-ring clash (double-booked fighter) ── */
+.bout-block.clash {
+  box-shadow: inset 0 0 0 3px #f44336, 0 0 8px rgba(244,67,54,0.5);
+}
+.bout-block.clash::after {
+  content: "⚠";
+  position: absolute; top: 2px; right: 4px;
+  font-size: 13px; line-height: 1; color: #f44336;
+  text-shadow: 0 0 2px rgba(0,0,0,0.6);
+}
+.stats .clash-warn { color: #f44336; font-weight: bold; }
+
+/* ── Consecutive-slot warning (fighter back-to-back with no rest slot) ── */
+/* Uses outline (not box-shadow) so it can coexist with a red .clash outline. */
+.bout-block.consec {
+  outline: 2px dashed #ff9800;
+  outline-offset: -2px;
+}
+.bout-block.consec::before {
+  content: "⇅";
+  position: absolute; top: 2px; left: 4px;
+  font-size: 13px; line-height: 1; color: #ff9800;
+  text-shadow: 0 0 2px rgba(0,0,0,0.6);
+}
+.stats .consec-warn { color: #ff9800; font-weight: bold; }
+
+/* ── Right-click bout menu ── */
+.bout-menu {
+  position: fixed; z-index: 200;
+  background: var(--surface, #fff);
+  border: 1px solid var(--border, #ccc);
+  border-radius: 8px; padding: 4px; min-width: 190px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+}
+.bm-item {
+  display: block; width: 100%; text-align: left;
+  padding: 7px 12px; border: none; background: none; cursor: pointer;
+  font-size: 13px; color: var(--text, #222); border-radius: 5px; white-space: nowrap;
+}
+.bm-item:hover { background: var(--surface2, #eef4ff); }
+.bm-remove:hover { background: rgba(230,126,34,0.16); }
+.bm-danger { color: #c0392b; }
+.bm-danger:hover { background: rgba(192,57,43,0.12); }
+.bm-sep { height: 1px; background: var(--border, #ddd); margin: 4px 6px; }
+
+.ab-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }
+.ab-btn { padding: 8px 18px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; }
+.ab-primary { background: #2196f3; color: white; }
+.ab-primary:disabled { opacity: 0.45; cursor: default; }
+.ab-ghost { background: transparent; color: var(--muted, #666); border: 1px solid var(--border, #ccc); }

@@ -2,6 +2,10 @@ services:
   boxing-manager:
     build: .
     env_file: .env
+    environment:
+      # Match the host's local date so Create Spars writes to the expected
+      # output/Spars/<date>/ folder (container base image is UTC otherwise).
+      - TZ=Europe/Madrid
     ports:
       - "${PORT:-5500}:${PORT:-5500}"
     volumes:

@@ -16,6 +16,7 @@
   <label class="date-label">Date:</label>
   <select id="dateSelect" class="date-select"></select>
   <input id="searchInput" class="ring-search" type="text" placeholder="find boxer…" />
+  <button id="addBoutBtn">&#43; Add Bout</button>
 <button id="resetBtn">Undo Session Changes</button>
   <button id="saveBtn">Save</button>
   <button id="exportBtn">Export Allocation</button>
@@ -36,9 +37,66 @@
 </div>
 <div id="toast"></div>
 
+<!-- Add-bout dialog: insert a last-minute pairing into a ring without re-running Assign Rings -->
+<div class="ab-overlay" id="addBoutModal">
+  <div class="ab-card">
+    <h3>Add Last-Minute Bout</h3>
+    <div class="ab-field">
+      <label>Red corner</label>
+      <input type="text" id="abRedSearch" class="ab-search" placeholder="search fit boxers…" autocomplete="off" />
+      <div class="ab-results" id="abRedResults"></div>
+      <div class="ab-picked" id="abRedPicked"></div>
+    </div>
+    <div class="ab-field">
+      <label>Blue corner</label>
+      <input type="text" id="abBlueSearch" class="ab-search" placeholder="search fit boxers…" autocomplete="off" />
+      <div class="ab-results" id="abBlueResults"></div>
+      <div class="ab-picked" id="abBluePicked"></div>
+    </div>
+    <div class="ab-field">
+      <label>Third <span class="ab-opt">(optional — makes a group)</span></label>
+      <input type="text" id="abThirdSearch" class="ab-search" placeholder="search fit boxers…" autocomplete="off" />
+      <div class="ab-results" id="abThirdResults"></div>
+      <div class="ab-picked" id="abThirdPicked"></div>
+    </div>
+    <div class="ab-row">
+      <div class="ab-field ab-half">
+        <label>Category</label>
+        <select id="abCategory" class="ab-select"></select>
+      </div>
+      <div class="ab-field ab-half">
+        <label>Ring</label>
+        <select id="abRing" class="ab-select"></select>
+      </div>
+    </div>
+    <div class="ab-actions">
+      <button class="ab-btn ab-ghost" id="abCancel">Cancel</button>
+      <button class="ab-btn ab-primary" id="abConfirm">Add Bout</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add-to-bout dialog: drop one more fit fighter into an existing bout/group -->
+<div class="ab-overlay" id="addToBoutModal">
+  <div class="ab-card">
+    <h3 id="a2bTitle">Add Fighter to Bout</h3>
+    <div class="ab-field">
+      <label>Fighter <span class="ab-opt">(fit boxers)</span></label>
+      <input type="text" id="a2bSearch" class="ab-search" placeholder="search fit boxers…" autocomplete="off" />
+      <div class="ab-results" id="a2bResults"></div>
+      <div class="ab-picked" id="a2bPicked"></div>
+    </div>
+    <div class="ab-actions">
+      <button class="ab-btn ab-ghost" id="a2bCancel">Cancel</button>
+      <button class="ab-btn ab-primary" id="a2bConfirm">Add Fighter</button>
+    </div>
+  </div>
+</div>
+
 <script src="data-client.js"></script>
 <script src="constants.js"></script>
 <script src="group-utils.js"></script>
+<script src="ring-clash.js"></script>
 <script>
 const SERVER = window.location.origin;
 
@@ -52,8 +110,11 @@ const _today = new Date().toISOString().split('T')[0];
 async function initDatePicker() {
   const dates = await DataClient.getDates('schedule').catch(() => []);
   const all = [...new Set([_today, ...dates])].sort().reverse();
+  // Default to the most recent date that actually has a schedule; only fall back
+  // to today when none exists yet.
+  const sel = dates.length ? [...dates].sort().reverse()[0] : _today;
   dateSelect.innerHTML = all.map(d =>
-    `<option value="${d}"${d === _today ? ' selected' : ''}>${d}</option>`
+    `<option value="${d}"${d === sel ? ' selected' : ''}>${d}</option>`
   ).join('');
 }
 
@@ -130,6 +191,17 @@ function canPlaceInR5(bout) {
 let dragged    = null;  // { bout, fromRing }
 let dropTarget = null;  // { ringId, index }
 
+// Cross-ring double-booking state, recomputed each render() and read by updateStats()
+let clashCount = 0;
+let clashKeys  = new Set();   // `${ring}|${sparId}` of bouts involved in a clash
+let clashTips  = new Map();   // `${ring}|${sparId}` → tooltip text
+
+// Consecutive-slot warning state (a fighter in slot i and slot i+1, same or different
+// ring — back-to-back with no rest slot between). Slot = position across ring queues.
+let consecCount = 0;
+let consecKeys  = new Set();   // `${ring}|${sparId}` of bouts in a consecutive-slot pair
+let consecTips  = new Map();   // `${ring}|${sparId}` → tooltip text
+
 function clearDropIndicators() {
   document.querySelectorAll('.drop-line, .drop-time-label').forEach(el => el.remove());
 }
@@ -171,7 +243,9 @@ function computeTimes(state) {
     let cur = START_MINS;
     for (const bout of bouts) {
       const single = bout.category.includes('Senior') ? 11 : 8;
-      const dur     = bout.duration ?? (single * GroupUtils.boutCount(GroupUtils.membersOf(bout)));
+      // Always derive from current members so the card resizes when a fighter is
+      // added/removed — a stale cached duration would freeze the block height.
+      const dur     = single * GroupUtils.boutCount(GroupUtils.membersOf(bout));
       bout.duration     = dur;
       // Honor manual pin: cur jumps forward to pinnedStart if pin is later than auto-cur
       if (bout.pinnedStart != null && bout.pinnedStart > cur) {
@@ -215,6 +289,63 @@ function buildRuler(endMins) {
 
 function render(state) {
   computeTimes(state);
+
+  // Detect fighters double-booked across rings at overlapping times. computeTimes
+  // just set startMinutes/endMinutes (honoring live pins), so times are exact here.
+  const clashEntries = [];
+  for (const ringId of ['R1', 'R2', 'R3', 'R4', 'R5']) {
+    for (const bout of state[ringId]) {
+      for (const m of GroupUtils.membersOf(bout)) {
+        clashEntries.push({ id: m.id, name: m.name, club: m.club, ring: ringId,
+                            start: bout.startMinutes, end: bout.endMinutes, sparId: bout.sparId });
+      }
+    }
+  }
+  const clashes = RingClash.findClashes(clashEntries, 3);
+  clashCount = clashes.length;
+  clashKeys = new Set();          // `${ring}|${sparId}` of every clashing bout
+  clashTips = new Map();          // `${ring}|${sparId}` → tooltip line
+  for (const c of clashes) {
+    for (const [self, other] of [[c.a, c.b], [c.b, c.a]]) {
+      const key = `${self.ring}|${self.sparId}`;
+      clashKeys.add(key);
+      const note = `⚠ ${c.name} also in ${other.ring} at ${fmtTime(other.start)} (${c.type})`;
+      clashTips.set(key, clashTips.has(key) ? clashTips.get(key) + '\n' + note : note);
+    }
+  }
+
+  // Consecutive-slot warning: a fighter appearing in slot i and slot i+1 (position
+  // across ring queues) has no rest slot between bouts — flag whether the two bouts
+  // are in the same ring (back-to-back) or different rings (consecutive slots).
+  consecKeys = new Set();
+  consecTips = new Map();
+  const bySlotFighter = new Map();   // fighter id → [{ slotIdx, ring, sparId, name }]
+  for (const ringId of ['R1', 'R2', 'R3', 'R4', 'R5']) {
+    state[ringId].forEach((bout, slotIdx) => {
+      for (const m of GroupUtils.membersOf(bout)) {
+        if (!bySlotFighter.has(m.id)) bySlotFighter.set(m.id, []);
+        bySlotFighter.get(m.id).push({ slotIdx, ring: ringId, sparId: bout.sparId, name: m.name });
+      }
+    });
+  }
+  const consecFighters = new Set();   // distinct fighter ids with a back-to-back pair
+  for (const [fid, appts] of bySlotFighter) {
+    appts.sort((p, q) => p.slotIdx - q.slotIdx);
+    for (let i = 0; i < appts.length; i++) {
+      for (let j = i + 1; j < appts.length; j++) {
+        if (appts[j].slotIdx - appts[i].slotIdx !== 1) continue;   // only adjacent slots
+        consecFighters.add(fid);
+        for (const [self, other] of [[appts[i], appts[j]], [appts[j], appts[i]]]) {
+          const key = `${self.ring}|${self.sparId}`;
+          consecKeys.add(key);
+          const where = self.ring === other.ring ? 'same ring' : other.ring;
+          const note = `⚠ ${self.name} in back-to-back slots ${appts[i].slotIdx + 1} & ${appts[j].slotIdx + 1} (${where})`;
+          consecTips.set(key, consecTips.has(key) ? consecTips.get(key) + '\n' + note : note);
+        }
+      }
+    }
+  }
+  consecCount = consecFighters.size;
 
   // Determine grid height (latest finish + a 15-min tail)
   let endMins = TEA_TIME;
@@ -351,6 +482,14 @@ function render(state) {
       block.dataset.find = GroupUtils.membersOf(bout).map(b => `${b.name} ${b.club}`).join(' ').toLowerCase();
       block.innerHTML = boutHTML(bout);
 
+      // Flag cross-ring double-bookings (see render(): clashKeys/clashTips)
+      const clashKey = `${ringId}|${bout.sparId}`;
+      const isClash = clashKeys.has(clashKey);
+      if (isClash) block.classList.add('clash');
+      // Flag consecutive-slot (back-to-back) appearances (see render(): consecKeys/consecTips)
+      const isConsec = consecKeys.has(clashKey);
+      if (isConsec) block.classList.add('consec');
+
       block.addEventListener('dragstart', e => {
         dragged = { bout, fromRing: ringId };
         block.classList.add('dragging');
@@ -362,6 +501,12 @@ function render(state) {
         clearDropIndicators();
         document.querySelectorAll('.ring-col.drag-over, .ring-col.drag-block')
           .forEach(c => c.classList.remove('drag-over', 'drag-block'));
+      });
+      block.title = (isClash ? clashTips.get(clashKey) + '\n\n' : '') +
+                    (isConsec ? consecTips.get(clashKey) + '\n\n' : '') + 'Right-click for bout options';
+      block.addEventListener('contextmenu', e => {
+        e.preventDefault();
+        showBoutMenu(e, bout, ringId, state, () => { render(state); updateStats(state); });
       });
       col.appendChild(block);
     });
@@ -395,7 +540,9 @@ function updateStats(state) {
   document.getElementById('stats').innerHTML =
     `${total} bouts &nbsp;·&nbsp; ${maxSlots} slots &nbsp;·&nbsp; ` +
     `<span class="${overrun ? 'status-overrun' : 'status-ok'}">` +
-    `${overrun ? '⚠' : '✓'} Latest finish ${latestLabel}</span>`;
+    `${overrun ? '⚠' : '✓'} Latest finish ${latestLabel}</span>` +
+    (clashCount ? ` &nbsp;·&nbsp; <span class="clash-warn">⚠ ${clashCount} clash${clashCount !== 1 ? 'es' : ''}</span>` : '') +
+    (consecCount ? ` &nbsp;·&nbsp; <span class="consec-warn">⚠ ${consecCount} back-to-back</span>` : '');
 }
 
 // ── Save ──────────────────────────────────────────────────────────────────────
@@ -482,6 +629,359 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2800);
 }
 
+// ── Add Bout ───────────────────────────────────────────────────────────────────
+// Insert a last-minute pairing into a ring after Assign Rings has run, without
+// re-running the allocator (which would re-flow and wipe the manual layout).
+// Writes into the in-memory ring state only; persisted by Save like any drag.
+
+const RINGS = ['R1', 'R2', 'R3', 'R4', 'R5'];
+let abRoster = null;                          // fit-roster cache (DataClient boxers)
+let abRosterPromise = null;                   // in-flight load, so concurrent opens share one fetch
+let abPick   = { red: null, blue: null, third: null };
+let abState  = null;                          // ring state to add into (set on open)
+let abOnAdded = null;
+
+const cap = s => s[0].toUpperCase() + s.slice(1);
+
+// A boxer is "not fit" only when explicitly marked so; blank/unknown → fit.
+function abIsFit(b) {
+  const s = String(b && b.fit != null ? b.fit : '').trim().toLowerCase();
+  return !(s === 'no' || s === 'n' || s === 'false' || s === '0');
+}
+
+// Load the fit roster once and cache it. Preloaded at boot so the first search is
+// instant; dedupes concurrent callers; clears the promise on failure so it retries.
+function abEnsureRoster() {
+  if (abRoster) return Promise.resolve(abRoster);
+  if (!abRosterPromise) {
+    abRosterPromise = DataClient.get('boxers')
+      .then(list => { abRoster = list.filter(abIsFit); return abRoster; })
+      .catch(err => { abRosterPromise = null; throw err; });
+  }
+  return abRosterPromise;
+}
+
+// Best-effort bucket label from age group + experience tier; user can override.
+function abDeriveCategory(b) {
+  if (!b) return '';
+  if (b.gender === 'female') return 'Female';
+  const ag = AGE_GROUPS.find(a => a.yobMin !== null ? (b.yob >= a.yobMin && b.yob <= a.yobMax) : (b.yob <= a.yobMax))
+           || AGE_GROUPS[AGE_GROUPS.length - 1];
+  const exp = Number(b.experience ?? b.bouts ?? 0);
+  const tier = EXPERIENCE_TIERS.find(t => exp >= t.min && exp <= t.max) || EXPERIENCE_TIERS[0];
+  return `${ag.key}_${tier.key}`;
+}
+
+function abNextSparId(state) {
+  let max = 0;
+  for (const r of RINGS) for (const b of state[r]) {
+    const m = /^M(\d+)$/.exec(b.sparId || '');
+    if (m) max = Math.max(max, +m[1]);
+  }
+  return 'M' + (max + 1);
+}
+
+function abWeightDiff(members) {
+  let mx = 0;
+  for (let i = 0; i < members.length; i++)
+    for (let j = i + 1; j < members.length; j++)
+      mx = Math.max(mx, Math.abs(members[i].weight - members[j].weight));
+  return mx.toFixed(2);
+}
+
+// Earliest-finishing ring (empty rings win) — but never default to R5 for an
+// R5-ineligible bout.
+function abDefaultRing(state, eligibleR5) {
+  let best = 'R1', bestEnd = Infinity;
+  for (const r of RINGS) {
+    if (r === 'R5' && !eligibleR5) continue;
+    const arr = state[r];
+    const end = arr.length ? arr[arr.length - 1].endMinutes : START_MINS;
+    if (end < bestEnd) { bestEnd = end; best = r; }
+  }
+  return best;
+}
+
+// Shared roster picker: filter fit roster by term, excluding ids already chosen,
+// and paint a results dropdown. `onPick(boxer)` fires when a row is clicked.
+function abPopulateResults(results, term, excludeIds, onPick) {
+  const list = (abRoster || [])
+    .filter(b => !excludeIds.has(b.id))
+    .filter(b => !term || `${b.name} ${b.club}`.toLowerCase().includes(term))
+    .slice(0, 40);
+  if (!list.length) { results.classList.remove('open'); results.innerHTML = ''; return; }
+  results.innerHTML = list.map(b =>
+    `<div class="ab-result" data-id="${b.id}">${b.name} <small>· ${b.club} · ${b.weight}kg · ${b.gender}</small></div>`
+  ).join('');
+  results.classList.add('open');
+  results.querySelectorAll('.ab-result').forEach(el => {
+    el.onclick = () => onPick(abRoster.find(b => b.id === Number(el.dataset.id)));
+  });
+}
+
+function abRenderResults(kind) {
+  const input   = document.getElementById('ab' + cap(kind) + 'Search');
+  const results = document.getElementById('ab' + cap(kind) + 'Results');
+  const takenIds = new Set(['red', 'blue', 'third']
+    .filter(k => k !== kind && abPick[k])
+    .map(k => abPick[k].id));
+  abPopulateResults(results, input.value.trim().toLowerCase(), takenIds, boxer => {
+    abPick[kind] = boxer;
+    input.value = '';
+    results.classList.remove('open');
+    abRenderChip(kind);
+    if (kind === 'red') abSetCategoryDefault();
+    abRefreshRingOptions();
+    abUpdateConfirm();
+  });
+}
+
+function abRenderChip(kind) {
+  const box = document.getElementById('ab' + cap(kind) + 'Picked');
+  const b = abPick[kind];
+  if (!b) { box.innerHTML = ''; return; }
+  box.innerHTML = `<span class="chip">${b.name} <small>${b.weight}kg</small> <button type="button">&times;</button></span>`;
+  box.querySelector('button').onclick = () => {
+    abPick[kind] = null;
+    abRenderChip(kind);
+    abRefreshRingOptions();
+    abUpdateConfirm();
+  };
+}
+
+function abSetCategoryDefault() {
+  const sel = document.getElementById('abCategory');
+  const derived = abDeriveCategory(abPick.red);
+  if (derived && !Array.from(sel.options).some(o => o.value === derived)) {
+    sel.add(new Option(derived, derived));
+  }
+  if (derived) sel.value = derived;
+}
+
+function abRefreshRingOptions() {
+  const sel = document.getElementById('abRing');
+  const members = [abPick.red, abPick.blue, abPick.third].filter(Boolean);
+  const eligibleR5 = members.length > 0 &&
+    members.every(b => b.gender === 'female' || (b.gender === 'male' && b.yob >= R5_ELIGIBLE_YOB_MIN));
+  const prev = sel.value;
+  sel.innerHTML = RINGS.map(r => {
+    const disabled = r === 'R5' && !eligibleR5;
+    return `<option value="${r}"${disabled ? ' disabled' : ''}>${r}${disabled ? ' (S/J/F only)' : ''}</option>`;
+  }).join('');
+  const def = abDefaultRing(abState, eligibleR5);
+  sel.value = (prev && !sel.querySelector(`option[value="${prev}"]`)?.disabled) ? prev : def;
+}
+
+function abUpdateConfirm() {
+  document.getElementById('abConfirm').disabled = !(abPick.red && abPick.blue);
+}
+
+function openAddBout(state, onAdded) {
+  abState = state; abOnAdded = onAdded;
+  abPick = { red: null, blue: null, third: null };
+  ['red', 'blue', 'third'].forEach(k => {
+    document.getElementById('ab' + cap(k) + 'Search').value = '';
+    document.getElementById('ab' + cap(k) + 'Results').classList.remove('open');
+    abRenderChip(k);
+  });
+  // Category options: distinct categories already in the schedule.
+  const cats = [...new Set(RINGS.flatMap(r => state[r].map(b => b.category)).filter(Boolean))].sort();
+  document.getElementById('abCategory').innerHTML =
+    cats.map(c => `<option value="${c}">${c}</option>`).join('');
+  abRefreshRingOptions();
+  abUpdateConfirm();
+  document.getElementById('addBoutModal').classList.add('open');
+  document.getElementById('abRedSearch').focus();
+}
+
+function closeAddBout() {
+  document.getElementById('addBoutModal').classList.remove('open');
+}
+
+function confirmAddBout() {
+  if (!(abPick.red && abPick.blue)) return;
+  const ringId   = document.getElementById('abRing').value;
+  const category = document.getElementById('abCategory').value || abDeriveCategory(abPick.red);
+  const members  = [abPick.red, abPick.blue, abPick.third].filter(Boolean);
+
+  if (ringId === 'R5') {
+    const ok = members.every(b => b.gender === 'female' || (b.gender === 'male' && b.yob >= R5_ELIGIBLE_YOB_MIN));
+    if (!ok) { showToast('⚠ R5 is Schools/Junior/Female only'); return; }
+  }
+
+  const bout = { ring: ringId, sparId: abNextSparId(abState), category, red: abPick.red, blue: abPick.blue };
+  if (abPick.third) bout.third = abPick.third;
+  bout.weightDiff = abWeightDiff(members);
+
+  abState[ringId].push(bout);   // append; packs after the ring's last bout
+  closeAddBout();
+  if (abOnAdded) abOnAdded();
+  showToast(`✓ Added ${abPick.red.name} vs ${abPick.blue.name} to ${ringId} — drag to position, then Save`);
+}
+
+// Static wiring (independent of which schedule is loaded)
+['red', 'blue', 'third'].forEach(kind => {
+  const input   = document.getElementById('ab' + cap(kind) + 'Search');
+  const results = document.getElementById('ab' + cap(kind) + 'Results');
+  input.addEventListener('input', () => abRenderResults(kind));
+  input.addEventListener('focus', () => abRenderResults(kind));
+  input.addEventListener('keydown', e => { if (e.key === 'Escape') results.classList.remove('open'); });
+});
+document.addEventListener('click', e => {
+  document.querySelectorAll('.ab-results.open').forEach(r => {
+    if (!r.closest('.ab-field').contains(e.target)) r.classList.remove('open');
+  });
+});
+document.getElementById('abCancel').onclick = closeAddBout;
+document.getElementById('abConfirm').onclick = confirmAddBout;
+document.getElementById('addBoutModal').addEventListener('click', e => {
+  if (e.target.id === 'addBoutModal') closeAddBout();
+});
+
+// ── Add fighter to an existing bout ─────────────────────────────────────────────
+// Right-click a bout block → drop one more fit fighter into it. A pair becomes a
+// trio, a trio a 4-way group, etc. (round-robin via GroupUtils). Schedule-only,
+// persisted by Save like any other edit.
+
+let a2bBout = null, a2bRing = null, a2bOnDone = null, a2bPick = null;
+
+function a2bRenderResults() {
+  const input   = document.getElementById('a2bSearch');
+  const results  = document.getElementById('a2bResults');
+  const inBout = new Set(GroupUtils.membersOf(a2bBout).map(b => b.id));
+  abPopulateResults(results, input.value.trim().toLowerCase(), inBout, boxer => {
+    a2bPick = boxer;
+    input.value = '';
+    results.classList.remove('open');
+    a2bRenderChip();
+    document.getElementById('a2bConfirm').disabled = false;
+  });
+}
+
+function a2bRenderChip() {
+  const box = document.getElementById('a2bPicked');
+  if (!a2bPick) { box.innerHTML = ''; return; }
+  box.innerHTML = `<span class="chip">${a2bPick.name} <small>${a2bPick.weight}kg</small> <button type="button">&times;</button></span>`;
+  box.querySelector('button').onclick = () => {
+    a2bPick = null;
+    a2bRenderChip();
+    document.getElementById('a2bConfirm').disabled = true;
+  };
+}
+
+function openAddToBout(bout, ringId, onDone) {
+  a2bBout = bout; a2bRing = ringId; a2bOnDone = onDone; a2bPick = null;
+  const names = GroupUtils.membersOf(bout).map(b => b.name).join(', ');
+  document.getElementById('a2bTitle').textContent = `Add Fighter to Bout — ${names}`;
+  document.getElementById('a2bSearch').value = '';
+  document.getElementById('a2bResults').classList.remove('open');
+  document.getElementById('a2bPicked').innerHTML = '';
+  document.getElementById('a2bConfirm').disabled = true;
+  document.getElementById('addToBoutModal').classList.add('open');
+  document.getElementById('a2bSearch').focus();
+}
+
+function closeAddToBout() { document.getElementById('addToBoutModal').classList.remove('open'); }
+
+function confirmAddToBout() {
+  if (!a2bPick) return;
+  if (a2bRing === 'R5') {
+    const ok = a2bPick.gender === 'female' || (a2bPick.gender === 'male' && a2bPick.yob >= R5_ELIGIBLE_YOB_MIN);
+    if (!ok) { showToast('⚠ R5 is Schools/Junior/Female only'); return; }
+  }
+  const members = GroupUtils.membersOf(a2bBout);
+  members.push(a2bPick);
+  GroupUtils.setMembers(a2bBout, members);      // 2→third, 3→extra[0], …
+  a2bBout.weightDiff = abWeightDiff(members);
+  const name = a2bPick.name;
+  closeAddToBout();
+  if (a2bOnDone) a2bOnDone();
+  showToast(`✓ Added ${name} — now a ${members.length}-boxer group`);
+}
+
+document.getElementById('a2bSearch').addEventListener('input', a2bRenderResults);
+document.getElementById('a2bSearch').addEventListener('focus', a2bRenderResults);
+document.getElementById('a2bSearch').addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.getElementById('a2bResults').classList.remove('open');
+});
+document.getElementById('a2bCancel').onclick = closeAddToBout;
+document.getElementById('a2bConfirm').onclick = confirmAddToBout;
+document.getElementById('addToBoutModal').addEventListener('click', e => {
+  if (e.target.id === 'addToBoutModal') closeAddToBout();
+});
+
+// ── Right-click bout menu ───────────────────────────────────────────────────────
+// Options: add a fighter, remove any one fighter, or delete the whole bout. All
+// edit the in-memory ring state; persisted by Save.
+
+const escHtml = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function closeBoutMenu() { const m = document.getElementById('boutMenu'); if (m) m.remove(); }
+
+function showBoutMenu(e, bout, ringId, state, refresh) {
+  closeBoutMenu();
+  const members = GroupUtils.membersOf(bout);
+  const menu = document.createElement('div');
+  menu.id = 'boutMenu';
+  menu.className = 'bout-menu';
+  menu.innerHTML =
+    `<button class="bm-item" data-act="add">&#43; Add fighter</button>` +
+    `<div class="bm-sep"></div>` +
+    members.map((m, i) =>
+      `<button class="bm-item bm-remove" data-act="remove" data-idx="${i}">&#10005; Remove ${escHtml(m.name)}</button>`
+    ).join('') +
+    `<div class="bm-sep"></div>` +
+    `<button class="bm-item bm-danger" data-act="delete">&#128465; Delete entire bout</button>`;
+  document.body.appendChild(menu);
+
+  // Keep the menu on-screen near the cursor
+  menu.style.left = Math.min(e.clientX, window.innerWidth  - menu.offsetWidth  - 8) + 'px';
+  menu.style.top  = Math.min(e.clientY, window.innerHeight - menu.offsetHeight - 8) + 'px';
+
+  menu.querySelectorAll('.bm-item').forEach(btn => {
+    btn.onclick = async () => {
+      const act = btn.dataset.act;
+      closeBoutMenu();
+      if (act === 'add') {
+        try { await abEnsureRoster(); }
+        catch { showToast('Could not load roster'); return; }
+        openAddToBout(bout, ringId, refresh);
+      } else if (act === 'remove') {
+        removeMemberFromBout(bout, ringId, Number(btn.dataset.idx), state, refresh);
+      } else if (act === 'delete') {
+        if (confirm('Delete this entire bout from the ring?')) deleteBout(bout, ringId, state, refresh);
+      }
+    };
+  });
+}
+
+function removeMemberFromBout(bout, ringId, idx, state, refresh) {
+  const members = GroupUtils.membersOf(bout);
+  const removed = members.splice(idx, 1)[0];
+  if (members.length >= 2) {
+    GroupUtils.setMembers(bout, members);          // 3→pair, 4→trio, …
+    bout.weightDiff = abWeightDiff(members);
+    refresh();
+    showToast(`✓ Removed ${removed.name} — now a ${members.length}-boxer ${members.length > 2 ? 'group' : 'bout'}`);
+  } else {
+    // A single fighter isn't a bout — drop the whole thing.
+    state[ringId] = state[ringId].filter(b => b !== bout);
+    refresh();
+    showToast(`✓ Removed ${removed.name} — bout deleted (needs 2+ fighters)`);
+  }
+}
+
+function deleteBout(bout, ringId, state, refresh) {
+  state[ringId] = state[ringId].filter(b => b !== bout);
+  refresh();
+  showToast('✓ Bout deleted');
+}
+
+document.addEventListener('click', closeBoutMenu);
+document.addEventListener('scroll', closeBoutMenu, true);
+window.addEventListener('resize', closeBoutMenu);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeBoutMenu(); });
+
 // ── Boot ─────────────────────────────────────────────────────────────────────
 
 async function bootWithSchedule() {
@@ -516,6 +1016,15 @@ async function bootWithSchedule() {
   document.getElementById('saveBtn').onclick   = () => saveToServer(state);
   document.getElementById('exportBtn').onclick = () => exportAllocation(state);
   document.getElementById('searchInput').oninput = applySearch;
+
+  document.getElementById('addBoutBtn').onclick = async () => {
+    try { await abEnsureRoster(); }
+    catch { showToast('Could not load roster'); return; }
+    openAddBout(state, () => { render(state); updateStats(state); });
+  };
+
+  // Warm the roster cache now so the first Add-fighter search shows results instantly.
+  abEnsureRoster().catch(() => { /* will retry on demand */ });
 }
 
 (async () => {
