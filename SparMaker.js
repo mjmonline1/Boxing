@@ -362,7 +362,14 @@ function pairBoxersSalvage(pool, { crossGender = 'lastResort', maxGap = Infinity
  *
  * Returns the final matches/unmatched plus per-phase breakdowns for reporting.
  */
-function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE, maxPhase = 3, algorithm = 'greedy', trioTol = WEIGHT_TOLERANCE, priorPairs = null, salvageCrossGender = 'lastResort', tightCross = true, tightTol = 1.0 } = {}) {
+function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE, maxPhase = 3, algorithm = 'greedy', trioTol = WEIGHT_TOLERANCE, priorPairs = null, salvageCrossGender = 'lastResort', tightCross = true, tightTol = 1.0, salvage = false } = {}) {
+    // Back-compat: algorithm='salvage' used to be a 4th mutually-exclusive choice that
+    // silently forced greedy pairing underneath it (phases 1-3b never saw 'salvage' as a
+    // recognised value and fell through to the greedy branch). Salvage is now an
+    // independent add-on phase that layers on top of ANY pairing algorithm — normalize
+    // the old value so existing callers keep working.
+    if (algorithm === 'salvage') { algorithm = 'greedy'; salvage = true; }
+
     let allMatches = [];
     const sparCount = new Map(); // boxer → spars assigned (carries the daily-cap budget across phases)
     const partnered = new Map(); // boxer → Set already sparred (no rematch across phases)
@@ -525,8 +532,9 @@ function pairAll(buckets, { tol1 = WEIGHT_TOLERANCE, tol2 = PHASE2_TOLERANCE, ma
     const phase3Unmatched = [...stillRemaining];
 
     // Phase 4 — human-style salvage of whoever's still unmatched (relaxed cross-bucket).
+    // Independent of `algorithm`: can layer on top of greedy, optimal, or randomSelect.
     let phase4Matches = [];
-    if (algorithm === 'salvage') {
+    if (salvage) {
         const { matches: sMatches, remaining } = pairBoxersSalvage(stillRemaining, { crossGender: salvageCrossGender });
         phase4Matches = sMatches;
         allMatches.push(...sMatches);
@@ -566,7 +574,7 @@ function buildPhaseLog(phases) {
         phaseCrossBouts: ((phases.phaseCross || { matches: [] }).matches).map(boutView),
         phase3: unmatchedView(phases.phase3.unmatched),
         phase3Groups: phases.phase3.groups.map(m => ({ groupId: m.groupId, red: m.red.name, redWeight: m.red.weight, blue: m.blue.name, blueWeight: m.blue.weight, third: m.third.name, thirdWeight: m.third.weight, category: m.category })),
-        // Phase 4 salvage (empty unless the 'salvage' algorithm ran) — final unmatched pool.
+        // Phase 4 salvage (empty unless the salvage flag was on) — final unmatched pool.
         phase4: unmatchedView((phases.phase4 || { unmatched: [] }).unmatched),
         phase4Bouts: ((phases.phase4 || { matches: [] }).matches).map(boutView),
     };
@@ -603,6 +611,44 @@ function checkMatchingRisks(matches, unmatched) {
     return { overSpreadTrios, strandedCandidates };
 }
 
+// Score a finished pairAll() result for comparing algorithm/salvage combinations against
+// each other. Higher is better. Matched-boxer count is the primary driver (that's the
+// whole point of the run); real defects (over-spread trios, stranded candidates) are
+// penalized heavily enough that a run with slightly more matches but a defect can still
+// lose to a cleaner run; residual unmatched count is a light tiebreaker on top of that.
+function scoreResult(result) {
+    const matchedCount = result.matches.reduce((n, m) => n + GroupUtils.membersOf(m).length, 0);
+    const { overSpreadTrios, strandedCandidates } = checkMatchingRisks(result.matches, result.unmatched);
+    const overSpreadTrioCount = overSpreadTrios.length;
+    const strandedCandidateCount = strandedCandidates.length;
+    const unmatchedCount = result.unmatched.length;
+    const score = matchedCount * 100 - overSpreadTrioCount * 50 - strandedCandidateCount * 10 - unmatchedCount;
+    return { matchedCount, unmatchedCount, overSpreadTrioCount, strandedCandidateCount, score };
+}
+
+// "Auto" mode: run every viable {algorithm, salvage} combination through pairAll, score
+// each with scoreResult, and return the winner alongside every candidate's score — so a
+// caller (Server.js, the UI) can show *why* the winner won, not just present it as a
+// black box. randomSelect is included once per call; being non-deterministic, a caller
+// that wants it evaluated more than once can re-invoke pairAllAuto itself.
+const AUTO_CANDIDATES = [
+    { algorithm: 'greedy',       salvage: false },
+    { algorithm: 'optimal',      salvage: false },
+    { algorithm: 'randomSelect', salvage: false },
+    { algorithm: 'greedy',       salvage: true },
+    { algorithm: 'optimal',      salvage: true },
+    { algorithm: 'randomSelect', salvage: true },
+];
+
+function pairAllAuto(buckets, opts = {}) {
+    const runs = AUTO_CANDIDATES.map(candidate => {
+        const result = pairAll(buckets, { ...opts, ...candidate });
+        return { ...candidate, result, ...scoreResult(result) };
+    });
+    const best = runs.reduce((a, b) => (b.score > a.score ? b : a));
+    return { best, runs };
+}
+
 /* c8 ignore start */
 function logUnmatched(label, boxers) {
     if (boxers.length === 0) { console.log(`  No unmatched boxers after ${label}.`); return; }
@@ -636,7 +682,7 @@ function loadPriorPairs(currentDate) {
     return prior;
 }
 
-function main(maxPhase = 3, algorithm = 'greedy', trioTol, tightCross = true) {
+function main(maxPhase = 3, algorithm = 'greedy', trioTol, tightCross = true, salvage = false) {
     if (!fs.existsSync(SOURCE_FILE)) {
         console.error(`Error: ${SOURCE_FILE} not found. Run PutAllFightersinBuckets.js first.`);
         process.exit(1);
@@ -645,10 +691,27 @@ function main(maxPhase = 3, algorithm = 'greedy', trioTol, tightCross = true) {
     const data = JSON.parse(fs.readFileSync(SOURCE_FILE, 'utf8'));
 
     // Random Select avoids opponents already sparred on earlier days this week.
-    const priorPairs = algorithm === 'randomSelect' ? loadPriorPairs(TODAY) : null;
+    const priorPairs = (algorithm === 'randomSelect' || algorithm === 'auto') ? loadPriorPairs(TODAY) : null;
 
-    const { matches: allMatches, unmatched: stillRemaining, manualMatch, groupCount, phases } =
-        pairAll(data.finalBuckets, { maxPhase, algorithm, ...(trioTol != null ? { trioTol } : {}), priorPairs, tightCross });
+    let allMatches, stillRemaining, manualMatch, groupCount, phases, autoReport;
+    if (algorithm === 'auto') {
+        // Run every viable {algorithm, salvage} combination, score each, keep the winner.
+        const { best, runs } = pairAllAuto(data.finalBuckets, { maxPhase, ...(trioTol != null ? { trioTol } : {}), priorPairs, tightCross });
+        ({ matches: allMatches, unmatched: stillRemaining, manualMatch, groupCount, phases } = best.result);
+        autoReport = {
+            chosen: { algorithm: best.algorithm, salvage: best.salvage, score: best.score },
+            candidates: runs.map(r => ({ algorithm: r.algorithm, salvage: r.salvage, score: r.score,
+                matchedCount: r.matchedCount, unmatchedCount: r.unmatchedCount,
+                overSpreadTrioCount: r.overSpreadTrioCount, strandedCandidateCount: r.strandedCandidateCount })),
+        };
+        console.log('--- AUTO mode: scoring every algorithm x salvage combination ---');
+        runs.forEach(r => console.log(`  ${r.algorithm}${r.salvage ? '+salvage' : ''}: matched=${r.matchedCount} ` +
+            `unmatched=${r.unmatchedCount} overSpreadTrios=${r.overSpreadTrioCount} stranded=${r.strandedCandidateCount} score=${r.score}`));
+        console.log(`  → chose ${best.algorithm}${best.salvage ? '+salvage' : ''} (score ${best.score})\n`);
+    } else {
+        ({ matches: allMatches, unmatched: stillRemaining, manualMatch, groupCount, phases } =
+            pairAll(data.finalBuckets, { maxPhase, algorithm, ...(trioTol != null ? { trioTol } : {}), priorPairs, tightCross, salvage }));
+    }
 
     console.log(`--- Phase 1 — Within-bucket (±2 kg) ---`);
     logUnmatched('Phase 1', phases.phase1.unmatched);
@@ -668,7 +731,7 @@ function main(maxPhase = 3, algorithm = 'greedy', trioTol, tightCross = true) {
         console.log(`\n--- Stopped after phase ${maxPhase} — not run: ${maxPhase < 2 ? 'phase 2, phase 3b' : 'phase 3b'} ---`);
     }
     logUnmatched(maxPhase >= 3 ? 'Phase 3b' : `phase ${maxPhase} (stopped)`, phases.phase3.unmatched);
-    if (algorithm === 'salvage' && phases.phase4.matches.length) {
+    if (phases.phase4.matches.length) {
         console.log(`\n--- Phase 4 — Salvage (cross-age, closest weight, club-avoid; tiers/gender kept) ---`);
         phases.phase4.matches.forEach(m => console.log(`  ${m.red.name} vs ${m.blue.name} (Δ${m.weightDiff}kg)`));
         logUnmatched('Phase 4 salvage', stillRemaining);
@@ -709,7 +772,8 @@ function main(maxPhase = 3, algorithm = 'greedy', trioTol, tightCross = true) {
         unmatched: stillRemaining,
         manualMatch,
         phaseLog: buildPhaseLog(phases),
-        matchRisks: checkMatchingRisks(allMatches, stillRemaining)
+        matchRisks: checkMatchingRisks(allMatches, stillRemaining),
+        ...(autoReport ? { autoReport } : {}),
     };
 
     fs.mkdirSync(path.dirname(OUTPUT_FILE), { recursive: true });
@@ -725,4 +789,4 @@ if (require.main === module) {
 }
 /* c8 ignore stop */
 
-module.exports = { main, pairBoxers, pairBoxersOptimal, pairBoxersRandom, pairBoxersSalvage, pairAll, loadPriorPairs, pairKey, buildPhaseLog, checkMatchingRisks };
+module.exports = { main, pairBoxers, pairBoxersOptimal, pairBoxersRandom, pairBoxersSalvage, pairAll, pairAllAuto, scoreResult, loadPriorPairs, pairKey, buildPhaseLog, checkMatchingRisks };
