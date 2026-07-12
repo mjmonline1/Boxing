@@ -9,7 +9,7 @@
 const { test } = require('node:test');
 const assert   = require('node:assert/strict');
 
-const { pairBoxers, pairBoxersOptimal, pairAll, checkMatchingRisks } = require('../SparMaker');
+const { pairBoxers, pairBoxersOptimal, pairBoxersSalvage, pairAll, checkMatchingRisks } = require('../SparMaker');
 
 let _id = 0;
 function bx(weight, over = {}) {
@@ -191,4 +191,25 @@ test('pairAll greedy: trioTol option is ignored — greedy fold unchanged at tol
     assert.deepEqual(
         a.matches.map(m => [m.red.weight, m.blue.weight, m.third?.weight ?? null]),
         b.matches.map(m => [m.red.weight, m.blue.weight, m.third?.weight ?? null]));
+});
+
+// --- Regression (real-roster bug, 2026-07): sparsPerDay>1 double-count -------
+// Same bug class as pairBoxers (see sparMaker.test.js #25), fixed in pairBoxersOptimal
+// and pairBoxersSalvage by only leftover-ing boxers with zero matches THIS call.
+
+test('optimal: sparsPerDay=2 boxer matched once, no 2nd opponent, is not double-counted', () => {
+    const boxers = [bx(70, { sparsPerDay: 2 }), bx(70.5, { sparsPerDay: 1 })];
+    const { matches, unmatched } = pairBoxersOptimal(boxers, 'Cat', 2.0);
+    assert.equal(matches.length, 1, 'the two pair once');
+    assert.equal(unmatched.length, 0, 'the cap-2 boxer already sparred — not also unmatched');
+});
+
+test('salvage: sparsPerDay=2 boxer matched once, no 2nd opponent, is not double-counted', () => {
+    const pool = [
+        bx(70, { sparsPerDay: 2, _bucket: 'MaleSenior_Novice' }),
+        bx(70.5, { sparsPerDay: 1, _bucket: 'MaleSenior_Novice' }),
+    ];
+    const { matches, remaining } = pairBoxersSalvage(pool);
+    assert.equal(matches.length, 1, 'the two pair once');
+    assert.equal(remaining.length, 0, 'the cap-2 boxer already sparred — not also remaining');
 });

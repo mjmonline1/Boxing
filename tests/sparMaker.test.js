@@ -1,6 +1,6 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { pairBoxers, pairAll, checkMatchingRisks } = require('../SparMaker');
+const { pairBoxers, pairBoxersRandom, pairAll, checkMatchingRisks } = require('../SparMaker');
 
 const WEIGHT_TOLERANCE = 2.0;
 const PHASE2_TOLERANCE = 2.5;
@@ -428,4 +428,23 @@ test('pairAll: an opponent already at their cap is skipped', () => {
         n + [m.red, m.blue, m.third].filter(Boolean).filter(p => p.name === name).length, 0);
     assert.equal(appears('B'), 1, 'B is used exactly once (cap 1)');
     assert.ok(appears('A') >= 1 && appears('C') >= 1, 'A and C both spar');
+});
+
+// 25. Regression (real-roster bug, 2026-07): a sparsPerDay=2 boxer who gets exactly ONE
+// spar within a single pairBoxers() call, then fails to find a second opponent, must NOT
+// also appear in that same call's own `unmatched` — that double-counts them (they show up
+// as matched AND unmatched). Reproduces the "Alpha Käser" case found in the real roster:
+// a cap-2 boxer paired once, alone in the pool on the next pass, no leftover.
+test('pairBoxers: sparsPerDay=2 boxer matched once, no 2nd opponent, is not double-counted', () => {
+    const boxers = [boxer('A', 70, 'ClubX', 2), boxer('B', 70.5, 'ClubY', 1)];
+    const { matches, unmatched } = pairBoxers(boxers, 'TestCat', WEIGHT_TOLERANCE);
+    assert.equal(matches.length, 1, 'A and B pair once');
+    assert.equal(unmatched.length, 0, 'A already sparred — not also unmatched');
+});
+
+test('pairBoxersRandom: sparsPerDay=2 boxer matched once, no 2nd opponent, is not double-counted', () => {
+    const boxers = [boxer('A', 70, 'ClubX', 2), boxer('B', 70.5, 'ClubY', 1)];
+    const { matches, unmatched } = pairBoxersRandom(boxers, 'TestCat', WEIGHT_TOLERANCE);
+    assert.equal(matches.length, 1, 'A and B pair once');
+    assert.equal(unmatched.length, 0, 'A already sparred — not also unmatched');
 });
