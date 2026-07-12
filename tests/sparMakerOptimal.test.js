@@ -9,7 +9,7 @@
 const { test } = require('node:test');
 const assert   = require('node:assert/strict');
 
-const { pairBoxers, pairBoxersOptimal, pairBoxersSalvage, pairAll, checkMatchingRisks } = require('../SparMaker');
+const { pairBoxers, pairBoxersOptimal, pairBoxersSalvage, pairAll, pairAllAuto, scoreResult, checkMatchingRisks } = require('../SparMaker');
 
 let _id = 0;
 function bx(weight, over = {}) {
@@ -212,4 +212,62 @@ test('salvage: sparsPerDay=2 boxer matched once, no 2nd opponent, is not double-
     const { matches, remaining } = pairBoxersSalvage(pool);
     assert.equal(matches.length, 1, 'the two pair once');
     assert.equal(remaining.length, 0, 'the cap-2 boxer already sparred — not also remaining');
+});
+
+// --- Decoupled salvage: independent of `algorithm` ---------------------------
+
+test('pairAll: salvage=true works with algorithm=optimal (previously impossible)', () => {
+    // Two lone boxers in different buckets, 3kg apart — neither has a same-bucket
+    // partner, and the gap is outside phase-2c's tight ±1kg cross-bucket catch (disabled
+    // here to isolate the point), so optimal alone leaves both unmatched. Salvage's
+    // cross-age (same tier/gender, no weight cap) pass can still pair them: both buckets
+    // end in "_Novice", same tier.
+    const buckets = {
+        MaleJunior_Novice: [bx(40, { category: 'MaleJunior_Novice' })],
+        MaleYouth_Novice:  [bx(43, { category: 'MaleYouth_Novice' })],
+    };
+    const withoutSalvage = pairAll(buckets, { algorithm: 'optimal', tightCross: false });
+    assert.equal(withoutSalvage.matches.length, 0, 'optimal alone: no same-bucket partner for either');
+
+    const withSalvage = pairAll(buckets, { algorithm: 'optimal', salvage: true, tightCross: false });
+    assert.equal(withSalvage.matches.length, 1, 'salvage cross-age pass pairs the two leftovers');
+    assert.equal(withSalvage.unmatched.length, 0);
+});
+
+test("pairAll: algorithm='salvage' back-compat shorthand still triggers phase 4 (normalizes to greedy+salvage)", () => {
+    const buckets = {
+        MaleJunior_Novice: [bx(40, { category: 'MaleJunior_Novice' })],
+        MaleYouth_Novice:  [bx(43, { category: 'MaleYouth_Novice' })],
+    };
+    const r = pairAll(buckets, { algorithm: 'salvage', tightCross: false });
+    assert.equal(r.matches.length, 1, 'old algorithm=salvage value still runs the salvage phase');
+});
+
+// --- scoreResult / pairAllAuto ------------------------------------------------
+
+test('scoreResult: rewards matched count, penalizes over-spread trios and stranded candidates', () => {
+    const clean = scoreResult({ matches: [{ red: bx(70), blue: bx(70.5), groupId: null }], unmatched: [] });
+    assert.equal(clean.matchedCount, 2);
+    assert.equal(clean.overSpreadTrioCount, 0);
+    assert.equal(clean.strandedCandidateCount, 0);
+    assert.equal(clean.score, 2 * 100);
+
+    // Same pair, but now an over-spread trio (worked example from the design doc):
+    // 70.0/72.0 pair + 73.9 third → red-vs-third = 3.9kg, over the 2.0 tolerance.
+    const red = bx(70.0), blueP = bx(72.0), third = bx(73.9);
+    const dirty = scoreResult({
+        matches: [{ red, blue: blueP, third, groupId: 'g1' }],
+        unmatched: [],
+    });
+    assert.equal(dirty.overSpreadTrioCount, 1);
+    assert.equal(dirty.score, 3 * 100 - 1 * 50);
+});
+
+test('pairAllAuto: evaluates all 6 algorithm x salvage combinations and picks the highest score', () => {
+    const buckets = { Cat: [bx(70), bx(70.5), bx(120)] }; // 120 is unreachable by anyone
+    const { best, runs } = pairAllAuto(buckets, {});
+    assert.equal(runs.length, 6, 'greedy/optimal/randomSelect x salvage on/off');
+    const maxScore = Math.max(...runs.map(r => r.score));
+    assert.equal(best.score, maxScore, 'best really is the highest-scoring candidate');
+    assert.ok(runs.every(r => 'algorithm' in r && 'salvage' in r && 'result' in r));
 });
