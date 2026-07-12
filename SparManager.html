@@ -27,7 +27,7 @@
   <span class="legend-item"><span class="swatch swatch-youth"></span>Youth male</span>
   <span class="legend-item"><span class="swatch swatch-female"></span>Female</span>
   <span class="legend-hint">
-    Drag any boxer onto another to swap them · Drop onto the pool panel to unmatch · Drop an unmatched boxer onto another to create a new pair · Drop a single boxer on the “start a new spar” card to begin one, then drop an opponent in the open corner · Ctrl+drop an unmatched boxer onto a group's card (not a tile) to add them — no size limit
+    Drag any boxer onto another to swap them · Drop onto the pool panel to unmatch · Drop an unmatched boxer onto another to create a new pair · Drop a single boxer on the “start a new spar” card to begin one, then drop an opponent in the open corner · Ctrl+drop an unmatched boxer onto a group's card (not a tile) to add them — no size limit · Alt+drop any fighter (even one already scheduled) to place a duplicate — an extra bout, no limit
   </span>
 </div>
 
@@ -47,12 +47,13 @@
   <div id="unmatched-col">
     <div id="unmatched-header">
       <div id="unmatched-title">Unmatched Pool</div>
-      <div class="sub">Drop a paired boxer here to free them</div>
+      <div class="sub">Drop a paired boxer here to free them · right-click a fighter to remove them from the pool</div>
       <input id="searchPool" type="text" placeholder="search pool…" />
+      <button id="addFighterBtn" type="button" style="margin-top:6px;width:100%;padding:6px 10px;cursor:pointer;">+ Add fighter from roster</button>
     </div>
     <div id="unmatched-zone">
       <div id="pair-hint">
-        Drop one boxer onto another to create a pair<br>…or drop a single boxer on the “start a new spar” card, then add an opponent<br>Ctrl+drop onto a group's card (not a boxer tile) to add them
+        Drop one boxer onto another to create a pair<br>…or drop a single boxer on the “start a new spar” card, then add an opponent<br>Ctrl+drop onto a group's card (not a boxer tile) to add them<br>Alt+drop any fighter to duplicate them into an extra bout
       </div>
       <div id="unmatched-list"></div>
     </div>
@@ -60,6 +61,35 @@
 </div>
 
 <div id="toast"></div>
+
+<!-- Add fighter from roster (search + select → drop into the unmatched pool) -->
+<div id="addFighterOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1100;align-items:center;justify-content:center;padding:2rem;">
+  <div style="background:var(--surface,#2b3138);border:1px solid var(--border,#444c56);border-radius:10px;width:100%;max-width:520px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface2,#373e47);border-bottom:1px solid var(--border,#444c56);">
+      <strong style="font-size:16px;color:var(--text,#e6edf3);">Add fighter from roster</strong>
+      <button type="button" id="addFighterClose" style="background:none;border:none;color:var(--muted,#8b98a5);font-size:26px;line-height:1;cursor:pointer;">&times;</button>
+    </div>
+    <div style="padding:12px 16px;border-bottom:1px solid var(--border,#444c56);">
+      <input id="addFighterSearch" type="text" placeholder="search name or club…" style="width:100%;padding:8px 10px;box-sizing:border-box;" />
+      <div style="margin-top:6px;font-size:12px;color:var(--muted,#8b98a5);">Not listed? Add them in Fighter Manager and Save, then reopen this.</div>
+    </div>
+    <div id="addFighterList" style="overflow-y:auto;flex:1;"></div>
+  </div>
+</div>
+
+<!-- Shift+click a fighter tile → their spars on all earlier days (read-only) -->
+<div id="historyOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1100;align-items:center;justify-content:center;padding:2rem;">
+  <div style="background:var(--surface,#2b3138);border:1px solid var(--border,#444c56);border-radius:10px;width:100%;max-width:min(1100px,94vw);max-height:80vh;display:flex;flex-direction:column;overflow:hidden;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface2,#373e47);border-bottom:1px solid var(--border,#444c56);">
+      <div style="min-width:0;">
+        <strong id="historyTitle" style="font-size:16px;color:var(--text,#e6edf3);">Spar history</strong>
+        <div id="historyDetails" style="margin-top:3px;font-size:12px;color:var(--muted,#8b98a5);"></div>
+      </div>
+      <button type="button" id="historyClose" style="background:none;border:none;color:var(--muted,#8b98a5);font-size:26px;line-height:1;cursor:pointer;flex:none;">&times;</button>
+    </div>
+    <div id="historyBody" style="overflow-y:auto;flex:1;padding:12px 16px;"></div>
+  </div>
+</div>
 
 <script src="data-client.js"></script>
 <script src="group-utils.js"></script>
@@ -70,6 +100,8 @@ const SERVER = window.location.origin;
 let originalData = null;
 let state        = { matches: [], unmatched: [] };
 let draggedId    = null;   // boxer.id currently being dragged
+let draggedSlot  = null;   // exact source location of the dragged tile (see slotKey) —
+                           // disambiguates a fighter who appears in more than one bout
 
 // ── Date picker ───────────────────────────────────────────────────────────────
 
@@ -79,8 +111,11 @@ const _today = new Date().toISOString().split('T')[0];
 async function initDatePicker() {
   const dates = await DataClient.getDates('spars').catch(() => []);
   const all = [...new Set([_today, ...dates])].sort().reverse();
+  // Default to the most recent date that actually has data; only fall back to
+  // today when nothing exists yet (today's folder is created by Create Spars).
+  const sel = dates.length ? [...dates].sort().reverse()[0] : _today;
   dateSelect.innerHTML = all.map(d =>
-    `<option value="${d}"${d === _today ? ' selected' : ''}>${d}</option>`
+    `<option value="${d}"${d === sel ? ' selected' : ''}>${d}</option>`
   ).join('');
 }
 
@@ -155,6 +190,30 @@ function findBoxer(id) {
   return null;
 }
 
+// A tile's exact location, so the same fighter appearing in two bouts (Alt-duplicate /
+// sparsPerDay) can be told apart. `u#<id>` for a pool tile, `m#<sparId>#<memberIndex>`
+// for a bout member. findBoxer() (id-only) still backs everything that can't be ambiguous.
+function slotKey(loc) {
+  if (!loc) return '';
+  return loc.type === 'unmatched' ? `u#${loc.id}` : `m#${loc.sparId}#${loc.memberIndex}`;
+}
+function findBoxerBySlot(slot) {
+  if (!slot) return null;
+  if (slot.startsWith('u#')) {
+    const id = parseInt(slot.slice(2));
+    const ui = state.unmatched.findIndex(b => b.id === id);
+    return ui >= 0 ? { boxer: state.unmatched[ui], loc: { type: 'unmatched', idx: ui } } : null;
+  }
+  const parts   = slot.split('#');            // ['m', <sparId>, <memberIndex>]
+  const sparId  = parts[1];
+  const mi      = parseInt(parts[2]);
+  const idx     = state.matches.findIndex(m => m.sparId === sparId);
+  if (idx < 0) return null;
+  const members = GroupUtils.membersOf(state.matches[idx]);
+  if (!(mi >= 0 && mi < members.length)) return null;
+  return { boxer: members[mi], loc: { type: 'match', idx, memberIndex: mi } };
+}
+
 function setMemberAt(match, memberIndex, boxer) {
   const members = GroupUtils.membersOf(match);
   members[memberIndex] = boxer;
@@ -189,12 +248,10 @@ function deriveCategory(a, b) {
 
 // Swap boxer aId and boxer bId — they exchange positions.
 // Old partners end up facing each other (or swapped into unmatched as appropriate).
-function swapBoxers(aId, bId) {
-  if (aId === bId) return;
-
-  const aInfo = findBoxer(aId);
-  const bInfo = findBoxer(bId);
+function swapBoxers(aInfo, bInfo) {
   if (!aInfo || !bInfo) return;
+  const aId = aInfo.boxer.id, bId = bInfo.boxer.id;
+  if (aId === bId) return;   // same fighter (two of their tiles) — nothing to swap
 
   const aBoxer = clone(aInfo.boxer);
   const bBoxer = clone(bInfo.boxer);
@@ -251,10 +308,9 @@ function swapBoxers(aId, bId) {
 // Move boxer back to unmatched pool.
 // For groups of 3+: removing one member leaves the rest grouped (members slide down).
 // For plain pairs: both boxers go to pool, the match is dissolved.
-function unmatchBoxer(id) {
-  const info = findBoxer(id);
-  if (!info) return;
-  if (info.loc.type === 'unmatched') return;
+function unmatchBoxer(info) {
+  if (!info || info.loc.type === 'unmatched') return;
+  const id = info.boxer.id;
 
   const m = state.matches[info.loc.idx];
   const members = GroupUtils.membersOf(m);
@@ -329,6 +385,86 @@ function swapMatch(sparId) {
   if (m) [m.red, m.blue] = [m.blue, m.red];
 }
 
+// ── Alt-drag duplicate: place a fighter into an EXTRA bout ────────────────────
+// These mirror addMember/createSpar/completeSpar but take the boxer from wherever it
+// currently is (pool OR another spar) and NEVER remove the source — so a fully-scheduled
+// fighter can be given further bouts. Fully unrestricted (no spars-per-day cap).
+function duplicateInto(fromId, sparId) {
+  const info = findBoxer(fromId);
+  if (!info) return false;
+  const m = state.matches.find(x => x.sparId === sparId);
+  if (!m) return false;
+  const members = GroupUtils.membersOf(m);
+  if (members.some(b => b.id === fromId)) return false;  // can't be twice in one bout
+  members.push(clone(info.boxer));
+  GroupUtils.setMembers(m, members);
+  return true;
+}
+
+function duplicateNewSpar(fromId) {
+  const info = findBoxer(fromId);
+  if (!info) return false;
+  const boxer = clone(info.boxer);
+  state.matches.push({
+    sparId:     `S${Date.now()}`,
+    red:        boxer,
+    weightDiff: null,
+    category:   deriveCategory(boxer, boxer)
+  });
+  return true;
+}
+
+function duplicateComplete(sparId, fromId) {
+  const m = state.matches.find(x => x.sparId === sparId);
+  if (!m || m.blue) return false;
+  const info = findBoxer(fromId);
+  if (!info || info.boxer.id === m.red.id) return false;  // don't pair a fighter with themselves
+  m.blue       = clone(info.boxer);
+  m.weightDiff = Math.abs(m.red.weight - m.blue.weight).toFixed(2);
+  m.category   = deriveCategory(m.red, m.blue);
+  return true;
+}
+
+// ── Remove / add a fighter (last-minute unfit / late entry) ───────────────────
+// Fully remove a fighter from the pool AND every bout they're in. A pair they were in
+// becomes a single needing an opponent; a trio becomes a pair; an empty spar is deleted.
+// Loops all matches so duplicates (Alt-added extra bouts) are all removed too.
+function removeFighterEverywhere(id) {
+  state.unmatched = state.unmatched.filter(b => b.id !== id);
+  for (let i = state.matches.length - 1; i >= 0; i--) {
+    const m = state.matches[i];
+    const before = GroupUtils.membersOf(m);
+    const members = before.filter(b => b.id !== id);
+    if (members.length === before.length) continue;   // not in this match
+    if (members.length === 0) { state.matches.splice(i, 1); continue; }
+    GroupUtils.setMembers(m, members);
+    if (members.length >= 2) {
+      m.weightDiff = Math.abs(m.red.weight - m.blue.weight).toFixed(2);
+      m.category   = deriveCategory(m.red, m.blue);
+    } else {
+      m.weightDiff = null;                              // one left → incomplete spar
+      m.category   = deriveCategory(m.red, m.red);
+    }
+  }
+}
+
+// Take a fighter out of the unmatched pool only. Their existing bouts are untouched.
+function removeFromPool(id) {
+  state.unmatched = state.unmatched.filter(b => b.id !== id);
+}
+
+// Add a fighter from the roster into the unmatched pool (no pipeline re-run). Skips a
+// fighter already sitting in the pool.
+function addFighterToPool(boxer) {
+  // Guard against duplicates: skip a fighter already sitting in the pool OR already
+  // placed in a spar (the UI disables such rows too, but guard here as well).
+  const inPool = state.unmatched.some(b => b.id === boxer.id);
+  const inSpar = state.matches.some(m => GroupUtils.membersOf(m).some(x => x.id === boxer.id));
+  if (inPool || inSpar) return false;
+  state.unmatched.push({ ...clone(boxer), manual: true });
+  return true;
+}
+
 // ── Filtering ─────────────────────────────────────────────────────────────────
 
 function filteredMatches() {
@@ -337,7 +473,10 @@ function filteredMatches() {
   return state.matches.filter(m => {
     if (cat && m.category !== cat) return false;
     if (search) {
-      const hay = `${m.red.name} ${m.red.club} ${m.blue?.name || ''} ${m.blue?.club || ''}`.toLowerCase();
+      // Search across ALL members (red, blue, third, extra…) so a fighter in a
+      // group is found too — not just the red/blue of a plain pair.
+      const hay = GroupUtils.membersOf(m)
+        .map(b => `${b.name || ''} ${b.club || ''}`).join(' ').toLowerCase();
       if (!hay.includes(search)) return false;
     }
     return true;
@@ -359,12 +498,14 @@ function populateCategoryFilter() {
 
 // ── Boxer tile (drag source + drop target) ────────────────────────────────────
 
-function makeBoxerTile(boxer, extraClass, category) {
+function makeBoxerTile(boxer, extraClass, category, loc) {
   const type = boxerType(boxer);
   const div  = document.createElement('div');
   div.className  = `boxer-tile ${type}${extraClass ? ' ' + extraClass : ''}`;
   div.draggable  = true;
   div.dataset.id = boxer.id;
+  const mySlot = slotKey(loc);   // exact source location for duplicate-safe drag/drop
+  if (mySlot) div.dataset.slot = mySlot;
 
   div.innerHTML = `
     <div class="boxer-name">${boxer.name}${boxer.manual ? ' <span class="boxer-manual-badge">MANUAL</span>' : ''}</div>
@@ -373,19 +514,34 @@ function makeBoxerTile(boxer, extraClass, category) {
     ${category ? `<div class="boxer-bucket">${category}</div>` : ''}
   `;
 
+  div.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    showTileMenu(e.clientX, e.clientY, boxer, extraClass === 'unmatched-tile');
+  });
+
+  // Shift+click → this fighter's spars on all earlier days. Plain click / drag unaffected.
+  div.addEventListener('click', e => {
+    if (!e.shiftKey) return;
+    e.preventDefault();
+    showFighterHistory(boxer);
+  });
+
   div.addEventListener('dragstart', e => {
     draggedId = boxer.id;
+    draggedSlot = mySlot || null;
     e.dataTransfer.setData('text/plain', String(boxer.id));
     e.dataTransfer.effectAllowed = 'move';
     setTimeout(() => div.classList.add('dragging'), 0);
   });
   div.addEventListener('dragend', () => {
     draggedId = null;
+    draggedSlot = null;
     div.classList.remove('dragging');
   });
 
   // This tile as drop target: drop → always swap (Ctrl+drop on a card's background adds to a group instead)
   div.addEventListener('dragover', e => {
+    if (e.altKey) return;   // Alt = duplicate: let it bubble to the card-background handler
     if (draggedId !== null && draggedId !== boxer.id) {
       e.preventDefault();
       e.stopPropagation();   // don't bubble to unmatched-zone
@@ -396,15 +552,20 @@ function makeBoxerTile(boxer, extraClass, category) {
     div.classList.remove('drop-target');
   });
   div.addEventListener('drop', e => {
+    if (e.altKey) return;   // Alt+drop handled by the card background (duplicate), not swap
     e.preventDefault();
     e.stopPropagation();
     div.classList.remove('drop-target');
     const fromId = parseInt(e.dataTransfer.getData('text/plain'));
-    if (fromId === boxer.id) return;
-    swapBoxers(fromId, boxer.id);
+    // Resolve BOTH tiles by their exact slot (falls back to id) so dragging one copy of
+    // a duplicated fighter swaps that copy, not the first occurrence findBoxer would hit.
+    const src = findBoxerBySlot(draggedSlot) || findBoxer(fromId);
+    const tgt = findBoxerBySlot(mySlot)      || findBoxer(boxer.id);
+    if (!src || !tgt || src.boxer.id === tgt.boxer.id) return;
+    swapBoxers(src, tgt);
     populateCategoryFilter();
     render();
-    showToast(`Swapped: ${findBoxerName(fromId)} ↔ ${boxer.name}`);
+    showToast(`Swapped: ${src.boxer.name} ↔ ${tgt.boxer.name}`);
   });
 
   return div;
@@ -481,6 +642,7 @@ function makeStarterCard() {
   card.appendChild(prompt);
 
   card.addEventListener('dragover', e => {
+    if (e.altKey) { e.preventDefault(); prompt.classList.add('drag-over'); return; }  // Alt = duplicate any fighter
     const info = draggedId !== null ? findBoxer(draggedId) : null;
     if (info?.loc.type === 'unmatched') {
       e.preventDefault();
@@ -495,8 +657,16 @@ function makeStarterCard() {
     prompt.classList.remove('drag-over');
     const fromId = parseInt(e.dataTransfer.getData('text/plain'));
     const info = findBoxer(fromId);
-    if (!info || info.loc.type !== 'unmatched') return;
+    if (!info) return;
     const name = info.boxer.name;
+    if (e.altKey) {   // extra bout: new spar with a duplicate, source left in place
+      duplicateNewSpar(fromId);
+      populateCategoryFilter();
+      render();
+      showToast(`Extra bout started with ${name} — drop an opponent to complete it`);
+      return;
+    }
+    if (info.loc.type !== 'unmatched') return;
     createSpar(fromId);
     populateCategoryFilter();
     render();
@@ -524,7 +694,10 @@ function renderPairs() {
     return;
   }
 
-  matches.forEach(m => {
+  // Display newest-first: a just-created spar (pushed to the end of state.matches) shows at
+  // the top, under the "start a new spar" card, so you don't have to scroll down to find it.
+  // Display-only — state.matches / saved Spars.json order is unchanged.
+  matches.slice().reverse().forEach(m => {
     const type     = boutType(m);
     const diff     = parseFloat(m.weightDiff);
     const sameClub = m.blue && m.red.club === m.blue.club;
@@ -584,7 +757,7 @@ function renderPairs() {
       const wrap = document.createElement('div');
       wrap.className = `corner-wrap ${cornerClass}`;
       wrap.innerHTML = `<div class="corner-label">${memberLabels[i] ?? `⚪ Member ${i + 1}`}</div>`;
-      wrap.appendChild(makeBoxerTile(member, null, m.category));
+      wrap.appendChild(makeBoxerTile(member, null, m.category, { type: 'match', sparId: m.sparId, memberIndex: i }));
       return wrap;
     });
     wraps.forEach((wrap, i) => {
@@ -612,6 +785,7 @@ function renderPairs() {
       matchup.appendChild(wrap);
 
       slot.addEventListener('dragover', e => {
+        if (e.altKey) { e.preventDefault(); e.stopPropagation(); slot.classList.add('drag-over'); return; }  // Alt = duplicate
         const info = draggedId !== null ? findBoxer(draggedId) : null;
         if (info?.loc.type === 'unmatched') {
           e.preventDefault();
@@ -626,8 +800,16 @@ function renderPairs() {
         slot.classList.remove('drag-over');
         const fromId = parseInt(e.dataTransfer.getData('text/plain'));
         const info = findBoxer(fromId);
-        if (!info || info.loc.type !== 'unmatched') return;
+        if (!info) return;
         const name = info.boxer.name;
+        if (e.altKey) {   // extra bout: fill blue with a duplicate, source left in place
+          if (duplicateComplete(m.sparId, fromId)) {
+            populateCategoryFilter(); render();
+            showToast(`${name} added as an extra bout — spar complete`);
+          }
+          return;
+        }
+        if (info.loc.type !== 'unmatched') return;
         completeSpar(m.sparId, fromId);
         populateCategoryFilter();
         render();
@@ -637,8 +819,10 @@ function renderPairs() {
 
     card.appendChild(matchup);
 
-    // Card background as drop zone — Ctrl+drop unmatched boxer here → grow the group, no cap
+    // Card background as drop zone — Ctrl+drop unmatched boxer → grow the group (no cap);
+    // Alt+drop ANY fighter (incl. one already in a spar) → add a duplicate here (extra bout).
     card.addEventListener('dragover', e => {
+      if (e.altKey) { e.preventDefault(); card.classList.add('group-drop-target'); return; }
       if (!e.ctrlKey) return;
       const info = draggedId !== null ? findBoxer(draggedId) : null;
       if (info?.loc.type === 'unmatched') {
@@ -651,8 +835,19 @@ function renderPairs() {
     });
     card.addEventListener('drop', e => {
       card.classList.remove('group-drop-target');
+      // tile handlers stopPropagation (except on Alt), so this fires for card-background
+      // drops and for Alt+drops anywhere on the card.
+      if (e.altKey) {   // extra bout: add a duplicate to this spar, source left in place
+        e.preventDefault();
+        const fromId = parseInt(e.dataTransfer.getData('text/plain'));
+        const info = findBoxer(fromId);
+        if (info && duplicateInto(fromId, m.sparId)) {
+          populateCategoryFilter(); render();
+          showToast(`${info.boxer.name} added to ${m.sparId} as an extra bout`);
+        }
+        return;
+      }
       if (!e.ctrlKey) return;
-      // tile handlers call stopPropagation so this only fires for card-background drops
       e.preventDefault();
       const fromId = parseInt(e.dataTransfer.getData('text/plain'));
       const info = findBoxer(fromId);
@@ -706,7 +901,7 @@ function renderUnmatched() {
   hint.style.display = visible.length >= 2 ? 'block' : 'none';
 
   visible.forEach(b => {
-    const tile = makeBoxerTile(b, 'unmatched-tile', b.category);
+    const tile = makeBoxerTile(b, 'unmatched-tile', b.category, { type: 'unmatched', id: b.id });
     list.appendChild(tile);
   });
 }
@@ -772,6 +967,25 @@ function bindStaticEvents() {
   document.getElementById('searchInput').addEventListener('input', render);
   document.getElementById('searchPool').addEventListener('input', renderUnmatched);
 
+  // Add fighter from roster
+  document.getElementById('addFighterBtn').addEventListener('click', openAddFighter);
+  document.getElementById('addFighterSearch').addEventListener('input', e => renderAddFighterList(e.target.value));
+  document.getElementById('addFighterClose').addEventListener('click', () => {
+    document.getElementById('addFighterOverlay').style.display = 'none';
+  });
+  document.getElementById('addFighterOverlay').addEventListener('click', e => {
+    if (e.target === e.currentTarget) e.currentTarget.style.display = 'none';
+  });
+
+  // Fighter spar-history overlay: close via ×, backdrop, or Escape
+  document.getElementById('historyClose').addEventListener('click', hideFighterHistory);
+  document.getElementById('historyOverlay').addEventListener('click', e => {
+    if (e.target === e.currentTarget) hideFighterHistory();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') hideFighterHistory();
+  });
+
   // Auto-scroll the columns while dragging near their edges. Capture phase is
   // required: tile/card/slot dragover handlers call stopPropagation, so a
   // bubbling listener would never fire over a drop target.
@@ -792,10 +1006,12 @@ function bindStaticEvents() {
     e.preventDefault();
     zone.classList.remove('drop-active');
     const id = parseInt(e.dataTransfer.getData('text/plain'));
-    const info = findBoxer(id);
+    // Resolve the exact dragged tile (slot) so unmatching one copy of a duplicated
+    // fighter frees that copy, not the first occurrence.
+    const info = findBoxerBySlot(draggedSlot) || findBoxer(id);
     if (!info || info.loc.type === 'unmatched') return;  // already unmatched
     const name = info.boxer.name;
-    unmatchBoxer(id);
+    unmatchBoxer(info);
     populateCategoryFilter();
     render();
     showToast(`${name} moved to unmatched pool`);
@@ -818,13 +1034,16 @@ async function exportJSON() {
   const nonManual = pool.filter(b => !b.manual).map(({ manual, ...rest }) => rest);
 
   const total = originalData?.summary?.totalBoxers ?? (completeMatches.length * 2 + pool.length);
+  // Count every bout member (a trio contributes 3, not 2) so matchedCount and successRate
+  // stay correct when the card contains round-robin groups.
+  const matchedCount = completeMatches.reduce((n, m) => n + GroupUtils.membersOf(m).length, 0);
   const output = {
     summary: {
       totalBoxers:    total,
-      matchedCount:   completeMatches.reduce((n, m) => n + GroupUtils.membersOf(m).length, 0),
+      matchedCount,
       unmatchedCount: nonManual.length,
       matchCount:     completeMatches.length,
-      successRate:    ((completeMatches.length * 2) / total * 100).toFixed(1) + '%'
+      successRate:    (matchedCount / total * 100).toFixed(1) + '%'
     },
     matches:     completeMatches.map(({ sparId, ...rest }) => rest),
     unmatched:   nonManual.map(b => ({ red: b })),
@@ -855,6 +1074,193 @@ function showToast(msg) {
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── Right-click tile menu: "Remove fighter" ───────────────────────────────────
+let tileMenuEl = null;
+function showTileMenu(x, y, boxer, inPool) {
+  hideTileMenu();
+  const menu = document.createElement('div');
+  menu.id = 'tile-menu';
+  menu.style.cssText = 'position:fixed;z-index:1000;background:var(--surface,#2b3138);color:var(--text,#e6edf3);' +
+    'border:1px solid var(--border,#444c56);border-radius:8px;padding:4px;min-width:200px;box-shadow:0 6px 24px rgba(0,0,0,.45);font-size:14px;';
+  const header = document.createElement('div');
+  header.style.cssText = 'padding:6px 10px;color:var(--muted,#8b98a5);border-bottom:1px solid var(--border,#444c56);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px;';
+  header.textContent = `${boxer.name} · ${boxer.weight}kg`;
+  const item = document.createElement('button');
+  item.type = 'button';
+  item.textContent = inPool ? '✕ Remove from pool' : '✕ Remove fighter';
+  item.style.cssText = 'display:block;width:100%;text-align:left;padding:8px 10px;background:none;border:none;color:var(--red,#f85149);cursor:pointer;border-radius:5px;font-size:14px;';
+  item.addEventListener('mouseenter', () => item.style.background = 'var(--red-dim,rgba(248,81,73,.16))');
+  item.addEventListener('mouseleave', () => item.style.background = 'none');
+  item.addEventListener('click', () => {
+    hideTileMenu();
+    if (inPool) {
+      removeFromPool(boxer.id);
+      populateCategoryFilter();
+      render();
+      showToast(`${boxer.name} removed from the pool`);
+    } else {
+      removeFighterEverywhere(boxer.id);
+      populateCategoryFilter();
+      render();
+      showToast(`${boxer.name} removed from the pool and all bouts`);
+    }
+  });
+  menu.append(header, item);
+  document.body.appendChild(menu);
+  // keep on-screen
+  const r = menu.getBoundingClientRect();
+  menu.style.left = Math.min(x, window.innerWidth  - r.width  - 8) + 'px';
+  menu.style.top  = Math.min(y, window.innerHeight - r.height - 8) + 'px';
+  tileMenuEl = menu;
+}
+function hideTileMenu() { if (tileMenuEl) { tileMenuEl.remove(); tileMenuEl = null; } }
+document.addEventListener('click', hideTileMenu);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') hideTileMenu(); });
+document.addEventListener('scroll', hideTileMenu, true);
+
+// ── Add a fighter from the roster into the pool ───────────────────────────────
+let rosterCache = null;
+async function openAddFighter() {
+  const overlay = document.getElementById('addFighterOverlay');
+  const listEl  = document.getElementById('addFighterList');
+  const searchEl = document.getElementById('addFighterSearch');
+  overlay.style.display = 'flex';
+  searchEl.value = '';
+  listEl.innerHTML = '<div style="padding:12px;color:var(--muted,#8b98a5);">Loading roster…</div>';
+  searchEl.focus();
+  try {
+    if (!rosterCache) rosterCache = await DataClient.get('boxers');
+  } catch (e) {
+    listEl.innerHTML = `<div style="padding:12px;color:var(--red,#f85149);">Could not load roster: ${e.message}</div>`;
+    return;
+  }
+  renderAddFighterList('');
+}
+function renderAddFighterList(query) {
+  const listEl = document.getElementById('addFighterList');
+  const q = query.toLowerCase().trim();
+  const inPool = new Set(state.unmatched.map(b => b.id));
+  const inSpar = new Set(state.matches.flatMap(m => GroupUtils.membersOf(m).map(b => b.id)));
+  const rows = (rosterCache || [])
+    .filter(b => !q || `${b.name} ${b.club}`.toLowerCase().includes(q))
+    .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  if (!rows.length) { listEl.innerHTML = '<div style="padding:12px;color:var(--muted,#8b98a5);">No match.</div>'; return; }
+  listEl.innerHTML = '';
+  rows.forEach(b => {
+    const already = inPool.has(b.id) ? 'in pool' : inSpar.has(b.id) ? 'scheduled' : '';
+    const row = document.createElement('button');
+    row.type = 'button';
+    // Disable anyone already in the pool OR already in a spar — adding them again
+    // would duplicate the fighter (pool + bout) and orphan the pool copy.
+    row.disabled = inPool.has(b.id) || inSpar.has(b.id);
+    row.style.cssText = 'display:flex;justify-content:space-between;gap:10px;width:100%;text-align:left;padding:8px 10px;background:none;border:none;border-bottom:1px solid var(--border,#444c56);color:var(--text,#e6edf3);cursor:pointer;font-size:14px;' + (row.disabled ? 'opacity:.5;cursor:default;' : '');
+    row.innerHTML = `<span>${b.name} <span style="color:var(--muted,#8b98a5);">· ${b.club || ''}</span></span>` +
+      `<span style="color:var(--muted,#8b98a5);white-space:nowrap;">${b.weight}kg${already ? ' · ' + already : ''}</span>`;
+    if (!row.disabled) {
+      row.addEventListener('mouseenter', () => row.style.background = 'var(--surface2,#373e47)');
+      row.addEventListener('mouseleave', () => row.style.background = 'none');
+      row.addEventListener('click', () => {
+        addFighterToPool(b);
+        document.getElementById('addFighterOverlay').style.display = 'none';
+        populateCategoryFilter();
+        render();
+        showToast(`${b.name} added to the unmatched pool`);
+      });
+    }
+    listEl.appendChild(row);
+  });
+}
+
+// ── Fighter spar history (Shift+click) ────────────────────────────────────────
+// Read-only: scans every dated Spars.json before today for bouts this fighter was
+// in, and lists the opponent(s) per day. Matched by fighter id (stable per roster).
+function hideFighterHistory() {
+  document.getElementById('historyOverlay').style.display = 'none';
+}
+
+// "2026-07-08" → "Tue 08/07/2026" (display only; sorting/filtering stays on the ISO string)
+function fmtDMY(iso) {
+  const [y, m, d] = iso.split('-');
+  const dow = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date(Date.UTC(+y, +m - 1, +d)).getUTCDay()];
+  return `${dow} ${d}/${m}/${y}`;
+}
+
+async function showFighterHistory(boxer) {
+  const overlay = document.getElementById('historyOverlay');
+  const body    = document.getElementById('historyBody');
+  document.getElementById('historyTitle').textContent = `Spar history — ${boxer.name}`;
+  // Full details of the selected fighter under the title.
+  const d = [];
+  if (boxer.club)            d.push(boxer.club);
+  if (boxer.weight != null)  d.push(`${boxer.weight} kg`);
+  if (boxer.gender)          d.push(boxer.gender);
+  if (boxer.yob != null)     d.push(`YOB ${boxer.yob}`);
+  if (boxer.experience != null) d.push(`${boxer.experience} bouts`);
+  if (boxer.category)        d.push(boxer.category);
+  if ((boxer.sparsPerDay || 1) > 1) d.push(`${boxer.sparsPerDay} spars/day`);
+  if (boxer.id != null)      d.push(`#${boxer.id}`);
+  document.getElementById('historyDetails').textContent = d.join(' · ');
+  overlay.style.display = 'flex';
+  body.innerHTML = '<div style="padding:12px;color:var(--muted,#8b98a5);">Loading history…</div>';
+
+  let dates;
+  try {
+    dates = (await DataClient.getDates('spars')).filter(d => d < _today).sort();  // oldest → newest (left to right)
+  } catch (e) {
+    body.innerHTML = `<div style="padding:12px;color:var(--red,#f85149);">Could not load spar dates: ${e.message}</div>`;
+    return;
+  }
+
+  // Load every earlier day's spars in parallel; a missing/failed day is skipped.
+  const docs = await Promise.all(
+    dates.map(d => DataClient.get('spars', { date: d }).then(data => ({ date: d, data })).catch(() => ({ date: d, data: null })))
+  );
+
+  // One entry per bout this fighter appeared in (duplicates on a day are all listed).
+  const days = [];
+  let total = 0;
+  for (const { date, data } of docs) {
+    if (!data || !Array.isArray(data.matches)) continue;
+    const bouts = [];
+    for (const m of data.matches) {
+      const members = GroupUtils.membersOf(m);
+      if (!members.some(p => p.id === boxer.id)) continue;
+      const opponents = members.filter(p => p.id !== boxer.id);
+      bouts.push({ opponents, category: m.category || '', weightDiff: m.weightDiff });
+    }
+    if (bouts.length) { days.push({ date, bouts }); total += bouts.length; }
+  }
+
+  if (!total) {
+    body.innerHTML = '<div style="padding:12px;color:var(--muted,#8b98a5);">No spars on any earlier day.</div>';
+    return;
+  }
+
+  const dayWord  = days.length === 1 ? 'day' : 'days';
+  const sparWord = total === 1 ? 'spar' : 'spars';
+  let html = `<div style="margin-bottom:12px;color:var(--muted,#8b98a5);font-size:13px;">${total} ${sparWord} across ${days.length} previous ${dayWord}</div>`;
+
+  // Days laid out across the screen (columns), scrolling horizontally if they overflow.
+  html += '<div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:6px;align-items:flex-start;">';
+  for (const { date, bouts } of days) {
+    html += `<div style="flex:0 0 210px;width:210px;">
+      <div style="font-weight:600;color:var(--text,#e6edf3);border-bottom:1px solid var(--border,#444c56);padding-bottom:4px;margin-bottom:6px;">${fmtDMY(date)}</div>`;
+    for (const b of bouts) {
+      const opp = b.opponents.length
+        ? b.opponents.map(o => `${o.name} <span style="color:var(--muted,#8b98a5);">· ${o.weight}kg${o.club ? ' · ' + o.club : ''}</span>`).join('<br>')
+        : '<span style="color:var(--muted,#8b98a5);">(no opponent recorded)</span>';
+      const meta = [b.category, b.weightDiff != null ? `Δ ${b.weightDiff}kg` : ''].filter(Boolean).join(' · ');
+      html += `<div style="padding:6px 8px;margin-bottom:4px;background:var(--surface2,#373e47);border-radius:6px;">
+        <div style="color:var(--text,#e6edf3);">${opp}</div>
+        ${meta ? `<div style="margin-top:2px;font-size:12px;color:var(--muted,#8b98a5);">${meta}</div>` : ''}
+      </div>`;
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+  body.innerHTML = html;
 }
 </script>
 <script src="theme.js"></script>
