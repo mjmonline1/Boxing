@@ -45,6 +45,13 @@ function pairBoxers(boxers, categoryName, tolerance = WEIGHT_TOLERANCE, sparCoun
         (partners.get(a) || partners.set(a, new Set()).get(a)).add(b);
         (partners.get(b) || partners.set(b, new Set()).get(b)).add(a);
     };
+    // Boxers who scored >=1 spar DURING this call (distinct from `used`, which can start
+    // >0 from a caller-seeded sparCount — e.g. a phase-2 retry carrying phase-1 state).
+    // A boxer already at/under cap when this call started is still a legitimate raw
+    // "unmatched from this call" for the caller to reconcile (see pairAll's own
+    // sparCount-based filter); only a boxer who matched WITHIN this call must be kept out
+    // of this call's own leftover, or they'd double-count (matched here + unmatched here).
+    const matchedThisCall = new Set();
 
     // A boxer stays at pool[0] (as `current`) and keeps getting opponents until it reaches its
     // daily cap or runs out of eligible partners — then it leaves. Opponents leave when they hit
@@ -85,6 +92,8 @@ function pairBoxers(boxers, categoryName, tolerance = WEIGHT_TOLERANCE, sparCoun
             count.set(current,  used(current)  + 1);
             count.set(opponent, used(opponent) + 1);
             meet(current, opponent);
+            matchedThisCall.add(current);
+            matchedThisCall.add(opponent);
             matches.push({
                 red: current,
                 blue: opponent,
@@ -97,9 +106,12 @@ function pairBoxers(boxers, categoryName, tolerance = WEIGHT_TOLERANCE, sparCoun
             if (used(opponent) >= cap(opponent)) pool.splice(bestOpponentIndex, 1);
             if (used(current)  >= cap(current))  pool.shift();
         } else {
-            // current can find no (further) opponent — it leaves. It's a leftover for the next
-            // phase (never-matched, or matched but still under cap).
-            leftover.push(pool.shift());
+            // current can find no (further) opponent — it leaves. Skip adding it to this
+            // call's leftover only if it already matched within THIS call (a boxer who
+            // enters already at cap from a seeded sparCount still counts as this call's
+            // raw unmatched, for the caller to reconcile).
+            if (!matchedThisCall.has(current)) leftover.push(current);
+            pool.shift();
         }
     }
 
@@ -170,8 +182,9 @@ function pairBoxersOptimal(boxers, categoryName, tolerance = PHASE2_TOLERANCE, s
         if (formed === 0) break;
     }
 
-    // Same leftover semantics as greedy: never-matched, or matched but still under cap.
-    leftover.push(...pool.filter(b => used(b) < cap(b)));
+    // Same leftover semantics as greedy: only a boxer who never matched at all counts as
+    // unmatched — one who already got a spar but is still under cap has been served.
+    leftover.push(...pool.filter(b => used(b) === 0));
     return { matches, unmatched: leftover };
 }
 
@@ -202,6 +215,8 @@ function pairBoxersRandom(boxers, categoryName, tolerance = WEIGHT_TOLERANCE, sp
         (partners.get(a) || partners.set(a, new Set()).get(a)).add(b);
         (partners.get(b) || partners.set(b, new Set()).get(b)).add(a);
     };
+    // See pairBoxers for why this is tracked separately from `used`.
+    const matchedThisCall = new Set();
 
     while (pool.length > 0) {
         const current = pool[0];
@@ -231,6 +246,8 @@ function pairBoxersRandom(boxers, categoryName, tolerance = WEIGHT_TOLERANCE, sp
             count.set(current,  used(current)  + 1);
             count.set(opponent, used(opponent) + 1);
             meet(current, opponent);
+            matchedThisCall.add(current);
+            matchedThisCall.add(opponent);
             matches.push({
                 red: current,
                 blue: opponent,
@@ -243,8 +260,10 @@ function pairBoxersRandom(boxers, categoryName, tolerance = WEIGHT_TOLERANCE, sp
             if (used(opponent) >= cap(opponent)) pool.splice(bestOpponentIndex, 1);
             if (used(current)  >= cap(current))  pool.shift();
         } else {
-            // current can find no (further) opponent — it leaves as a leftover for the next phase.
-            leftover.push(pool.shift());
+            // current can find no (further) opponent — leaves as a leftover for the next
+            // phase, but only if never matched this call (see pairBoxers for why).
+            if (!matchedThisCall.has(current)) leftover.push(current);
+            pool.shift();
         }
     }
 
@@ -324,7 +343,10 @@ function pairBoxersSalvage(pool, { crossGender = 'lastResort', maxGap = Infinity
         for (const subset of byTier.values()) solve(subset);
     }
 
-    const remaining = pool.filter(b => of(b) < cap(b));
+    // Only a boxer who got zero salvage spars counts as still-remaining/unmatched — this
+    // is the final phase, so unlike earlier phases nothing downstream re-filters by
+    // sparCount; a partially-used cap-2 boxer must not double-count here.
+    const remaining = pool.filter(b => of(b) === 0);
     return { matches, remaining };
 }
 
