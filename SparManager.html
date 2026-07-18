@@ -95,6 +95,20 @@
   </div>
 </div>
 
+<!-- Match assistant overlay: focus fighter + ranked suggestions below (same look as history) -->
+<div id="assistOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1100;align-items:center;justify-content:center;padding:2rem;">
+  <div style="background:var(--surface,#2b3138);border:1px solid var(--border,#444c56);border-radius:10px;width:100%;max-width:min(640px,94vw);max-height:82vh;display:flex;flex-direction:column;overflow:hidden;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface2,#373e47);border-bottom:1px solid var(--border,#444c56);">
+      <div style="min-width:0;">
+        <strong id="assistTitle" style="font-size:16px;color:var(--text,#e6edf3);">Match assistant</strong>
+        <div id="assistSubtitle" style="margin-top:3px;font-size:12px;color:var(--muted,#8b98a5);"></div>
+      </div>
+      <button type="button" id="assistClose" style="background:none;border:none;color:var(--muted,#8b98a5);font-size:26px;line-height:1;cursor:pointer;flex:none;">&times;</button>
+    </div>
+    <div id="assistBody" style="overflow-y:auto;flex:1;padding:8px 0;"></div>
+  </div>
+</div>
+
 <script src="data-client.js"></script>
 <script src="group-utils.js"></script>
 <script src="spar-assist.js"></script>
@@ -590,8 +604,13 @@ function findBoxerName(id) {
 let assistFocusId = null;
 
 function openAssist(boxerId) {
-  assistFocusId = (assistFocusId === boxerId) ? null : boxerId;  // click again to close
-  renderUnmatched();   // the assist block renders inline under the clicked tile
+  assistFocusId = boxerId;
+  renderAssistOverlay();
+}
+
+function closeAssist() {
+  assistFocusId = null;
+  document.getElementById('assistOverlay').style.display = 'none';
 }
 
 // One advisory chip. `danger` styles the minor↔adult safety flag prominently.
@@ -609,14 +628,16 @@ function candidateFlagChips(flags) {
   return chips.join('');
 }
 
-// Build the assist options as a standalone block. Rendered INLINE inside the pool list,
-// directly under the clicked fighter's tile, so the fighter stays put and the options
-// expand below it (rather than a panel above the list shoving everything down).
-function buildAssistBlock() {
+// Fill and show the assist modal: the focus fighter in the header, ranked suggestions below.
+function renderAssistOverlay() {
+  const overlay = document.getElementById('assistOverlay');
   const focus = state.unmatched.find(b => b.id === assistFocusId);
-  if (!focus) { assistFocusId = null; return null; }
-  const panel = document.createElement('div');
-  panel.className = 'assist-panel';
+  if (!focus) { closeAssist(); return; }
+
+  document.getElementById('assistTitle').textContent = `Partners for ${focus.name}`;
+  document.getElementById('assistSubtitle').textContent =
+    `${focus.club} · ${focus.weight}kg · YOB ${focus.yob} · ${focus.experience} bouts · ${focus.category || ''}`;
+  const panel = document.getElementById('assistBody');
 
   const ranked = SparAssist.rankCandidates(focus, state.unmatched, { matches: state.matches });
   const rows = ranked.map(r => `
@@ -645,20 +666,16 @@ function buildAssistBlock() {
   }).join('');
 
   panel.innerHTML = `
-    <div class="assist-head">
-      <div>Partners for <b>${focus.name}</b> <span class="assist-cand-sub">${focus.weight}kg · ${focus.category || ''}</span></div>
-      <button class="assist-close" title="close">&times;</button>
-    </div>
     <div class="assist-section-label">Pair with</div>
     <div class="assist-list">${rows || '<div class="assist-empty">No other fighters in the pool.</div>'}</div>
     ${boutRows ? `<div class="assist-section-label">Add to a bout (make a trio)</div><div class="assist-list">${boutRows}</div>` : ''}`;
 
-  panel.querySelector('.assist-close').addEventListener('click', () => { assistFocusId = null; renderUnmatched(); });
   panel.querySelectorAll('.assist-pair-btn').forEach(btn =>
     btn.addEventListener('click', () => assistPair(parseInt(btn.dataset.cand))));
   panel.querySelectorAll('.assist-add-btn').forEach(btn =>
     btn.addEventListener('click', () => assistAddToBout(btn.dataset.bout)));
-  return panel;
+
+  overlay.style.display = 'flex';
 }
 
 // Pair the focus fighter with a chosen candidate. Mirrors the both-unmatched branch of
@@ -681,7 +698,7 @@ function assistPair(candId) {
   };
   state.matches.push(nm);
   logEdit('pair-added', nm, { via: 'assist', flags: SparAssist.flagsFor(a, b) });
-  assistFocusId = null;
+  closeAssist();
   populateCategoryFilter();
   render();
   showToast(`Paired: ${a.name} + ${b.name}`);
@@ -699,7 +716,7 @@ function assistAddToBout(sparId) {
 
   addMember(a.id, sparId);
   logEdit('grew-added', m, { added: a.name, via: 'assist', flags: SparAssist.boutFlagsFor(a, m) });
-  assistFocusId = null;
+  closeAssist();
   populateCategoryFilter();
   render();
   showToast(`Added ${a.name} to the bout`);
@@ -1102,11 +1119,6 @@ function renderUnmatched() {
   visible.forEach(b => {
     const tile = makeBoxerTile(b, 'unmatched-tile', b.category, { type: 'unmatched', id: b.id });
     list.appendChild(tile);
-    // Assist options expand inline, right under the clicked fighter (kept in place).
-    if (b.id === assistFocusId) {
-      const block = buildAssistBlock();
-      if (block) list.appendChild(block);
-    }
   });
 }
 
@@ -1188,6 +1200,15 @@ function bindStaticEvents() {
   });
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') hideFighterHistory();
+  });
+
+  // Match-assistant overlay: close via ×, backdrop, or Escape
+  document.getElementById('assistClose').addEventListener('click', closeAssist);
+  document.getElementById('assistOverlay').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeAssist();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeAssist();
   });
 
   // Auto-scroll the columns while dragging near their edges. Capture phase is
