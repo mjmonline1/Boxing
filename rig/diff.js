@@ -104,5 +104,21 @@
     return diffBouts(normalizeAuto(spars && spars.phaseLog), normalizeFinal(spars && spars.matches));
   }
 
-  return { normalizeAuto, normalizeFinal, diffBouts, diffDay, keyOf };
+  // Diff many days and aggregate. `entries` = [{ date, spars }] (raw Spars docs). Days without an
+  // auto side (no phaseLog) are skipped. No file IO — shared by load-day.diffAll and Netlify.
+  function diffMany(entries) {
+    const perDay = {};
+    const agg = { auto: 0, final: 0, kept: 0, grew: 0, added: 0, dropped: 0 };
+    for (const { date, spars } of (entries || [])) {
+      if (!spars || !spars.phaseLog) continue;
+      const { stats } = diffDay(spars);
+      perDay[date] = stats;
+      for (const k of Object.keys(agg)) agg[k] += stats[k];
+    }
+    agg.survivalRateStrict = agg.auto ? agg.kept / agg.auto : 0;
+    agg.droppedStrict = agg.dropped + agg.grew;
+    return { perDay, agg };
+  }
+
+  return { normalizeAuto, normalizeFinal, diffBouts, diffDay, diffMany, keyOf };
 });

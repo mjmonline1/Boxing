@@ -30,3 +30,13 @@
   from = "/api/get-version"
   to = "/.netlify/functions/get-version"
   status = 200
+
+[[redirects]]
+  from = "/api/rig/model"
+  to = "/.netlify/functions/rig-model"
+  status = 200
+
+[[redirects]]
+  from = "/api/rig/diff"
+  to = "/.netlify/functions/rig-diff"
+  status = 200

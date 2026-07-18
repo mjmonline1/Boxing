@@ -41,21 +41,12 @@ function listDays({ baseDir = SPARS_DIR } = {}) {
   return { diffable, finalOnly };
 }
 
-// Diff every diffable day and aggregate the four outcome counts.
+// Diff every diffable day and aggregate the four outcome counts (delegates to the pure
+// RigDiff.diffMany so file and Mongo paths stay identical).
 function diffAll({ baseDir = SPARS_DIR, dates } = {}) {
   const days = (dates || listDays({ baseDir }).diffable);
-  const perDay = {};
-  const agg = { auto: 0, final: 0, kept: 0, grew: 0, added: 0, dropped: 0 };
-  for (const d of days) {
-    const day = loadDay(d, { baseDir });
-    if (!day || !day.hasAuto) continue;
-    const { stats } = RigDiff.diffBouts(day.autoBouts, day.finalBouts);
-    perDay[d] = stats;
-    for (const k of Object.keys(agg)) agg[k] += stats[k];
-  }
-  agg.survivalRateStrict = agg.auto ? agg.kept / agg.auto : 0;
-  agg.droppedStrict = agg.dropped + agg.grew;
-  return { perDay, agg };
+  const entries = days.map(d => { const day = loadDay(d, { baseDir }); return { date: d, spars: day && day.raw }; });
+  return RigDiff.diffMany(entries);
 }
 
 module.exports = { loadDay, listDays, diffAll, SPARS_DIR };

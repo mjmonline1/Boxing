@@ -314,13 +314,15 @@ function swapBoxers(aInfo, bInfo) {
     // Both unmatched — create a new pair
     state.unmatched = state.unmatched.filter(b => b.id !== aId && b.id !== bId);
     const diff = Math.abs(aBoxer.weight - bBoxer.weight).toFixed(2);
-    state.matches.push({
+    const nm = {
       sparId:     `S${Date.now()}`,
       red:        aBoxer,
       blue:       bBoxer,
       weightDiff: diff,
       category:   deriveCategory(aBoxer, bBoxer)
-    });
+    };
+    state.matches.push(nm);
+    logEdit('pair-added', nm, { via: 'drag', flags: SparAssist.flagsFor(aBoxer, bBoxer) });
   }
 }
 
@@ -366,10 +368,12 @@ function addMember(unmatchedId, sparId) {
   if (!info || info.loc.type !== 'unmatched') return;
   const m = state.matches.find(m => m.sparId === sparId);
   if (!m) return;
+  const flags = SparAssist.boutFlagsFor(info.boxer, m);   // flags vs the bout BEFORE growing it
   const members = GroupUtils.membersOf(m);
   members.push(clone(info.boxer));
   GroupUtils.setMembers(m, members);
   state.unmatched = state.unmatched.filter(b => b.id !== unmatchedId);
+  logEdit('grew-added', m, { added: info.boxer.name, via: 'drag', flags });
 }
 
 // Start a new spar with a single boxer, leaving the blue corner open until an
@@ -397,6 +401,7 @@ function completeSpar(sparId, boxerId) {
   m.weightDiff = Math.abs(m.red.weight - m.blue.weight).toFixed(2);
   m.category   = deriveCategory(m.red, m.blue);
   state.unmatched = state.unmatched.filter(b => b.id !== boxerId);
+  logEdit('pair-added', m, { via: 'drag', flags: SparAssist.flagsFor(m.red, m.blue) });
 }
 
 function swapMatch(sparId) {
@@ -415,8 +420,10 @@ function duplicateInto(fromId, sparId) {
   if (!m) return false;
   const members = GroupUtils.membersOf(m);
   if (members.some(b => b.id === fromId)) return false;  // can't be twice in one bout
+  const flags = SparAssist.boutFlagsFor(info.boxer, m);  // vs the bout BEFORE growing it
   members.push(clone(info.boxer));
   GroupUtils.setMembers(m, members);
+  logEdit('grew-added', m, { added: info.boxer.name, via: 'drag-dup', flags });
   return true;
 }
 
@@ -441,6 +448,7 @@ function duplicateComplete(sparId, fromId) {
   m.blue       = clone(info.boxer);
   m.weightDiff = Math.abs(m.red.weight - m.blue.weight).toFixed(2);
   m.category   = deriveCategory(m.red, m.blue);
+  logEdit('pair-added', m, { via: 'drag-dup', flags: SparAssist.flagsFor(m.red, m.blue) });
   return true;
 }
 

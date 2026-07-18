@@ -25,29 +25,21 @@ function combos(names) {
   return out;
 }
 
-// Build the learned model from prior days. `before` (a 'YYYY-MM-DD' string) excludes that day and
-// later — pass the day you're matching so it only learns from the PAST (no leakage in a backtest).
-function buildModel({ baseDir, before, dates } = {}) {
-  let all = dates;
-  if (!all) {
-    const { diffable, finalOnly } = listDays({ baseDir });
-    all = [...diffable, ...finalOnly].sort();
-  }
-  const days = before ? all.filter(d => d < before) : all;
-
+// Pure aggregator — the heart of the loop, no file IO. `rawDays` is an array of raw Spars docs
+// ({ matches, editLog }). Used by buildModel (Node/files) and the Netlify function (Mongo docs).
+function aggregateDays(rawDays) {
   const flagCounts = Object.fromEntries(SOFTENABLE.map(f => [f, 0]));
   let manualPairings = 0;
   const affinity = {};                                   // "a|b" -> { paired, consented }
   const bump = (k, field) => { (affinity[k] || (affinity[k] = { paired: 0, consented: 0 }))[field]++; };
 
   let used = 0;
-  for (const d of days) {
-    const day = loadDay(d, { baseDir });
-    if (!day) continue;
+  for (const raw of (rawDays || [])) {
+    if (!raw) continue;
     used++;
 
     // Affinity + consent from the final board the coach committed.
-    for (const m of (day.raw.matches || [])) {
+    for (const m of (raw.matches || [])) {
       const names = GroupUtils.membersOf(m).map(b => b.name);
       const consented = !!m.consent;
       for (const [a, b] of combos(names)) {
@@ -57,7 +49,7 @@ function buildModel({ baseDir, before, dates } = {}) {
     }
 
     // Flag tolerance (+ requested marks) from the deliberate-decision edit log.
-    for (const e of (day.raw.editLog || [])) {
+    for (const e of (raw.editLog || [])) {
       if ((e.action === 'pair-added' || e.action === 'grew-added') && e.flags) {
         manualPairings++;
         for (const f of SOFTENABLE) if (e.flags[f]) flagCounts[f]++;
@@ -74,4 +66,17 @@ function buildModel({ baseDir, before, dates } = {}) {
   return { days: used, manualPairings, flagTolerance, affinity };
 }
 
-module.exports = { buildModel, pairKey, SOFTENABLE };
+// Build the learned model from prior days on disk. `before` (a 'YYYY-MM-DD' string) excludes that
+// day and later — pass the day you're matching so it only learns from the PAST (no leakage).
+function buildModel({ baseDir, before, dates } = {}) {
+  let all = dates;
+  if (!all) {
+    const { diffable, finalOnly } = listDays({ baseDir });
+    all = [...diffable, ...finalOnly].sort();
+  }
+  const wanted = before ? all.filter(d => d < before) : all;
+  const rawDays = wanted.map(d => { const day = loadDay(d, { baseDir }); return day && day.raw; }).filter(Boolean);
+  return aggregateDays(rawDays);
+}
+
+module.exports = { buildModel, aggregateDays, pairKey, SOFTENABLE };
