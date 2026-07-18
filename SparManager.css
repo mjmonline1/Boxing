@@ -279,3 +279,65 @@ body { font-family: Arial, sans-serif; margin: 0; background: #f0f2f5; }
 .phase-label  { color: #bbb; }
 .phase-ok     { color: #8bc34a; }
 .phase-fail   { color: #e57373; }
+
+/* ── Live diff vs auto proposal ── */
+#diff-vs-auto {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  padding: 7px 16px; background: var(--surface2, #373e47);
+  border-bottom: 1px solid var(--border, #444c56); font-size: 12px;
+}
+.dva-title { font-weight: bold; color: var(--muted, #8b98a5); text-transform: uppercase; letter-spacing: .5px; font-size: 11px; }
+.dva-chip { font-weight: bold; padding: 2px 8px; border-radius: 10px; background: #4a525c; color: #e6edf3; }
+.dva-chip.kept    { background: #2e5b34; color: #c8f0cc; }
+.dva-chip.grew    { background: #4a3d6b; color: #d9cfff; }
+.dva-chip.added   { background: #2f4a6b; color: #cfe2ff; }
+.dva-chip.dropped { background: #6b2f2f; color: #ffd0d0; }
+.dva-chip.rate    { background: transparent; color: var(--muted, #8b98a5); }
+
+/* ── Match assistant (ranked partners for a clicked pool fighter) ── */
+#assist-panel {
+  margin: 8px 0; border: 1px solid var(--border, #444c56); border-radius: 8px;
+  background: var(--surface, #2b3138); overflow: hidden;
+}
+.assist-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 10px; background: var(--surface2, #373e47);
+  border-bottom: 1px solid var(--border, #444c56);
+  font-size: 13px; color: var(--text, #e6edf3);
+}
+.assist-close { background: none; border: none; color: var(--muted, #8b98a5); font-size: 20px; line-height: 1; cursor: pointer; }
+.assist-section-label {
+  font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: .5px;
+  color: var(--muted, #8b98a5); padding: 6px 10px 2px;
+}
+.assist-list { max-height: 260px; overflow-y: auto; }
+.assist-add-btn {
+  flex: 0 0 auto; padding: 5px 12px; border: none; border-radius: 6px;
+  background: #e67e22; color: #fff; font-size: 12px; font-weight: bold; cursor: pointer;
+}
+.assist-add-btn:hover { background: #cf6f18; }
+.assist-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; border-bottom: 1px solid var(--border, #444c56);
+}
+.assist-row:last-child { border-bottom: none; }
+.assist-cand { flex: 1; min-width: 0; }
+.assist-cand-name { font-weight: bold; font-size: 13px; color: var(--text, #e6edf3); }
+.assist-cand-sub  { font-size: 11px; color: var(--muted, #8b98a5); }
+.assist-chips { margin-top: 3px; display: flex; flex-wrap: wrap; gap: 4px; }
+.assist-chip {
+  font-size: 10px; font-weight: bold; padding: 1px 6px; border-radius: 10px;
+  background: #4a525c; color: #e6edf3; white-space: nowrap;
+}
+.assist-chip.ok     { background: #2e5b34; color: #c8f0cc; }
+.assist-chip.over   { background: #7a5b12; color: #ffe4a3; }
+.assist-chip.cat    { background: #2f4a6b; color: #cfe2ff; }
+.assist-chip.gender { background: #5a2f6b; color: #eccfff; }
+.assist-chip.club   { background: #4a525c; color: #cfd6dd; }
+.assist-chip.danger { background: #7a1620; color: #ffd0d4; }
+.assist-pair-btn {
+  flex: 0 0 auto; padding: 5px 12px; border: none; border-radius: 6px;
+  background: #2196f3; color: #fff; font-size: 12px; font-weight: bold; cursor: pointer;
+}
+.assist-pair-btn:hover { background: #1a7fd6; }
+.assist-empty { padding: 12px; font-size: 12px; color: var(--muted, #8b98a5); }

@@ -38,6 +38,9 @@
   <input id="searchInput" type="text" placeholder="name or club…" />
 </div>
 
+<!-- Live diff of the coach's board against the frozen auto proposal (phaseLog). -->
+<div id="diff-vs-auto" style="display:none;"></div>
+
 <div id="content">
   <div id="pairs-col">
     <div class="col-title" id="list-title"></div>
@@ -50,7 +53,9 @@
       <div class="sub">Drop a paired boxer here to free them · right-click a fighter to remove them from the pool</div>
       <input id="searchPool" type="text" placeholder="search pool…" />
       <button id="addFighterBtn" type="button" style="margin-top:6px;width:100%;padding:6px 10px;cursor:pointer;">+ Add fighter from roster</button>
+      <div class="sub" style="margin-top:4px;">Tip: click a pool fighter to see ranked partners (rules are advisory — nothing is blocked).</div>
     </div>
+    <div id="assist-panel" style="display:none;"></div>
     <div id="unmatched-zone">
       <div id="pair-hint">
         Drop one boxer onto another to create a pair<br>…or drop a single boxer on the “start a new spar” card, then add an opponent<br>Ctrl+drop onto a group's card (not a boxer tile) to add them<br>Alt+drop any fighter to duplicate them into an extra bout
@@ -93,6 +98,8 @@
 
 <script src="data-client.js"></script>
 <script src="group-utils.js"></script>
+<script src="spar-assist.js"></script>
+<script src="rig/diff.js"></script>
 <script>
 'use strict';
 const SERVER = window.location.origin;
@@ -519,11 +526,11 @@ function makeBoxerTile(boxer, extraClass, category, loc) {
     showTileMenu(e.clientX, e.clientY, boxer, extraClass === 'unmatched-tile');
   });
 
-  // Shift+click → this fighter's spars on all earlier days. Plain click / drag unaffected.
+  // Shift+click → this fighter's spars on all earlier days.
+  // Plain click on a POOL fighter → open the match assistant (ranked partners). Drag unaffected.
   div.addEventListener('click', e => {
-    if (!e.shiftKey) return;
-    e.preventDefault();
-    showFighterHistory(boxer);
+    if (e.shiftKey) { e.preventDefault(); showFighterHistory(boxer); return; }
+    if (extraClass === 'unmatched-tile') { e.preventDefault(); openAssist(boxer.id); }
   });
 
   div.addEventListener('dragstart', e => {
@@ -576,13 +583,150 @@ function findBoxerName(id) {
   return info ? info.boxer.name : `#${id}`;
 }
 
+// ── Match assistant ───────────────────────────────────────────────────────────
+// Click a pool fighter → rank every other pool fighter as a partner. Weight/category/
+// gender/club breaks are shown as advisory chips and NEVER filter anyone out. The one
+// hard stop is the minor↔adult safety line, which requires an explicit confirm to pair.
+let assistFocusId = null;
+
+function openAssist(boxerId) {
+  assistFocusId = (assistFocusId === boxerId) ? null : boxerId;  // click again to close
+  renderAssist();
+}
+
+// One advisory chip. `danger` styles the minor↔adult safety flag prominently.
+function assistChip(label, cls) {
+  return `<span class="assist-chip ${cls || ''}">${label}</span>`;
+}
+
+function candidateFlagChips(flags) {
+  const chips = [];
+  chips.push(assistChip(`Δ${flags.weightGap.toFixed(1)}kg`, flags.overWeightRule ? 'over' : 'ok'));
+  if (flags.crossCategory) chips.push(assistChip('cross-cat', 'cat'));
+  if (flags.crossGender)   chips.push(assistChip('cross-gender', 'gender'));
+  if (flags.sameClub)      chips.push(assistChip('same club', 'club'));
+  if (flags.minorAdult)    chips.push(assistChip('⚠ MINOR↔ADULT', 'danger'));
+  return chips.join('');
+}
+
+function renderAssist() {
+  const panel = document.getElementById('assist-panel');
+  if (!panel) return;
+  const focus = state.unmatched.find(b => b.id === assistFocusId);
+  if (!focus) { panel.style.display = 'none'; panel.innerHTML = ''; assistFocusId = null; return; }
+
+  const ranked = SparAssist.rankCandidates(focus, state.unmatched, { matches: state.matches });
+  const rows = ranked.map(r => `
+    <div class="assist-row" data-cand="${r.boxer.id}">
+      <div class="assist-cand">
+        <span class="assist-cand-name">${r.boxer.name}</span>
+        <span class="assist-cand-sub">${r.boxer.club} · ${r.boxer.weight}kg · ${r.boxer.experience} bouts</span>
+        <div class="assist-chips">${candidateFlagChips(r.flags)}</div>
+      </div>
+      <button class="assist-pair-btn" data-cand="${r.boxer.id}">Pair</button>
+    </div>`).join('');
+
+  // "Add to a bout" — grow an existing bout into a trio+ (top few closest fits).
+  const bouts = SparAssist.rankBouts(focus, state.matches.filter(m => m.blue), { }).slice(0, 6);
+  const boutRows = bouts.map(r => {
+    const label = GroupUtils.membersOf(r.match).map(b => b.name).join(' + ');
+    return `
+    <div class="assist-row" data-bout="${r.sparId}">
+      <div class="assist-cand">
+        <span class="assist-cand-name">${label}</span>
+        <span class="assist-cand-sub">${r.match.category || ''}</span>
+        <div class="assist-chips">${candidateFlagChips(r.flags)}</div>
+      </div>
+      <button class="assist-add-btn" data-bout="${r.sparId}">Add</button>
+    </div>`;
+  }).join('');
+
+  panel.innerHTML = `
+    <div class="assist-head">
+      <div>Partners for <b>${focus.name}</b> <span class="assist-cand-sub">${focus.weight}kg · ${focus.category || ''}</span></div>
+      <button class="assist-close" title="close">&times;</button>
+    </div>
+    <div class="assist-section-label">Pair with</div>
+    <div class="assist-list">${rows || '<div class="assist-empty">No other fighters in the pool.</div>'}</div>
+    ${boutRows ? `<div class="assist-section-label">Add to a bout (make a trio)</div><div class="assist-list">${boutRows}</div>` : ''}`;
+  panel.style.display = 'block';
+
+  panel.querySelector('.assist-close').addEventListener('click', () => { assistFocusId = null; renderAssist(); });
+  panel.querySelectorAll('.assist-pair-btn').forEach(btn =>
+    btn.addEventListener('click', () => assistPair(parseInt(btn.dataset.cand))));
+  panel.querySelectorAll('.assist-add-btn').forEach(btn =>
+    btn.addEventListener('click', () => assistAddToBout(btn.dataset.bout)));
+}
+
+// Pair the focus fighter with a chosen candidate. Mirrors the both-unmatched branch of
+// swapBoxers (new match, derived category). Minor↔adult forces an explicit confirm.
+function assistPair(candId) {
+  const a = state.unmatched.find(x => x.id === assistFocusId);
+  const b = state.unmatched.find(x => x.id === candId);
+  if (!a || !b) return;
+  const flags = SparAssist.flagsFor(a, b);
+  if (flags.minorAdult &&
+      !confirm(`SAFETY CHECK\n\n${a.name} and ${b.name} cross the minor/adult line (one is under 18).\n\nPair them anyway?`)) return;
+
+  state.unmatched = state.unmatched.filter(x => x.id !== a.id && x.id !== b.id);
+  state.matches.push({
+    sparId:     `S${Date.now()}`,
+    red:        a,
+    blue:       b,
+    weightDiff: Math.abs(a.weight - b.weight).toFixed(2),
+    category:   deriveCategory(a, b),
+  });
+  assistFocusId = null;
+  populateCategoryFilter();
+  render();
+  showToast(`Paired: ${a.name} + ${b.name}`);
+}
+
+// Add the focus fighter into an existing bout (grow a trio+). Reuses addMember; the
+// minor↔adult line across ANY member forces an explicit confirm.
+function assistAddToBout(sparId) {
+  const a = state.unmatched.find(x => x.id === assistFocusId);
+  const m = state.matches.find(x => x.sparId === sparId);
+  if (!a || !m) return;
+  const flags = SparAssist.boutFlagsFor(a, m);
+  if (flags.minorAdult &&
+      !confirm(`SAFETY CHECK\n\nAdding ${a.name} to this bout crosses the minor/adult line (one is under 18).\n\nAdd them anyway?`)) return;
+
+  addMember(a.id, sparId);
+  assistFocusId = null;
+  populateCategoryFilter();
+  render();
+  showToast(`Added ${a.name} to the bout`);
+}
+
 // ── Render ────────────────────────────────────────────────────────────────────
 
 function render() {
   renderPairs();
   renderUnmatched();
+  renderAssist();
+  renderDiffVsAuto();
   renderPhaseLog();
   updateStats();
+}
+
+// Live comparison of the coach's current board vs the frozen auto proposal (phaseLog),
+// via the shared rig/diff.js. Only shown on a diffable day (one that has a phaseLog).
+function renderDiffVsAuto() {
+  const el = document.getElementById('diff-vs-auto');
+  if (!el) return;
+  const pl = originalData && originalData.phaseLog;
+  if (!pl || typeof RigDiff === 'undefined') { el.style.display = 'none'; return; }
+  const { stats } = RigDiff.diffBouts(RigDiff.normalizeAuto(pl), RigDiff.normalizeFinal(state.matches));
+  const pct = stats.auto ? Math.round(100 * stats.kept / stats.auto) : 0;
+  el.innerHTML = `
+    <span class="dva-title">vs auto proposal</span>
+    <span class="dva-chip kept">${stats.kept} kept</span>
+    <span class="dva-chip grew">${stats.grew} grew→trio</span>
+    <span class="dva-chip added">${stats.added} added</span>
+    <span class="dva-chip dropped">${stats.dropped} dropped</span>
+    <span class="dva-chip rate">${pct}% of auto survived</span>`;
+  el.style.display = 'flex';
 }
 
 function renderPhaseLog() {
