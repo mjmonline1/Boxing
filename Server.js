@@ -245,6 +245,13 @@ app.get('/api/rig/model', (req, res) => {
   res.json(buildModel({ before: req.query.before }));
 });
 
+// Rig diff: how well the auto proposal survived the coach's edits, per day + aggregate. Powers
+// RigDashboard.html.
+app.get('/api/rig/diff', (req, res) => {
+  const { diffAll } = require('./rig/load-day');
+  res.json(diffAll());
+});
+
 // ---- STATUS + INTAKE ----
 
 app.get('/api/status', (req, res) => {

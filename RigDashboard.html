@@ -1,0 +1,119 @@
+<!-- Copyright (c) 2026 ITLR Assets. All rights reserved. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Rig Dashboard</title>
+  <link rel="stylesheet" href="theme.css">
+  <style>
+    /* ponytail: dashboard-only styling; the shared tools' CSS has no table/bar primitives. */
+    body { font-family: system-ui, sans-serif; margin: 0; }
+    #toolbar { display: flex; align-items: center; gap: 1rem; padding: .6rem 1rem; border-bottom: 1px solid var(--border, #ccc); }
+    #toolbar h1 { font-size: 1.15rem; margin: 0; }
+    main { padding: 1rem 1.25rem; max-width: 960px; }
+    section { margin-bottom: 2rem; }
+    h2 { font-size: 1rem; border-bottom: 1px solid var(--border, #ddd); padding-bottom: .3rem; }
+    .cards { display: flex; flex-wrap: wrap; gap: 1rem; margin: .75rem 0; }
+    .card { border: 1px solid var(--border, #ddd); border-radius: 8px; padding: .6rem 1rem; min-width: 120px; }
+    .card .n { font-size: 1.6rem; font-weight: 700; }
+    .card .l { font-size: .75rem; opacity: .7; text-transform: uppercase; letter-spacing: .03em; }
+    table { border-collapse: collapse; width: 100%; font-size: .85rem; }
+    th, td { padding: .3rem .5rem; text-align: right; border-bottom: 1px solid var(--border, #eee); }
+    th:first-child, td:first-child { text-align: left; }
+    .bar { position: relative; background: var(--border, #eee); border-radius: 4px; height: 14px; min-width: 60px; }
+    .bar > i { position: absolute; inset: 0 auto 0 0; background: #4a90d9; border-radius: 4px; }
+    .muted { opacity: .6; }
+    .err { color: #c0392b; padding: 1rem; }
+  </style>
+</head>
+<body>
+<div id="toolbar">
+  <a class="nav-btn" href="index.html">&#8592; Home</a>
+  <h1>Rig Dashboard</h1>
+  <span class="muted" id="sub"></span>
+  <button class="theme-btn" style="margin-left:auto"></button>
+</div>
+
+<main id="app"><p class="muted">Loading…</p></main>
+
+<script>
+const pct = x => (x * 100).toFixed(0) + '%';
+const el = (t, html) => { const e = document.createElement(t); if (html != null) e.innerHTML = html; return e; };
+
+async function boot() {
+  const app = document.getElementById('app');
+  let diff, model;
+  try {
+    [diff, model] = await Promise.all([
+      fetch('/api/rig/diff').then(r => r.ok ? r.json() : Promise.reject(r.statusText)),
+      fetch('/api/rig/model').then(r => r.ok ? r.json() : Promise.reject(r.statusText)),
+    ]);
+  } catch (e) {
+    app.innerHTML = `<p class="err"><b>Could not load rig data.</b> Is Server.js running? (${e})</p>`;
+    return;
+  }
+  app.innerHTML = '';
+  document.getElementById('sub').textContent =
+    `${Object.keys(diff.perDay).length} diffable days · learned from ${model.days} days`;
+  app.appendChild(survivalSection(diff));
+  app.appendChild(learnedSection(model));
+}
+
+// ── Auto-vs-coach survival ─────────────────────────────────────────────────────
+function survivalSection(diff) {
+  const a = diff.agg;
+  const s = el('section');
+  s.appendChild(el('h2', 'Auto proposal vs coach board'));
+  const cards = el('div', '');
+  cards.className = 'cards';
+  const card = (n, l) => { const c = el('div'); c.className = 'card'; c.appendChild(el('div', n)).className = 'n'; c.appendChild(el('div', l)).className = 'l'; return c; };
+  cards.append(
+    card(pct(a.survivalRateStrict || 0), 'kept as-is'),
+    card(a.auto, 'auto bouts'),
+    card(a.kept, 'kept'),
+    card(a.grew, 'grew'),
+    card(a.dropped, 'dropped'),
+    card(a.added, 'added by coach'),
+  );
+  s.appendChild(cards);
+
+  const rows = Object.entries(diff.perDay).sort().reverse().map(([d, st]) => `
+    <tr><td>${d}</td><td>${st.auto}</td><td>${st.kept}</td><td>${st.grew}</td>
+    <td>${st.dropped}</td><td>${st.added}</td><td>${pct(st.survivalRateStrict)}</td></tr>`).join('');
+  s.appendChild(el('table', `
+    <thead><tr><th>Day</th><th>Auto</th><th>Kept</th><th>Grew</th><th>Dropped</th><th>Added</th><th>Survival</th></tr></thead>
+    <tbody>${rows || '<tr><td colspan="7" class="muted">No diffable days.</td></tr>'}</tbody>`));
+  return s;
+}
+
+// ── What the assistant learned ──────────────────────────────────────────────────
+function learnedSection(m) {
+  const s = el('section');
+  s.appendChild(el('h2', 'Learned from the coach'));
+
+  s.appendChild(el('p', m.manualPairings
+    ? `Flag tolerance — how often the coach paired <b>despite</b> each advisory (${m.manualPairings} manual pairings):`
+    : `<span class="muted">No manual pairings logged yet — flag tolerance activates once the coach uses the assist/consent marks. Pairing affinity below is already live.</span>`));
+
+  if (m.manualPairings) {
+    const rows = Object.entries(m.flagTolerance).map(([f, v]) => `
+      <tr><td>${f}</td><td style="width:60%"><div class="bar"><i style="width:${pct(v)}"></i></div></td><td>${pct(v)}</td></tr>`).join('');
+    s.appendChild(el('table', `<tbody>${rows}</tbody>`));
+  }
+
+  const pairs = Object.entries(m.affinity)
+    .map(([k, v]) => ({ pair: k.replace('|', ' + '), ...v }))
+    .sort((a, b) => (b.consented - a.consented) || (b.paired - a.paired))
+    .slice(0, 15);
+  s.appendChild(el('h2', 'Top pairing affinity'));
+  const prows = pairs.map(p => `<tr><td>${p.pair}</td><td>${p.paired}</td><td>${p.consented}</td></tr>`).join('');
+  s.appendChild(el('table', `
+    <thead><tr><th>Pair</th><th>Times paired</th><th>Consented</th></tr></thead>
+    <tbody>${prows || '<tr><td colspan="3" class="muted">No history yet.</td></tr>'}</tbody>`));
+  return s;
+}
+
+boot();
+</script>
+</body>
+</html>
