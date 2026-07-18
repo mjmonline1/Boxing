@@ -55,7 +55,6 @@
       <button id="addFighterBtn" type="button" style="margin-top:6px;width:100%;padding:6px 10px;cursor:pointer;">+ Add fighter from roster</button>
       <div class="sub" style="margin-top:4px;">Tip: click a pool fighter to see ranked partners (rules are advisory — nothing is blocked).</div>
     </div>
-    <div id="assist-panel" style="display:none;"></div>
     <div id="unmatched-zone">
       <div id="pair-hint">
         Drop one boxer onto another to create a pair<br>…or drop a single boxer on the “start a new spar” card, then add an opponent<br>Ctrl+drop onto a group's card (not a boxer tile) to add them<br>Alt+drop any fighter to duplicate them into an extra bout
@@ -592,7 +591,7 @@ let assistFocusId = null;
 
 function openAssist(boxerId) {
   assistFocusId = (assistFocusId === boxerId) ? null : boxerId;  // click again to close
-  renderAssist();
+  renderUnmatched();   // the assist block renders inline under the clicked tile
 }
 
 // One advisory chip. `danger` styles the minor↔adult safety flag prominently.
@@ -610,11 +609,14 @@ function candidateFlagChips(flags) {
   return chips.join('');
 }
 
-function renderAssist() {
-  const panel = document.getElementById('assist-panel');
-  if (!panel) return;
+// Build the assist options as a standalone block. Rendered INLINE inside the pool list,
+// directly under the clicked fighter's tile, so the fighter stays put and the options
+// expand below it (rather than a panel above the list shoving everything down).
+function buildAssistBlock() {
   const focus = state.unmatched.find(b => b.id === assistFocusId);
-  if (!focus) { panel.style.display = 'none'; panel.innerHTML = ''; assistFocusId = null; return; }
+  if (!focus) { assistFocusId = null; return null; }
+  const panel = document.createElement('div');
+  panel.className = 'assist-panel';
 
   const ranked = SparAssist.rankCandidates(focus, state.unmatched, { matches: state.matches });
   const rows = ranked.map(r => `
@@ -650,13 +652,13 @@ function renderAssist() {
     <div class="assist-section-label">Pair with</div>
     <div class="assist-list">${rows || '<div class="assist-empty">No other fighters in the pool.</div>'}</div>
     ${boutRows ? `<div class="assist-section-label">Add to a bout (make a trio)</div><div class="assist-list">${boutRows}</div>` : ''}`;
-  panel.style.display = 'block';
 
-  panel.querySelector('.assist-close').addEventListener('click', () => { assistFocusId = null; renderAssist(); });
+  panel.querySelector('.assist-close').addEventListener('click', () => { assistFocusId = null; renderUnmatched(); });
   panel.querySelectorAll('.assist-pair-btn').forEach(btn =>
     btn.addEventListener('click', () => assistPair(parseInt(btn.dataset.cand))));
   panel.querySelectorAll('.assist-add-btn').forEach(btn =>
     btn.addEventListener('click', () => assistAddToBout(btn.dataset.bout)));
+  return panel;
 }
 
 // Pair the focus fighter with a chosen candidate. Mirrors the both-unmatched branch of
@@ -708,7 +710,6 @@ function assistAddToBout(sparId) {
 function render() {
   renderPairs();
   renderUnmatched();
-  renderAssist();
   renderDiffVsAuto();
   renderPhaseLog();
   updateStats();
@@ -1101,6 +1102,11 @@ function renderUnmatched() {
   visible.forEach(b => {
     const tile = makeBoxerTile(b, 'unmatched-tile', b.category, { type: 'unmatched', id: b.id });
     list.appendChild(tile);
+    // Assist options expand inline, right under the clicked fighter (kept in place).
+    if (b.id === assistFocusId) {
+      const block = buildAssistBlock();
+      if (block) list.appendChild(block);
+    }
   });
 }
 

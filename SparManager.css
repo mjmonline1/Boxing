@@ -315,9 +315,10 @@ body { font-family: Arial, sans-serif; margin: 0; background: #f0f2f5; }
 .dva-chip.dropped { background: #6b2f2f; color: #ffd0d0; }
 .dva-chip.rate    { background: transparent; color: var(--muted, #8b98a5); }
 
-/* ── Match assistant (ranked partners for a clicked pool fighter) ── */
-#assist-panel {
-  margin: 8px 0; border: 1px solid var(--border, #444c56); border-radius: 8px;
+/* ── Match assistant (ranked partners, inline under the clicked pool fighter) ── */
+.assist-panel {
+  flex: 0 0 100%; width: 100%;   /* full row in the flex-wrap pool list */
+  margin: 2px 0 6px; border: 1px solid var(--accent, #e8a33d); border-radius: 8px;
   background: var(--surface, #2b3138); overflow: hidden;
 }
 .assist-head {
