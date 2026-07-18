@@ -179,6 +179,7 @@ function resetState() {
     // can be manually paired via the same drag-drop the rest of the pool uses.
     ...(originalData.manualMatch || []).map(b => ({ ...clone(b), manual: true })),
   ];
+  editLog = [];   // fresh edit log for this day's session (persisted history lives in the file)
 }
 
 function clone(x) { return JSON.parse(JSON.stringify(x)); }
@@ -669,13 +670,15 @@ function assistPair(candId) {
       !confirm(`SAFETY CHECK\n\n${a.name} and ${b.name} cross the minor/adult line (one is under 18).\n\nPair them anyway?`)) return;
 
   state.unmatched = state.unmatched.filter(x => x.id !== a.id && x.id !== b.id);
-  state.matches.push({
+  const nm = {
     sparId:     `S${Date.now()}`,
     red:        a,
     blue:       b,
     weightDiff: Math.abs(a.weight - b.weight).toFixed(2),
     category:   deriveCategory(a, b),
-  });
+  };
+  state.matches.push(nm);
+  logEdit('pair-added', nm, { via: 'assist', flags: SparAssist.flagsFor(a, b) });
   assistFocusId = null;
   populateCategoryFilter();
   render();
@@ -693,6 +696,7 @@ function assistAddToBout(sparId) {
       !confirm(`SAFETY CHECK\n\nAdding ${a.name} to this bout crosses the minor/adult line (one is under 18).\n\nAdd them anyway?`)) return;
 
   addMember(a.id, sparId);
+  logEdit('grew-added', m, { added: a.name, via: 'assist', flags: SparAssist.boutFlagsFor(a, m) });
   assistFocusId = null;
   populateCategoryFilter();
   render();
@@ -881,6 +885,7 @@ function renderPairs() {
 
     swapBtn.addEventListener('click', () => { swapMatch(m.sparId); render(); });
     delBtn.addEventListener('click',  () => {
+      logEdit('dropped', m);
       deleteMatch(m.sparId);
       populateCategoryFilter();
       render();
@@ -1011,8 +1016,57 @@ function renderPairs() {
         : 'drag to re-pair · Ctrl+drop unmatched here to start a group';
     card.appendChild(hint);
 
+    // Per-bout coach controls: "requested/consented" mark + free-text note. A requested bout
+    // is a first-class signal (coach/boxer asked for it) — persisted on the match and logged.
+    if (m.blue) card.appendChild(makeBoutControls(m));
+
     container.appendChild(card);
   });
+}
+
+// ── Per-bout consent mark + note, and the edit log ────────────────────────────
+// editLog captures the coach's deliberate decisions (assist pairings, drops, requested
+// marks, notes) as the training signal for the learning loop. Saved with the board.
+let editLog = [];
+function logEdit(action, m, extra = {}) {
+  editLog.push({
+    t: new Date().toISOString(), action,
+    sparId: m && m.sparId,
+    members: m ? GroupUtils.membersOf(m).map(b => b.name) : undefined,
+    ...extra,
+  });
+}
+
+function makeBoutControls(m) {
+  const foot = document.createElement('div');
+  foot.className = 'bout-controls';
+
+  const reqBtn = document.createElement('button');
+  reqBtn.type = 'button';
+  const paint = () => {
+    reqBtn.className = 'req-btn' + (m.consent ? ' active' : '');
+    reqBtn.textContent = m.consent ? '★ Requested' : '☆ Mark requested';
+  };
+  paint();
+  reqBtn.addEventListener('click', () => {
+    m.consent = !m.consent;
+    logEdit(m.consent ? 'mark-requested' : 'unmark-requested', m);
+    paint();
+    showToast(m.consent ? 'Marked as requested / consented' : 'Cleared requested mark');
+  });
+
+  const note = document.createElement('input');
+  note.type = 'text';
+  note.className = 'bout-note';
+  note.placeholder = 'note (e.g. requested by coach)…';
+  note.value = m.note || '';
+  note.addEventListener('change', () => {
+    const v = note.value.trim();
+    if ((m.note || '') !== v) { m.note = v || undefined; logEdit('note', m, { note: v }); }
+  });
+
+  foot.append(reqBtn, note);
+  return foot;
 }
 
 function renderUnmatched() {
@@ -1194,6 +1248,8 @@ async function exportJSON() {
     manualMatch: manual,
     ...(originalData?.phaseLog   ? { phaseLog:   originalData.phaseLog }   : {}),
     ...(originalData?.matchRisks ? { matchRisks: originalData.matchRisks } : {}),
+    // Accumulated coach-edit history — the training signal for the rig's learning loop.
+    editLog: [...(originalData?.editLog || []), ...editLog],
   };
   const note = incompleteMembers.length
     ? ` (${incompleteMembers.length} incomplete spar${incompleteMembers.length !== 1 ? 's' : ''} returned to pool)`

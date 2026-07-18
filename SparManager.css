@@ -280,6 +280,23 @@ body { font-family: Arial, sans-serif; margin: 0; background: #f0f2f5; }
 .phase-ok     { color: #8bc34a; }
 .phase-fail   { color: #e57373; }
 
+/* ── Per-bout coach controls (requested mark + note) ── */
+.bout-controls {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 10px; border-top: 1px solid var(--border, #eee);
+}
+.req-btn {
+  flex: 0 0 auto; padding: 4px 10px; border: 1px solid var(--border, #ccc);
+  border-radius: 12px; background: transparent; color: var(--muted, #888);
+  font-size: 11px; font-weight: bold; cursor: pointer; white-space: nowrap;
+}
+.req-btn.active { background: #e8a33d; border-color: #e8a33d; color: #3a2a08; }
+.bout-note {
+  flex: 1 1 auto; min-width: 0; padding: 4px 8px;
+  border: 1px solid var(--border, #ccc); border-radius: 6px;
+  background: var(--surface2, #f7f7f7); color: var(--text, #333); font-size: 12px;
+}
+
 /* ── Live diff vs auto proposal ── */
 #diff-vs-auto {
   display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
