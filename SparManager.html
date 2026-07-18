@@ -95,20 +95,6 @@
   </div>
 </div>
 
-<!-- Match assistant overlay: focus fighter + ranked suggestions below (same look as history) -->
-<div id="assistOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1100;align-items:center;justify-content:center;padding:2rem;">
-  <div style="background:var(--surface,#2b3138);border:1px solid var(--border,#444c56);border-radius:10px;width:100%;max-width:min(640px,94vw);max-height:82vh;display:flex;flex-direction:column;overflow:hidden;">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface2,#373e47);border-bottom:1px solid var(--border,#444c56);">
-      <div style="min-width:0;">
-        <strong id="assistTitle" style="font-size:16px;color:var(--text,#e6edf3);">Match assistant</strong>
-        <div id="assistSubtitle" style="margin-top:3px;font-size:12px;color:var(--muted,#8b98a5);"></div>
-      </div>
-      <button type="button" id="assistClose" style="background:none;border:none;color:var(--muted,#8b98a5);font-size:26px;line-height:1;cursor:pointer;flex:none;">&times;</button>
-    </div>
-    <div id="assistBody" style="overflow-y:auto;flex:1;padding:8px 0;"></div>
-  </div>
-</div>
-
 <script src="data-client.js"></script>
 <script src="group-utils.js"></script>
 <script src="spar-assist.js"></script>
@@ -603,14 +589,17 @@ function findBoxerName(id) {
 // hard stop is the minor↔adult safety line, which requires an explicit confirm to pair.
 let assistFocusId = null;
 
+// Click a pool fighter → open the SAME history popup, with ranked suggestions at the top
+// and this fighter's prior-day spar history below (see showFighterHistory's suggest mode).
 function openAssist(boxerId) {
   assistFocusId = boxerId;
-  renderAssistOverlay();
+  const focus = state.unmatched.find(b => b.id === boxerId);
+  if (focus) showFighterHistory(focus, { suggest: true });
 }
 
 function closeAssist() {
   assistFocusId = null;
-  document.getElementById('assistOverlay').style.display = 'none';
+  hideFighterHistory();
 }
 
 // One advisory chip. `danger` styles the minor↔adult safety flag prominently.
@@ -628,17 +617,8 @@ function candidateFlagChips(flags) {
   return chips.join('');
 }
 
-// Fill and show the assist modal: the focus fighter in the header, ranked suggestions below.
-function renderAssistOverlay() {
-  const overlay = document.getElementById('assistOverlay');
-  const focus = state.unmatched.find(b => b.id === assistFocusId);
-  if (!focus) { closeAssist(); return; }
-
-  document.getElementById('assistTitle').textContent = `Partners for ${focus.name}`;
-  document.getElementById('assistSubtitle').textContent =
-    `${focus.club} · ${focus.weight}kg · YOB ${focus.yob} · ${focus.experience} bouts · ${focus.category || ''}`;
-  const panel = document.getElementById('assistBody');
-
+// Build the ranked-suggestions HTML for `focus` (shown at the top of the history popup).
+function assistSuggestionsHtml(focus) {
   const ranked = SparAssist.rankCandidates(focus, state.unmatched, { matches: state.matches });
   const rows = ranked.map(r => `
     <div class="assist-row" data-cand="${r.boxer.id}">
@@ -665,17 +645,18 @@ function renderAssistOverlay() {
     </div>`;
   }).join('');
 
-  panel.innerHTML = `
+  return `
     <div class="assist-section-label">Pair with</div>
     <div class="assist-list">${rows || '<div class="assist-empty">No other fighters in the pool.</div>'}</div>
     ${boutRows ? `<div class="assist-section-label">Add to a bout (make a trio)</div><div class="assist-list">${boutRows}</div>` : ''}`;
+}
 
-  panel.querySelectorAll('.assist-pair-btn').forEach(btn =>
+// Wire the Pair/Add buttons inside a rendered suggestions block.
+function wireAssistButtons(container) {
+  container.querySelectorAll('.assist-pair-btn').forEach(btn =>
     btn.addEventListener('click', () => assistPair(parseInt(btn.dataset.cand))));
-  panel.querySelectorAll('.assist-add-btn').forEach(btn =>
+  container.querySelectorAll('.assist-add-btn').forEach(btn =>
     btn.addEventListener('click', () => assistAddToBout(btn.dataset.bout)));
-
-  overlay.style.display = 'flex';
 }
 
 // Pair the focus fighter with a chosen candidate. Mirrors the both-unmatched branch of
@@ -1199,16 +1180,7 @@ function bindStaticEvents() {
     if (e.target === e.currentTarget) hideFighterHistory();
   });
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') hideFighterHistory();
-  });
-
-  // Match-assistant overlay: close via ×, backdrop, or Escape
-  document.getElementById('assistClose').addEventListener('click', closeAssist);
-  document.getElementById('assistOverlay').addEventListener('click', e => {
-    if (e.target === e.currentTarget) closeAssist();
-  });
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeAssist();
+    if (e.key === 'Escape') { hideFighterHistory(); assistFocusId = null; }
   });
 
   // Auto-scroll the columns while dragging near their edges. Capture phase is
@@ -1414,10 +1386,11 @@ function fmtDMY(iso) {
   return `${dow} ${d}/${m}/${y}`;
 }
 
-async function showFighterHistory(boxer) {
+async function showFighterHistory(boxer, { suggest = false } = {}) {
   const overlay = document.getElementById('historyOverlay');
   const body    = document.getElementById('historyBody');
-  document.getElementById('historyTitle').textContent = `Spar history — ${boxer.name}`;
+  document.getElementById('historyTitle').textContent =
+    (suggest ? 'Match' : 'Spar history') + ` — ${boxer.name}`;
   // Full details of the selected fighter under the title.
   const d = [];
   if (boxer.club)            d.push(boxer.club);
@@ -1430,13 +1403,25 @@ async function showFighterHistory(boxer) {
   if (boxer.id != null)      d.push(`#${boxer.id}`);
   document.getElementById('historyDetails').textContent = d.join(' · ');
   overlay.style.display = 'flex';
-  body.innerHTML = '<div style="padding:12px;color:var(--muted,#8b98a5);">Loading history…</div>';
+
+  // Suggest mode: ranked partner/trio suggestions at the top, then this fighter's history below.
+  if (suggest) {
+    body.innerHTML =
+      `<div id="assistRegion" style="padding:4px 0 10px;">${assistSuggestionsHtml(boxer)}</div>
+       <div class="history-sep"></div>
+       <div class="assist-section-label" style="padding-left:0;">Prior-day spar history</div>
+       <div id="historyRegion"><div style="padding:12px;color:var(--muted,#8b98a5);">Loading history…</div></div>`;
+    wireAssistButtons(document.getElementById('assistRegion'));
+  } else {
+    body.innerHTML = '<div id="historyRegion"><div style="padding:12px;color:var(--muted,#8b98a5);">Loading history…</div></div>';
+  }
+  const hist = document.getElementById('historyRegion');
 
   let dates;
   try {
     dates = (await DataClient.getDates('spars')).filter(d => d < _today).sort();  // oldest → newest (left to right)
   } catch (e) {
-    body.innerHTML = `<div style="padding:12px;color:var(--red,#f85149);">Could not load spar dates: ${e.message}</div>`;
+    hist.innerHTML = `<div style="padding:12px;color:var(--red,#f85149);">Could not load spar dates: ${e.message}</div>`;
     return;
   }
 
@@ -1461,7 +1446,7 @@ async function showFighterHistory(boxer) {
   }
 
   if (!total) {
-    body.innerHTML = '<div style="padding:12px;color:var(--muted,#8b98a5);">No spars on any earlier day.</div>';
+    hist.innerHTML = '<div style="padding:12px;color:var(--muted,#8b98a5);">No spars on any earlier day.</div>';
     return;
   }
 
@@ -1487,7 +1472,7 @@ async function showFighterHistory(boxer) {
     html += '</div>';
   }
   html += '</div>';
-  body.innerHTML = html;
+  hist.innerHTML = html;
 }
 </script>
 <script src="theme.js"></script>

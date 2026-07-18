@@ -315,7 +315,8 @@ body { font-family: Arial, sans-serif; margin: 0; background: #f0f2f5; }
 .dva-chip.dropped { background: #6b2f2f; color: #ffd0d0; }
 .dva-chip.rate    { background: transparent; color: var(--muted, #8b98a5); }
 
-/* ── Match assistant (modal body; header/backdrop styled inline on #assistOverlay) ── */
+/* ── Match assistant (rendered at the top of the fighter-history popup) ── */
+.history-sep { border-top: 1px solid var(--border, #444c56); margin: 10px 0; }
 .assist-section-label {
   font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: .5px;
   color: var(--muted, #8b98a5); padding: 6px 10px 2px;
