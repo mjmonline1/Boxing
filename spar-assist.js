@@ -72,15 +72,40 @@
     };
   }
 
+  const MAX_SOFTEN = 0.7;   // even a flag the coach always overrides keeps 30% of its penalty
+  const nameOf = x => (x && (x.name != null ? x.name : x.id));
+
+  // One advisory penalty, optionally relaxed by how often the coach overrides that flag
+  // (rig/learn.js flagTolerance). minorAdult is handled separately and NEVER relaxed here.
+  function penalty(base, flagName, flags, learned) {
+    if (!flags[flagName]) return 0;
+    const tol = learned && learned.flagTolerance ? (learned.flagTolerance[flagName] || 0) : 0;
+    return base * (1 - Math.min(tol, 1) * MAX_SOFTEN);
+  }
+
+  // Learned pull toward pairings the coach actually favours (familiar) or marked requested
+  // (consented). Small on purpose — weight proximity must still dominate. Returns a negative nudge.
+  function affinityBonus(a, b, learned) {
+    if (!learned || !learned.affinity || !a || !b) return 0;
+    const rec = learned.affinity[[nameOf(a), nameOf(b)].sort().join('|')];
+    if (!rec) return 0;
+    const consent = Math.min(rec.consented || 0, 3) / 3;
+    const familiar = Math.min(rec.paired || 0, 3) / 3;
+    return -(2 * consent + 0.5 * familiar);
+  }
+
   // Soft suitability score (LOWER = better). Weight proximity dominates; the advisory breaks
   // add penalties but can never remove a candidate — a coach can always override. minorAdult
   // gets the largest penalty so it sinks to the bottom, yet still appears (with its flag).
-  function score(flags) {
+  // Pass { learned } (a rig/learn.js model) to bend scores toward the coach's own history;
+  // omit it and behaviour is byte-identical to the un-learned assistant.
+  function score(flags, { learned, a, b } = {}) {
     let s = Number.isFinite(flags.weightGap) ? flags.weightGap : 100;
-    if (flags.sameClub) s += 3;
-    if (flags.crossCategory) s += 2;
-    if (flags.crossGender) s += 8;
-    if (flags.minorAdult) s += 1000;
+    s += penalty(3, 'sameClub', flags, learned);
+    s += penalty(2, 'crossCategory', flags, learned);
+    s += penalty(8, 'crossGender', flags, learned);
+    if (flags.minorAdult) s += 1000;                 // safety line — never softened
+    s += affinityBonus(a, b, learned);
     return s;
   }
 
@@ -105,17 +130,19 @@
 
   // Rank existing bouts as places to ADD `boxer` (grow a pair into a trio, etc). Never filters
   // out a bout — skips only bouts the boxer is already in. Sorted best (closest) fit first.
-  function rankBouts(boxer, matches, { year } = {}) {
+  // `learned` (rig/learn.js) relaxes the advisory penalties per the coach's history; pair affinity
+  // is skipped here (group affinity is fuzzy — grow a bout on weight/flags, not on who-likes-whom).
+  function rankBouts(boxer, matches, { year, learned } = {}) {
     return (matches || [])
       .filter(m => !membersOf(m).some(x => idOf(x) === idOf(boxer)))
-      .map(m => { const flags = boutFlagsFor(boxer, m, { year }); return { match: m, sparId: m.sparId, flags, score: score(flags) }; })
+      .map(m => { const flags = boutFlagsFor(boxer, m, { year }); return { match: m, sparId: m.sparId, flags, score: score(flags, { learned }) }; })
       .sort((a, b) => a.score - b.score);
   }
 
   // Rank EVERY other pool member as a candidate partner for `boxer`. Never filters anyone out
   // (except the boxer themselves and anyone already sharing a bout with them, to avoid a
   // same-day rematch — pass allowRematch:true to include them too).
-  function rankCandidates(boxer, pool, { year, matches, allowRematch = false } = {}) {
+  function rankCandidates(boxer, pool, { year, matches, allowRematch = false, learned } = {}) {
     const partnered = new Set();
     if (!allowRematch && matches) {
       for (const m of matches) {
@@ -126,7 +153,7 @@
     return pool
       .map(x => x.boxer || x)                       // accept pool entries or raw boxers
       .filter(c => idOf(c) !== idOf(boxer) && !partnered.has(idOf(c)))
-      .map(c => { const flags = flagsFor(boxer, c, { year }); return { boxer: c, flags, score: score(flags) }; })
+      .map(c => { const flags = flagsFor(boxer, c, { year }); return { boxer: c, flags, score: score(flags, { learned, a: boxer, b: c }) }; })
       .sort((p, q) => p.score - q.score);
   }
 
