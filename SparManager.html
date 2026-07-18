@@ -155,9 +155,21 @@ async function loadAndRender() {
   }
 
   resetState();
+  await loadLearnedModel();
   populateCategoryFilter();
   render();
   bindStaticEvents();
+}
+
+// The rig learning model (coach's past flag-overrides + pairing affinity). Only learns from days
+// BEFORE the one being matched. Degrades to null (assistant behaves as before) on any failure —
+// e.g. on Netlify, where there is no local Spars dir to aggregate.
+let learnedModel = null;
+async function loadLearnedModel() {
+  try {
+    const res = await fetch(`/api/rig/model?before=${encodeURIComponent(getSelectedDate())}`);
+    learnedModel = res.ok ? await res.json() : null;
+  } catch { learnedModel = null; }
 }
 
 (async () => {
@@ -619,7 +631,7 @@ function candidateFlagChips(flags) {
 
 // Build the ranked-suggestions HTML for `focus` (shown at the top of the history popup).
 function assistSuggestionsHtml(focus) {
-  const ranked = SparAssist.rankCandidates(focus, state.unmatched, { matches: state.matches });
+  const ranked = SparAssist.rankCandidates(focus, state.unmatched, { matches: state.matches, learned: learnedModel });
   const rows = ranked.map(r => `
     <div class="assist-row" data-cand="${r.boxer.id}">
       <div class="assist-cand">
@@ -631,7 +643,7 @@ function assistSuggestionsHtml(focus) {
     </div>`).join('');
 
   // "Add to a bout" — grow an existing bout into a trio+ (top few closest fits).
-  const bouts = SparAssist.rankBouts(focus, state.matches.filter(m => m.blue), { }).slice(0, 6);
+  const bouts = SparAssist.rankBouts(focus, state.matches.filter(m => m.blue), { learned: learnedModel }).slice(0, 6);
   const boutRows = bouts.map(r => {
     const label = GroupUtils.membersOf(r.match).map(b => b.name).join(' + ');
     return `

@@ -237,6 +237,14 @@ app.get('/api/spar-dates', (req, res) => {
   res.json(dates);
 });
 
+// Rig learning model — aggregate of the coach's past decisions (flag-overrides + pairing
+// affinity), fed to SparManager's manual assistant. `?before=YYYY-MM-DD` excludes that day and
+// later (used when matching a specific day so it only learns from the past).
+app.get('/api/rig/model', (req, res) => {
+  const { buildModel } = require('./rig/learn');
+  res.json(buildModel({ before: req.query.before }));
+});
+
 // ---- STATUS + INTAKE ----
 
 app.get('/api/status', (req, res) => {
