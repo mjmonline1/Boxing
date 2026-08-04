@@ -13,6 +13,7 @@ const DataClient = (() => {
     async get(key, { date } = {}) {
       const qs = date ? `?date=${date}` : '';
       const res = await fetch(`${window.location.origin}/api/data/${key}${qs}`);
+      if (res.status === 404) return null;   // no data for this date yet → caller generates
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || res.statusText);
       return res.json();
     },
@@ -52,6 +53,7 @@ const DataClient = (() => {
       const params = new URLSearchParams({ key });
       if (date) params.set('date', date);
       const res = await fetch(`/api/db?${params}`);
+      if (res.status === 404) return null;   // no data for this date yet → caller generates
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || res.statusText);
       return res.json();
     },

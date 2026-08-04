@@ -15,6 +15,7 @@
   <span class="stats" id="stats"></span>
   <label class="date-label">Date:</label>
   <select id="dateSelect" class="date-select"></select>
+  <button id="mapBtn" title="Cluster boxers around attribute hubs and hunt for opponents visually">Map</button>
   <button id="resetBtn">Reset</button>
   <button id="exportBtn">Save Spars</button>
   <button class="theme-btn"></button>
@@ -66,6 +67,58 @@
 
 <div id="toast"></div>
 
+<!-- Attribute map: boxer nodes gravitate around attribute hubs (Gender → age/experience/
+     weight sub-hubs). Click a boxer to hunt — match lines show closeness, side panel ranks
+     the field. Nothing is auto-paired; rules stay advisory. -->
+<div id="mapOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1100;">
+  <div style="position:absolute;inset:2vh 2vw;background:var(--surface,#2b3138);border:1px solid var(--border,#444c56);border-radius:10px;display:flex;flex-direction:column;overflow:hidden;">
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--surface2,#373e47);border-bottom:1px solid var(--border,#444c56);flex-wrap:wrap;">
+      <strong style="font-size:16px;color:var(--text,#e6edf3);">Attribute Map</strong>
+      <span id="mapViewToggle" style="display:inline-flex;border:1px solid var(--border,#444c56);border-radius:6px;overflow:hidden;">
+        <button type="button" class="map-view-btn" data-view="graph" style="padding:4px 12px;border:none;cursor:pointer;">Graph</button>
+        <button type="button" class="map-view-btn" data-view="cluster" style="padding:4px 12px;border:none;cursor:pointer;">Cluster</button>
+        <button type="button" class="map-view-btn" data-view="scatter" style="padding:4px 12px;border:none;cursor:pointer;">Scatter</button>
+      </span>
+      <span id="mapGraphControls" style="display:inline-flex;align-items:center;gap:10px;">
+        <label style="font-size:12px;color:var(--muted,#8b98a5);">Cluster by</label>
+        <select id="mapPrimary">
+          <option value="gender">Gender</option>
+          <option value="age">Age group</option>
+          <option value="experience">Experience</option>
+          <option value="weight">Weight</option>
+        </select>
+        <label style="font-size:12px;color:var(--muted,#8b98a5);">then by</label>
+        <select id="mapSecondary">
+          <option value="">— none —</option>
+          <option value="age">Age group</option>
+          <option value="experience" selected>Experience</option>
+          <option value="weight">Weight</option>
+          <option value="gender">Gender</option>
+        </select>
+      </span>
+      <span id="mapClusterControls" style="display:none;align-items:center;gap:10px;">
+        <label style="font-size:12px;color:var(--muted,#8b98a5);">Cluster by</label>
+        <select id="mapCluster">
+          <option value="club">Club</option>
+          <option value="gender">Gender</option>
+          <option value="age">Age group</option>
+          <option value="experience">Experience</option>
+          <option value="weight">Weight</option>
+        </select>
+        <button type="button" id="mapConnectBtn" style="padding:4px 12px;cursor:pointer;">+ Connect</button>
+      </span>
+      <label style="font-size:12px;color:var(--muted,#8b98a5);display:flex;align-items:center;gap:4px;"><input type="checkbox" id="mapPoolOnly">unmatched only</label>
+      <span id="mapHint" style="font-size:11px;color:var(--muted,#8b98a5);margin-left:auto;">click a boxer to hunt · scroll = zoom · drag empty space = pan · drag a boxer to inspect · green = tight · amber = stretch</span>
+      <button type="button" id="mapFit" style="flex:none;padding:4px 10px;cursor:pointer;">Fit</button>
+      <button type="button" id="mapClose" style="background:none;border:none;color:var(--muted,#8b98a5);font-size:26px;line-height:1;cursor:pointer;flex:none;">&times;</button>
+    </div>
+    <div style="display:flex;flex:1;min-height:0;">
+      <canvas id="mapCanvas" style="flex:1;display:block;cursor:default;"></canvas>
+      <div id="mapSide" style="width:300px;flex:none;overflow-y:auto;border-left:1px solid var(--border,#444c56);padding:10px 12px;"></div>
+    </div>
+  </div>
+</div>
+
 <!-- Add fighter from roster (search + select → drop into the unmatched pool) -->
 <div id="addFighterOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1100;align-items:center;justify-content:center;padding:2rem;">
   <div style="background:var(--surface,#2b3138);border:1px solid var(--border,#444c56);border-radius:10px;width:100%;max-width:520px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden;">
@@ -95,9 +148,11 @@
   </div>
 </div>
 
+<script src="constants.js"></script>
 <script src="data-client.js"></script>
 <script src="group-utils.js"></script>
 <script src="spar-assist.js"></script>
+<script src="spar-map.js"></script>
 <script src="rig/diff.js"></script>
 <script>
 'use strict';
@@ -722,6 +777,682 @@ function assistAddToBout(sparId) {
   render();
   showToast(`Added ${a.name} to the bout`);
 }
+
+// ── Attribute map ─────────────────────────────────────────────────────────────
+// The graph view: attribute values are gravity hubs, boxers orbit them. Pure layout +
+// physics live in spar-map.js; this section owns the canvas, events and side panel.
+// Nothing here auto-pairs — clicking a boxer only lights up the field so the human
+// can hunt. Pair goes through the same assistPair path (advisory flags, minor↔adult
+// confirm) as the list assistant.
+const mapCanvas = document.getElementById('mapCanvas');
+const mapCtx    = mapCanvas.getContext('2d');
+let mapNodes = [], mapAnchors = new Map(), mapHubs = [], mapRAF = null;
+let mapSelectedId = null, mapDragNode = null, mapDragMoved = false;
+let mapPanning = false, mapPanStart = null, mapPanMoved = false;
+let mapFrozen = false;   // true once the layout settles, so nodes stop drifting and stay clickable
+let mapView = 'graph';   // 'graph' (attribute hubs) | 'cluster' (collections-style colour clusters) | 'scatter' (weight × bouts, auto-match box)
+
+// Cluster view state (modelled on the ITLR collections graph): boxers colour-clustered by
+// one attribute, spar pairs drawn as edges, +Connect makes a real spar.
+const CLUSTER_COLORS = ['#5eccc0','#e8845f','#7b9ff2','#e6c14b','#c471d4','#5bbf6a','#ef7aa6','#4bb7d6','#c98b4b','#9aa65b','#d95f5f','#8f7fe0'];
+let mapClusterColor = {};        // cluster label -> colour
+let mapClusterHi = null;         // spotlighted cluster (dims the rest)
+let mapConnectMode = false, mapConnectFirst = null;   // +Connect: pick two boxers to spar
+
+// Nodes live in a fixed virtual world larger than the canvas so clusters have room to
+// spread; the camera (pan + zoom) frames it. Screen = world * scale + offset.
+const MAP_WORLD = { w: 2400, h: 1600 };
+let mapCam = { x: 0, y: 0, scale: 1 };
+const screenToWorld = (sx, sy) => ({ x: (sx - mapCam.x) / mapCam.scale, y: (sy - mapCam.y) / mapCam.scale });
+
+const MAP_GROUPERS = {
+  club:       b => b.club || 'No club',
+  gender:     b => String(b.gender || '').toLowerCase().startsWith('f') ? 'Female' : 'Male',
+  age:        b => ageGroup(b.yob) || 'Unknown age',
+  experience: b => { const e = b.experience || 0; return e <= 5 ? '0–5 bouts' : e <= 15 ? '6–15 bouts' : e <= 30 ? '16–30 bouts' : '31+ bouts'; },
+  weight:     b => { const w = b.weight || 0; return w < 40 ? '30–40kg' : w < 50 ? '40–50kg' : w < 60 ? '50–60kg' : w < 70 ? '60–70kg' : w < 80 ? '70–80kg' : '80+kg'; },
+};
+
+// Everyone on the floor: the pool plus every fighter already in a bout (deduped),
+// each carrying their current load so busy boxers are visibly busy, not hidden.
+function buildMapNodes() {
+  const load = SparAssist.loadMap(state.matches);
+  const seen = new Map();
+  for (const b of state.unmatched) seen.set(b.id, { ...b, inPool: true });
+  if (!document.getElementById('mapPoolOnly').checked) {
+    for (const m of state.matches) for (const b of GroupUtils.membersOf(m))
+      if (!seen.has(b.id)) seen.set(b.id, { ...b, inPool: false });
+  }
+  mapNodes = [...seen.values()].map(b => ({
+    ...b, load: load.get(b.id) || 0,
+    x: MAP_WORLD.w / 2 + (Math.random() - 0.5) * 400,
+    y: MAP_WORLD.h / 2 + (Math.random() - 0.5) * 400,
+    vx: 0, vy: 0,
+  }));
+}
+
+function mapRelayout() {
+  const p = MAP_GROUPERS[document.getElementById('mapPrimary').value];
+  const sVal = document.getElementById('mapSecondary').value;
+  const s = sVal && sVal !== document.getElementById('mapPrimary').value ? MAP_GROUPERS[sVal] : null;
+  const out = SparMap.layout(mapNodes, p, s, MAP_WORLD.w, MAP_WORLD.h);
+  mapHubs = out.hubs;
+  mapAnchors = out.anchors;
+  // Seed every node AT its hub (with a little jitter) so it's already where fitView frames.
+  // Without this, freshly-built nodes sit at the world centre and appear to vanish when the
+  // camera fits the spread-out hubs (e.g. right after pairing rebuilds the floor).
+  for (const n of mapNodes) {
+    const a = mapAnchors.get(n);
+    if (a) { n.x = a.x + (Math.random() - 0.5) * 50; n.y = a.y + (Math.random() - 0.5) * 50; n.vx = 0; n.vy = 0; }
+  }
+  mapReheat();   // let repulsion separate the overlaps, then it re-freezes
+  fitView();
+}
+
+// Frame just one cluster's boxers (spotlight → zoom in on them). Falls back to fitView
+// when the cluster is empty.
+function fitCluster(label) {
+  const pts = mapNodes.filter(n => n._cluster === label);
+  if (!pts.length) return fitView();
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const n of pts) { minX = Math.min(minX, n.x); maxX = Math.max(maxX, n.x); minY = Math.min(minY, n.y); maxY = Math.max(maxY, n.y); }
+  const pad = 160;
+  const bw = Math.max(maxX - minX + pad * 2, 1), bh = Math.max(maxY - minY + pad * 2, 1);
+  mapCam.scale = Math.min(mapCanvas.width / bw, mapCanvas.height / bh, 2.2);
+  mapCam.x = (mapCanvas.width  - bw * mapCam.scale) / 2 - (minX - pad) * mapCam.scale;
+  mapCam.y = (mapCanvas.height - bh * mapCam.scale) / 2 - (minY - pad) * mapCam.scale;
+}
+
+// Frame all hubs (with padding for their orbiting nodes) in the canvas.
+function fitView() {
+  if (!mapHubs.length) return;
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const h of mapHubs) {
+    minX = Math.min(minX, h.x); maxX = Math.max(maxX, h.x);
+    minY = Math.min(minY, h.y); maxY = Math.max(maxY, h.y);
+  }
+  const pad = 220;
+  const bw = Math.max(maxX - minX + pad * 2, 1), bh = Math.max(maxY - minY + pad * 2, 1);
+  mapCam.scale = Math.min(mapCanvas.width / bw, mapCanvas.height / bh, 1.6);
+  mapCam.x = (mapCanvas.width  - bw * mapCam.scale) / 2 - (minX - pad) * mapCam.scale;
+  mapCam.y = (mapCanvas.height - bh * mapCam.scale) / 2 - (minY - pad) * mapCam.scale;
+}
+
+function openMap() {
+  document.getElementById('mapOverlay').style.display = 'block';
+  const wrap = mapCanvas.parentElement;
+  mapCanvas.width  = wrap.clientWidth - 300;   // side panel is 300px
+  mapCanvas.height = wrap.clientHeight;
+  mapSelectedId = null;
+  mapConnectMode = false; mapConnectFirst = null; mapClusterHi = null;
+  setMapView('graph');    // builds nodes, lays out, styles toggle, renders side panel
+  cancelAnimationFrame(mapRAF);
+  mapReheat();
+  const tick = () => {
+    if (mapView === 'graph' || mapView === 'cluster') {
+      if (!mapFrozen) {
+        SparMap.simStep(mapNodes, mapAnchors, { repel: 92, pull: 0.014 });
+        let moving = 0;
+        for (const n of mapNodes) moving += Math.abs(n.vx) + Math.abs(n.vy);
+        if (moving < mapNodes.length * 0.35) mapFrozen = true;   // settled → stop drifting
+      }
+      if (mapView === 'graph') drawMap(); else drawCluster();
+    } else {
+      drawScatter();   // static: fixed axes, no physics
+    }
+    mapRAF = requestAnimationFrame(tick);
+  };
+  tick();
+}
+
+// Wake the sim so it re-settles after a change (relayout, drag, pair).
+function mapReheat() { mapFrozen = false; }
+
+// Switch between the hub-graph and the weight×bouts scatter. Graph-only controls hide in
+// scatter mode; the toolbar hint updates. Selection + side panel + pairing are shared.
+function setMapView(view) {
+  mapView = view;
+  mapConnectMode = false; mapConnectFirst = null;   // leaving/entering a view drops any half-made link
+  styleConnectBtn();
+  document.getElementById('mapGraphControls').style.display   = view === 'graph'   ? 'inline-flex' : 'none';
+  document.getElementById('mapClusterControls').style.display = view === 'cluster' ? 'inline-flex' : 'none';
+  document.getElementById('mapFit').style.display             = view === 'scatter' ? 'none' : 'inline-block';
+  document.getElementById('mapHint').textContent =
+      view === 'graph'   ? 'click a boxer to hunt · scroll = zoom · drag empty space = pan · drag a boxer to inspect · green = tight · amber = stretch'
+    : view === 'cluster' ? 'colour = cluster · line = spar · click legend to spotlight · click empty space to clear · + Connect: click two boxers to spar them'
+    :                      'click a leftover · dashed box = auto-match zone (±2kg × same tier) · dots outside are the judgement calls · hollow = already matched';
+  for (const b of document.querySelectorAll('.map-view-btn')) {
+    const on = b.dataset.view === view;
+    b.style.background = on ? 'var(--accent,#2f81f7)' : 'transparent';
+    b.style.color = on ? '#fff' : 'var(--muted,#8b98a5)';
+  }
+  buildMapNodes();
+  if (view === 'graph') mapRelayout(); else if (view === 'cluster') clusterRelayout(); else layoutScatter();
+  renderMapSide();
+}
+
+// ── Cluster view: collections-graph style ────────────────────────────────────────
+// Colour boxers by one chosen attribute, arrange the clusters on a ring, draw spar pairs
+// as edges over the top. Reuses the graph's camera, physics and drag/pan handlers.
+function clusterRelayout() {
+  const fn = MAP_GROUPERS[document.getElementById('mapCluster').value] || MAP_GROUPERS.club;
+  for (const n of mapNodes) n._cluster = fn(n);
+  const out = SparMap.layout(mapNodes, fn, null, MAP_WORLD.w, MAP_WORLD.h);
+  mapHubs = out.hubs; mapAnchors = out.anchors;
+  const labels = [...new Set(mapHubs.map(h => h.label))];
+  mapClusterColor = Object.fromEntries(labels.map((l, i) => [l, CLUSTER_COLORS[i % CLUSTER_COLORS.length]]));
+  for (const n of mapNodes) {   // seed at the cluster so fitView frames them (see mapRelayout)
+    const a = mapAnchors.get(n);
+    if (a) { n.x = a.x + (Math.random() - 0.5) * 50; n.y = a.y + (Math.random() - 0.5) * 50; n.vx = 0; n.vy = 0; }
+  }
+  mapReheat();
+  fitView();
+}
+
+function drawCluster() {
+  const ctx = mapCtx;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
+  ctx.setTransform(mapCam.scale, 0, 0, mapCam.scale, mapCam.x, mapCam.y);
+
+  // spar edges (every within-bout pair, so trios show as a triangle)
+  const byId = new Map(mapNodes.map(n => [n.id, n]));
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 2 / mapCam.scale;
+  for (const m of state.matches) {
+    const mem = GroupUtils.membersOf(m);
+    for (let i = 0; i < mem.length; i++) for (let j = i + 1; j < mem.length; j++) {
+      const a = byId.get(mem[i].id), b = byId.get(mem[j].id);
+      if (!a || !b) continue;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    }
+  }
+
+  // cluster labels
+  ctx.textAlign = 'center';
+  for (const h of mapHubs) {
+    ctx.globalAlpha = mapClusterHi && h.label !== mapClusterHi ? 0.3 : 1;
+    ctx.fillStyle = mapClusterColor[h.label] || '#fff';
+    ctx.font = 'bold 15px sans-serif';
+    ctx.fillText(`${h.label} (${h.count})`, h.x, h.y - 14);
+  }
+  ctx.globalAlpha = 1;
+
+  // nodes
+  for (const n of mapNodes) {
+    const isSel = n.id === mapSelectedId;
+    const dim = mapClusterHi && n._cluster !== mapClusterHi;
+    const r = isSel ? 12 : 9;
+    ctx.globalAlpha = dim ? 0.12 : (n.inPool ? 1 : 0.65);
+    ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, 2 * Math.PI);
+    ctx.fillStyle = mapClusterColor[n._cluster] || '#888'; ctx.fill();
+    if (isSel)                      { ctx.lineWidth = 3.5; ctx.strokeStyle = '#ffffff'; ctx.stroke(); }
+    else if (n.id === mapConnectFirst) { ctx.lineWidth = 3; ctx.strokeStyle = '#e6c14b'; ctx.stroke(); }
+    else if (n.load > 0)            { ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.stroke(); }
+    const showLabel = !dim && (isSel || n.id === mapConnectFirst || mapCam.scale > 0.6);
+    if (showLabel) {
+      ctx.globalAlpha = 1;
+      ctx.font = isSel ? 'bold 12px sans-serif' : '11px sans-serif';
+      const ly = n.y + r + 12, tw = ctx.measureText(n.name).width;
+      ctx.fillStyle = 'rgba(20,24,28,0.65)'; ctx.fillRect(n.x - tw / 2 - 2, ly - 9, tw + 4, 13);
+      ctx.fillStyle = '#eef3f8'; ctx.fillText(n.name, n.x, ly + 1);
+    }
+    ctx.globalAlpha = 1;
+  }
+}
+
+function styleConnectBtn() {
+  const btn = document.getElementById('mapConnectBtn');
+  if (!btn) return;
+  btn.style.background = mapConnectMode ? 'var(--accent,#2f81f7)' : '';
+  btn.style.color = mapConnectMode ? '#fff' : '';
+}
+
+// A click on a boxer while +Connect is armed. First pick highlights; second pick sparred
+// them via the same assistPair path (flags, minor↔adult confirm, editLog) as everywhere else.
+function clusterConnectClick(id) {
+  if (mapConnectFirst == null) { mapConnectFirst = id; return; }
+  if (id === mapConnectFirst)  { mapConnectFirst = null; return; }   // clicked self → cancel pick
+  const a = state.unmatched.find(x => x.id === mapConnectFirst);
+  const b = state.unmatched.find(x => x.id === id);
+  if (!a || !b) {   // one of them is already in a spar — assistPair only pairs from the pool
+    showToast('Both boxers must be unmatched to connect');
+    mapConnectFirst = null; return;
+  }
+  assistFocusId = mapConnectFirst;
+  assistPair(id);                 // creates the spar + re-renders the board
+  mapConnectFirst = null; mapConnectMode = false; styleConnectBtn();
+  buildMapNodes(); clusterRelayout(); renderMapSide();
+}
+
+// ── Scatter view: weight (x) × bouts (y), with the auto-match acceptance box ──────
+// Purpose: for a leftover, show the same-attribute field on the two continuous axes the
+// auto-matcher cares about, and draw the box it would have accepted (±2kg × the boxer's
+// experience tier). Dots just OUTSIDE the box are the near-misses a human must judge.
+const SCATTER_PAD = { l: 58, r: 26, t: 26, b: 46 };
+let mapScatter = null;   // { sx, sy, dom, x0,x1,y0,y1 } — set by layoutScatter
+
+const tierOf = bouts => {
+  const b = bouts || 0;
+  return EXPERIENCE_TIERS.find(t => b >= t.min && b <= t.max) || EXPERIENCE_TIERS[EXPERIENCE_TIERS.length - 1];
+};
+
+function layoutScatter() {
+  let wMin = Infinity, wMax = -Infinity, bMax = 0;
+  for (const n of mapNodes) { wMin = Math.min(wMin, n.weight || 0); wMax = Math.max(wMax, n.weight || 0); bMax = Math.max(bMax, n.experience || 0); }
+  if (!isFinite(wMin) || wMin === wMax) { wMin = (wMin || 60) - 5; wMax = (wMax || 60) + 5; }
+  const wpad = Math.max(2, (wMax - wMin) * 0.12);
+  const dom = { wMin: wMin - wpad, wMax: wMax + wpad, bMin: 0, bMax: Math.max(bMax + 2, 12) };
+  const W = mapCanvas.width, H = mapCanvas.height;
+  const x0 = SCATTER_PAD.l, x1 = W - SCATTER_PAD.r, y0 = H - SCATTER_PAD.b, y1 = SCATTER_PAD.t;
+  const sx = w => x0 + (w - dom.wMin) / (dom.wMax - dom.wMin) * (x1 - x0);
+  const sy = b => y0 + (b - dom.bMin) / (dom.bMax - dom.bMin) * (y1 - y0);
+  for (const n of mapNodes) { n.sx = sx(n.weight || 0); n.sy = sy(n.experience || 0); }
+  mapScatter = { sx, sy, dom, x0, x1, y0, y1 };
+}
+
+// Would the auto-matcher have accepted this pair? Same gender + within ±2kg + same
+// experience tier (its category axis). This defines who sits INSIDE the box.
+function autoWouldMatch(sel, o) {
+  return sel.gender === o.gender
+    && Math.abs((sel.weight || 0) - (o.weight || 0)) <= SparAssist.WEIGHT_RULE + 1e-9
+    && tierOf(sel.experience).key === tierOf(o.experience).key;
+}
+
+function drawScatter() {
+  const ctx = mapCtx, S = mapScatter;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
+  if (!S) return;
+  const sel = mapSelected();
+
+  // axes
+  ctx.strokeStyle = 'rgba(160,172,185,0.5)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(S.x0, S.y1); ctx.lineTo(S.x0, S.y0); ctx.lineTo(S.x1, S.y0); ctx.stroke();
+  ctx.fillStyle = 'rgba(225,233,242,1)'; ctx.font = 'bold 15px sans-serif';
+  ctx.textAlign = 'center'; ctx.fillText('weight (kg) →', (S.x0 + S.x1) / 2, S.y0 + 36);
+  ctx.save(); ctx.translate(18, (S.y0 + S.y1) / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('bouts →', 0, 0); ctx.restore();
+  // gridline ticks
+  ctx.fillStyle = 'rgba(190,201,214,1)'; ctx.font = '13px sans-serif';
+  for (let i = 0; i <= 4; i++) {
+    const w = S.dom.wMin + (S.dom.wMax - S.dom.wMin) * i / 4;
+    ctx.textAlign = 'center'; ctx.fillText(w.toFixed(0), S.sx(w), S.y0 + 18);
+    const b = S.dom.bMin + (S.dom.bMax - S.dom.bMin) * i / 4;
+    ctx.textAlign = 'right'; ctx.fillText(b.toFixed(0), S.x0 - 8, S.sy(b) + 4);
+  }
+
+  // auto-match box for the selected boxer
+  if (sel) {
+    const t = tierOf(sel.experience);
+    const bx0 = S.sx((sel.weight || 0) - SparAssist.WEIGHT_RULE), bx1 = S.sx((sel.weight || 0) + SparAssist.WEIGHT_RULE);
+    const by0 = S.sy(Math.max(t.min, S.dom.bMin)), by1 = S.sy(Math.min(t.max === Infinity ? S.dom.bMax : t.max, S.dom.bMax));
+    ctx.strokeStyle = 'rgba(63,185,80,0.9)'; ctx.setLineDash([6, 5]); ctx.lineWidth = 1.5;
+    ctx.strokeRect(Math.min(bx0, bx1), Math.min(by0, by1), Math.abs(bx1 - bx0), Math.abs(by1 - by0));
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(88,214,105,1)'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(`auto-match zone · ${t.key} · ±${SparAssist.WEIGHT_RULE}kg`, Math.min(bx0, bx1) + 3, Math.min(by0, by1) - 7);
+  }
+
+  // dots
+  for (const n of mapNodes) {
+    const isSel = n.id === mapSelectedId;
+    let fill, muted = false;
+    if (!sel) { fill = `hsl(${SparMap.weightHue(n.weight)},70%,58%)`; }
+    else if (isSel) { fill = '#ffffff'; }
+    else if (autoWouldMatch(sel, n)) { fill = 'rgba(63,185,80,0.95)'; }        // inside box
+    else {
+      const flags = SparAssist.flagsFor(sel, n);
+      const sc = SparAssist.score(flags, { learned: learnedModel, a: sel, b: n });
+      if (sc <= 6) fill = 'rgba(230,170,40,0.95)';                             // just outside
+      else { fill = 'rgba(150,163,176,0.9)'; muted = true; }                    // far
+    }
+    const r = isSel ? 8 : 6;
+    ctx.globalAlpha = muted ? 0.35 : 1;
+    if (n.load > 0 && !isSel) {   // already matched → hollow ring
+      ctx.strokeStyle = fill; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(n.sx, n.sy, r, 0, 2 * Math.PI); ctx.stroke();
+    } else {
+      ctx.fillStyle = fill;
+      ctx.beginPath(); ctx.arc(n.sx, n.sy, r, 0, 2 * Math.PI); ctx.fill();
+      if (isSel) { ctx.strokeStyle = '#2f81f7'; ctx.lineWidth = 3; ctx.stroke(); }
+    }
+    ctx.globalAlpha = 1;
+    // label the focus + its near candidates only
+    const near = sel && (isSel || autoWouldMatch(sel, n) || SparAssist.score(SparAssist.flagsFor(sel, n), { learned: learnedModel, a: sel, b: n }) <= 6);
+    if (near || !sel && mapNodes.length <= 24) {
+      ctx.font = isSel ? 'bold 14px sans-serif' : '13px sans-serif';
+      const tw = ctx.measureText(n.name).width; ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(16,20,24,0.85)'; ctx.fillRect(n.sx - tw / 2 - 3, n.sy - r - 18, tw + 6, 16);
+      ctx.fillStyle = '#f2f7fc'; ctx.fillText(n.name, n.sx, n.sy - r - 5);
+    }
+  }
+
+  drawScatterGuide(ctx, S, sel);
+}
+
+// Legend + how-to. Colours mirror the dot logic above. When nothing is picked,
+// tell the coach the one thing to do; once picked, explain what the colours mean.
+function drawScatterGuide(ctx, S, sel) {
+  if (!sel) {
+    ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(240,245,250,1)';
+    ctx.fillText('Click a dot to see who the auto-matcher would accept for that boxer', (S.x0 + S.x1) / 2, S.y1 + 8);
+    ctx.font = '13px sans-serif'; ctx.fillStyle = 'rgba(205,214,225,0.95)';
+    ctx.fillText('x = weight · y = experience (bouts)', (S.x0 + S.x1) / 2, S.y1 + 30);
+    return;
+  }
+  const rows = [
+    ['rgba(88,214,105,1)',   'inside box — auto-match'],
+    ['rgba(240,182,55,1)',   'near-miss — your call'],
+    ['rgba(168,180,193,1)',  'too far apart'],
+    ['ring',                 'already matched'],
+  ];
+  const lh = 22, bw = 210, bh = rows.length * lh + 14;
+  const bx = S.x1 - bw, by = S.y1;
+  ctx.fillStyle = 'rgba(18,22,26,0.82)'; ctx.fillRect(bx, by, bw, bh);
+  ctx.font = '14px sans-serif'; ctx.textAlign = 'left';
+  rows.forEach(([c, label], i) => {
+    const cy = by + 12 + i * lh + 6, cx = bx + 14;
+    if (c === 'ring') { ctx.strokeStyle = 'rgba(210,219,228,1)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy - 4, 6, 0, 2 * Math.PI); ctx.stroke(); }
+    else { ctx.fillStyle = c; ctx.beginPath(); ctx.arc(cx, cy - 4, 6, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.fillStyle = 'rgba(236,242,248,1)'; ctx.fillText(label, cx + 16, cy);
+  });
+}
+
+function scatterNodeAtEvent(e) {
+  const p = mapPointer(e);
+  let best = null, bestD = 16;
+  for (const n of mapNodes) {
+    if (n.sx == null) continue;
+    const d = Math.hypot(n.sx - p.x, n.sy - p.y);
+    if (d <= bestD) { bestD = d; best = n; }
+  }
+  return best;
+}
+
+function mapRelayoutForView() { if (mapView === 'graph') mapRelayout(); else if (mapView === 'cluster') clusterRelayout(); else layoutScatter(); }
+
+// Read-only introspection for automated tests (no effect on behaviour).
+window.__map = () => ({
+  nodes: mapNodes.map(n => ({ id: n.id, name: n.name, x: n.x, y: n.y, sx: n.sx, sy: n.sy, inPool: n.inPool })),
+  sel: mapSelectedId, frozen: mapFrozen, cam: { ...mapCam }, view: mapView,
+});
+
+function closeMap() {
+  cancelAnimationFrame(mapRAF);
+  mapRAF = null;
+  document.getElementById('mapOverlay').style.display = 'none';
+}
+
+function mapSelected() { return mapNodes.find(n => n.id === mapSelectedId); }
+
+// Edge style from the assistant's own score, so the map and the list always agree.
+// Returns null when the pair is NOT a real candidate — no line is drawn, so the field
+// only shows viable partners instead of a web to everyone.
+function edgeStyle(sel, other) {
+  const flags = SparAssist.flagsFor(sel, other);
+  // minor↔adult draws no edge — the line just clutters the map. The pairing is still
+  // reachable and the side panel keeps its ⚠ MINOR↔ADULT chip + the pair-time safety confirm.
+  if (flags.minorAdult) return null;
+  const s = SparAssist.score(flags, { learned: learnedModel, a: sel, b: other });
+  if (s <= SparAssist.WEIGHT_RULE) return { color: 'rgba(63,185,80,0.95)', width: 3, dash: [] };
+  if (s <= 6)            return { color: 'rgba(230,170,40,0.9)', width: 2, dash: [] };
+  return null;   // far → not a candidate → draw nothing
+}
+
+function drawMap() {
+  const ctx = mapCtx;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
+  ctx.setTransform(mapCam.scale, 0, 0, mapCam.scale, mapCam.x, mapCam.y);  // world → screen
+
+  const sel = mapSelected();
+  const candidateIds = new Set();   // nodes that got a line — the field to focus on
+  if (sel) {
+    for (const n of mapNodes) {
+      if (n.id === sel.id) continue;
+      const st = edgeStyle(sel, n);
+      if (!st) continue;            // non-candidate → no line, no distraction
+      candidateIds.add(n.id);
+      ctx.strokeStyle = st.color; ctx.lineWidth = st.width; ctx.setLineDash(st.dash);
+      ctx.beginPath(); ctx.moveTo(sel.x, sel.y); ctx.lineTo(n.x, n.y); ctx.stroke();
+    }
+    ctx.setLineDash([]);
+  }
+
+  ctx.textAlign = 'center';
+  for (const h of mapHubs) {
+    ctx.fillStyle = h.sub ? 'rgba(200,210,222,0.95)' : '#ffffff';
+    ctx.font = h.sub ? '12px sans-serif' : 'bold 16px sans-serif';
+    ctx.fillText(`${h.label} (${h.count})`, h.x, h.y - (h.sub ? 9 : 13));
+    ctx.strokeStyle = 'rgba(160,172,185,0.45)';
+    ctx.beginPath(); ctx.arc(h.x, h.y, h.sub ? 4 : 6, 0, 2 * Math.PI); ctx.stroke();
+  }
+
+  for (const n of mapNodes) {
+    const isSel = n.id === mapSelectedId;
+    // with a selection active, mute everyone who isn't the focus or a candidate
+    const muted = sel && !isSel && !candidateIds.has(n.id);
+    const r = isSel ? 12 : 8;
+    ctx.globalAlpha = muted ? 0.18 : (n.inPool ? 1 : 0.6);
+    ctx.fillStyle = `hsl(${SparMap.weightHue(n.weight)},72%,58%)`;
+    ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, 2 * Math.PI); ctx.fill();
+    ctx.lineWidth = isSel ? 3.5 : 1.5;
+    ctx.strokeStyle = isSel ? '#ffffff'
+      : MAP_GROUPERS.gender(n) === 'Female' ? '#e77fb3' : '#6cb2ff';
+    ctx.stroke();
+    // name label with a dark backing so it stays legible over lines/nodes. To avoid a wall
+    // of overlapping text, labels show only for the focus + its candidates, or (with no
+    // selection) once you've zoomed in past 0.7. Otherwise nodes stay clean dots.
+    const showLabel = !muted && (isSel || candidateIds.has(n.id) || mapCam.scale > 0.7);
+    if (showLabel) {
+      ctx.globalAlpha = 1;
+      ctx.font = isSel ? 'bold 12px sans-serif' : '11px sans-serif';
+      const ly = n.y + r + 12;
+      const tw = ctx.measureText(n.name).width;
+      ctx.fillStyle = 'rgba(20,24,28,0.65)';
+      ctx.fillRect(n.x - tw / 2 - 2, ly - 9, tw + 4, 13);
+      ctx.fillStyle = '#eef3f8';
+      ctx.fillText(n.name, n.x, ly + 1);
+    }
+    // load badge: a bright pill = how many spars this boxer is ALREADY in today
+    if (n.load > 0 && !muted) {
+      const bx = n.x + r + 8, by = n.y - r + 2;
+      ctx.fillStyle = '#e0a020';
+      ctx.beginPath(); ctx.arc(bx, by, 7, 0, 2 * Math.PI); ctx.fill();
+      ctx.fillStyle = '#1a1d21'; ctx.font = 'bold 10px sans-serif';
+      ctx.fillText(String(n.load), bx, by + 3.5);
+    }
+  }
+}
+
+// Hit-test in WORLD space. Picks the NEAREST node within a generous ~18px screen target
+// (not just any node the cursor happens to fall inside), so an off-centre click in a dense
+// cluster still grabs the dot you aimed at. The threshold is screen-constant: bigger in
+// world units when zoomed out, so tiny dots stay easy to hit.
+function mapNodeAt(wx, wy) {
+  const rWorld = 18 / mapCam.scale;
+  let best = null, bestD = rWorld;
+  for (const n of mapNodes) {
+    const d = Math.hypot(n.x - wx, n.y - wy);
+    if (d <= bestD) { bestD = d; best = n; }
+  }
+  return best;
+}
+
+function mapPointer(e) {
+  const r = mapCanvas.getBoundingClientRect();
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+function mapNodeAtEvent(e) { const p = mapPointer(e); const w = screenToWorld(p.x, p.y); return mapNodeAt(w.x, w.y); }
+
+// Side panel: the hunt readout. Same ranking engine as the list assistant; Pair only
+// offered when both fighters are in the pool (busy candidates say so instead).
+function renderMapSide() {
+  const side = document.getElementById('mapSide');
+  const sel = mapSelected();
+  if (mapView === 'cluster') { renderClusterSide(side, sel); return; }
+  if (!sel) {
+    side.innerHTML = `<div class="assist-empty" style="padding:8px 0;">Click a boxer to hunt for an opponent.<br><br>Node fill = weight (blue→red) · ring = gender · ×N = spars already on the board · faded = already matched.</div>`;
+    return;
+  }
+  const ranked = SparAssist.rankCandidates(sel, mapNodes, { matches: state.matches, learned: learnedModel }).slice(0, 15);
+  const rows = ranked.map(r => {
+    const busy = !r.boxer.inPool;
+    const canPair = sel.inPool && !busy;
+    return `
+    <div class="assist-row" data-cand="${r.boxer.id}">
+      <div class="assist-cand">
+        <span class="assist-cand-name">${r.boxer.name}${r.boxer.load ? ` <span style="color:#d29922;font-size:10px;">×${r.boxer.load}</span>` : ''}</span>
+        <span class="assist-cand-sub">${r.boxer.club} · ${r.boxer.weight}kg · ${r.boxer.experience} bouts</span>
+        <div class="assist-chips">${candidateFlagChips(r.flags)}</div>
+      </div>
+      ${canPair ? `<button class="assist-pair-btn" data-cand="${r.boxer.id}">Pair</button>`
+                : `<span style="font-size:10px;color:var(--muted,#8b98a5);flex:none;">${busy ? 'in spars' : ''}</span>`}
+    </div>`;
+  }).join('');
+  side.innerHTML = `
+    <div style="margin-bottom:6px;">
+      <strong style="color:var(--text,#e6edf3);">${sel.name}</strong>
+      <div class="assist-cand-sub">${sel.club} · ${sel.gender} · ${sel.weight}kg · ${sel.experience} bouts · yob ${sel.yob}${sel.load ? ` · ×${sel.load} today` : ''}</div>
+    </div>
+    <div class="assist-section-label">Closest first — nothing filtered</div>
+    <div class="assist-list" style="max-height:none;">${rows || '<div class="assist-empty">Nobody else on the floor.</div>'}</div>`;
+  side.querySelectorAll('.assist-pair-btn').forEach(btn =>
+    btn.addEventListener('click', () => mapPair(parseInt(btn.dataset.cand))));
+}
+
+// Cluster side panel: the colour legend (click a row to spotlight one cluster) plus, when a
+// boxer is picked, who they're already sparring. Handlers bind by index so club names with
+// quotes/ampersands never need escaping.
+function renderClusterSide(side, sel) {
+  const counts = {};
+  for (const n of mapNodes) counts[n._cluster] = (counts[n._cluster] || 0) + 1;
+  const labels = Object.keys(counts).sort();
+  const legend = labels.map((l, i) => `
+    <div class="cl-leg" data-i="${i}" style="display:flex;align-items:center;gap:7px;padding:3px 6px;cursor:pointer;border-radius:6px;${l === mapClusterHi ? 'outline:1px solid var(--accent,#2f81f7);' : ''}">
+      <span style="width:12px;height:12px;border-radius:3px;flex:none;background:${mapClusterColor[l] || '#888'};"></span>
+      <span style="color:var(--text,#e6edf3);">${l} <span style="color:var(--muted,#8b98a5);">(${counts[l]})</span></span>
+    </div>`).join('');
+  let selHtml = '';
+  if (sel) {
+    const partners = state.matches.flatMap(m => {
+      const mem = GroupUtils.membersOf(m);
+      return mem.some(x => x.id === sel.id) ? mem.filter(x => x.id !== sel.id).map(x => x.name) : [];
+    });
+    selHtml = `<div style="margin-top:10px;border-top:1px solid var(--border,#444c56);padding-top:8px;">
+      <strong style="color:var(--text,#e6edf3);">${sel.name}</strong>
+      <div class="assist-cand-sub">${sel.club} · ${sel.gender} · ${sel.weight}kg · ${sel.experience} bouts</div>
+      <div class="assist-cand-sub" style="margin-top:4px;">${partners.length ? 'Sparring: ' + partners.join(', ') : 'No spar yet'}</div>
+    </div>`;
+  }
+  side.innerHTML = `<div class="assist-section-label">Clusters — click to spotlight</div>${legend}${selHtml}`;
+  side.querySelectorAll('.cl-leg').forEach(d => d.addEventListener('click', () => {
+    const l = labels[+d.dataset.i];
+    mapClusterHi = mapClusterHi === l ? null : l;
+    if (mapClusterHi) fitCluster(mapClusterHi); else fitView();   // zoom to the spotlit cluster
+    renderMapSide();
+  }));
+}
+
+// Pair from the map: reuse assistPair (same flags, same minor↔adult confirm, same
+// editLog trail), then rebuild the floor in place.
+function mapPair(candId) {
+  assistFocusId = mapSelectedId;
+  assistPair(candId);
+  mapSelectedId = null;     // the focus boxer is now placed — clear the hunt
+  buildMapNodes();
+  mapRelayoutForView();     // graph: reseed at hubs · scatter: recompute axes
+  renderMapSide();
+}
+
+const MAP_DRAG_SLOP = 4;   // px of movement before a press counts as a drag, not a click
+let mapDownAt = null, mapScatterDownHit = null;
+mapCanvas.addEventListener('mousedown', e => {
+  const p = mapPointer(e);
+  mapDownAt = p;
+  if (mapView === 'scatter') { mapScatterDownHit = scatterNodeAtEvent(e); return; }  // scatter = click-select only
+  mapDragNode = mapNodeAtEvent(e);
+  mapDragMoved = false;
+  if (mapDragNode) {
+    mapDragNode.pinned = true;                 // a plain click won't wake the sim; only a drag does
+  } else {                                     // empty space → pan the camera
+    mapPanning = true; mapPanMoved = false;
+    mapPanStart = { x: p.x - mapCam.x, y: p.y - mapCam.y };
+    mapCanvas.style.cursor = 'grabbing';
+  }
+});
+mapCanvas.addEventListener('mousemove', e => {
+  const p = mapPointer(e);
+  if (mapView === 'scatter') { mapCanvas.style.cursor = scatterNodeAtEvent(e) ? 'pointer' : 'default'; return; }
+  const past = mapDownAt && Math.hypot(p.x - mapDownAt.x, p.y - mapDownAt.y) > MAP_DRAG_SLOP;
+  if (mapDragNode) {
+    if (!past) return;                         // ignore tremor so a click still selects
+    const w = screenToWorld(p.x, p.y);
+    mapDragNode.x = w.x; mapDragNode.y = w.y;
+    mapDragNode.vx = 0; mapDragNode.vy = 0;
+    if (!mapDragMoved) mapReheat();            // first real movement → wake neighbours
+    mapDragMoved = true;
+  } else if (mapPanning) {
+    if (!past) return;
+    mapCam.x = p.x - mapPanStart.x; mapCam.y = p.y - mapPanStart.y;
+    mapPanMoved = true;
+  } else {
+    mapCanvas.style.cursor = mapNodeAtEvent(e) ? 'pointer' : 'grab';
+  }
+});
+function endMapGesture(up) {
+  if (mapDragNode) {
+    mapDragNode.pinned = false;                // springs back to its cluster
+    if (mapDragMoved) mapReheat();             // a real drag re-settles the neighbours
+    const res = SparMap.tapResult(mapDownAt, up, mapDragNode.id, mapSelectedId, MAP_DRAG_SLOP);
+    if (mapView === 'cluster' && mapConnectMode && res.action !== 'drag') {
+      clusterConnectClick(mapDragNode.id); renderMapSide();   // +Connect eats the click instead of selecting
+    } else if (res.action !== 'drag') { mapSelectedId = res.selectedId; renderMapSide(); }
+    mapDragNode = null;
+  } else if (mapPanning) {
+    const res = SparMap.tapResult(mapDownAt, up, null, mapSelectedId, MAP_DRAG_SLOP);
+    if (res.action === 'clear') {   // click empty = back to the unselected state
+      mapSelectedId = null;
+      mapConnectFirst = null;
+      if (mapView === 'cluster' && mapClusterHi) { mapClusterHi = null; fitView(); }  // drop spotlight + zoom back out
+      renderMapSide();
+    }
+    mapPanning = false;
+    mapCanvas.style.cursor = 'grab';
+  }
+}
+// Scatter release = pure click-select (nearest dot), no drag/pan.
+function scatterUp(up) {
+  const res = SparMap.tapResult(mapDownAt, up, mapScatterDownHit ? mapScatterDownHit.id : null, mapSelectedId, MAP_DRAG_SLOP);
+  if (res.action !== 'drag') { mapSelectedId = res.selectedId; renderMapSide(); }
+  mapScatterDownHit = null;
+}
+mapCanvas.addEventListener('mouseup',   e => { if (mapView === 'scatter') scatterUp(mapPointer(e)); else endMapGesture(mapPointer(e)); mapDownAt = null; });
+mapCanvas.addEventListener('mouseleave', e => { if (mapView !== 'scatter') endMapGesture(mapPointer(e)); mapDownAt = null; });
+
+// Wheel = zoom toward the cursor (keep the world point under the pointer fixed). Graph only.
+mapCanvas.addEventListener('wheel', e => {
+  if (mapView === 'scatter') return;
+  e.preventDefault();
+  const p = mapPointer(e);
+  const w = screenToWorld(p.x, p.y);
+  const factor = Math.exp(-e.deltaY * 0.0015);
+  mapCam.scale = Math.max(0.2, Math.min(4, mapCam.scale * factor));
+  mapCam.x = p.x - w.x * mapCam.scale;
+  mapCam.y = p.y - w.y * mapCam.scale;
+}, { passive: false });
+
+document.getElementById('mapBtn').addEventListener('click', openMap);
+document.getElementById('mapClose').addEventListener('click', closeMap);
+document.getElementById('mapFit').addEventListener('click', fitView);
+document.getElementById('mapPrimary').addEventListener('change', mapRelayout);
+document.getElementById('mapSecondary').addEventListener('change', mapRelayout);
+document.getElementById('mapCluster').addEventListener('change', () => { mapClusterHi = null; clusterRelayout(); renderMapSide(); });
+document.getElementById('mapConnectBtn').addEventListener('click', () => {
+  mapConnectMode = !mapConnectMode; mapConnectFirst = null; styleConnectBtn();
+});
+document.getElementById('mapPoolOnly').addEventListener('change', () => { buildMapNodes(); mapRelayoutForView(); renderMapSide(); });
+document.querySelectorAll('.map-view-btn').forEach(b => b.addEventListener('click', () => setMapView(b.dataset.view)));
 
 // ── Render ────────────────────────────────────────────────────────────────────
 
