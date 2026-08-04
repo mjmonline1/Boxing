@@ -21,7 +21,9 @@ RingAssigner.md
 # Scripts
 resume.bat
 
-# Keep data and output files (needed for deployment)
+# Live tournament data — never commit (contains boxer PII, hotel bookings)
+data/
+output/
 
 # Generated artifacts
 coverage/
