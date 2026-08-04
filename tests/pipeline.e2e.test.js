@@ -54,9 +54,15 @@ function assertInvariants({ buckets, matches, unmatched, slots }, label) {
         .filter(([k]) => k !== 'Notfit')
         .reduce((n, [, v]) => n + v.length, 0);
 
-    // 1. nobody vanishes between bucketing and sparring
-    const matchedBoxers = matches.reduce((n, m) => n + (m.third ? 3 : 2), 0);
-    assert.equal(matchedBoxers + unmatched.length, nonNotfit,
+    // 1. nobody vanishes between bucketing and sparring — counts DISTINCT boxers, not bout
+    // appearances, since a sparsPerDay>1 boxer legitimately appears in multiple matches.
+    const matchedSet = new Set();
+    for (const m of matches) {
+        matchedSet.add(m.red);
+        matchedSet.add(m.blue);
+        if (m.third) matchedSet.add(m.third);
+    }
+    assert.equal(matchedSet.size + unmatched.length, nonNotfit,
         `${label}: matched+unmatched must equal bucketed fit boxers`);
 
     // 2. every match is within weight tolerance and same category
